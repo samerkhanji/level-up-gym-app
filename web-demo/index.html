@@ -42,10 +42,11 @@
           <div class="login-wrap">
             <div class="logo">GYM</div>
             <div class="tagline">Your gym in one app.</div>
-            <input class="input" placeholder="Email" value="samer@gym.app" readonly />
-            <input class="input" type="password" value="password" readonly />
+            <input class="input" id="loginName" placeholder="Full name" value="Samer Khanji" autocomplete="off" />
+            <input class="input" id="loginPassword" type="password" placeholder="Password" value="samer123" />
+            <div id="loginError" class="dim small center" style="color:#bb3a2a" hidden></div>
             <button class="accent-btn" id="loginBtn">Log in</button>
-            <div class="dim small center">Demo account — just tap Log in</div>
+            <div class="dim small center">Accounts come from the Member tab of the data sheet</div>
           </div>
         </section>
 

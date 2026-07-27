@@ -126,6 +126,7 @@ const branchInfo = { name: 'City Center', capacity: 120 };
 let lockersPool = null;   // [{number, zone, status}] — free lockers assigned at check-in
 let parkingSpots = null;  // [{spot, type, status}]
 let usersRoster = [];     // full member roster (backs the system; manager view reads it)
+let memberRows = [];      // Member tab rows — the login accounts (name + password)
 
 /* ================= state ================= */
 
@@ -210,6 +211,29 @@ let cart = {};
    to run on built-in mock data. */
 
 const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
+
+/* Seed the session identity + account state from a Member-tab row.
+   Used at boot (first row) and again whenever someone logs in. */
+function applyMemberSeed(M) {
+  if (M.name) state.memberName = M.name;
+  if (M.tier) state.tier = M.tier;
+  if (M.member_since) state.memberSince = M.member_since;
+  if (M.sub_plan) state.subPlan = M.sub_plan + (M.tier ? ' · ' + M.tier : '');
+  if (M.wallet) state.wallet = Number(M.wallet) || state.wallet;
+  if (M.points) state.points = Number(M.points) || state.points;
+  if (M.sub_ends) state.subEnds = M.sub_ends;
+  if (M.freeze_used) state.freezeDaysUsed = Number(M.freeze_used) || 0;
+  if (M.plate) state.parking.plate = M.plate;
+  if (M.spot) state.parking.spot = M.spot;
+  if (M.challenge_name) state.challenge.name = M.challenge_name;
+  if (M.challenge_done) state.challenge.done = Number(M.challenge_done) || 0;
+  if (M.challenge_target) state.challenge.target = Number(M.challenge_target) || 20;
+  if (M.challenge_reward) state.challenge.reward = M.challenge_reward;
+  if (M.assessment_last) state.assessment.last = M.assessment_last;
+  state.userStatus = (M.sub_status || 'active').toLowerCase();
+  state.frozen = state.userStatus === 'frozen';
+  state.challengeRewarded = state.challenge.done >= state.challenge.target;
+}
 
 function parseCSV(text) {
   const rows = [];
@@ -370,26 +394,11 @@ async function loadSheetData() {
       save();
     }
 
+    memberRows = T.Member;
+
     // ---- seed tabs: applied once per fresh state (Reset demo re-seeds) ----
     if (!state.sheetSeeded) {
-      const M = T.Member[0];
-      if (M) {
-        if (M.name) state.memberName = M.name;
-        if (M.tier) state.tier = M.tier;
-        if (M.member_since) state.memberSince = M.member_since;
-        if (M.sub_plan) state.subPlan = M.sub_plan + (M.tier ? ' · ' + M.tier : '');
-        if (M.wallet) state.wallet = Number(M.wallet) || state.wallet;
-        if (M.points) state.points = Number(M.points) || state.points;
-        if (M.sub_ends) state.subEnds = M.sub_ends;
-        if (M.freeze_used) state.freezeDaysUsed = Number(M.freeze_used) || 0;
-        if (M.plate) state.parking.plate = M.plate;
-        if (M.spot) state.parking.spot = M.spot;
-        if (M.challenge_name) state.challenge.name = M.challenge_name;
-        if (M.challenge_done) state.challenge.done = Number(M.challenge_done) || 0;
-        if (M.challenge_target) state.challenge.target = Number(M.challenge_target) || 20;
-        if (M.challenge_reward) state.challenge.reward = M.challenge_reward;
-        if (M.assessment_last) state.assessment.last = M.assessment_last;
-      }
+      if (T.Member[0]) applyMemberSeed(T.Member[0]);
       if (T.Visits.length) {
         state.visits = T.Visits.map((r, i) => ({
           id: i + 1, date: r.date || '—', inT: r.in || '', outT: r.out || '',
@@ -1083,6 +1092,21 @@ function openPass() {
   const ok = document.getElementById('passOk');
   const denied = document.getElementById('passDenied');
 
+  if (state.userStatus === 'expired' && !state.checkedIn) {
+    ok.hidden = true; denied.hidden = false;
+    document.getElementById('deniedReason').textContent =
+      'No active subscription. Renew at reception to enter the gym.';
+    const cta = document.getElementById('deniedCta');
+    cta.textContent = 'OK';
+    cta.onclick = () => show('home');
+    if (!state.problemLogged) {
+      state.problemLogged = true;
+      state.problems.push(`Entry denied — subscription expired · ${todayLabel()}`);
+      save();
+    }
+    return;
+  }
+
   if (state.frozen && !state.checkedIn) {
     ok.hidden = true; denied.hidden = false;
     document.getElementById('deniedReason').textContent =
@@ -1378,7 +1402,29 @@ document.getElementById('screen').addEventListener('click', (ev) => {
 
 /* ================= auth & boot ================= */
 
-document.getElementById('loginBtn').onclick = () => { state.loggedIn = true; save(); show('home'); };
+document.getElementById('loginBtn').onclick = () => {
+  const nameIn = (document.getElementById('loginName')?.value || '').trim().toLowerCase();
+  const passIn = (document.getElementById('loginPassword')?.value || '').trim();
+  const errEl = document.getElementById('loginError');
+  const fail = (msg) => { if (errEl) { errEl.textContent = msg; errEl.hidden = false; } };
+
+  if (!memberRows.length) {
+    // sheet not loaded (offline / still fetching) — allow the default demo identity
+    if (!nameIn || nameIn === 'samer khanji') { state.loggedIn = true; save(); show('home'); return; }
+    fail('Member data is still loading — try again in a moment.');
+    return;
+  }
+  const row = memberRows.find((m) => (m.name || '').trim().toLowerCase() === nameIn);
+  if (!row) { fail('No member with that name. Check the spelling.'); return; }
+  if ((row.password || '') !== passIn) { fail('Wrong password.'); return; }
+
+  if (errEl) errEl.hidden = true;
+  applyMemberSeed(row);
+  state.loggedIn = true;
+  save();
+  show('home');
+  toast(`Welcome, ${(row.name || '').split(' ')[0]}`);
+};
 document.getElementById('resetDemo').onclick = () => {
   localStorage.removeItem(KEY);
   state = load(); cart = {};
