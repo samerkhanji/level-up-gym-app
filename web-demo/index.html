@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<title>GYM — App Demo</title>
+<meta name="theme-color" content="#f3f4ef" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="GYM" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="icon.svg" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="stage">
+    <div class="demo-note">
+      <h1>GYM-APP · Full Member Experience</h1>
+      <p>Complete clickable prototype — every member-facing feature from the product
+      spec, mock data, no backend.</p>
+      <ul>
+        <li><b>Access</b> — dynamic QR, anti-passback, denial reasons, geofence checkout reminder</li>
+        <li><b>Train</b> — workout program &amp; PR log, trainers, classes, assessments, challenges</li>
+        <li><b>Gym</b> — locker control, guest passes, parking &amp; car wash, recovery bookings, equipment reports, SOS</li>
+        <li><b>Food</b> — café ordering, meal plan, supplement &amp; merch shop</li>
+        <li><b>Account</b> — wallet &amp; credits, loyalty points, family, referrals, invoices, privacy</li>
+      </ul>
+      <div class="side-controls">
+        <button class="ghost-btn" id="simLeave" hidden>Simulate: phone left the gym area</button>
+        <button class="ghost-btn" id="resetDemo">Reset demo</button>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen" id="screen">
+
+        <!-- LOGIN -->
+        <section class="view" id="view-login">
+          <div class="login-wrap">
+            <div class="logo">GYM</div>
+            <div class="tagline">Your gym in one app.</div>
+            <input class="input" placeholder="Email" value="samer@gym.app" readonly />
+            <input class="input" type="password" value="password" readonly />
+            <button class="accent-btn" id="loginBtn">Log in</button>
+            <div class="dim small center">Demo account — just tap Log in</div>
+          </div>
+        </section>
+
+        <!-- MAIN TABS: content rendered by app.js -->
+        <section class="view" id="view-home"><div id="c-home"></div></section>
+        <section class="view" id="view-train"><div id="c-train"></div></section>
+        <section class="view" id="view-gym"><div id="c-gym"></div></section>
+        <section class="view" id="view-food"><div id="c-food"></div></section>
+        <section class="view" id="view-account"><div id="c-account"></div></section>
+
+        <!-- SUB-VIEWS -->
+        <section class="view" id="view-notifications">
+          <header class="app-header">
+            <button class="back" data-back="home">‹</button>
+            <div class="greeting">Inbox</div><span></span>
+          </header>
+          <div id="c-notifs"></div>
+        </section>
+
+        <section class="view" id="view-visitdetail">
+          <header class="app-header">
+            <button class="back" data-back="gym">‹</button>
+            <div class="greeting" id="vdTitle">Visit</div><span></span>
+          </header>
+          <div id="c-visitdetail"></div>
+        </section>
+
+        <!-- ENTRY PASS -->
+        <section class="view" id="view-pass">
+          <div class="pass-wrap" id="passOk">
+            <div class="identity">
+              <div class="avatar">S</div>
+              <div>
+                <div class="member-name">Samer Khanji</div>
+                <div class="purpose" id="passPurpose">Scan to ENTER</div>
+              </div>
+            </div>
+            <div class="qr-box"><canvas id="qrCanvas" width="220" height="220"></canvas></div>
+            <div class="refresh">
+              <div class="bar"><div class="fill" id="qrBar"></div></div>
+              <div class="dim small" id="qrSecs">refreshes in 25s</div>
+            </div>
+            <button class="accent-btn" id="gateBtn">Simulate gate scan</button>
+            <button class="ghost-btn" id="closePass">Close</button>
+          </div>
+          <div class="pass-wrap denied" id="passDenied" hidden>
+            <div class="big">⛔</div>
+            <div class="denied-title">Entry not available</div>
+            <div class="denied-body" id="deniedReason"></div>
+            <button class="accent-btn" id="deniedCta"></button>
+            <button class="ghost-btn" id="closePassDenied">Close</button>
+          </div>
+          <div class="faceid" id="faceid"><div class="faceid-ring"></div><div class="light">Face ID</div></div>
+          <div class="gate-result" id="gateResult" hidden></div>
+        </section>
+
+        <!-- TAB BAR -->
+        <nav class="tabbar" id="tabbar">
+          <button class="tab active" data-view="home">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+            Home</button>
+          <button class="tab" data-view="train">
+            <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>
+            Train</button>
+          <button class="tab" data-view="gym">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>
+            Gym</button>
+          <button class="tab" data-view="food">
+            <svg viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M9 8c0-2 1.5-2 1.5-4M13.5 8c0-2 1.5-2 1.5-4"/></svg>
+            Food</button>
+          <button class="tab" data-view="account">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.5-3.5 4-5 7.5-5s6 1.5 7.5 5"/></svg>
+            Account</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+<script src="app.js"></script>
+</body>
+</html>
