@@ -592,6 +592,21 @@ function renderHome() {
   state.recoveryBookings.forEach((r) => upcoming.push({ ic: 'leaf', t: r.name, s: `Recovery · $${r.price} wallet`, w: r.when }));
   if (state.assessment.next) upcoming.push({ ic: 'clipboard', t: 'Fitness assessment', s: 'InBody + movement screen', w: state.assessment.next });
 
+  /* prioritized home: one Next item, everything urgent in one Attention card */
+  const next = upcoming[0] || null;
+  const rest = upcoming.slice(1);
+  const attention = [];
+  const endsMs = Date.parse(state.subEnds);
+  const expDays = isNaN(endsMs) ? null : Math.round((endsMs - Date.now()) / 86400000);
+  if (state.frozen) attention.push({ t: 'Membership frozen', s: 'Unfreeze in Account to enter the gym', act: 'goto-account' });
+  else if (expDays != null && expDays < 45) attention.push({ t: expDays <= 0 ? 'Membership expired' : `Membership expires in ${expDays} days`, s: 'Tap to request renewal — pay at the desk', act: 'renew-request' });
+  const pkgLeftH = state.pkgTotal - state.pkgUsed;
+  if (pkgLeftH <= 2) attention.push({ t: `PT package: ${pkgLeftH} session${pkgLeftH === 1 ? '' : 's'} remaining`, s: 'Renew the 10-pack with Karim or at reception', act: 'goto-train' });
+  if (state.pendingPt) attention.push({ t: 'Confirm your training session', s: 'Nothing is deducted until you confirm — Train → Trainers', act: 'goto-train' });
+  const openRep = state.reports.find((r) => r.status && r.status !== 'Repaired' && r.status !== 'Fixed');
+  if (openRep) attention.push({ t: `${openRep.ref || 'Report'} — ${openRep.status}`, s: openRep.machine, act: 'goto-gym' });
+  if (state.lastResolved && !state.lastResolved.rated) attention.push({ t: `${state.lastResolved.tkt} resolved — how did we do?`, s: 'Rate it in the Gym tab', act: 'goto-gym' });
+
   document.getElementById('c-home').innerHTML = `
     <header class="app-header">
       <div class="who">
@@ -625,16 +640,12 @@ function renderHome() {
 
     ${entry}
 
-    <div class="duo">
-      <button class="mini-card" data-action="goto-account">
-        <div class="mini-top">${icon('wallet', 17)}<span>Wallet</span></div>
-        <div class="mini-value">$${state.wallet}</div>
-      </button>
-      <button class="mini-card" data-action="goto-account">
-        <div class="mini-top">${icon('star', 17)}<span>Points</span></div>
-        <div class="mini-value">${state.points}</div>
-      </button>
-    </div>
+    ${next ? `
+    <button class="card" data-action="goto-train" style="width:100%; text-align:left; display:block;">
+      <div class="row">${eyebrow(next.ic, 'Next')}<span class="dim small">${next.w}</span></div>
+      <div style="font-weight:800; font-size:16px; font-family:var(--display,inherit);">${next.t}</div>
+      <div class="dim small">${next.s}</div>
+    </button>` : ''}
 
     <div class="card">
       ${eyebrow('clock', 'Gym right now')}
@@ -662,10 +673,31 @@ function renderHome() {
         <div class="dim small">${state.order.status}</div>
       </div>` : ''}
 
-    ${upcoming.length ? `
+    ${attention.length ? `
+      <div class="card" style="border-left:4px solid var(--amber);">
+        ${eyebrow('alert', 'Needs your attention')}
+        ${attention.map((a) => `
+          <button class="li" data-action="${a.act}" style="width:100%; text-align:left; background:none; border:none; padding:8px 0; cursor:pointer;">
+            <div class="li-ic">${icon('alert', 17)}</div>
+            <div class="li-body"><b>${a.t}</b><div class="dim small">${a.s}</div></div>
+          </button>`).join('')}
+      </div>` : ''}
+
+    <div class="duo">
+      <button class="mini-card" data-action="goto-account">
+        <div class="mini-top">${icon('wallet', 17)}<span>Wallet</span></div>
+        <div class="mini-value">$${state.wallet}</div>
+      </button>
+      <button class="mini-card" data-action="goto-account">
+        <div class="mini-top">${icon('star', 17)}<span>Points</span></div>
+        <div class="mini-value">${state.points}</div>
+      </button>
+    </div>
+
+    ${rest.length ? `
       <div class="card">
-        ${eyebrow('calendar', 'Upcoming')}
-        ${upcoming.map((u) => `
+        ${eyebrow('calendar', 'Also coming up')}
+        ${rest.map((u) => `
           <div class="li">
             <div class="li-ic">${icon(u.ic, 17)}</div>
             <div class="li-body"><b>${u.t}</b><div class="dim small">${u.s}</div></div>
@@ -685,17 +717,6 @@ function renderHome() {
         ${eyebrow('bell', 'Gym announcement')}
         <div style="font-size:14.5px;">${CONFIG.announcement}</div>
       </div>` : ''}
-
-    ${(() => {
-      const ends = Date.parse(state.subEnds);
-      const days = isNaN(ends) ? 999 : Math.round((ends - Date.now()) / 86400000);
-      return days < 45 ? `
-        <div class="card" style="border-left:4px solid var(--amber);">
-          ${eyebrow('receipt', 'Membership expiring')}
-          <div class="row"><span>${days <= 0 ? 'Expired' : days + ' days left'} · ${state.subEnds}</span>
-            <button class="book-btn" data-action="goto-account">Renew</button></div>
-        </div>` : '';
-    })()}
 
     <div class="quick-grid">
       <button class="quick" data-action="goto-gym">${icon('locker', 20)}<b>Locker</b><span>${state.locker ? `${state.locker.locked ? 'Locked' : 'Open'} · #${state.locker.number}` : 'Assigned at check-in'}</span></button>
@@ -844,6 +865,10 @@ function renderGym() {
         </button>
       </div>
       <div class="dim small">Assigned when you checked in — released automatically at checkout.</div>
+      <div class="btn-row">
+        <button class="book-btn" data-action="locker-help">Staff open (logged)</button>
+        <button class="book-btn warn" data-action="locker-report">Report a problem</button>
+      </div>
     </div>` : `
     <div class="card">
       ${eyebrow('locker', 'My locker')}
@@ -854,12 +879,14 @@ function renderGym() {
     <div class="card">
       ${eyebrow('guest', 'Guest pass')}
       ${g ? `
-        <b>${g.name}</b>
-        <div class="dim small">One visit · expires ${g.expires} · linked to your account</div>
+        <div class="row"><b>${g.name}</b><span class="chip ${g.status === 'used' ? 'chip-ok' : 'chip-warn'}">${g.status === 'used' ? 'Visited ✓' : 'Invited — not visited yet'}</span></div>
+        <div class="dim small">${g.phone ? g.phone + ' · ' : ''}${g.date || 'Any day'} · one visit · expires ${g.expires} · waiver signed at the desk · logged under your account</div>
         <div class="guest-code">${g.code}</div>
-        <button class="book-btn warn wide" data-action="cancel-guest">Cancel pass</button>`
+        ${g.status === 'used'
+          ? `<button class="book-btn wide" data-action="cancel-guest">Done — clear pass</button>`
+          : `<button class="book-btn warn wide" data-action="cancel-guest">Cancel invitation</button>`}`
       : `
-        <div class="dim small">Invite a friend for one visit. The pass works once, expires in 48 h, and their entry is logged under your account.</div>
+        <div class="dim small">Invite a friend for one visit. Reception is told who to expect; your guest signs the waiver at the desk. The pass works once and expires in 48 h.</div>
         <button class="book-btn wide" data-action="create-guest">Create guest pass · $${PRICES.guest_pass} wallet</button>`}
     </div>
 
@@ -896,6 +923,16 @@ function renderGym() {
         <div class="divider"></div>
         ${state.reports.map((r) => `<div class="row"><div><b>${r.machine}</b><div class="dim small">${r.ref ? r.ref + ' · ' : ''}${r.issue} · ${r.when}</div></div><span class="chip ${r.status === 'Repaired' || r.status === 'Fixed' ? 'chip-ok' : 'chip-warn'}">${r.status}</span></div>`).join('')}` : ''}
     </div>
+
+    ${state.lastResolved ? `
+    <div class="card">
+      ${eyebrow('check', 'Ticket ' + state.lastResolved.tkt + ' resolved')}
+      ${state.lastResolved.rated
+        ? `<div class="done-line">${icon('check', 17)} Thanks — you rated it ${'★'.repeat(state.lastResolved.rated)}</div>`
+        : `<div class="dim small">How did we handle it?</div>
+           <div class="btn-row">${[1, 2, 3, 4, 5].map((n) => `<button class="book-btn" data-action="rate-ticket" data-n="${n}">${'★'.repeat(n)}</button>`).join('')}</div>`}
+      <button class="book-btn warn wide" data-action="reopen-ticket">Not fixed — reopen</button>
+    </div>` : ''}
 
     <div class="card sos-card">
       ${eyebrow('alert', 'Need help?')}
@@ -1112,13 +1149,21 @@ function renderAccount() {
       <div class="row"><span class="dim">Status</span><b class="${state.frozen ? 'warn' : 'ok'}">${state.frozen ? 'frozen' : 'active'}</b></div>
       <div class="row"><span class="dim">Valid until</span><b>${state.subEnds}</b></div>
       <div class="row"><span class="dim">Freeze days used</span><b>${state.freezeDaysUsed} / ${CONFIG.freeze_days_per_year}</b></div>
+      <div class="row"><span class="dim">Renewal amount</span><b>$480 · 6 months</b></div>
+      <div class="row"><span class="dim">Included</span><b class="small">Gym · classes · 1 assessment/quarter</b></div>
       <div class="row"><span class="dim">Auto-renew</span>
         <button class="switch ${state.autoRenew ? 'on' : ''}" data-action="auto-renew" role="switch" aria-checked="${state.autoRenew}"><span></span></button></div>
+      ${state.pendingPlanChange ? `<div class="done-line">${icon('clock', 17)} ${state.pendingPlanChange} — reception will confirm</div>` : ''}
       <div class="btn-row">
         <button class="book-btn" data-action="renew-sub">Renew +6 months</button>
         <button class="book-btn ${state.frozen ? '' : 'warn'}" data-action="freeze">${state.frozen ? 'Unfreeze now' : 'Freeze 7 days'}</button>
       </div>
       <button class="book-btn wide" data-action="renew-request">Request renewal at reception (pay at desk)</button>
+      <div class="btn-row">
+        <button class="book-btn" data-action="upgrade-request" ${state.pendingPlanChange ? 'disabled' : ''}>Request upgrade</button>
+        <button class="book-btn warn" data-action="cancel-request" ${state.pendingPlanChange ? 'disabled' : ''}>Request cancellation</button>
+      </div>
+      <div class="dim small">Freeze up to ${CONFIG.freeze_days_per_year} days/year · cancellation needs 30 days notice · plan changes start next cycle and are confirmed by reception — nothing changes until they do.</div>
     </div>
 
     ${plansCatalog.length ? `
@@ -1493,7 +1538,12 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'class') {
     const id = el.dataset.c, act = el.dataset.a;
-    if (act === 'book') { state.classState[id] = 'booked'; earnPoints(POINTS.class, 'class reserved'); }
+    if (act === 'book') {
+      const c = classes.find((x) => x.id === id);
+      const bt = state.booking && state.booking.when && c && c.when && (state.booking.when.match(/\d+:\d+ [AP]M/) || [])[0];
+      if (bt && c.when.includes(bt)) { toast(`Clashes with your PT session (${state.booking.when}) — pick another class`); return; }
+      state.classState[id] = 'booked'; earnPoints(POINTS.class, 'class reserved');
+    }
     if (act === 'waitlist') { state.classState[id] = 'waitlist'; toast("On the waitlist — we'll notify you"); }
     if (act === 'cancel') { delete state.classState[id]; toast('Booking cancelled'); }
     save(); renderTrain();
@@ -1506,13 +1556,65 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     toast(state.locker.locked ? `Locker ${state.locker.number} locked` : `Locker ${state.locker.number} open`);
   }
   if (a === 'create-guest') {
+    const gname = prompt("Guest's full name (reception checks ID against this):", '');
+    if (!gname) return;
+    const gphone = prompt("Guest's phone:", '03 ');
+    if (gphone == null) return;
     if (!payWallet(PRICES.guest_pass, 'Guest pass')) return;
-    state.guestPass = { name: 'Guest of ' + (state.memberName || 'member').split(' ')[0], code: 'GST-' + String(Date.now()).slice(-6), expires: 'in 48 h' };
+    const gcode = 'GST-' + String(Date.now()).slice(-6);
+    state.guestPass = { name: gname, phone: gphone, code: gcode, date: 'Tomorrow', expires: 'in 48 h', status: 'invited' };
+    GymBus.send('ticket', { tkt: gcode, member: state.memberName, subject: `Expected guest — ${gname} (${gphone}) · one visit · check ID + waiver at desk` }, 'member-app');
     save(); renderGym();
-    pushNotif('Guest pass created', 'Share the code from the Gym tab — valid for one visit, expires in 48 hours.');
+    pushNotif('Guest invited', `${gname} — code ${gcode}. Reception is expecting them; waiver is signed at the desk.`);
     toast(`Guest pass created · $${PRICES.guest_pass} wallet`);
   }
-  if (a === 'cancel-guest') { state.guestPass = null; save(); renderGym(); toast('Guest pass cancelled'); }
+  if (a === 'cancel-guest') {
+    const wasUsed = state.guestPass && state.guestPass.status === 'used';
+    state.guestPass = null; save(); renderGym();
+    toast(wasUsed ? 'Pass archived' : 'Invitation cancelled — reception notified');
+  }
+  if (a === 'locker-help') {
+    if (!state.locker) return;
+    GymBus.send('ticket', { tkt: 'TKT-' + String(Date.now()).slice(-5), member: state.memberName, subject: `Manual locker open — #${state.locker.number} (${state.locker.zone || 'Changing room A'}) · identity check required, opening is logged` }, 'member-app');
+    pushNotif('Staff on the way', `Locker #${state.locker.number} — staff verify it's yours before opening. Every manual opening is logged.`);
+    toast('Reception notified — staff coming to your locker');
+  }
+  if (a === 'locker-report') {
+    if (!state.locker) return;
+    const ref = 'REP-' + String(Date.now()).slice(-4);
+    const busId = GymBus.send('report', { ref, machine: `Locker #${state.locker.number}`, issue: 'Lock not responding', member: state.memberName }, 'member-app');
+    state.reports.unshift({ ref, machine: `Locker #${state.locker.number}`, issue: 'Lock not responding', when: 'Just now', status: 'Submitted', busId });
+    save(); renderGym();
+    toast(ref + ' sent — maintenance notified');
+  }
+  if (a === 'upgrade-request') {
+    GymBus.send('renewal', { member: state.memberName, plan: 'Upgrade → 12-Month · Performance · $720/year (from next cycle)', price: 720 }, 'member-app');
+    state.pendingPlanChange = 'Upgrade to 12-Month requested';
+    save(); renderAccount();
+    pushNotif('Upgrade requested', 'Reception prepares the 12-Month plan — pay at the desk. Your current plan runs until they confirm.');
+    toast('Upgrade request sent to reception');
+  }
+  if (a === 'cancel-request') {
+    GymBus.send('ticket', { tkt: 'TKT-' + String(Date.now()).slice(-5), member: state.memberName, subject: 'Cancellation request — 30-day notice · please contact me about freeze/downgrade options first' }, 'member-app');
+    state.pendingPlanChange = 'Cancellation requested (30-day notice)';
+    save(); renderAccount();
+    pushNotif('Cancellation requested', 'Nothing changes yet — reception will contact you to confirm, and may offer a freeze or downgrade instead.');
+    toast('Request sent — reception will contact you');
+  }
+  if (a === 'rate-ticket') {
+    if (!state.lastResolved) return;
+    state.lastResolved.rated = Number(el.dataset.n);
+    save(); renderGym();
+    toast('Thanks for the feedback' + (state.lastResolved.rated >= 4 ? ' 💚' : " — we'll do better"));
+  }
+  if (a === 'reopen-ticket') {
+    if (!state.lastResolved) return;
+    const old = state.lastResolved.tkt;
+    GymBus.send('ticket', { tkt: 'TKT-' + String(Date.now()).slice(-5), member: state.memberName, subject: `Reopened ${old} — issue not actually fixed` }, 'member-app');
+    state.lastResolved = null;
+    save(); renderGym();
+    pushNotif('Ticket reopened', `${old} is back with reception as a new ticket — sorry about that.`);
+  }
   if (a === 'car-wash') {
     if (!state.checkedIn) return;
     if (!payWallet(PRICES.car_wash, 'Car wash')) return;
@@ -1975,8 +2077,18 @@ function handleBus(kind, ev) {
     rerenderActive();
   }
   if (ev.type === 'ticket' && ev.status === 'resolved') {
-    pushNotif(ev.payload.tkt + ' resolved', `By ${last.by}${last.note ? ' — "' + last.note + '"' : ''}.`);
+    if (String(ev.payload.tkt).startsWith('GST-') && state.guestPass && state.guestPass.code === ev.payload.tkt) {
+      state.guestPass.status = 'used'; save();
+      pushNotif('Your guest checked in', `${state.guestPass.name} arrived — waiver signed, entry logged under your account. The pass is now used.`);
+      toast(state.guestPass.name + ' is in the gym');
+      rerenderActive();
+      return;
+    }
+    if ((ev.payload.subject || '').includes('Cancellation')) { state.pendingPlanChange = null; save(); }
+    state.lastResolved = { tkt: ev.payload.tkt, rated: 0 }; save();
+    pushNotif(ev.payload.tkt + ' resolved', `By ${last.by}${last.note ? ' — "' + last.note + '"' : ''}. Rate it or reopen from the Gym tab.`);
     toast('Ticket resolved by ' + last.by);
+    rerenderActive();
   }
   if (ev.type === 'renewal' && ev.status === 'done') {
     if (GymBus.isProcessed(ev.id + ':done', 'member')) return;
@@ -1988,8 +2100,15 @@ function handleBus(kind, ev) {
     } else {
       state.subEnds = last.note || state.subEnds;
       state.userStatus = 'active'; state.frozen = false;
-      state.invoices.unshift({ label: 'Renewal (paid at desk)', date: 'Today', amount: ev.payload.price || 95 });
-      pushNotif('Membership renewed', `Processed by ${last.by} — valid until ${state.subEnds}.`);
+      state.pendingPlanChange = null;
+      if ((ev.payload.plan || '').toLowerCase().includes('upgrade')) {
+        state.subPlan = '12-Month · Performance';
+        state.invoices.unshift({ label: 'Plan upgrade — 12-Month', date: 'Today', amount: ev.payload.price || 720 });
+        pushNotif('Plan upgraded', `Processed by ${last.by} — you're on 12-Month · Performance, valid until ${state.subEnds}.`);
+      } else {
+        state.invoices.unshift({ label: 'Renewal (paid at desk)', date: 'Today', amount: ev.payload.price || 95 });
+        pushNotif('Membership renewed', `Processed by ${last.by} — valid until ${state.subEnds}.`);
+      }
     }
     save();
     rerenderActive();
