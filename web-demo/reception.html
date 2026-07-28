@@ -43,6 +43,11 @@
   .offline-banner { display:none; background:var(--red-soft); border:1.5px solid var(--red-line); color:var(--red-ink); border-radius:14px; padding:11px 16px; font-weight:700; font-size:13px; margin-bottom:12px; }
   .offline-banner.show { display:flex; justify-content:space-between; align-items:center; }
 
+  .qa { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
+  .qa button { background:var(--card); border-radius:12px; padding:9px 13px; font-weight:700; font-size:12px; color:var(--deep); box-shadow:0 4px 12px rgba(23,33,28,.05); }
+  .qa button.dark { background:var(--deep); color:#fff; }
+  .qa button.warn { background:var(--amber-soft); color:var(--amber); }
+
   .grid { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; align-items:start; }
   @media (max-width:980px) { .grid { grid-template-columns:1fr; } }
   .card { background:var(--card); border-radius:18px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
@@ -168,6 +173,19 @@
     <a href="staff.html">All departments →</a>
   </div>
 
+  <div class="qa">
+    <button class="dark" data-qa="scan">Scan member</button>
+    <button data-qa="register">+ Register member</button>
+    <button data-qa="renew">Renew</button>
+    <button data-qa="pay">Take payment</button>
+    <button data-qa="daypass">Day pass</button>
+    <button data-qa="guest">Guest pass</button>
+    <button data-qa="mentry">Manual entry</button>
+    <button data-qa="mexit">Manual exit</button>
+    <button data-qa="book">Book a class</button>
+    <button class="warn" data-qa="mgr">Contact manager</button>
+  </div>
+
   <div class="offline-banner" id="offlineBanner">
     <span>⚠ OFFLINE MODE — gate in manual entry. Everything you record syncs when the connection returns.</span>
     <button class="tb-btn tb-light" data-open="system">System status</button>
@@ -241,7 +259,18 @@ async function tab(n){const r=await fetch(`https://docs.google.com/spreadsheets/
 
 /* ---------- state ---------- */
 const CAPACITY = 120, GUEST_LIMIT = 3;
-let members=[], classes=[], trainers=[], lockers=[], family=[];
+/* fallback data — the screen renders instantly and never looks empty,
+   then hydrates from the sheet when it arrives */
+const FALLBACK_USERS=[
+  {name:'Samer Khanji',phone:'03 123456',tier:'Performance',status:'active',plan:'6-Month',joined:'Mar 2026'},
+  {name:'Jawad',phone:'03 234567',tier:'Performance',status:'active',plan:'6-Month',joined:'Mar 2026'},
+  {name:'Mohamad',phone:'70 345678',tier:'Performance',status:'active',plan:'6-Month',joined:'Jun 2026'},
+  {name:'Pamela <3',phone:'71 456789',tier:'Performance',status:'active',plan:'6-Month',joined:'May 2026'},
+  {name:'Hassan M.',phone:'76 567890',tier:'Access',status:'active',plan:'Monthly',joined:'Jun 2026'},
+  {name:'Elie G.',phone:'03 678901',tier:'Access',status:'frozen',plan:'Monthly',joined:'Apr 2026'},
+  {name:'Walid R.',phone:'81 789012',tier:'Access',status:'expired',plan:'Monthly',joined:'Jan 2026'},
+  {name:'Maya F.',phone:'03 890123',tier:'Elite',status:'active',plan:'Annual',joined:'Dec 2025'}];
+let members=[], classes=[{name:'HIIT Burn',when:'Today · 7:00 PM',instructor:'Tony A.',spots:'4'},{name:'Reformer Pilates',when:'Tomorrow · 9:00 AM',instructor:'Rita S.',spots:'0'}], trainers=[{name:'Karim H.',specialty:'Strength',availability:'available'},{name:'Maya R.',specialty:'Mobility',availability:'busy'}], lockers=[], family=[];
 let inside={};              // name -> entry ts
 let entriesToday=141, exitsToday=118, denialsToday=0, guestsToday=4, renewalsToday=2;
 let feed=[], tasks=[], txs=[
@@ -252,8 +281,20 @@ let feed=[], tasks=[], txs=[
 ];
 let incidents=[]; let shift={in:'2:00 PM', startCash:100, note:''};
 let offline=false; let filter='all'; let guestVisits={'Rami B.':3};
-const sys={Gate:'ok','QR scanner':'ok','Door controller':'ok',Internet:'ok','Payment terminal':'ok',Printer:'warn'};
+const sys={'Entrance gate':'ok','Exit gate':'ok','QR scanner':'ok','Door controller':'ok',Internet:'ok','App server':'ok','Payment terminal':'ok','CCTV / access camera':'ok',Printer:'warn'};
 let lastSync=Date.now();
+const bannedGuests=['R. Karam'];
+/* denial taxonomy → structured resolutions (override is the LAST resort) */
+const DENIALS={
+  expired:{reason:m=>'Membership expired'+(m.expiry?' — '+m.expiry:''),fix:['pay','renew','daypass']},
+  frozen:{reason:()=>'Account frozen at member request',fix:['unfreeze','daypass']},
+  invalidqr:{reason:()=>'Invalid QR — identity mismatch',fix:['resetqr']},
+  dup:{reason:()=>'Duplicate scan — entered 4 min ago (anti-passback)',fix:['dup']},
+  waiver:{reason:()=>'Waiver not signed',fix:['waiver']},
+  suspended:{reason:()=>'Account suspended — see manager',fix:['mgr','contact']},
+  gate:{reason:()=>'Gate malfunction — scanner not responding',fix:['gatefix']},
+};
+const FIX_LABELS={pay:'Collect balance',renew:'Renew membership',daypass:'Sell day pass · $15',unfreeze:'Remove freeze',resetqr:'Verify ID & reset QR',dup:'Review recent entry',waiver:'Sign waiver now',gatefix:'Controlled manual entry',once:'One-time access',mgr:'Manager approval',contact:'Contact member',retry:'Retry gate'};
 
 const $=id=>document.getElementById(id);
 const now=()=>new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
@@ -305,20 +346,32 @@ function renderFeed(){
         ${e.kind==='deny'?`<button class="hot" data-assist="${e.name}">Assist</button><button data-retry="${i}">Retry scan</button><button data-mgr="${e.name}">Call manager</button>`:''}
       </div></div>`;}).join('')||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">No events for this filter.</div>';
   $('feed').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.view,false));
-  $('feed').querySelectorAll('[data-assist]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.assist,true));
+  $('feed').querySelectorAll('[data-assist]').forEach(b=>{
+    const ev=feed.find(e=>e.name===b.dataset.assist&&e.kind==='deny');
+    b.onclick=()=>openDrawer(b.dataset.assist,true,ev?.dtype);
+  });
   $('feed').querySelectorAll('[data-retry]').forEach(b=>b.onclick=()=>{toast('Gate asked to rescan — waiting…');setTimeout(()=>toast('Same result — use Assist to resolve'),1500);});
   $('feed').querySelectorAll('[data-mgr]').forEach(b=>b.onclick=()=>{toast('Manager paged about '+b.dataset.mgr);addTask({t:'Manager approval — '+b.dataset.mgr,s:'Paged '+now(),urg:'warn',kind:'mgr',name:b.dataset.mgr});});
 }
 $('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;
   $('filters').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderFeed();});
 
+function denyEvent(u,dtype){
+  denialsToday++;$('sDeny').textContent=denialsToday;
+  const d=DENIALS[dtype]||DENIALS.expired;
+  pushEvent({name:u.name,kind:'deny',dtype,reason:'Denied: '+d.reason(u)+(dtype==='expired'&&u.balance?' · $'+u.balance+' due':'')});
+  addTask({t:'Denied at gate — '+u.name,s:d.reason(u),urg:'urgent',kind:'deny',name:u.name,dtype});
+}
 function simulate(){
   if(offline)return;
   const act=members.filter(u=>u.status==='active'), blk=members.filter(u=>u.status!=='active');
   const r=Math.random();
-  if(r<.15&&blk.length){const u=blk[Math.floor(Math.random()*blk.length)];denialsToday++;$('sDeny').textContent=denialsToday;
-    pushEvent({name:u.name,kind:'deny',reason:'Denial: membership '+u.status+(u.balance?' · $'+u.balance+' due':'')});
-    addTask({t:'Denied at gate — '+u.name,s:'Waiting '+now()+' · membership '+u.status,urg:'urgent',kind:'deny',name:u.name});}
+  if(r<.15){
+    if(Math.random()<.5&&blk.length){const u=blk[Math.floor(Math.random()*blk.length)];
+      denyEvent(u,u.status==='frozen'?'frozen':'expired');}
+    else if(act.length){const u=act[Math.floor(Math.random()*act.length)];
+      const t=['invalidqr','dup','waiver','suspended','gate'][Math.floor(Math.random()*5)];
+      denyEvent(u,t);}}
   else if(r<.6&&act.length){const u=act[Math.floor(Math.random()*act.length)];
     if(!inside[u.name]){inside[u.name]=Date.now();entriesToday++;pushEvent({name:u.name,kind:'ok'});}}
   else{const names=Object.keys(inside);if(names.length>4){const n=names[Math.floor(Math.random()*names.length)];
@@ -339,7 +392,7 @@ function renderTasks(){
     ||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">Queue clear. 🎉</div>';
   $('tasks').querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
     const t=tasks[Number(b.dataset.task)];
-    if(t.kind==='deny'&&t.name){openDrawer(t.name,true);}
+    if(t.kind==='deny'&&t.name){openDrawer(t.name,true,t.dtype);}
     else if(t.kind==='mgr'){tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Manager approved — one-time access granted');}
     else{tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Task resolved · logged');}});
 }
@@ -347,9 +400,10 @@ function resolveTasksFor(name){ tasks=tasks.filter(t=>t.name!==name); renderTask
 
 /* ---------- member drawer ---------- */
 let drawerMember=null;
-function openDrawer(name,assist){
+function openDrawer(name,assist,dtype){
   const m=members.find(x=>x.name===name); if(!m)return;
   drawerMember=m;
+  drawerMember._dtype=dtype||(m.status!=='active'?(m.status==='frozen'?'frozen':'expired'):null);
   const isIn=!!inside[m.name];
   const st=m.status==='active'?`<span class="chip c-ok">Active · ${m.expiry}</span>`
     :m.status==='frozen'?`<span class="chip c-warn">Frozen · asked while travelling</span>`
@@ -363,16 +417,12 @@ function openDrawer(name,assist){
       ${m.balance?`<span class="chip c-bad">$${m.balance} due</span>`:'<span class="chip c-ok">No balance</span>'}
       ${m.waiver?'<span class="chip c-ok">Waiver signed</span>':'<span class="chip c-bad">Waiver missing</span>'}
       <span class="chip ${isIn?'c-ok':'c-grey'}">${isIn?'INSIDE now':'Outside'}</span></div>
-    ${assist?`<div class="resolve"><h4>Resolve denial — pick the fix</h4><div class="r-grid">
-      ${m.balance?'<button class="main" data-r="pay">Collect $'+m.balance+'</button>':''}
-      ${m.status==='expired'?'<button class="main" data-r="renew">Renew membership</button>':''}
-      ${m.status==='frozen'?'<button class="main" data-r="unfreeze">Remove freeze</button>':''}
-      ${!m.waiver?'<button data-r="waiver">Sign waiver</button>':''}
-      <button data-r="daypass">Sell day pass · $15</button>
-      <button data-r="once">One-time access</button>
-      <button data-r="mgr">Manager approval</button>
-      <button data-r="contact">Contact member</button>
-      <button data-r="retry">Retry gate</button></div></div>`:''}
+    ${assist?(()=>{
+      const d=DENIALS[drawerMember._dtype]||DENIALS.expired;
+      const fixes=[...d.fix,'once','mgr','contact','retry'];
+      return `<div class="resolve"><h4>${d.reason(m)} — structured fixes first</h4><div class="r-grid">
+        ${fixes.map((f,i)=>`<button ${i===0?'class="main"':''} data-r="${f}">${f==='pay'?'Collect $'+(m.balance||95):FIX_LABELS[f]}</button>`).join('')}
+      </div></div>`;})():''}
     <div class="d-sec"><div class="eyebrow">Account</div>
       <div class="d-row"><span>Plan</span><b>${m.plan} · ${m.tier}</b></div>
       <div class="d-row"><span>Balance</span><b class="${m.balance?'due':''}">${m.balance?'$'+m.balance+' overdue':'$0'}</b></div>
@@ -389,6 +439,11 @@ function openDrawer(name,assist){
       <div class="d-actions">
         <button class="main" data-r="${isIn?'mexit':'mentry'}">${isIn?'Manual exit':'Manual entry'}</button>
         <button data-r="pos">Take payment</button>
+        <button data-r="renew">Renew</button>
+        <button data-r="upgrade">Upgrade plan</button>
+        <button data-r="${m.status==='frozen'?'unfreeze':'freeze'}">${m.status==='frozen'?'Unfreeze':'Freeze'}</button>
+        <button data-r="resetqr">Reset QR</button>
+        <button data-r="notify">Send app message</button>
         <button data-r="device">Replace device</button>
         <button data-r="note">Add staff note</button></div></div>`;
   $('dClose').onclick=closeDrawer;
@@ -432,6 +487,24 @@ function resolveAction(kind){
   else if(kind==='mexit')reasonModal('Manual exit — '+m.name,'Records the exit',(r,n)=>{
     delete inside[m.name];exitsToday++;pushEvent({name:m.name,kind:'out',reason:'Manual exit — '+r});renderOcc();openDrawer(m.name,false);toast('Manual exit logged');});
   else if(kind==='device')reasonModal('Replace device — '+m.name,'Old phone stops being the key',(r,n)=>{toast('Device replaced · old key dead');});
+  else if(kind==='resetqr')reasonModal('Verify ID & reset QR — '+m.name,'Checks photo ID, then issues a fresh QR credential',(r,n)=>{
+    toast('Identity verified · new QR pushed to '+m.name+"'s app");afterFix(m,'QR reset · member can rescan');});
+  else if(kind==='dup'){toast('Last entry: '+m.lastEntry+' · reviewing CCTV frame…');
+    setTimeout(()=>reasonModal('Duplicate scan — '+m.name,'If legitimate (re-entry), grant one-time access',(r,n)=>{grantEntry(m,'anti-passback reviewed: '+r);},true),900);}
+  else if(kind==='gatefix')reasonModal('Controlled manual entry — '+m.name,'Gate malfunction: identity verified at desk',(r,n)=>{
+    grantEntry(m,'gate malfunction — controlled entry');
+    sys['QR scanner']='warn';addTask({t:'Gate scanner error',s:'Malfunction during scan · maintenance paged',urg:'urgent',kind:'system'});});
+  else if(kind==='freeze')reasonModal('Freeze membership — '+m.name,'Pauses access until unfrozen',(r,n)=>{
+    m.status='frozen';openDrawer(m.name,false);toast('Membership frozen');});
+  else if(kind==='upgrade')reasonModal('Upgrade plan — '+m.name,'Monthly → 6-Month · charge the difference $385',(r,n)=>{
+    txs.unshift({t:now(),what:'Plan upgrade · '+m.name,amt:385,how:'card'});m.plan='6-Month';renderStats();openDrawer(m.name,false);toast('Upgraded · $385 · receipt sent');});
+  else if(kind==='notify'){
+    const MSGS=['Please visit reception','Your membership has expired','Your payment was successful','Your guest pass is ready','Your booking was changed','Your trainer is waiting','Your locker is ready','Your vehicle service is complete','Please sign the waiver'];
+    modal(`<h3>Send app message — ${m.name}</h3><div class="sub">Predefined notifications, delivered to the member app</div>
+      <label>Message</label><select id="nMsg">${MSGS.map(x=>`<option>${x}</option>`).join('')}</select>
+      <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Send</button></div>`,
+      ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{closeModal();toast('Sent to '+m.name+"'s app: \""+$('nMsg').value+'"');};});
+  }
   else if(kind==='note')modal(`<h3>Staff note — ${m.name}</h3><div class="sub">Visible to staff only</div>
     <textarea id="mNote" rows="3" placeholder="Note…"></textarea>
     <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Save</button></div>`,
@@ -449,9 +522,15 @@ function closeModal(){$('overlay').classList.remove('show');}
 $('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal();});
 
 const POS_ITEMS=[['Membership renewal · Monthly',95],['Membership upgrade → 6-Month',385],['Day pass',15],['Guest pass',10],['PT package · 10 sessions',300],['Class pack · 10',120],['Locker rental · month',12],['Recovery · sauna',8],['Café credit top-up',25],['Outstanding invoice',95]];
-function openPOS(member){
+function memberPicker(title,list,cb){
+  modal(`<h3>${title}</h3><div class="sub">Pick the member</div>
+    <select id="pickSel">${list.map(n=>`<option>${n}</option>`).join('')}</select>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Continue</button></div>`,
+    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{const v=$('pickSel').value;closeModal();cb(v);};});
+}
+function openPOS(member,preset){
   modal(`<h3>Take payment</h3><div class="sub">${member?('For '+member.name):'Walk-in or member'} · receipt goes to app/email</div>
-    <label>Item</label><select id="posItem">${POS_ITEMS.map((x,i)=>`<option value="${i}">${x[0]} — $${x[1]}</option>`).join('')}</select>
+    <label>Item</label><select id="posItem">${POS_ITEMS.map((x,i)=>`<option value="${i}" ${i===(preset||0)?'selected':''}>${x[0]} — $${x[1]}</option>`).join('')}</select>
     <label>Payment method</label><select id="posHow"><option>cash</option><option>card</option><option>wallet</option></select>
     <div class="checkline"><input type="checkbox" id="posDisc" style="width:auto;"> <span>Apply discount (manager approval)</span></div>
     <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Charge & receipt</button></div>`,
@@ -478,19 +557,45 @@ function openGuest(){
   ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
     const n=$('gName').value.trim(), host=$('gHost').value;
     if(n.length<2||!$('gWaiver').checked){$('mErr').style.display='block';return;}
+    if(bannedGuests.includes(n)){$('mErr').textContent='This guest is banned — contact the manager.';$('mErr').style.display='block';return;}
     const prev=(guestVisits[n]||0)+1;guestVisits[n]=prev;
     closeModal();guestsToday++;txs.unshift({t:now(),what:'Guest pass · '+n+' (host '+host+')',amt:10,how:'cash'});
     const code='GST-'+String(Date.now()).slice(-6);
     inside['Guest: '+n]=Date.now();entriesToday++;
     pushEvent({name:'Guest: '+n,kind:'ok',reason:'Pass '+code+' · host '+host+' · visit #'+prev});
     if(prev>=GUEST_LIMIT)addTask({t:'Guest limit — '+n,s:prev+' visits used · suggest membership (convert to prospect)',urg:'warn',kind:'guest'});
-    renderStats();renderOcc();toast('Guest pass '+code+' · waiver stored');};});
+    renderStats();renderOcc();toast('Guest pass '+code+' · waiver stored · invite + QR sent to guest phone');};});
 }
 
 function openTxList(){
-  modal(`<h3>Today's transactions</h3><div class="sub">$${revToday()} total · ${txs.length} payments</div>
-    ${txs.map(t=>`<div class="tx-row"><span>${t.t} · ${t.what} <span style="color:var(--faint);">(${t.how})</span></span><b style="color:var(--deep);">$${t.amt}</b></div>`).join('')}
-    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,()=>{$('mCancel').onclick=closeModal;});
+  modal(`<h3>Today's transactions</h3><div class="sub">$${revToday()} total · ${txs.length} payments · refunds need manager approval</div>
+    ${txs.map((t,i)=>`<div class="tx-row"><span>${t.t} · ${t.what} <span style="color:var(--faint);">(${t.how})</span></span>
+      <span><b style="color:${t.amt<0?'var(--red-ink)':'var(--deep)'};">${t.amt<0?'−$'+(-t.amt):'$'+t.amt}</b>
+      ${t.amt>0?` <button data-refund="${i}" style="font-size:11px; font-weight:700; color:var(--red-ink); margin-left:6px;">refund</button>`:''}</span></div>`).join('')}
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;
+    document.querySelectorAll('[data-refund]').forEach(b=>b.onclick=()=>{
+      const t=txs[Number(b.dataset.refund)];closeModal();
+      reasonModal('Refund $'+t.amt+' — '+t.what,'Sensitive: manager approval + note required',(r,n)=>{
+        txs.unshift({t:now(),what:'REFUND · '+t.what,amt:-t.amt,how:t.how});renderStats();
+        addTask({t:'Refund pending sign-off · $'+t.amt,s:t.what,urg:'warn',kind:'mgr'});
+        toast('Refund logged — awaiting manager sign-off');},true);});});
+}
+function openRegister(){
+  modal(`<h3>Register new member</h3><div class="sub">Creates the account · they finish setup in the app</div>
+    <label>Full name</label><input id="rName" placeholder="Full name" />
+    <label>Phone</label><input id="rPhone" placeholder="Phone" />
+    <label>Plan</label><select id="rPlan"><option>Monthly — $95</option><option>3-Month — $255</option><option>6-Month — $480</option><option>Annual — $850</option></select>
+    <div class="checkline"><input type="checkbox" id="rWaiver" style="width:auto;"> <span>Waiver signed on tablet</span></div>
+    <div class="m-err" id="mErr">Name and signed waiver are required.</div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Create & charge</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
+    const n=$('rName').value.trim();
+    if(n.length<2||!$('rWaiver').checked){$('mErr').style.display='block';return;}
+    const plan=$('rPlan').value, amt=Number(plan.match(/\$(\d+)/)[1]);
+    members.push(enrich({name:n,phone:$('rPhone').value,tier:'Access',status:'active',plan:plan.split(' — ')[0],joined:'Today'},members.length));
+    txs.unshift({t:now(),what:'New membership · '+n,amt,how:'card'});
+    closeModal();renderStats();toast(n+' registered · welcome message sent to app');openDrawer(n,false);};});
 }
 
 function openBookings(){
@@ -589,31 +694,59 @@ document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',(
   if(k==='bookings')openBookings(); if(k==='incidents')openIncidents(); if(k==='shift')openShift();
   if(k==='occupancy')openOccupancy(); if(k==='system')openSystem();
 }));
+document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.qa;
+  const names=()=>members.map(m=>m.name);
+  if(k==='scan'){const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');}
+  if(k==='register')openRegister();
+  if(k==='renew')memberPicker('Renew membership',names(),n=>{openDrawer(n,false);resolveAction('renew');});
+  if(k==='pay')openPOS(null,0);
+  if(k==='daypass')openPOS(null,2);
+  if(k==='guest')openGuest();
+  if(k==='mentry')memberPicker('Manual entry',names().filter(n=>!inside[n]),n=>{openDrawer(n,false);resolveAction('mentry');});
+  if(k==='mexit'){const ins=Object.keys(inside).filter(n=>members.some(m=>m.name===n));
+    if(!ins.length){toast('No members inside right now');return;}
+    memberPicker('Manual exit',ins,n=>{openDrawer(n,false);resolveAction('mexit');});}
+  if(k==='book')openBookings();
+  if(k==='mgr'){toast('Manager paged to reception');addTask({t:'Manager requested at desk',s:'Paged '+now(),urg:'warn',kind:'mgr'});}
+}));
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}
 }));
 
 /* ---------- boot ---------- */
+function seedScreen(insideRows){
+  inside={};feed=[];tasks=[];
+  (insideRows||FALLBACK_USERS.slice(0,5).map(u=>({name:u.name})))
+    .forEach((r,i)=>{inside[r.name]=Date.now()-(i===0?200:Math.floor(Math.random()*160)+10)*60000;});
+  Object.keys(inside).slice(-2).forEach(n=>pushEvent({name:n,kind:'ok'}));
+  const expired=members.find(x=>x.status==='expired'); if(expired)denyEvent(expired,'expired');
+  const frozen=members.find(x=>x.status==='frozen'); if(frozen)denyEvent(frozen,'frozen');
+  const noWaiver=members.find(m=>!m.waiver);
+  if(noWaiver)addTask({t:'Unsigned waiver — '+noWaiver.name,s:'Must sign before next entry',urg:'warn',kind:'waiver',name:noWaiver.name,dtype:'waiver'});
+  addTask({t:'2 memberships expire today',s:'Call before 8 PM · scripts in notes',urg:'ok',kind:'expiry'});
+  addTask({t:'Failed payment — Dana T.',s:'Card declined $95 · retry or collect at desk',urg:'warn',kind:'payment'});
+  renderOcc();renderStats();renderUpcoming();renderTasks();renderFeed();
+}
 (async()=>{
   setInterval(()=>{$('clock').textContent=now();},1000);$('clock').textContent=now();
   $('sysPill').className='sys-pill sys-warn';$('sysPill').innerHTML='<span class="dot da"></span>Printer degraded';
+  /* render INSTANTLY from fallback — the desk never looks empty */
+  members=FALLBACK_USERS.map(enrich);
+  seedScreen(null);
+  setInterval(simulate,9000);
+  setInterval(()=>{if(!offline)lastSync=Date.now();renderOcc();renderTasks();},30000);
+  /* simulated hardware blip → lands in Needs attention (system health story) */
+  setTimeout(()=>{sys['QR scanner']='warn';
+    addTask({t:'QR scanner degraded — Main gate',s:'Slow reads · maintenance paged · use manual entry if it fails',urg:'urgent',kind:'system'});},45000);
+  /* hydrate from the live sheet when it arrives */
   try{
     const[u,ins,lk,mc,cl,tr,fam]=await Promise.all([tab('Users'),tab('InsideNow'),tab('Lockers'),tab('Machines'),tab('Classes'),tab('Trainers'),tab('Family')]);
     members=u.map(enrich);lockers=lk;classes=cl;trainers=tr;family=fam;
-    ins.forEach((r,i)=>{inside[r.name]=Date.now()-(i===0?200:Math.floor(Math.random()*160)+10)*60000;});
-    ins.slice(-2).forEach(r=>pushEvent({name:r.name,kind:'ok'}));
-    const blocked=members.find(x=>x.status==='frozen')||members.find(x=>x.status==='expired');
-    if(blocked){denialsToday++;pushEvent({name:blocked.name,kind:'deny',reason:'Denial: membership '+blocked.status+(blocked.balance?' · $'+blocked.balance+' due':'')});
-      addTask({t:'Denied at gate — '+blocked.name,s:'membership '+blocked.status,urg:'urgent',kind:'deny',name:blocked.name});}
-    const noWaiver=members.find(m=>!m.waiver);
-    if(noWaiver)addTask({t:'Unsigned waiver — '+noWaiver.name,s:'Must sign before next entry',urg:'warn',kind:'waiver',name:noWaiver.name});
-    addTask({t:'2 memberships expire today',s:'Call before 8 PM · scripts in notes',urg:'ok',kind:'expiry'});
-    addTask({t:'Failed payment — Dana T.',s:'Card declined $95 · retry or collect at desk',urg:'warn',kind:'payment'});
-    renderOcc();renderStats();renderUpcoming();renderTasks();renderFeed();
-    setInterval(simulate,9000);
-    setInterval(()=>{if(!offline)lastSync=Date.now();renderOcc();renderTasks();},30000);
-  }catch(e){$('feed').innerHTML='<div style="color:var(--faint); padding:12px 0;">Could not reach the data sheet.</div>';}
+    denialsToday=0;seedScreen(ins);
+    toast('Live data connected — sheet in sync');
+  }catch(e){/* fallback stays — fully operational offline */}
 })();
 </script>
 </body>
