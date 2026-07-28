@@ -1729,7 +1729,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     }
     if (co.pay === 'wallet' && !payWallet(total, 'Café order')) return;
     const code = 'C-' + (1000 + Math.floor(Math.random() * 9000));
-    const items = ids.map((id) => { const m = menu.find((x) => x.id === id); return { n: m.name, qty: cart[id], price: m.price }; });
+    const items = ids.map((id) => { const m = menu.find((x) => x.id === id); return { n: m.name, qty: cart[id], price: m.price, kcal: m.cal || 0, p: m.p || 0 }; });
     const allergens = [...new Set(items.map((i) => menu.find((m) => m.name === i.n).allerg).filter(Boolean).join(' · ').split(' · ').filter(Boolean))];
     const busId = GymBus.send('cafe-order', {
       member: state.memberName, code, items, custom, allergens, total,

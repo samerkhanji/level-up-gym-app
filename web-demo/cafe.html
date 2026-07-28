@@ -109,6 +109,7 @@
     <div class="tstat"><b id="stNew">0</b>new</div>
     <div class="tstat"><b id="stLate" class="bad">0</b>late</div>
     <div class="tstat"><b id="stAvg">—</b>avg prep</div>
+    <div class="tstat"><b id="stTop">—</b>top item</div>
     <div class="tstat"><b id="stEquip">OK</b>equipment</div>
     <div class="staff"><b>Nour A.</b><br><span id="shiftLabel">Shift open · since 8:03 AM</span></div>
   </div>
@@ -281,13 +282,14 @@ function orderCard(o) {
   return `<div class="order ${late ? 'late' : ''}">
     <div class="o-top"><span class="o-code">#${o.code}</span><span class="o-wait ${late || waitMin >= 8 ? 'late' : ''}">Waiting ${waitMin} min</span></div>
     <div class="o-member">${o.member}</div>
-    <div class="o-items">${o.items.map((i) => i.qty + ' × ' + i.n).join('<br>')}</div>
+    <div class="o-items">${o.items.map((i) => i.qty + ' × ' + i.n + (i.price != null ? ' — $' + (i.price * i.qty) : '')).join('<br>')}</div>
     ${o.custom && o.custom.length ? `<div class="o-custom">${o.custom.join('<br>')}</div>` : ''}
+    ${o.items.some((i) => i.kcal) ? `<div class="o-custom">≈${o.items.reduce((s, i) => s + (i.kcal || 0) * i.qty, 0)} kcal · ${o.items.reduce((s, i) => s + (i.p || 0) * i.qty, 0)} g protein</div>` : ''}
     ${(o.allergens || []).map((a) => `<span class="chip c-warn">Contains ${a}</span>`).join('')}
     ${conf.length ? `<div class="conflict">⚠ Member profile lists a ${conf.join(', ')} allergy — do NOT prepare as ordered. Offer an alternative.</div>` : ''}
     <span class="chip ${o.pay === 'wallet' || o.paid ? 'c-pay' : 'c-wait'}">${payChip}</span>
     ${o.pickup ? `<span class="chip c-grey">${o.pickup}</span>` : ''}
-    ${o.est && o.status === 'preparing' ? `<span class="chip ${late ? 'c-danger' : 'c-grey'}">${late ? 'LATE — was due ' + o.est : 'ready ~' + o.est}</span>` : ''}
+    ${o.est && o.status === 'preparing' ? `<span class="chip ${late ? 'c-danger' : 'c-grey'}">${late ? 'LATE ' + Math.round((Date.now() - o.estAt) / 60000) + ' min — was due ' + o.est : 'ready ~' + o.est}</span>` : ''}
     ${main}
     ${['new', 'preparing', 'ready'].includes(o.status) ? `<button class="more-btn" data-o="${o.code}" data-a="more">More…</button>` : ''}
   </div>`;
@@ -304,6 +306,10 @@ function render() {
   const lateCount = C.orders.filter((o) => o.estAt && Date.now() > o.estAt && o.status === 'preparing').length;
   $('stLate').textContent = lateCount;
   $('stAvg').textContent = C.prepTimes.length ? Math.round(C.prepTimes.reduce((a, b) => a + b, 0) / C.prepTimes.length) + ' min' : '—';
+  const tally = {};
+  C.orders.filter((o) => o.status === 'collected').forEach((o) => o.items.forEach((i) => { tally[i.n] = (tally[i.n] || 0) + i.qty; }));
+  const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
+  $('stTop').textContent = top ? top[0].split(' ').slice(0, 2).join(' ') + ' · ' + top[1] : '—';
   const broken = C.equipment.filter((e) => !e.ok);
   $('stEquip').textContent = broken.length ? broken.length + ' down' : 'OK';
   $('stEquip').className = broken.length ? 'bad' : '';
