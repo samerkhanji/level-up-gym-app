@@ -12,7 +12,7 @@
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="apple-touch-icon" href="icon.svg" />
-<link rel="stylesheet" href="styles.css?v=5" />
+<link rel="stylesheet" href="styles.css?v=6" />
 </head>
 <body>
   <div class="stage">
@@ -46,9 +46,14 @@
             <input class="input" id="loginPassword" type="password" placeholder="Password" value="samer123" />
             <div id="loginError" class="dim small center" style="color:#bb3a2a" hidden></div>
             <button class="accent-btn" id="loginBtn">Log in</button>
+            <button class="ghost-btn" id="activateBtn">Activate membership from invitation</button>
+            <button class="ghost-btn" id="forgotBtn" style="border:none; font-size:13px;">Forgot password?</button>
             <div class="dim small center">Accounts come from the Member tab of the data sheet</div>
           </div>
         </section>
+
+        <!-- ONBOARDING WIZARD -->
+        <section class="view" id="view-onboard"><div id="c-onboard"></div></section>
 
         <!-- MAIN TABS: content rendered by app.js -->
         <section class="view" id="view-home"><div id="c-home"></div></section>
@@ -124,6 +129,6 @@
       </div>
     </div>
   </div>
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>

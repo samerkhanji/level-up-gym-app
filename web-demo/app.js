@@ -526,7 +526,7 @@ function unread() { return state.notifications.filter((n) => n.unread).length; }
 
 /* ================= routing ================= */
 
-const views = ['login', 'home', 'pass', 'train', 'gym', 'food', 'account', 'visitdetail', 'notifications'];
+const views = ['login', 'home', 'pass', 'train', 'gym', 'food', 'account', 'visitdetail', 'notifications', 'onboard'];
 const tabViews = ['home', 'train', 'gym', 'food', 'account'];
 const tabbar = document.getElementById('tabbar');
 let segTrain = 'workouts';
@@ -677,11 +677,36 @@ function renderHome() {
       <div class="dim small">Visit ${state.challenge.target} times this month → ${state.challenge.reward}</div>
     </div>
 
+    ${CONFIG.announcement ? `
+      <div class="card" style="border-left:4px solid var(--amber);">
+        ${eyebrow('bell', 'Gym announcement')}
+        <div style="font-size:14.5px;">${CONFIG.announcement}</div>
+      </div>` : ''}
+
+    ${(() => {
+      const ends = Date.parse(state.subEnds);
+      const days = isNaN(ends) ? 999 : Math.round((ends - Date.now()) / 86400000);
+      return days < 45 ? `
+        <div class="card" style="border-left:4px solid var(--amber);">
+          ${eyebrow('receipt', 'Membership expiring')}
+          <div class="row"><span>${days <= 0 ? 'Expired' : days + ' days left'} · ${state.subEnds}</span>
+            <button class="book-btn" data-action="goto-account">Renew</button></div>
+        </div>` : '';
+    })()}
+
     <div class="quick-grid">
       <button class="quick" data-action="goto-gym">${icon('locker', 20)}<b>Locker</b><span>${state.locker ? `${state.locker.locked ? 'Locked' : 'Open'} · #${state.locker.number}` : 'Assigned at check-in'}</span></button>
       <button class="quick" data-action="goto-gym">${icon('guest', 20)}<b>Guest pass</b><span>${state.guestPass ? 'Active' : 'Invite a friend'}</span></button>
       <button class="quick" data-action="goto-gym-report">${icon('tool', 20)}<b>Report issue</b><span>Broken equipment</span></button>
-      <button class="quick sos" data-action="sos">${icon('alert', 20)}<b>Help / SOS</b><span>Alert reception</span></button>
+      <button class="quick sos" data-action="sos">${icon('alert', 20)}<b>Help / SOS</b><span>Hold-safe · staff alerted</span></button>
+    </div>
+
+    <div class="card">
+      <div class="li">
+        <div class="li-ic">${icon('bell', 17)}</div>
+        <div class="li-body"><b>Need anything?</b><div class="dim small">Reception answers in the app — every request gets a ticket.</div></div>
+        <button class="book-btn" data-action="support">Contact</button>
+      </div>
     </div>`;
 }
 
@@ -839,7 +864,7 @@ function renderGym() {
       <button class="book-btn wide" data-action="report-issue">Send report</button>
       ${state.reports.length ? `
         <div class="divider"></div>
-        ${state.reports.map((r) => `<div class="row"><div><b>${r.machine}</b><div class="dim small">${r.issue} · ${r.when}</div></div><span class="chip ${r.status === 'Fixed' ? 'chip-ok' : 'chip-warn'}">${r.status}</span></div>`).join('')}` : ''}
+        ${state.reports.map((r) => `<div class="row"><div><b>${r.machine}</b><div class="dim small">${r.ref ? r.ref + ' · ' : ''}${r.issue} · ${r.when}</div></div><span class="chip ${r.status === 'Repaired' || r.status === 'Fixed' ? 'chip-ok' : 'chip-warn'}">${r.status}</span></div>`).join('')}` : ''}
     </div>
 
     <div class="card sos-card">
@@ -1357,15 +1382,27 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'report-issue') {
     const machine = document.getElementById('repMachine').value;
     const issue = document.getElementById('repIssue').value;
-    state.reports.unshift({ machine, issue, when: 'Just now', status: 'Reported' });
+    const ref = 'REP-' + String(Date.now()).slice(-4);
+    state.reports.unshift({ machine, issue, when: 'Just now', status: 'Submitted', ref });
     save(); renderGym();
-    pushNotif('Report received', `${machine} — "${issue}". Maintenance has been notified; you'll see the status in the Gym tab.`);
-    toast('Report sent — thank you');
+    pushNotif('Report ' + ref + ' received', `${machine} — "${issue}". Track its status in the Gym tab.`);
+    toast('Report ' + ref + ' sent');
+    // lifecycle: Submitted → Under review → Repaired (with member notifications)
+    setTimeout(() => { const r = state.reports.find((x) => x.ref === ref); if (r) { r.status = 'Under review'; save();
+      if (document.getElementById('view-gym').classList.contains('active')) renderGym(); } }, 8000);
+    setTimeout(() => { const r = state.reports.find((x) => x.ref === ref); if (r) { r.status = 'Repaired'; save();
+      pushNotif(ref + ' repaired', machine + ' is back in service — thanks for reporting it.');
+      if (document.getElementById('view-gym').classList.contains('active')) renderGym(); } }, 22000);
   }
-  if (a === 'sos') {
-    pushNotif('Help is on the way', 'Reception has been alerted and knows who and where you are.');
-    save();
-    toast('SOS sent — reception alerted');
+  if (a === 'sos') startSOS();
+  if (a === 'support') openSupport();
+  if (a === 'ob-next') obNext();
+  if (a === 'ob-back') { if (obStep === 0) show('login'); else { obStep--; renderOnboard(); } }
+  if (a === 'ob-finish') {
+    const nameEl = document.getElementById('loginName');
+    if (nameEl && obData.sign) nameEl.value = obData.sign;
+    toast('Activated — reception will assign your plan');
+    show('login');
   }
   if (a === 'visit-detail') renderVisitDetail(el.dataset.v);
 
@@ -1477,6 +1514,137 @@ document.getElementById('loginBtn').onclick = () => {
   show('home');
   toast(`Welcome, ${(row.name || '').split(' ')[0]}`);
 };
+/* ---------- onboarding wizard (join journey) ---------- */
+let obStep = 0;
+const obData = {};
+function renderOnboard() {
+  const steps = [
+    { t: 'Your invitation', s: 'The gym sent this link to your phone', body: `
+      <label class="ob-label">Invitation code</label>
+      <input class="input" id="obCode" value="GYM-INV-2481" />
+      <label class="ob-label">Your phone number</label>
+      <input class="input" id="obPhone" placeholder="Phone" value="03 555123" />` },
+    { t: 'Verify your number', s: 'We sent a code by SMS', body: `
+      <label class="ob-label">Verification code</label>
+      <input class="input" id="obOtp" value="4821" style="letter-spacing:8px; text-align:center; font-weight:700;" />` },
+    { t: 'Profile photo', s: 'Reception uses this to recognize you at the gate', body: `
+      <div class="ob-photo">${icon('user', 44)}</div>
+      <button class="book-btn wide" onclick="toast('Camera opens on a real phone')">Take photo</button>` },
+    { t: 'Rules & waiver', s: 'Required before your first visit', body: `
+      <div class="checkline-app"><input type="checkbox" id="obRules"> I accept the gym rules</div>
+      <div class="checkline-app"><input type="checkbox" id="obWaiver"> I sign the liability waiver</div>
+      <label class="ob-label">Type your full name as signature</label>
+      <input class="input" id="obSign" placeholder="Full name" />` },
+    { t: 'Health questionnaire', s: 'Kept private · not medical advice', body: `
+      <div class="checkline-app"><input type="checkbox" id="obQ1"> Heart condition or chest pain during exercise</div>
+      <div class="checkline-app"><input type="checkbox" id="obQ2"> Injury that limits training</div>
+      <div class="checkline-app"><input type="checkbox" id="obQ3"> Currently pregnant or post-surgery</div>
+      <div class="dim small">Answering yes doesn't block you — staff will confirm safe training before your first session.</div>` },
+    { t: 'Emergency contact', s: 'Who we call if something happens', body: `
+      <input class="input" id="obEcName" placeholder="Contact name" />
+      <input class="input" id="obEcPhone" placeholder="Contact phone" style="margin-top:8px;" />` },
+    { t: 'How should we reach you?', s: 'Change anytime in Account', body: `
+      <div class="checkline-app"><input type="checkbox" checked> Push notifications</div>
+      <div class="checkline-app"><input type="checkbox" checked> Email receipts</div>
+      <div class="checkline-app"><input type="checkbox"> SMS</div>
+      <div class="checkline-app"><input type="checkbox"> WhatsApp</div>` },
+  ];
+  if (obStep >= steps.length) {
+    document.getElementById('c-onboard').innerHTML = `
+      <div class="ob-done">
+        <div class="done-line" style="font-size:20px; justify-content:center;">${icon('check', 26)} Membership activated</div>
+        <p class="dim small center">Welcome${obData.sign ? ', ' + obData.sign.split(' ')[0] : ''}! Reception has your profile.
+        Set up Face ID at first login, and your phone becomes your key.</p>
+        <button class="accent-btn" data-action="ob-finish">Go to login</button>
+      </div>`;
+    return;
+  }
+  const st = steps[obStep];
+  document.getElementById('c-onboard').innerHTML = `
+    <div class="ob-wrap">
+      <div class="ob-progress">${steps.map((_, i) => `<span class="${i <= obStep ? 'on' : ''}"></span>`).join('')}</div>
+      <h2 class="ob-title">${st.t}</h2>
+      <p class="dim small">${st.s}</p>
+      <div class="ob-body">${st.body}</div>
+      <div class="ob-err dim small" id="obErr" hidden style="color:#bb3a2a"></div>
+      <button class="accent-btn" data-action="ob-next">Continue</button>
+      <button class="ghost-btn" data-action="ob-back">${obStep === 0 ? 'Back to login' : 'Back'}</button>
+    </div>`;
+}
+function obNext() {
+  const err = (m) => { const e = document.getElementById('obErr'); e.textContent = m; e.hidden = false; };
+  if (obStep === 3) {
+    const sign = (document.getElementById('obSign')?.value || '').trim();
+    if (!document.getElementById('obRules').checked || !document.getElementById('obWaiver').checked || sign.length < 3) {
+      err('Accept the rules, sign the waiver, and type your name.'); return;
+    }
+    obData.sign = sign;
+  }
+  if (obStep === 4 && (document.getElementById('obQ1').checked || document.getElementById('obQ3').checked)) {
+    pushNotif('Health check flagged', 'A staff member will confirm safe training before your first session.');
+  }
+  obStep++;
+  renderOnboard();
+}
+document.getElementById('activateBtn').onclick = () => { obStep = 0; show('onboard'); renderOnboard(); };
+document.getElementById('forgotBtn').onclick = () => toast('Reset link sent to your phone number on file');
+
+/* ---------- support tickets & safe SOS ---------- */
+function appOverlay(html) {
+  closeAppOverlay();
+  const d = document.createElement('div');
+  d.className = 'app-overlay'; d.id = 'appOverlay';
+  d.innerHTML = `<div class="app-modal">${html}</div>`;
+  d.addEventListener('click', (e) => { if (e.target === d) closeAppOverlay(); });
+  document.getElementById('screen').appendChild(d);
+}
+function closeAppOverlay() { document.getElementById('appOverlay')?.remove(); }
+
+function openSupport() {
+  appOverlay(`
+    <h3>How can we help?</h3>
+    ${['Call reception', 'Chat with reception', 'WhatsApp', 'Report a payment problem', 'Report an access problem', 'Report a lost item', 'Membership help'].map((o) =>
+      `<button class="support-opt" data-sup="${o}">${o}</button>`).join('')}
+    <button class="ghost-btn" onclick="closeAppOverlay()">Close</button>`);
+  document.querySelectorAll('[data-sup]').forEach((b) => b.onclick = () => {
+    const tkt = 'TKT-' + String(Date.now()).slice(-5);
+    closeAppOverlay();
+    pushNotif('Request received · ' + tkt, `"${b.dataset.sup}" — status: Open. Reception replies here.`);
+    toast(`Ticket ${tkt} created — track it in your inbox`);
+  });
+}
+
+let sosTimer = null;
+function startSOS() {
+  appOverlay(`
+    <h3 style="color:#bb3a2a;">Emergency — hold on</h3>
+    <p class="dim small">Pick what's happening. The alert sends automatically in <b id="sosCount">4</b>s — Cancel if this was an accident.</p>
+    ${['Injury', 'Equipment danger', 'Harassment', 'Other emergency'].map((t) =>
+      `<button class="support-opt sos-type" data-sostype="${t}">${t}</button>`).join('')}
+    <button class="accent-btn" style="background:#bb3a2a;" id="sosCancel">Cancel — accidental</button>`);
+  let type = 'Emergency', left = 4;
+  document.querySelectorAll('[data-sostype]').forEach((b) => b.onclick = () => {
+    type = b.dataset.sostype;
+    document.querySelectorAll('[data-sostype]').forEach((x) => x.style.outline = x === b ? '2px solid #bb3a2a' : 'none');
+  });
+  sosTimer = setInterval(() => {
+    left--;
+    const c = document.getElementById('sosCount');
+    if (c) c.textContent = left;
+    if (left <= 0) {
+      clearInterval(sosTimer);
+      closeAppOverlay();
+      const zone = state.checkedIn ? 'inside the gym' : 'at the gym entrance';
+      pushNotif('SOS sent', `${type} — staff alerted, you are ${zone}. Incident recorded.`);
+      state.problems.push(`SOS — ${type} · ${todayLabel()}`);
+      save();
+      toast('SOS sent — alerting staff…');
+      setTimeout(() => { pushNotif('Staff acknowledged', 'Reception confirmed your alert — help is on the way.'); toast('✓ Staff acknowledged — help is coming'); }, 2500);
+    }
+  }, 1000);
+  document.getElementById('sosCancel').onclick = () => { clearInterval(sosTimer); closeAppOverlay(); toast('SOS cancelled — nothing sent'); };
+}
+
 document.getElementById('resetDemo').onclick = () => {
   localStorage.removeItem(KEY);
   state = load(); cart = {};
