@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{{const W=new URLSearchParams(location.search).get("theme");if(W==="light"||W==="dark"){document.documentElement.dataset.theme=W}}{if(new URLSearchParams(location.search).get("_omthumb")==="1"){const W=(q)=>{const X=q.focus;if(!X)return;q.focus=function(H){X.call(this,{...H,preventScroll:true})}};W(HTMLElement.prototype);W(SVGElement.prototype);if(typeof MathMLElement!=="undefined"){W(MathMLElement.prototype)}const $=(q)=>{q.removeAttribute("autofocus");q.inert=true;if(!(q instanceof HTMLElement))q.removeAttribute("tabindex")};const z=(q)=>{if(q.hasAttribute("autofocus"))$(q);for(const X of q.querySelectorAll("[autofocus]")){$(X)}};z(document.documentElement);new MutationObserver((q)=>{for(const X of q){for(const H of X.addedNodes){if(H.nodeType===1)z(H)}}}).observe(document,{childList:true,subtree:true})}}{const W=()=>{try{if(document.querySelector('meta[name="color-scheme"]'))return;const $=getComputedStyle(document.documentElement).getPropertyValue("color-scheme").trim();if($&&$!=="normal")return;const z=(j)=>{if(!j)return null;const F=getComputedStyle(j).backgroundColor.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/);if(!F)return null;const G=F[4]==null?1:parseFloat(F[4])/(F[4].endsWith("%")?100:1);if(G<0.99)return null;return[+F[1],+F[2],+F[3]]};const q=z(document.body)||z(document.documentElement);if(!q)return;const X=(j)=>{const F=j/255;return F<=0.04045?F/12.92:((F+0.055)/1.055)**2.4};const H=0.2126*X(q[0])+0.7152*X(q[1])+0.0722*X(q[2]);document.documentElement.style.setProperty("color-scheme",H<0.4?"dark":"light")}catch{}};if(document.readyState==="complete")W();else window.addEventListener("load",W)}var b=[];var p=false;var u=30000;var d=3000;document.addEventListener("DOMContentLoaded",()=>{const W=window.Babel;const $="om-src-id";if(W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[$])){W.registerPlugin($,({types:H})=>({visitor:{JSXOpeningElement(j,F){const G=j.node;if(G.name&&G.name.type==="JSXMemberExpression")return;for(let Q=0;Q<G.attributes.length;Q++){const V=G.attributes[Q];if(V.type==="JSXAttribute"&&V.name&&V.name.name==="data-om-id")return}const P=F.file&&F.file.opts&&F.file.opts.filename||"?";const R=G.loc&&G.loc.start;const J=`jsx:${P}:${G.start??0}:${R?R.line:0}:${R?R.column+1:0}`;G.attributes.push(H.jsxAttribute(H.jsxIdentifier("data-om-id"),H.stringLiteral(J)))}}}))}const z="om-text-extract";let q=false;if(p&&W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[z])){const H=window.React;if(H&&H.useSyncExternalStore&&H.createElement){q=true;const j={};const F=new Set;let G=0;window.__omTextO=j;window.__omTextSet=(J)=>{for(const Q in J){const V=J[Q];if(V==null)delete j[Q];else j[Q]=V}G++;F.forEach((Q)=>Q())};const P=(J)=>{F.add(J);return()=>F.delete(J)};const R=()=>G;window.__OmT=function J(Q){H.useSyncExternalStore(P,R,R);return H.createElement("span",{"data-om-text":Q.i,className:"__om-t"},Q.i in j?j[Q.i]:Q.children)};W.registerPlugin(z,({types:J})=>{const Q={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const V={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const Y=(K,M)=>J.logicalExpression("??",J.memberExpression(J.logicalExpression("||",J.memberExpression(J.identifier("window"),J.identifier("__omTextO")),J.objectExpression([])),J.stringLiteral(K),true),M);const Z=(K)=>K.file&&K.file.opts&&K.file.opts.filename||"?";const B=(K)=>K.file&&K.file.code||"";const U=(K,M)=>{const L=(D)=>D&&D.start!=null&&D.end!=null&&(D.type==="StringLiteral"||D.type==="TemplateLiteral"&&D.expressions.length===0)?[D.start,D.end]:null;const N=L(M);if(N)return N;if(M&&M.type==="Identifier"){const D=K.scope.getBinding(M.name);if(D&&D.constant&&D.path.node.type==="VariableDeclarator"){return L(D.path.node.init)}}return null};const x=(K,M,L)=>{const N=K.node;let D=false;const f=(w,A)=>{D=true;return J.jsxElement(J.jsxOpeningElement(J.jsxIdentifier("__OmT"),[J.jsxAttribute(J.jsxIdentifier("i"),J.stringLiteral(w))],false),J.jsxClosingElement(J.jsxIdentifier("__OmT")),[A],false)};const C=N.children.map((w)=>{if(w.type==="JSXText"){if(w.start==null||w.end==null)return w;const A=L.slice(w.start,w.end);const S=A.length-A.trimStart().length;const O=A.length-A.trimEnd().length;if(S+O>=A.length)return w;return f(`txt:${M}:${w.start+S}:${w.end-O}`,w)}if(w.type==="JSXExpressionContainer"){const A=U(K,w.expression);if(A)return f(`str:${M}:${A[0]}:${A[1]}`,w)}return w});if(D)N.children=C};return{visitor:{JSXOpeningElement(K,M){const L=K.node;const N=Z(M);const D={};for(let f=0;f<L.attributes.length;f++){const C=L.attributes[f];if(C.type!=="JSXAttribute"||!C.name)continue;const w=C.name.name;if(!V[w])continue;if(!C.value||C.value.type!=="StringLiteral")continue;if(C.value.start==null||C.value.end==null)continue;const A=`txt:${N}:${C.value.start}:${C.value.end}`;D[w]=A;C.value=J.jsxExpressionContainer(Y(A,J.stringLiteral(C.value.value)))}if(Object.keys(D).length){L.attributes.push(J.jsxAttribute(J.jsxIdentifier("data-om-text-attrs"),J.stringLiteral(JSON.stringify(D))))}},JSXElement(K,M){const L=K.node.openingElement;const N=L&&L.name&&L.name.name;if(N==="__OmT")return;if(typeof N==="string"&&Q[N])return;x(K,Z(M),B(M))},JSXFragment(K,M){x(K,Z(M),B(M))}}}})}}const X=q?["transform-react-jsx-source",$,z]:["transform-react-jsx-source",$];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((H,j)=>{const F=H.getAttribute("data-plugins")||"";const G=X.filter((P)=>F.indexOf(P)<0);if(G.length){H.setAttribute("data-plugins",F?`${F},${G.join(",")}`:G.join(","))}if(!H.hasAttribute("data-filename")){H.setAttribute("data-filename",H.getAttribute("src")||`inline-${j}`)}})});var I=window.parent;var g="not editable here — open the project in the Claude Design editor to save";var n=()=>Promise.resolve({persisted:false,noHost:true,reason:g});var k=n;var v="data/storage.json";var l=()=>{try{const W=new URL(document.baseURI);const $=W.pathname.match(/\/projects\/([^/]+)\/serve\//);if($)return $[1];return W.hostname.split(".")[0]||""}catch{return location.hostname.split(".")[0]||""}};var o=()=>{try{const W=new URL(document.baseURI);const $=W.pathname.indexOf("/serve/");if($>=0)return W.origin+W.pathname.slice(0,$+"/serve/".length)+v}catch{}return"./"+v};var E=null;var _=()=>{if(!E){E=fetch(o(),{cache:"no-store"}).then((W)=>{if(W.ok)return W.text();return W.status===404?"":null}).catch(()=>null).then((W)=>{if(W===null){E=null;return null}const $=new Map;if(!W)return $;let z;try{z=JSON.parse(W)}catch{console.warn("[omelette.storage] "+v+" is not valid JSON; treating the store as unreadable so a save cannot overwrite the "+"hand-edited bytes. Fix the JSON (or delete the file) to re-enable persistence.");E=null;return null}if(z===null||typeof z!=="object"||Array.isArray(z)){console.warn("[omelette.storage] "+v+" doesn't hold a JSON object; treating the store as unreadable so a save cannot "+"overwrite the hand-edited bytes. Make the top level a JSON object to re-enable persistence.");E=null;return null}const q=z;if("data"in q){const X=q.data;if(X===null||typeof X!=="object"||Array.isArray(X)){console.warn("[omelette.storage] "+v+' has a "data" field that is not a JSON object; treating the store as unreadable so a '+'save cannot overwrite the hand-edited bytes. Make "data" a JSON object to re-enable persistence.');E=null;return null}const H=q._meta;const j=H!==null&&typeof H==="object"?H.project:undefined;if(typeof j==="string"&&j!==""&&j!==l())return $;for(const F of Object.keys(X))$.set(F,X[F]);return $}for(const X of Object.keys(q)){if(X!=="_meta")$.set(X,q[X])}return $})}return E};var y=(W)=>k(v,JSON.stringify({_meta:{project:l(),version:1},data:Object.fromEntries(W)},null,2));var m=Promise.resolve();var T=(W)=>{const $=m.then(W);m=$.then(()=>{return},()=>{return});return $};var s=/sk-(?:ant-)?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,}|xox[a-z]-[A-Za-z0-9][A-Za-z0-9-]{9,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----/;var a=/password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|credential/i;var r=(W,$,z)=>{if(s.test($)||a.test(W)&&typeof z==="string"&&z.length>=8){console.warn('[omelette.storage] the value for "'+W+'" looks like a credential. The storage file is a plaintext project file — visible to '+"everyone with project access and copied when the project is duplicated. Do not store secrets here.")}};var c={persisted:false,reason:"could not load the existing store — not overwriting it"};var i={persisted:false,reason:"stored value changed since a failed read — re-read this key before saving"};var h=new Set;var t={get:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.get: key must be a string"))}return T(_).then(($)=>{if($===null){h.add(W);return null}h.delete(W);if(!$.has(W))return null;const z=$.get(W);return z==null?null:JSON.parse(JSON.stringify(z))})},set:(W,$)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.set: key must be a string"))}let z;try{z=JSON.stringify($)}catch(X){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable ("+String(X)+")"))}if(z===undefined){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable"))}r(W,z,$);const q=JSON.parse(z);return T(()=>_().then((X)=>{if(X===null)return c;if(h.has(W)){if(X.has(W))return i;h.delete(W)}X.set(W,q);return y(X)}))},delete:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.delete: key must be a string"))}return T(()=>_().then(($)=>{if($===null)return c;if(h.has(W)){if($.has(W))return i;h.delete(W)}$.delete(W);return y($)}))},keys:()=>T(_).then((W)=>W===null?[]:Array.from(W.keys()))};window.omelette={writeFile:(W,$)=>k(W,$).then((z)=>{if(!z.persisted&&!z.noHost){throw new Error(z.reason||"write failed")}}),storage:t};if(I&&I!==window){const W=(J,Q)=>{try{I.postMessage({__omelette_log:true,type:J,data:Q},"*")}catch{}};["log","warn","error"].forEach((J)=>{const Q=console[J];console[J]=(...V)=>{const Y=V.map((Z)=>{try{return typeof Z==="object"?JSON.stringify(Z):String(Z)}catch{try{return String(Z)}catch{return"[unstringifiable]"}}}).join(" ");W(J,Y);Q.apply(console,V)}});window.addEventListener("error",(J)=>{const Q=J.target;if(Q&&Q!==window&&Q.tagName){const V=Q.src||Q.href||"";W("resource_error",`${Q.tagName} failed to load: ${V}`)}else{W("error",`${J.message||"Unknown error"} at ${J.filename||"?"}:${J.lineno||0}:${J.colno||0}`)}},true);window.addEventListener("unhandledrejection",(J)=>{const Q=J.reason;const V=Q instanceof Error?`${Q.message} ${Q.stack}`:String(Q);W("error",`Unhandled rejection: ${V}`)});window.addEventListener("click",(J)=>{if(J.defaultPrevented||J.button!==0)return;if(J.metaKey||J.ctrlKey||J.shiftKey||J.altKey)return;const Q=J.composedPath?J.composedPath():[];const V=["button","input","select","textarea","summary","label"];let Y=null;for(const x of Q){if(!(x instanceof Element))continue;if(x.localName==="a"){if(!(x instanceof HTMLAnchorElement))return;Y=x;break}if(V.indexOf(x.localName)!==-1)return}if(!Y)return;if(Y.isContentEditable)return;const Z=Y.closest("[contenteditable]");if(Z&&Z.getAttribute("contenteditable")!=="false")return;const B=(Y.getAttribute("target")||"_self").toLowerCase();if(B!=="_self"&&B!=="_top"&&B!=="_parent")return;let U;try{U=new URL(Y.href)}catch{return}if(U.protocol!=="http:"&&U.protocol!=="https:")return;if(location.origin==="null")return;if(U.origin===location.origin)return;J.preventDefault();window.open(U.href,"_blank","noopener,noreferrer")});const $=()=>{try{I.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(window.ResizeObserver)new ResizeObserver($).observe(document.documentElement);const z=()=>{$();if(!document.querySelector('script[type="text/babel"],script[type="text/jsx"]'))return;const J=()=>document.getElementById("root")||document.querySelector("body > div[id]");const Q=J()?.firstElementChild??null;let V=0;const Y=()=>{const Z=J();if(Z&&Z.firstElementChild!==Q||++V>30){$();return}setTimeout(Y,100)};setTimeout(Y,100)};if(document.readyState==="complete")z();else window.addEventListener("load",z);const q={};let X=0;const H=(J)=>new Promise((Q,V)=>{if(!b.length){V(new Error("claude.complete: no parent origin"));return}const Y=`c${++X}`;const Z=()=>setTimeout(()=>{delete q[Y];V(new Error(`claude.complete: no data for ${u/1000}s`))},u);const B=Z();q[Y]={resolve:Q,reject:V,text:"",t:B,arm:Z};try{for(const U of b){I.postMessage({__om_api:true,id:Y,body:J},U)}}catch(U){clearTimeout(B);delete q[Y];V(U)}});const j=8;const F=async(J,Q)=>{if(!Array.isArray(J.messages)){throw new Error("claude.complete: tools require a messages array")}const V=J.messages.slice();const Y={...J,tools:J.tools.map((U)=>{if(U===null||typeof U!=="object")return U;const x={};for(const K of Object.keys(U)){if(typeof U[K]!=="function")x[K]=U[K]}return x})};const Z=Y.tool_choice;const B=Z!=null&&(Z.type==="any"||Z.type==="tool")?{...Y,tool_choice:Z.disable_parallel_tool_use!==undefined?{type:"auto",disable_parallel_tool_use:Z.disable_parallel_tool_use}:{type:"auto"}}:Y;for(let U=0;U<j;U++){const x=await H({...U===0?Y:B,messages:V});const K=x.message;const M=K&&Array.isArray(K.content)?K.content:null;const L=M?M.filter((D)=>D?.type==="tool_use"):[];if(K?.stop_reason!=="tool_use"||L.length===0){return x.text}const N=[];for(const D of L){const f=Q.get(D.name);if(!f){N.push({type:"tool_result",tool_use_id:D.id,content:`no handler for tool "${D.name}"`,is_error:true});continue}try{const C=await f(D.input);const w=typeof C==="string"?C:R(C)??"";N.push({type:"tool_result",tool_use_id:D.id,content:w})}catch(C){N.push({type:"tool_result",tool_use_id:D.id,content:String(C?.message??C??"tool handler failed"),is_error:true})}}V.push({role:"assistant",content:M},{role:"user",content:N})}throw new Error(`claude.complete: exceeded ${j} tool turns`)};window.claude={complete(J){const Q=J;if(Q!==null&&typeof Q==="object"&&Array.isArray(Q.tools)&&Q.tools.some((V)=>V!==null&&typeof V==="object"&&typeof V.run==="function")){const V=new Map;for(const Y of Q.tools){if(Y!==null&&typeof Y==="object"&&typeof Y.run==="function"){V.set(String(Y.name),Y.run)}}return F(Q,V)}return H(J).then((V)=>V.text)}};const G={};let P=0;k=(J,Q)=>new Promise((V)=>{if(!b.length){V({persisted:false,noHost:true,reason:g});return}const Y=`f${++P}`;const Z=setTimeout(()=>{delete G[Y];V({persisted:false,noHost:true,reason:g})},d);G[Y]={settle:V,t:Z};try{for(const B of b){I.postMessage({__om_file:true,id:Y,op:"write",path:J,content:Q},B)}}catch{clearTimeout(Z);delete G[Y];V({persisted:false,noHost:true,reason:g})}});const R=(J)=>{try{return JSON.stringify(J)}catch{return JSON.stringify(String(J))}};window.addEventListener("message",(J)=>{if(b.indexOf(J.origin)<0)return;if(J.source!==I)return;const Q=J.data;if(!Q)return;if(Q.type==="omelette-preview-refresh"){if(typeof Q.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(Q.token))return;const Z=Math.max(1,Math.floor((Q.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+Q.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+Z;return}if(Q.__om_file_r){const Z=G[Q.id];if(!Z)return;clearTimeout(Z.t);delete G[Q.id];Z.settle(Q.ok?{persisted:true}:{persisted:false,reason:Q.error||"write failed"});return}if(Q.__om_api_r){const Z=q[Q.id];if(!Z)return;if(Q.error!=null){clearTimeout(Z.t);delete q[Q.id];Z.reject(new Error(Q.error));return}if(Q.chunk!=null){clearTimeout(Z.t);Z.t=Z.arm();Z.text+=Q.chunk;return}if(Q.done){clearTimeout(Z.t);delete q[Q.id];Z.resolve({text:Q.text!=null?Q.text:Z.text,message:Q.message});return}return}if(!Q.__om_eval)return;const V=Q;const Y=(Z)=>{J.source.postMessage({...Z,__om_eval_r:1,id:V.id},J.origin)};try{const Z=(0,eval)(V.code);if(Z&&typeof Z.then==="function"){Z.then((B)=>Y({ok:1,v:R(B)}),(B)=>Y({ok:0,e:String(B)}))}else{Y({ok:1,v:R(Z)})}}catch(Z){Y({ok:0,e:String(Z)})}})}})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; }
+  a { color:#1e6b52; text-decoration:none; } a:hover { color:#124a38; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+</style>
+</helmet>
+<section style="padding:48px 56px 80px;">
+  <div style="max-width:900px; margin-bottom:40px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#1e6b52;">GYM · Member app</div>
+    <h1 style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:34px; margin:8px 0 10px;">One visit, one member, every state</h1>
+    <p style="color:#6c7a71; font-size:15px; margin:0; max-width:640px;">Samer's journey left to right: before the visit → at the gate → denied &amp; fixed → inside → training, eating, leaving → the record it left behind. 375×812, paper #f3f4ef, club green, Bricolage + Instrument.</p>
+  </div>
+  <div style="display:flex; flex-wrap:wrap; gap:44px; align-items:flex-start;">
+
+    <!-- 1 LOGIN -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">01</span> · Login</div>
+      <div data-screen-label="Login" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; position:relative; box-sizing:border-box; display:flex; flex-direction:column; justify-content:center; padding:0 28px;">
+        <div style="text-align:center; margin-bottom:44px;">
+          <div style="width:64px; height:64px; border-radius:18px; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:28px; margin:0 auto 18px;">G</div>
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:40px; letter-spacing:.04em;">GYM</div>
+          <div style="color:#6c7a71; font-size:15px; margin-top:6px;">Your gym in one app.</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px;">
+          <div style="background:#ffffff; border-radius:16px; padding:16px 18px; box-shadow:0 4px 14px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#6c7a71;">Full name</div>
+            <div style="font-size:16px; margin-top:4px;">Samer Khanji</div>
+          </div>
+          <div style="background:#ffffff; border-radius:16px; padding:16px 18px; box-shadow:0 4px 14px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#6c7a71;">Password</div>
+            <div style="font-size:16px; margin-top:4px; letter-spacing:.3em;">••••••••</div>
+          </div>
+          <div style="color:#bb3a2a; font-size:13px; font-weight:600; padding-left:4px;">Wrong password.</div>
+          <div style="background:#1e6b52; color:#ffffff; border-radius:16px; padding:17px; text-align:center; font-weight:700; font-size:16px;">Log in</div>
+        </div>
+        <div style="position:absolute; bottom:34px; left:28px; right:28px; text-align:center; color:#9aa79f; font-size:12px;">Accounts are personal — one phone per member.</div>
+      </div>
+    </div>
+
+    <!-- 2 HOME OUTSIDE -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">02</span> · Home — before the visit</div>
+      <div data-screen-label="Home outside" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; position:relative; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
+          <div style="width:42px; height:42px; border-radius:50%; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-weight:700; font-size:16px;">S</div>
+          <div style="flex:1;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:18px;">Good afternoon, Samer</div>
+            <div style="display:flex; gap:6px; margin-top:4px;">
+              <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px;">Active · Performance</span>
+              <span style="color:#6c7a71; font-size:11px; font-weight:600; padding:3px 0;">Achrafieh branch</span>
+            </div>
+          </div>
+          <div style="position:relative; width:38px; height:38px; border-radius:50%; background:#ffffff; box-shadow:0 4px 12px rgba(23,33,28,.06); display:grid; place-items:center;">
+            <div style="width:14px; height:14px; border:2px solid #17211c; border-radius:50% 50% 4px 4px;"></div>
+            <div style="position:absolute; top:6px; right:7px; width:9px; height:9px; border-radius:50%; background:#bb3a2a; border:2px solid #ffffff;"></div>
+          </div>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:20px; display:flex; align-items:center; gap:16px; box-shadow:0 12px 28px rgba(18,74,56,.28);">
+          <div style="width:56px; height:56px; border-radius:14px; background:rgba(255,255,255,.12); display:grid; place-items:center;">
+            <div style="width:30px; height:30px; background:repeating-conic-gradient(#dff0e6 0% 25%, transparent 0% 50%) 0 0/10px 10px; border-radius:3px;"></div>
+          </div>
+          <div style="flex:1;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#ffffff;">Enter Gym</div>
+            <div style="color:#9ec7b3; font-size:13px; margin-top:2px;">Open your pass for the gate</div>
+          </div>
+          <div style="width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.14); display:grid; place-items:center; color:#dff0e6; font-size:16px; font-weight:700;">›</div>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border:1.5px solid #1e6b52; border-radius:2px;"></span>Wallet</div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">$68</div>
+          </div>
+          <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border:1.5px solid #1e6b52; border-radius:50%;"></span>Points</div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">340</div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; background:#1e6b52; border-radius:50%;"></span>Gym right now</div>
+          <div style="display:flex; align-items:baseline; gap:10px; margin-top:8px;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:34px; color:#124a38;">23</div>
+            <div style="font-weight:700; color:#1e6b52; font-size:15px;">Moderate</div>
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:12px;">
+            <div style="flex:1; height:24%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:42%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:36%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:26%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:44%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:38%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:52%; background:#1e6b52; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:88%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:100%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:70%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+            <div style="flex:1; height:34%; background:#e3e6de; border-radius:3px 3px 0 0;"></div>
+          </div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:8px;">Usually busiest 6–8 PM</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border:1.5px solid #1e6b52; transform:rotate(45deg);"></span>Upcoming</div>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:12px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:38px; height:38px; border-radius:12px; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:13px;">PT</div>
+              <div style="flex:1;"><div style="font-weight:600; font-size:14px;">PT with Karim H.</div><div style="font-size:12px; color:#6c7a71;">Today · 6:00 PM</div></div>
+              <span style="color:#1e6b52; font-size:12px; font-weight:700;">Confirmed</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:13px;">CL</div>
+              <div style="flex:1;"><div style="font-weight:600; font-size:14px;">HIIT 45</div><div style="font-size:12px; color:#6c7a71;">Thu · 6:00 PM</div></div>
+              <span style="color:#a86408; font-size:12px; font-weight:700;">Waitlist #2</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:13px;">RC</div>
+              <div style="flex:1;"><div style="font-weight:600; font-size:14px;">Sauna · 30 min</div><div style="font-size:12px; color:#6c7a71;">Sat · 11:00 AM</div></div>
+              <span style="color:#1e6b52; font-size:12px; font-weight:700;">Booked</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; border-left:5px solid #1e6b52; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="font-weight:700;">30-Day Consistency</span><span style="font-weight:700; color:#124a38;">12/20</span></div>
+          <div style="height:8px; background:#eef0ea; border-radius:4px; margin-top:10px; overflow:hidden;"><div style="width:60%; height:100%; background:#1e6b52; border-radius:4px;"></div></div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:8px;">Finish 20 visits this month → +500 pts</div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+          <div style="background:#ffffff; border-radius:20px; padding:14px 16px; box-shadow:0 6px 18px rgba(23,33,28,.05);"><div style="font-weight:700; font-size:14px;">Locker</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">None assigned</div></div>
+          <div style="background:#ffffff; border-radius:20px; padding:14px 16px; box-shadow:0 6px 18px rgba(23,33,28,.05);"><div style="font-weight:700; font-size:14px;">Guest pass</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">$10 · one visit</div></div>
+          <div style="background:#ffffff; border-radius:20px; padding:14px 16px; box-shadow:0 6px 18px rgba(23,33,28,.05);"><div style="font-weight:700; font-size:14px;">Report issue</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Equipment</div></div>
+          <div style="background:#bb3a2a; border-radius:20px; padding:14px 16px; color:#ffffff;"><div style="font-weight:800; font-size:14px;">SOS</div><div style="font-size:12px; color:#f2cdc7; margin-top:2px;">Alert reception</div></div>
+        </div>
+        <div style="position:sticky; bottom:14px; margin:6px 10px 0; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3 PASS ENTER -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">03</span> · The pass — scan to enter</div>
+      <div data-screen-label="Pass enter" style="width:375px; height:812px; background:#124a38; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.3); overflow:hidden; position:relative; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; padding:30px 24px; color:#dff0e6;">
+        <div style="align-self:flex-end; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); display:grid; place-items:center; font-size:15px; color:#ffffff;">✕</div>
+        <div style="width:66px; height:66px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin-top:12px;">S</div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; color:#ffffff; margin-top:12px;">Samer Khanji</div>
+        <div style="font-size:12px; color:#9ec7b3; margin-top:4px;">Performance · Active</div>
+        <div style="letter-spacing:.28em; font-weight:800; font-size:15px; color:#7ee2b1; margin-top:26px;">SCAN TO ENTER</div>
+        <div style="background:#ffffff; border-radius:24px; padding:22px; margin-top:16px; box-shadow:0 16px 40px rgba(0,0,0,.3);">
+          <div style="width:190px; height:190px; position:relative; background:repeating-conic-gradient(#17211c 0% 25%, transparent 0% 50%) 0 0/14px 14px; border-radius:6px;">
+            <div style="position:absolute; top:0; left:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+            <div style="position:absolute; top:0; right:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+            <div style="position:absolute; bottom:0; left:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+          </div>
+        </div>
+        <div style="width:238px; margin-top:18px;">
+          <div style="height:4px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden;"><div style="width:76%; height:100%; background:#7ee2b1; border-radius:2px;"></div></div>
+          <div style="text-align:center; font-size:12px; color:#9ec7b3; margin-top:8px;">Refreshes in 19s — screenshots won't work</div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,.08); border-radius:999px; padding:8px 16px; font-size:12px; color:#9ec7b3;">
+          <span style="width:16px; height:16px; border:2px solid #7ee2b1; border-radius:5px; display:inline-block;"></span>
+          Verified with Face ID · 6:14 PM
+        </div>
+      </div>
+    </div>
+
+    <!-- 4 PASS DENIED -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">04</span> · The pass — denied (frozen)</div>
+      <div data-screen-label="Pass denied" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; position:relative; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:0 32px; text-align:center;">
+        <div style="position:absolute; top:30px; right:24px; width:34px; height:34px; border-radius:50%; background:#ffffff; display:grid; place-items:center; font-size:15px; color:#6c7a71; box-shadow:0 4px 12px rgba(23,33,28,.08);">✕</div>
+        <div style="width:84px; height:84px; border-radius:50%; background:#f7e5e2; display:grid; place-items:center; font-size:36px;">⛔</div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:28px; margin-top:22px;">Entry not available</div>
+        <div style="color:#6c7a71; font-size:15px; line-height:1.5; margin-top:12px; max-width:280px;">Your membership is frozen. Unfreeze it to enter — or see reception.</div>
+        <div style="background:#fdf3ec; color:#a86408; font-size:12px; font-weight:700; padding:6px 14px; border-radius:999px; margin-top:18px;">Frozen since Jul 20 · 4 of 30 freeze days used</div>
+        <div style="background:#1e6b52; color:#ffffff; border-radius:16px; padding:16px 34px; font-weight:700; font-size:16px; margin-top:30px;">Unfreeze membership</div>
+        <div style="color:#6c7a71; font-size:13px; margin-top:14px;">This attempt was logged to Entry &amp; exit problems.</div>
+      </div>
+    </div>
+
+    <!-- 5 HOME INSIDE -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">05</span> · Home — inside the gym</div>
+      <div data-screen-label="Home inside" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; position:relative; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
+          <div style="width:42px; height:42px; border-radius:50%; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-weight:700; font-size:16px;">S</div>
+          <div style="flex:1;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:18px;">Good evening, Samer</div>
+            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; display:inline-block; margin-top:4px;">Active · Performance</span>
+          </div>
+        </div>
+        <div style="background:#dff0e6; border-radius:24px; padding:20px; box-shadow:0 8px 22px rgba(18,74,56,.12);">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <span style="width:10px; height:10px; border-radius:50%; background:#1e6b52; animation:pulse 1.6s ease-in-out infinite;"></span>
+            <span style="font-weight:800; color:#124a38; font-size:16px; font-family:'Bricolage Grotesque';">Inside the gym</span>
+          </div>
+          <div style="color:#2f5d4b; font-size:14px; margin-top:8px;">Since 6:15 PM · 47 min · locker <b>#47</b></div>
+          <div style="display:flex; gap:10px; margin-top:14px;">
+            <div style="flex:1; background:#124a38; color:#ffffff; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">Scan to exit</div>
+            <div style="flex:1; background:#ffffff; color:#124a38; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">Unlock locker</div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; gap:12px;">
+          <div style="width:38px; height:38px; border-radius:12px; background:#fdf3ec; color:#a86408; display:grid; place-items:center; font-weight:800; font-size:13px;">CF</div>
+          <div style="flex:1;">
+            <div style="font-weight:700; font-size:14px;">Protein shake · Chicken wrap</div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:2px;">Preparing — ready when you finish</div>
+          </div>
+          <span style="color:#a86408; font-size:12px; font-weight:700;">$10 paid</span>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Wallet</div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">$58</div>
+          </div>
+          <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Points</div>
+            <div style="display:flex; align-items:baseline; gap:6px;"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">355</div><span style="color:#1e6b52; font-size:12px; font-weight:700;">+15</span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Next up</div>
+          <div style="display:flex; align-items:center; gap:12px; margin-top:12px;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:13px;">PT</div>
+            <div style="flex:1;"><div style="font-weight:600; font-size:14px;">PT with Karim H.</div><div style="font-size:12px; color:#6c7a71;">Starts in 13 min · Floor 2</div></div>
+            <span style="color:#1e6b52; font-size:12px; font-weight:700;">On time</span>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; border-left:5px solid #1e6b52; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="font-weight:700;">30-Day Consistency</span><span style="font-weight:700; color:#124a38;">13/20</span></div>
+          <div style="height:8px; background:#eef0ea; border-radius:4px; margin-top:10px; overflow:hidden;"><div style="width:65%; height:100%; background:#1e6b52; border-radius:4px;"></div></div>
+          <div style="font-size:12px; color:#1e6b52; font-weight:600; margin-top:8px;">Today counted. 7 visits to +500 pts.</div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 6 GYM -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">06</span> · Gym — the building serves me</div>
+      <div data-screen-label="Gym tab" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Gym</div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; display:flex; align-items:center; gap:6px;"><span style="width:8px; height:8px; border:1.5px solid #1e6b52; border-radius:2px;"></span>My locker</div>
+          <div style="display:flex; align-items:center; gap:14px; margin-top:12px;">
+            <div style="flex:1;">
+              <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:28px; color:#124a38;">#47</div>
+              <div style="font-size:12px; color:#6c7a71; margin-top:2px;">Zone B · assigned this visit</div>
+            </div>
+            <div style="background:#fdf3ec; color:#a86408; border-radius:14px; padding:12px 20px; font-weight:800; font-size:14px;">OPEN</div>
+          </div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:10px;">Released automatically when you exit.</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Guest pass</div>
+          <div style="text-align:center; padding:10px 0 4px;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; letter-spacing:.18em; color:#124a38;">GST-482913</div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:6px;">One visit · expires in 48 h · $10 from wallet</div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Parking</div>
+          <div style="display:flex; align-items:center; gap:12px; margin-top:10px;">
+            <div style="background:#17211c; color:#ffffff; border-radius:8px; padding:6px 12px; font-weight:800; letter-spacing:.08em; font-size:14px;">B 168420</div>
+            <div style="flex:1; font-size:13px;"><b>Spot 12</b> reserved · <span style="color:#1e6b52; font-weight:700;">5 of 10 free</span></div>
+          </div>
+          <div style="margin-top:12px; background:#f3f4ef; border-radius:12px; padding:11px 14px; display:flex; justify-content:space-between; font-size:13px;"><span>Car wash while you train</span><b style="color:#124a38;">$12</b></div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Recovery</div>
+          <div style="display:flex; flex-direction:column; margin-top:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span><b>Sauna</b> · 30 min</span><span style="display:flex; gap:10px; align-items:center;"><b style="color:#124a38;">$8</b><span style="color:#1e6b52; font-weight:700; font-size:12px;">Book</span></span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span><b>Massage</b> · 45 min</span><span style="display:flex; gap:10px; align-items:center;"><b style="color:#124a38;">$35</b><span style="color:#1e6b52; font-weight:700; font-size:12px;">Book</span></span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span><b>Cold plunge</b> · 15 min</span><span style="display:flex; gap:10px; align-items:center;"><b style="color:#124a38;">$10</b><span style="color:#1e6b52; font-weight:700; font-size:12px;">Book</span></span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; font-size:14px;"><span><b>Stretching</b> · 20 min</span><span style="display:flex; gap:10px; align-items:center;"><b style="color:#124a38;">$15</b><span style="color:#1e6b52; font-weight:700; font-size:12px;">Book</span></span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Report equipment</div>
+          <div style="display:flex; gap:8px; margin-top:10px;">
+            <div style="flex:1; background:#f3f4ef; border-radius:10px; padding:10px 12px; font-size:13px; color:#6c7a71;">Treadmill #4</div>
+            <div style="flex:1; background:#f3f4ef; border-radius:10px; padding:10px 12px; font-size:13px; color:#6c7a71;">Belt slipping</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px; margin-top:12px; font-size:13px;">
+            <span style="color:#6c7a71;">My report — Cable row:</span>
+            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px;">In repair</span>
+          </div>
+        </div>
+        <div style="background:#bb3a2a; border-radius:24px; padding:18px; color:#ffffff;">
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:18px;">SOS</div>
+          <div style="font-size:13px; color:#f2cdc7; margin-top:4px;">Alerts reception with who and where you are.</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">My visits</div>
+          <div style="display:flex; gap:10px; margin-top:12px;">
+            <div style="flex:1; background:#f3f4ef; border-radius:14px; padding:12px; text-align:center;"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#124a38;">13</div><div style="font-size:11px; color:#6c7a71;">this month</div></div>
+            <div style="flex:1; background:#f3f4ef; border-radius:14px; padding:12px; text-align:center;"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#124a38;">1h 12m</div><div style="font-size:11px; color:#6c7a71;">avg visit</div></div>
+            <div style="flex:1; background:#f3f4ef; border-radius:14px; padding:12px; text-align:center;"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#124a38;">Ach.</div><div style="font-size:11px; color:#6c7a71;">top branch</div></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0 4px; border-bottom:1px solid #f2f4ee; font-size:13px; margin-top:6px;"><span><b>Today</b> · 6:15 PM</span><span style="color:#1e6b52; font-weight:700;">In progress ›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0 4px; font-size:13px;"><span><b>Jul 26</b> · 5:50 PM · 1h 15m</span><span style="color:#6c7a71;">+10 pts ›</span></div>
+        </div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7 TRAIN WORKOUTS -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">07</span> · Train — workouts</div>
+      <div data-screen-label="Train workouts" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Train</div>
+        <div style="background:#e7eae2; border-radius:14px; padding:4px; display:flex;">
+          <div style="flex:1; text-align:center; padding:9px 0; background:#ffffff; border-radius:11px; font-weight:700; font-size:13px; box-shadow:0 2px 8px rgba(23,33,28,.08);">Workouts</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Trainers</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Classes</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:16px;">Push Pull Legs · Week 3</div>
+            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:3px 10px; border-radius:999px;">Push day</span>
+          </div>
+          <div style="display:flex; flex-direction:column; margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Bench press</span><span style="color:#6c7a71;">4×8 · last: 80 kg</span></div>
+            <div style="display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Incline DB press</span><span style="color:#6c7a71;">3×10 · last: 28 kg</span></div>
+            <div style="display:flex; justify-content:space-between; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Overhead press</span><span style="color:#6c7a71;">3×8 · last: 45 kg</span></div>
+            <div style="display:flex; justify-content:space-between; padding:11px 0; font-size:14px;"><span style="font-weight:600;">Cable fly</span><span style="color:#6c7a71;">3×12 · last: 20 kg</span></div>
+          </div>
+          <div style="background:#1e6b52; color:#ffffff; border-radius:14px; padding:14px; text-align:center; font-weight:700; font-size:15px; margin-top:12px;">Log today's workout</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Personal records</div>
+          <div style="display:flex; flex-direction:column; margin-top:6px;">
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Deadlift</span><span><b style="color:#1e6b52;">140 kg</b> <span style="color:#9aa79f; font-size:12px;">· Jul 21</span></span></div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Squat</span><span><b style="color:#1e6b52;">120 kg</b> <span style="color:#9aa79f; font-size:12px;">· Jul 10</span></span></div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:14px;"><span style="font-weight:600;">Bench press</span><span><b style="color:#1e6b52;">85 kg</b> <span style="color:#9aa79f; font-size:12px;">· Jun 30</span></span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; gap:12px;">
+          <div style="flex:1;">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Assessment</div>
+            <div style="font-size:13px; margin-top:6px;">Last: <b>Jun 15</b> · body fat 18.2%</div>
+          </div>
+          <div style="background:#dff0e6; color:#124a38; border-radius:12px; padding:10px 14px; font-weight:700; font-size:13px;">Book · $25</div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 8 TRAIN TRAINERS -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">08</span> · Train — trainers</div>
+      <div data-screen-label="Train trainers" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Train</div>
+        <div style="background:#e7eae2; border-radius:14px; padding:4px; display:flex;">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Workouts</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#ffffff; border-radius:11px; font-weight:700; font-size:13px; box-shadow:0 2px 8px rgba(23,33,28,.08);">Trainers</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Classes</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:18px; color:#ffffff;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#9ec7b3;">My package</div>
+          <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:8px;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Karim H. — 3 of 10 left</div>
+            <span style="background:rgba(255,255,255,.14); border-radius:10px; padding:6px 12px; font-weight:700; font-size:12px;">Renew · $300</span>
+          </div>
+          <div style="height:7px; background:rgba(255,255,255,.18); border-radius:4px; margin-top:12px; overflow:hidden;"><div style="width:70%; height:100%; background:#7ee2b1; border-radius:4px;"></div></div>
+          <div style="font-size:11px; color:#9ec7b3; margin-top:10px;">Sessions complete only after you confirm in the app.</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; gap:14px; align-items:center;">
+          <div style="width:52px; height:52px; border-radius:16px; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-weight:800; font-size:18px; flex-shrink:0;">KH</div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="font-weight:700; font-size:15px;">Karim H.</span><span style="color:#a86408; font-size:12px; font-weight:700;">★ 4.9</span></div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Strength · Rehab · EN AR FR · $30/session</div>
+            <div style="color:#1e6b52; font-size:12px; font-weight:700; margin-top:4px;">● Available now</div>
+          </div>
+          <div style="background:#1e6b52; color:#ffffff; border-radius:12px; padding:9px 15px; font-weight:700; font-size:13px;">Book</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; gap:14px; align-items:center;">
+          <div style="width:52px; height:52px; border-radius:16px; background:#6fae91; color:#ffffff; display:grid; place-items:center; font-weight:800; font-size:18px; flex-shrink:0;">MZ</div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="font-weight:700; font-size:15px;">Maya Z.</span><span style="color:#a86408; font-size:12px; font-weight:700;">★ 4.8</span></div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:3px;">HIIT · Mobility · EN AR · $28/session</div>
+            <div style="color:#a86408; font-size:12px; font-weight:700; margin-top:4px;">● With a client · free 4:30</div>
+          </div>
+          <div style="background:#dff0e6; color:#124a38; border-radius:12px; padding:9px 15px; font-weight:700; font-size:13px;">Book</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; gap:14px; align-items:center;">
+          <div style="width:52px; height:52px; border-radius:16px; background:#a86408; color:#ffffff; display:grid; place-items:center; font-weight:800; font-size:18px; flex-shrink:0;">RD</div>
+          <div style="flex:1; min-width:0;">
+            <div style="display:flex; align-items:center; gap:8px;"><span style="font-weight:700; font-size:15px;">Rita D.</span><span style="color:#a86408; font-size:12px; font-weight:700;">★ 5.0</span></div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Nutrition · Conditioning · EN FR · $32/session</div>
+            <div style="color:#1e6b52; font-size:12px; font-weight:700; margin-top:4px;">● Available now</div>
+          </div>
+          <div style="background:#dff0e6; color:#124a38; border-radius:12px; padding:9px 15px; font-weight:700; font-size:13px;">Book</div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 9 TRAIN CLASSES -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">09</span> · Train — classes</div>
+      <div data-screen-label="Train classes" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Train</div>
+        <div style="background:#e7eae2; border-radius:14px; padding:4px; display:flex;">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Workouts</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Trainers</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#ffffff; border-radius:11px; font-weight:700; font-size:13px; box-shadow:0 2px 8px rgba(23,33,28,.08);">Classes</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:6px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:11px;">TUE</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Spin</div><div style="font-size:12px; color:#6c7a71;">7:00 PM · Coach Maya · <span style="color:#1e6b52; font-weight:600;">4 spots left</span></div></div>
+            <div style="background:#1e6b52; color:#ffffff; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px;">Reserve</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:11px;">THU</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">HIIT 45</div><div style="font-size:12px; color:#6c7a71;">6:00 PM · Coach Karim · <span style="color:#a86408; font-weight:600;">Full</span></div></div>
+            <div style="background:#fdf3ec; color:#a86408; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px;">Join waitlist</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:11px;">FRI</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Yoga Flow</div><div style="font-size:12px; color:#6c7a71;">8:00 PM · Coach Rita · <span style="color:#1e6b52; font-weight:600;">10 spots left</span></div></div>
+            <div style="background:#dff0e6; color:#124a38; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px;">Reserve</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px; padding:14px 0;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:11px;">SAT</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Boxing basics</div><div style="font-size:12px; color:#6c7a71;">10:00 AM · Coach Ziad · <span style="color:#1e6b52; font-weight:600;">You're in</span></div></div>
+            <div style="background:#f3f4ef; color:#6c7a71; border-radius:10px; padding:8px 14px; font-weight:700; font-size:12px;">Cancel</div>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#9aa79f; text-align:center; padding:0 20px;">Free cancellation up to 3 h before class. No-shows lose the reservation credit.</div>
+        <div style="flex:1;"></div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10 FOOD CAFE -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">10</span> · Food — café</div>
+      <div data-screen-label="Food cafe" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Food &amp; Shop</div>
+        <div style="background:#e7eae2; border-radius:14px; padding:4px; display:flex;">
+          <div style="flex:1; text-align:center; padding:9px 0; background:#ffffff; border-radius:11px; font-weight:700; font-size:13px; box-shadow:0 2px 8px rgba(23,33,28,.08);">Café</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Meal plan</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Shop</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><span style="font-weight:700; font-size:15px;">Protein shake</span><b style="color:#1e6b52; font-size:15px;">$6</b></div>
+          <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+            <span style="background:#f3f4ef; color:#4a5a51; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px;">220 kcal · 32P · 12C · 4F</span>
+            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px;">⚠ milk</span>
+          </div>
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:14px; margin-top:10px;">
+            <span style="width:28px; height:28px; border-radius:50%; background:#f3f4ef; display:grid; place-items:center; font-weight:700; color:#6c7a71;">−</span>
+            <b style="font-size:15px;">1</b>
+            <span style="width:28px; height:28px; border-radius:50%; background:#124a38; color:#ffffff; display:grid; place-items:center; font-weight:700;">+</span>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><span style="font-weight:700; font-size:15px;">Chicken wrap</span><b style="color:#1e6b52; font-size:15px;">$4</b></div>
+          <div style="display:flex; gap:6px; margin-top:8px; flex-wrap:wrap;">
+            <span style="background:#f3f4ef; color:#4a5a51; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px;">410 kcal · 38P · 34C · 11F</span>
+            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px;">⚠ gluten</span>
+          </div>
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:14px; margin-top:10px;">
+            <span style="width:28px; height:28px; border-radius:50%; background:#f3f4ef; display:grid; place-items:center; font-weight:700; color:#6c7a71;">−</span>
+            <b style="font-size:15px;">1</b>
+            <span style="width:28px; height:28px; border-radius:50%; background:#124a38; color:#ffffff; display:grid; place-items:center; font-weight:700;">+</span>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; align-items:baseline;"><span style="font-weight:700; font-size:15px;">Acai bowl</span><b style="color:#1e6b52; font-size:15px;">$7</b></div>
+          <div style="display:flex; gap:6px; margin-top:8px;">
+            <span style="background:#f3f4ef; color:#4a5a51; font-size:11px; font-weight:600; padding:3px 8px; border-radius:999px;">340 kcal · 9P · 52C · 12F</span>
+            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:3px 8px; border-radius:999px;">⚠ nuts</span>
+          </div>
+          <div style="display:flex; justify-content:flex-end; align-items:center; gap:14px; margin-top:10px;">
+            <span style="width:28px; height:28px; border-radius:50%; background:#f3f4ef; display:grid; place-items:center; font-weight:700; color:#6c7a71;">−</span>
+            <b style="font-size:15px; color:#9aa79f;">0</b>
+            <span style="width:28px; height:28px; border-radius:50%; background:#124a38; color:#ffffff; display:grid; place-items:center; font-weight:700;">+</span>
+          </div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="background:#124a38; border-radius:18px; padding:16px 20px; color:#ffffff; display:flex; align-items:center; gap:12px; box-shadow:0 12px 28px rgba(18,74,56,.3);">
+          <div style="flex:1;">
+            <div style="font-weight:800; font-size:15px;">2 items · $10 — Order</div>
+            <div style="font-size:11px; color:#9ec7b3; margin-top:3px;">Pick up after workout · paid from wallet</div>
+          </div>
+          <div style="width:30px; height:30px; border-radius:50%; background:rgba(255,255,255,.14); display:grid; place-items:center; font-weight:700;">›</div>
+        </div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 11 FOOD MEAL PLAN + SHOP -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">11</span> · Food — meal plan &amp; shop</div>
+      <div data-screen-label="Food meal plan" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Food &amp; Shop</div>
+        <div style="background:#e7eae2; border-radius:14px; padding:4px; display:flex;">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Café</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#ffffff; border-radius:11px; font-weight:700; font-size:13px; box-shadow:0 2px 8px rgba(23,33,28,.08);">Meal plan</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:13px;">Shop</div>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:18px; color:#ffffff;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#9ec7b3;">My goal</div>
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; margin-top:6px;">Muscle gain</div>
+          <div style="font-size:13px; color:#9ec7b3; margin-top:4px;">Assigned by nutritionist · 2,850 kcal/day</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:800; letter-spacing:.12em; color:#1e6b52;">BREAKFAST</div>
+          <div style="font-weight:700; font-size:15px; margin-top:6px;">Oats, banana, whey, almond butter</div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:4px;">640 kcal · 42P · 74C · 18F</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:800; letter-spacing:.12em; color:#1e6b52;">LUNCH</div>
+          <div style="font-weight:700; font-size:15px; margin-top:6px;">Chicken, rice, broccoli, olive oil</div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:4px;">820 kcal · 58P · 92C · 20F</div>
+        </div>
+        <div style="background:#dff0e6; border-radius:16px; padding:14px; text-align:center; font-weight:700; color:#124a38; font-size:14px;">Book nutritionist consultation</div>
+        <div style="height:1px; background:#e3e6de; margin:4px 10px;"></div>
+        <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; padding:0 4px;">Shop · click &amp; collect</div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:12px; background:repeating-linear-gradient(45deg,#eef0ea,#eef0ea 6px,#e3e6de 6px,#e3e6de 12px); flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Whey isolate 2 kg</div><div style="font-size:12px; color:#6c7a71;">Collect at reception</div></div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;"><b style="color:#1e6b52;">$45</b><span style="background:#124a38; color:#ffffff; border-radius:9px; padding:6px 13px; font-weight:700; font-size:12px;">Buy</span></div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; gap:12px;">
+          <div style="width:44px; height:44px; border-radius:12px; background:repeating-linear-gradient(45deg,#eef0ea,#eef0ea 6px,#e3e6de 6px,#e3e6de 12px); flex-shrink:0;"></div>
+          <div style="flex:1;"><div style="font-weight:700; font-size:14px;">GYM tee</div><div style="font-size:12px; color:#6c7a71;">S / M / L / XL</div></div>
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:6px;"><b style="color:#1e6b52;">$18</b><span style="background:#dff0e6; color:#124a38; border-radius:9px; padding:6px 13px; font-weight:700; font-size:12px;">Buy</span></div>
+        </div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 12 PASS EXIT -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">12</span> · The pass — scan to exit</div>
+      <div data-screen-label="Pass exit" style="width:375px; height:812px; background:#124a38; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.3); overflow:hidden; box-sizing:border-box; display:flex; flex-direction:column; align-items:center; padding:30px 24px; color:#dff0e6;">
+        <div style="align-self:flex-end; width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); display:grid; place-items:center; font-size:15px; color:#ffffff;">✕</div>
+        <div style="width:66px; height:66px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin-top:12px;">S</div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; color:#ffffff; margin-top:12px;">Samer Khanji</div>
+        <div style="display:flex; align-items:center; gap:7px; font-size:12px; color:#9ec7b3; margin-top:6px;"><span style="width:8px; height:8px; border-radius:50%; background:#7ee2b1; animation:pulse 1.6s ease-in-out infinite;"></span>Inside · 1h 12m · locker #47</div>
+        <div style="letter-spacing:.28em; font-weight:800; font-size:15px; color:#f0b25e; margin-top:24px;">SCAN TO EXIT</div>
+        
+<div style="background:#ffffff; border-radius:24px; padding:22px; margin-top:16px; box-shadow:0 16px 40px rgba(0,0,0,.3);">
+          <div style="width:190px; height:190px; position:relative; background:repeating-conic-gradient(#17211c 0% 25%, transparent 0% 50%) 0 0/14px 14px; border-radius:6px;">
+            <div style="position:absolute; top:0; left:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+            <div style="position:absolute; top:0; right:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+            <div style="position:absolute; bottom:0; left:0; width:44px; height:44px; background:#ffffff; display:grid; place-items:center;"><div style="width:36px; height:36px; border:6px solid #17211c; box-sizing:border-box; display:grid; place-items:center;"><div style="width:12px; height:12px; background:#17211c;"></div></div></div>
+          </div>
+        </div>
+        <div style="width:238px; margin-top:18px;">
+          <div style="height:4px; background:rgba(255,255,255,.15); border-radius:2px; overflow:hidden;"><div style="width:52%; height:100%; background:#f0b25e; border-radius:2px;"></div></div>
+          <div style="text-align:center; font-size:12px; color:#9ec7b3; margin-top:8px;">Refreshes in 13s</div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="background:rgba(255,255,255,.08); border-radius:16px; padding:14px 18px; width:100%; box-sizing:border-box;">
+          <div style="display:flex; justify-content:space-between; font-size:13px;"><span style="color:#9ec7b3;">This visit</span><span style="font-weight:700; color:#ffffff;">1h 12m · +10 pts</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:8px;"><span style="color:#9ec7b3;">Locker #47</span><span style="font-weight:700; color:#7ee2b1;">Releases at exit</span></div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:8px;"><span style="color:#9ec7b3;">Café order</span><span style="font-weight:700; color:#f0b25e;">Ready — grab it on the way out</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 13 VISIT TIMELINE -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">13</span> · Visit timeline detail</div>
+      <div data-screen-label="Visit timeline" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
+          <div style="width:34px; height:34px; border-radius:50%; background:#ffffff; display:grid; place-items:center; font-size:15px; color:#6c7a71; box-shadow:0 4px 12px rgba(23,33,28,.07);">‹</div>
+          <div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px;">Today's visit</div>
+            <div style="font-size:12px; color:#6c7a71; margin-top:2px;">Achrafieh · 5:50 – 7:05 PM · 1h 15m</div>
+          </div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px; color:#124a38;">1h 15m</div><div style="font-size:11px; color:#6c7a71;">duration</div></div>
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px; color:#124a38;">$10</div><div style="font-size:11px; color:#6c7a71;">spent</div></div>
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px; color:#1e6b52;">+10</div><div style="font-size:11px; color:#6c7a71;">points</div></div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:20px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); flex:1;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Timeline</div>
+          <div style="display:flex; flex-direction:column; margin-top:14px;">
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:#1e6b52; margin-top:3px;"></div><div style="width:2px; flex:1; background:repeating-linear-gradient(#c3d8cc 0 4px, transparent 4px 8px);"></div></div>
+              <div style="padding-bottom:22px;"><div style="font-weight:700; font-size:14px;">Entered the gym</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">5:50 PM · main gate</div></div>
+            </div>
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:#1e6b52; margin-top:3px;"></div><div style="width:2px; flex:1; background:repeating-linear-gradient(#c3d8cc 0 4px, transparent 4px 8px);"></div></div>
+              <div style="padding-bottom:22px;"><div style="font-weight:700; font-size:14px;">Locker 47 assigned</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">5:52 PM · Zone B</div></div>
+            </div>
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:#1e6b52; margin-top:3px;"></div><div style="width:2px; flex:1; background:repeating-linear-gradient(#c3d8cc 0 4px, transparent 4px 8px);"></div></div>
+              <div style="padding-bottom:22px;"><div style="font-weight:700; font-size:14px;">PT session with Karim</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">6:00 PM · confirmed in app · 7 of 10 used</div></div>
+            </div>
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:#1e6b52; margin-top:3px;"></div><div style="width:2px; flex:1; background:repeating-linear-gradient(#c3d8cc 0 4px, transparent 4px 8px);"></div></div>
+              <div style="padding-bottom:22px;"><div style="font-weight:700; font-size:14px;">Shake picked up</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">7:02 PM · $10 from wallet</div></div>
+            </div>
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center;"><div style="width:12px; height:12px; border-radius:50%; background:#124a38; margin-top:3px;"></div></div>
+              <div><div style="font-weight:700; font-size:14px;">Exited · locker released</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">7:05 PM · <span style="color:#1e6b52; font-weight:700;">+10 pts earned</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14 NOTIFICATIONS -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">14</span> · Notifications inbox</div>
+      <div data-screen-label="Notifications" style="width:375px; height:812px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
+          <div style="width:34px; height:34px; border-radius:50%; background:#ffffff; display:grid; place-items:center; font-size:15px; color:#6c7a71; box-shadow:0 4px 12px rgba(23,33,28,.07);">‹</div>
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; flex:1;">Notifications</div>
+          <div style="font-size:12px; font-weight:700; color:#1e6b52;">Mark all read</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:6px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:12px; flex-shrink:0;">CF</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Your order is ready 🥤</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Protein shake + wrap at the café counter.</div><div style="font-size:11px; color:#9aa79f; margin-top:4px;">7:02 PM</div></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:#1e6b52; margin-top:6px;"></div>
+          </div>
+          <div style="display:flex; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:12px; flex-shrink:0;">LK</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Locker 47 is yours</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Zone B · unlocks from your phone, releases at exit.</div><div style="font-size:11px; color:#9aa79f; margin-top:4px;">5:52 PM</div></div>
+            <div style="width:8px; height:8px; border-radius:50%; background:#1e6b52; margin-top:6px;"></div>
+          </div>
+          <div style="display:flex; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#fdf3ec; color:#a86408; display:grid; place-items:center; font-weight:800; font-size:12px; flex-shrink:0;">CL</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">You're off the waitlist</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">HIIT 45 Thursday 6:00 PM — a spot opened. Confirm within 2 h.</div><div style="font-size:11px; color:#9aa79f; margin-top:4px;">3:40 PM</div></div>
+          </div>
+          <div style="display:flex; gap:12px; padding:14px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:12px; flex-shrink:0;">RN</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Renewal in 9 days</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Performance plan renews Aug 6 · auto-renew is on.</div><div style="font-size:11px; color:#9aa79f; margin-top:4px;">Yesterday</div></div>
+          </div>
+          <div style="display:flex; gap:12px; padding:14px 0;">
+            <div style="width:38px; height:38px; border-radius:12px; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:800; font-size:12px; flex-shrink:0;">RP</div>
+            <div style="flex:1;"><div style="font-weight:700; font-size:14px;">Report received</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Cable row issue is now In repair. We'll notify you when fixed.</div><div style="font-size:11px; color:#9aa79f; margin-top:4px;">Jul 26</div></div>
+          </div>
+        </div>
+        <div style="flex:1;"></div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 15 ACCOUNT -->
+    <div style="width:375px; flex-shrink:0;">
+      <div style="font-size:12px; font-weight:700; color:#6c7a71; margin-bottom:10px;"><span style="color:#1e6b52;">15</span> · Account — membership, money, data</div>
+      <div data-screen-label="Account" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); overflow:hidden; box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:24px; padding:0 4px;">Account</div>
+        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:20px; color:#ffffff; display:flex; align-items:center; gap:14px;">
+          <div style="width:52px; height:52px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px;">S</div>
+          <div style="flex:1;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px;">Samer Khanji</div>
+            <div style="font-size:12px; color:#9ec7b3; margin-top:2px;">Member since March 2026</div>
+          </div>
+          <span style="background:rgba(255,255,255,.14); border-radius:10px; padding:6px 12px; font-weight:700; font-size:12px;">Performance</span>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Wallet</div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38;">$58</div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:12px;">
+            <div style="flex:1; background:#dff0e6; color:#124a38; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">+$50</div>
+            <div style="flex:1; background:#124a38; color:#ffffff; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">+$100 <span style="color:#7ee2b1;">+10 bonus</span></div>
+          </div>
+          <div style="display:flex; flex-direction:column; margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:13px;"><span>Café order</span><span style="font-weight:700; color:#bb3a2a;">−$10</span></div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:13px;"><span>Top-up</span><span style="font-weight:700; color:#1e6b52;">+$100</span></div>
+            <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:13px;"><span>Guest pass</span><span style="font-weight:700; color:#bb3a2a;">−$10</span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Loyalty points</div>
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38;">355</div>
+          </div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
+            <span style="background:#f3f4ef; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px;">visit <b style="color:#1e6b52;">+10</b></span>
+            <span style="background:#f3f4ef; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px;">class <b style="color:#1e6b52;">+15</b></span>
+            <span style="background:#f3f4ef; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px;">PR <b style="color:#1e6b52;">+20</b></span>
+            <span style="background:#f3f4ef; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px;">order <b style="color:#1e6b52;">+5</b></span>
+            <span style="background:#f3f4ef; font-size:11px; font-weight:600; padding:4px 9px; border-radius:999px;">challenge <b style="color:#1e6b52;">+500</b></span>
+          </div>
+          <div style="display:flex; flex-direction:column; margin-top:8px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:13px;"><span>Free shake</span><span style="color:#1e6b52; font-weight:700;">300 pts · Redeem</span></div>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; font-size:13px;"><span style="color:#9aa79f;">1 month free</span><span style="color:#9aa79f; font-weight:700;">2,000 pts</span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Subscription</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <div><div style="font-weight:700; font-size:15px;">Performance · $395/quarter</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Valid until Aug 6 · freeze days 4/30 · auto-renew on</div></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:12px;">
+            <div style="flex:1; background:#124a38; color:#ffffff; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">Renew</div>
+            <div style="flex:1; background:#fdf3ec; color:#a86408; border-radius:12px; padding:11px; text-align:center; font-weight:700; font-size:13px;">Freeze</div>
+          </div>
+          <div style="background:#dff0e6; border:2px solid #1e6b52; border-radius:14px; padding:12px 14px; margin-top:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-weight:700; font-size:13px; color:#124a38;">Performance — your current plan</div><div style="font-size:11px; color:#2f5d4b;">PT discount · recovery included</div></div>
+            <b style="color:#124a38;">$395</b>
+          </div>
+          <div style="display:flex; flex-direction:column; margin-top:4px;">
+            <div style="display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid #f2f4ee; font-size:13px;"><span>Monthly</span><b style="color:#124a38;">$95</b></div>
+            <div style="display:flex; justify-content:space-between; padding:9px 2px; border-bottom:1px solid #f2f4ee; font-size:13px;"><span>Annual</span><b style="color:#124a38;">$690</b></div>
+            <div style="display:flex; justify-content:space-between; padding:9px 2px; font-size:13px;"><span>Annual · Elite</span><b style="color:#124a38;">$850</b></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Referral</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; letter-spacing:.12em; color:#124a38;">SAMER-2026</div>
+            <span style="background:#dff0e6; color:#124a38; border-radius:10px; padding:7px 13px; font-weight:700; font-size:12px;">Share</span>
+          </div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:6px;">They get a week free — you get 300 pts.</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:6px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Family members</span><span style="color:#6c7a71; font-size:13px;">2 linked ›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Invoices</span><span style="color:#6c7a71; font-size:13px;">›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Appearance</span><span style="color:#6c7a71; font-size:13px;">Club theme ›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Registered device</span><span style="color:#6c7a71; font-size:13px;">This phone ›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee; font-size:14px;"><span style="font-weight:600;">Entry &amp; exit problems</span><span style="color:#6c7a71; font-size:13px;">1 logged ›</span></div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; font-size:14px;"><span style="font-weight:600;">Privacy — export / delete my data</span><span style="color:#6c7a71; font-size:13px;">›</span></div>
+        </div>
+        <div style="font-size:12px; color:#9aa79f; text-align:center;">Your data belongs to you.</div>
+        <div style="margin:0 10px; background:rgba(255,255,255,.88); backdrop-filter:blur(12px); border-radius:999px; padding:6px; display:flex; box-shadow:0 10px 30px rgba(23,33,28,.14);">
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Home</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Train</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Gym</div>
+          <div style="flex:1; text-align:center; padding:9px 0; color:#6c7a71; font-weight:600; font-size:12px;">Food</div>
+          <div style="flex:1; text-align:center; padding:9px 0; background:#dff0e6; color:#124a38; border-radius:999px; font-weight:700; font-size:12px;">Account</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section></x-dc>
+</body>
+</html>

@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{{const W=new URLSearchParams(location.search).get("theme");if(W==="light"||W==="dark"){document.documentElement.dataset.theme=W}}{if(new URLSearchParams(location.search).get("_omthumb")==="1"){const W=(q)=>{const X=q.focus;if(!X)return;q.focus=function(H){X.call(this,{...H,preventScroll:true})}};W(HTMLElement.prototype);W(SVGElement.prototype);if(typeof MathMLElement!=="undefined"){W(MathMLElement.prototype)}const $=(q)=>{q.removeAttribute("autofocus");q.inert=true;if(!(q instanceof HTMLElement))q.removeAttribute("tabindex")};const z=(q)=>{if(q.hasAttribute("autofocus"))$(q);for(const X of q.querySelectorAll("[autofocus]")){$(X)}};z(document.documentElement);new MutationObserver((q)=>{for(const X of q){for(const H of X.addedNodes){if(H.nodeType===1)z(H)}}}).observe(document,{childList:true,subtree:true})}}{const W=()=>{try{if(document.querySelector('meta[name="color-scheme"]'))return;const $=getComputedStyle(document.documentElement).getPropertyValue("color-scheme").trim();if($&&$!=="normal")return;const z=(j)=>{if(!j)return null;const F=getComputedStyle(j).backgroundColor.match(/^rgba?\(\s*(\d+)[,\s]+(\d+)[,\s]+(\d+)(?:[,\s/]+([\d.]+%?))?\s*\)$/);if(!F)return null;const G=F[4]==null?1:parseFloat(F[4])/(F[4].endsWith("%")?100:1);if(G<0.99)return null;return[+F[1],+F[2],+F[3]]};const q=z(document.body)||z(document.documentElement);if(!q)return;const X=(j)=>{const F=j/255;return F<=0.04045?F/12.92:((F+0.055)/1.055)**2.4};const H=0.2126*X(q[0])+0.7152*X(q[1])+0.0722*X(q[2]);document.documentElement.style.setProperty("color-scheme",H<0.4?"dark":"light")}catch{}};if(document.readyState==="complete")W();else window.addEventListener("load",W)}var b=[];var p=false;var u=30000;var d=3000;document.addEventListener("DOMContentLoaded",()=>{const W=window.Babel;const $="om-src-id";if(W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[$])){W.registerPlugin($,({types:H})=>({visitor:{JSXOpeningElement(j,F){const G=j.node;if(G.name&&G.name.type==="JSXMemberExpression")return;for(let Q=0;Q<G.attributes.length;Q++){const V=G.attributes[Q];if(V.type==="JSXAttribute"&&V.name&&V.name.name==="data-om-id")return}const P=F.file&&F.file.opts&&F.file.opts.filename||"?";const R=G.loc&&G.loc.start;const J=`jsx:${P}:${G.start??0}:${R?R.line:0}:${R?R.column+1:0}`;G.attributes.push(H.jsxAttribute(H.jsxIdentifier("data-om-id"),H.stringLiteral(J)))}}}))}const z="om-text-extract";let q=false;if(p&&W&&W.registerPlugin&&!(W.availablePlugins&&W.availablePlugins[z])){const H=window.React;if(H&&H.useSyncExternalStore&&H.createElement){q=true;const j={};const F=new Set;let G=0;window.__omTextO=j;window.__omTextSet=(J)=>{for(const Q in J){const V=J[Q];if(V==null)delete j[Q];else j[Q]=V}G++;F.forEach((Q)=>Q())};const P=(J)=>{F.add(J);return()=>F.delete(J)};const R=()=>G;window.__OmT=function J(Q){H.useSyncExternalStore(P,R,R);return H.createElement("span",{"data-om-text":Q.i,className:"__om-t"},Q.i in j?j[Q.i]:Q.children)};W.registerPlugin(z,({types:J})=>{const Q={style:1,script:1,noscript:1,textarea:1,title:1,option:1,text:1,tspan:1,textPath:1};const V={placeholder:1,alt:1,title:1,label:1,"aria-label":1,"aria-description":1,"aria-placeholder":1};const Y=(K,M)=>J.logicalExpression("??",J.memberExpression(J.logicalExpression("||",J.memberExpression(J.identifier("window"),J.identifier("__omTextO")),J.objectExpression([])),J.stringLiteral(K),true),M);const Z=(K)=>K.file&&K.file.opts&&K.file.opts.filename||"?";const B=(K)=>K.file&&K.file.code||"";const U=(K,M)=>{const L=(D)=>D&&D.start!=null&&D.end!=null&&(D.type==="StringLiteral"||D.type==="TemplateLiteral"&&D.expressions.length===0)?[D.start,D.end]:null;const N=L(M);if(N)return N;if(M&&M.type==="Identifier"){const D=K.scope.getBinding(M.name);if(D&&D.constant&&D.path.node.type==="VariableDeclarator"){return L(D.path.node.init)}}return null};const x=(K,M,L)=>{const N=K.node;let D=false;const f=(w,A)=>{D=true;return J.jsxElement(J.jsxOpeningElement(J.jsxIdentifier("__OmT"),[J.jsxAttribute(J.jsxIdentifier("i"),J.stringLiteral(w))],false),J.jsxClosingElement(J.jsxIdentifier("__OmT")),[A],false)};const C=N.children.map((w)=>{if(w.type==="JSXText"){if(w.start==null||w.end==null)return w;const A=L.slice(w.start,w.end);const S=A.length-A.trimStart().length;const O=A.length-A.trimEnd().length;if(S+O>=A.length)return w;return f(`txt:${M}:${w.start+S}:${w.end-O}`,w)}if(w.type==="JSXExpressionContainer"){const A=U(K,w.expression);if(A)return f(`str:${M}:${A[0]}:${A[1]}`,w)}return w});if(D)N.children=C};return{visitor:{JSXOpeningElement(K,M){const L=K.node;const N=Z(M);const D={};for(let f=0;f<L.attributes.length;f++){const C=L.attributes[f];if(C.type!=="JSXAttribute"||!C.name)continue;const w=C.name.name;if(!V[w])continue;if(!C.value||C.value.type!=="StringLiteral")continue;if(C.value.start==null||C.value.end==null)continue;const A=`txt:${N}:${C.value.start}:${C.value.end}`;D[w]=A;C.value=J.jsxExpressionContainer(Y(A,J.stringLiteral(C.value.value)))}if(Object.keys(D).length){L.attributes.push(J.jsxAttribute(J.jsxIdentifier("data-om-text-attrs"),J.stringLiteral(JSON.stringify(D))))}},JSXElement(K,M){const L=K.node.openingElement;const N=L&&L.name&&L.name.name;if(N==="__OmT")return;if(typeof N==="string"&&Q[N])return;x(K,Z(M),B(M))},JSXFragment(K,M){x(K,Z(M),B(M))}}}})}}const X=q?["transform-react-jsx-source",$,z]:["transform-react-jsx-source",$];document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((H,j)=>{const F=H.getAttribute("data-plugins")||"";const G=X.filter((P)=>F.indexOf(P)<0);if(G.length){H.setAttribute("data-plugins",F?`${F},${G.join(",")}`:G.join(","))}if(!H.hasAttribute("data-filename")){H.setAttribute("data-filename",H.getAttribute("src")||`inline-${j}`)}})});var I=window.parent;var g="not editable here — open the project in the Claude Design editor to save";var n=()=>Promise.resolve({persisted:false,noHost:true,reason:g});var k=n;var v="data/storage.json";var l=()=>{try{const W=new URL(document.baseURI);const $=W.pathname.match(/\/projects\/([^/]+)\/serve\//);if($)return $[1];return W.hostname.split(".")[0]||""}catch{return location.hostname.split(".")[0]||""}};var o=()=>{try{const W=new URL(document.baseURI);const $=W.pathname.indexOf("/serve/");if($>=0)return W.origin+W.pathname.slice(0,$+"/serve/".length)+v}catch{}return"./"+v};var E=null;var _=()=>{if(!E){E=fetch(o(),{cache:"no-store"}).then((W)=>{if(W.ok)return W.text();return W.status===404?"":null}).catch(()=>null).then((W)=>{if(W===null){E=null;return null}const $=new Map;if(!W)return $;let z;try{z=JSON.parse(W)}catch{console.warn("[omelette.storage] "+v+" is not valid JSON; treating the store as unreadable so a save cannot overwrite the "+"hand-edited bytes. Fix the JSON (or delete the file) to re-enable persistence.");E=null;return null}if(z===null||typeof z!=="object"||Array.isArray(z)){console.warn("[omelette.storage] "+v+" doesn't hold a JSON object; treating the store as unreadable so a save cannot "+"overwrite the hand-edited bytes. Make the top level a JSON object to re-enable persistence.");E=null;return null}const q=z;if("data"in q){const X=q.data;if(X===null||typeof X!=="object"||Array.isArray(X)){console.warn("[omelette.storage] "+v+' has a "data" field that is not a JSON object; treating the store as unreadable so a '+'save cannot overwrite the hand-edited bytes. Make "data" a JSON object to re-enable persistence.');E=null;return null}const H=q._meta;const j=H!==null&&typeof H==="object"?H.project:undefined;if(typeof j==="string"&&j!==""&&j!==l())return $;for(const F of Object.keys(X))$.set(F,X[F]);return $}for(const X of Object.keys(q)){if(X!=="_meta")$.set(X,q[X])}return $})}return E};var y=(W)=>k(v,JSON.stringify({_meta:{project:l(),version:1},data:Object.fromEntries(W)},null,2));var m=Promise.resolve();var T=(W)=>{const $=m.then(W);m=$.then(()=>{return},()=>{return});return $};var s=/sk-(?:ant-)?[A-Za-z0-9_-]{16,}|AKIA[0-9A-Z]{16}|gh[pousr]_[A-Za-z0-9]{20,}|xox[a-z]-[A-Za-z0-9][A-Za-z0-9-]{9,}|AIza[0-9A-Za-z_-]{30,}|-----BEGIN [A-Z ]*PRIVATE KEY-----/;var a=/password|passwd|secret|api[_-]?key|access[_-]?token|auth[_-]?token|credential/i;var r=(W,$,z)=>{if(s.test($)||a.test(W)&&typeof z==="string"&&z.length>=8){console.warn('[omelette.storage] the value for "'+W+'" looks like a credential. The storage file is a plaintext project file — visible to '+"everyone with project access and copied when the project is duplicated. Do not store secrets here.")}};var c={persisted:false,reason:"could not load the existing store — not overwriting it"};var i={persisted:false,reason:"stored value changed since a failed read — re-read this key before saving"};var h=new Set;var t={get:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.get: key must be a string"))}return T(_).then(($)=>{if($===null){h.add(W);return null}h.delete(W);if(!$.has(W))return null;const z=$.get(W);return z==null?null:JSON.parse(JSON.stringify(z))})},set:(W,$)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.set: key must be a string"))}let z;try{z=JSON.stringify($)}catch(X){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable ("+String(X)+")"))}if(z===undefined){return Promise.reject(new TypeError("storage.set: value must be JSON-serializable"))}r(W,z,$);const q=JSON.parse(z);return T(()=>_().then((X)=>{if(X===null)return c;if(h.has(W)){if(X.has(W))return i;h.delete(W)}X.set(W,q);return y(X)}))},delete:(W)=>{if(typeof W!=="string"){return Promise.reject(new TypeError("storage.delete: key must be a string"))}return T(()=>_().then(($)=>{if($===null)return c;if(h.has(W)){if($.has(W))return i;h.delete(W)}$.delete(W);return y($)}))},keys:()=>T(_).then((W)=>W===null?[]:Array.from(W.keys()))};window.omelette={writeFile:(W,$)=>k(W,$).then((z)=>{if(!z.persisted&&!z.noHost){throw new Error(z.reason||"write failed")}}),storage:t};if(I&&I!==window){const W=(J,Q)=>{try{I.postMessage({__omelette_log:true,type:J,data:Q},"*")}catch{}};["log","warn","error"].forEach((J)=>{const Q=console[J];console[J]=(...V)=>{const Y=V.map((Z)=>{try{return typeof Z==="object"?JSON.stringify(Z):String(Z)}catch{try{return String(Z)}catch{return"[unstringifiable]"}}}).join(" ");W(J,Y);Q.apply(console,V)}});window.addEventListener("error",(J)=>{const Q=J.target;if(Q&&Q!==window&&Q.tagName){const V=Q.src||Q.href||"";W("resource_error",`${Q.tagName} failed to load: ${V}`)}else{W("error",`${J.message||"Unknown error"} at ${J.filename||"?"}:${J.lineno||0}:${J.colno||0}`)}},true);window.addEventListener("unhandledrejection",(J)=>{const Q=J.reason;const V=Q instanceof Error?`${Q.message} ${Q.stack}`:String(Q);W("error",`Unhandled rejection: ${V}`)});window.addEventListener("click",(J)=>{if(J.defaultPrevented||J.button!==0)return;if(J.metaKey||J.ctrlKey||J.shiftKey||J.altKey)return;const Q=J.composedPath?J.composedPath():[];const V=["button","input","select","textarea","summary","label"];let Y=null;for(const x of Q){if(!(x instanceof Element))continue;if(x.localName==="a"){if(!(x instanceof HTMLAnchorElement))return;Y=x;break}if(V.indexOf(x.localName)!==-1)return}if(!Y)return;if(Y.isContentEditable)return;const Z=Y.closest("[contenteditable]");if(Z&&Z.getAttribute("contenteditable")!=="false")return;const B=(Y.getAttribute("target")||"_self").toLowerCase();if(B!=="_self"&&B!=="_top"&&B!=="_parent")return;let U;try{U=new URL(Y.href)}catch{return}if(U.protocol!=="http:"&&U.protocol!=="https:")return;if(location.origin==="null")return;if(U.origin===location.origin)return;J.preventDefault();window.open(U.href,"_blank","noopener,noreferrer")});const $=()=>{try{I.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(window.ResizeObserver)new ResizeObserver($).observe(document.documentElement);const z=()=>{$();if(!document.querySelector('script[type="text/babel"],script[type="text/jsx"]'))return;const J=()=>document.getElementById("root")||document.querySelector("body > div[id]");const Q=J()?.firstElementChild??null;let V=0;const Y=()=>{const Z=J();if(Z&&Z.firstElementChild!==Q||++V>30){$();return}setTimeout(Y,100)};setTimeout(Y,100)};if(document.readyState==="complete")z();else window.addEventListener("load",z);const q={};let X=0;const H=(J)=>new Promise((Q,V)=>{if(!b.length){V(new Error("claude.complete: no parent origin"));return}const Y=`c${++X}`;const Z=()=>setTimeout(()=>{delete q[Y];V(new Error(`claude.complete: no data for ${u/1000}s`))},u);const B=Z();q[Y]={resolve:Q,reject:V,text:"",t:B,arm:Z};try{for(const U of b){I.postMessage({__om_api:true,id:Y,body:J},U)}}catch(U){clearTimeout(B);delete q[Y];V(U)}});const j=8;const F=async(J,Q)=>{if(!Array.isArray(J.messages)){throw new Error("claude.complete: tools require a messages array")}const V=J.messages.slice();const Y={...J,tools:J.tools.map((U)=>{if(U===null||typeof U!=="object")return U;const x={};for(const K of Object.keys(U)){if(typeof U[K]!=="function")x[K]=U[K]}return x})};const Z=Y.tool_choice;const B=Z!=null&&(Z.type==="any"||Z.type==="tool")?{...Y,tool_choice:Z.disable_parallel_tool_use!==undefined?{type:"auto",disable_parallel_tool_use:Z.disable_parallel_tool_use}:{type:"auto"}}:Y;for(let U=0;U<j;U++){const x=await H({...U===0?Y:B,messages:V});const K=x.message;const M=K&&Array.isArray(K.content)?K.content:null;const L=M?M.filter((D)=>D?.type==="tool_use"):[];if(K?.stop_reason!=="tool_use"||L.length===0){return x.text}const N=[];for(const D of L){const f=Q.get(D.name);if(!f){N.push({type:"tool_result",tool_use_id:D.id,content:`no handler for tool "${D.name}"`,is_error:true});continue}try{const C=await f(D.input);const w=typeof C==="string"?C:R(C)??"";N.push({type:"tool_result",tool_use_id:D.id,content:w})}catch(C){N.push({type:"tool_result",tool_use_id:D.id,content:String(C?.message??C??"tool handler failed"),is_error:true})}}V.push({role:"assistant",content:M},{role:"user",content:N})}throw new Error(`claude.complete: exceeded ${j} tool turns`)};window.claude={complete(J){const Q=J;if(Q!==null&&typeof Q==="object"&&Array.isArray(Q.tools)&&Q.tools.some((V)=>V!==null&&typeof V==="object"&&typeof V.run==="function")){const V=new Map;for(const Y of Q.tools){if(Y!==null&&typeof Y==="object"&&typeof Y.run==="function"){V.set(String(Y.name),Y.run)}}return F(Q,V)}return H(J).then((V)=>V.text)}};const G={};let P=0;k=(J,Q)=>new Promise((V)=>{if(!b.length){V({persisted:false,noHost:true,reason:g});return}const Y=`f${++P}`;const Z=setTimeout(()=>{delete G[Y];V({persisted:false,noHost:true,reason:g})},d);G[Y]={settle:V,t:Z};try{for(const B of b){I.postMessage({__om_file:true,id:Y,op:"write",path:J,content:Q},B)}}catch{clearTimeout(Z);delete G[Y];V({persisted:false,noHost:true,reason:g})}});const R=(J)=>{try{return JSON.stringify(J)}catch{return JSON.stringify(String(J))}};window.addEventListener("message",(J)=>{if(b.indexOf(J.origin)<0)return;if(J.source!==I)return;const Q=J.data;if(!Q)return;if(Q.type==="omelette-preview-refresh"){if(typeof Q.token!=="string"||!/^[0-9a-f.-]+(\.(rc|pr-[0-9]+))?(\.[0-9]+\.[0-9a-f]{16})?$/.test(Q.token))return;const Z=Math.max(1,Math.floor((Q.expiresAt||0)-Date.now()/1000));document.cookie="__Host-omelette-preview="+Q.token+"; Path=/; Secure; SameSite=None; Partitioned; Max-Age="+Z;return}if(Q.__om_file_r){const Z=G[Q.id];if(!Z)return;clearTimeout(Z.t);delete G[Q.id];Z.settle(Q.ok?{persisted:true}:{persisted:false,reason:Q.error||"write failed"});return}if(Q.__om_api_r){const Z=q[Q.id];if(!Z)return;if(Q.error!=null){clearTimeout(Z.t);delete q[Q.id];Z.reject(new Error(Q.error));return}if(Q.chunk!=null){clearTimeout(Z.t);Z.t=Z.arm();Z.text+=Q.chunk;return}if(Q.done){clearTimeout(Z.t);delete q[Q.id];Z.resolve({text:Q.text!=null?Q.text:Z.text,message:Q.message});return}return}if(!Q.__om_eval)return;const V=Q;const Y=(Z)=>{J.source.postMessage({...Z,__om_eval_r:1,id:V.id},J.origin)};try{const Z=(0,eval)(V.code);if(Z&&typeof Z.then==="function"){Z.then((B)=>Y({ok:1,v:R(B)}),(B)=>Y({ok:0,e:String(B)}))}else{Y({ok:1,v:R(Z)})}}catch(Z){Y({ok:0,e:String(Z)})}})}})();
+</script>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#f3f4ef; font-family:'Instrument Sans',sans-serif; color:#17211c; }
+  a { color:#1e6b52; text-decoration:none; } a:hover { color:#124a38; text-decoration:underline; }
+  @keyframes livePulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  ::-webkit-scrollbar{width:8px;height:8px} ::-webkit-scrollbar-thumb{background:#d6dcd3;border-radius:4px}
+</style>
+</helmet>
+<div style="min-height:100vh; display:flex; flex-direction:column;">
+  <header style="display:flex; align-items:center; gap:20px; padding:16px 28px; background:#ffffff; border-bottom:1px solid #e3e6de; position:sticky; top:0; z-index:5;">
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div style="width:38px; height:38px; border-radius:10px; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:17px;">G</div>
+      <div>
+        <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px; line-height:1;">GYM · Manager</div>
+        <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Tuesday, July 28 · {{ clock }}</div>
+      </div>
+    </div>
+    <div style="flex:1;"></div>
+    <sc-if value="{{ livePulseOn }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex; align-items:center; gap:7px; background:#dff0e6; color:#124a38; font-size:12px; font-weight:600; padding:6px 12px; border-radius:999px;">
+        <span style="width:8px; height:8px; border-radius:50%; background:#1e6b52; animation:livePulse 1.6s ease-in-out infinite;"></span>
+        LIVE · syncing with sheet
+      </div>
+    </sc-if>
+    <button onClick="{{ noop }}" style="background:#ffffff; border:1px solid #d6dcd3; border-radius:10px; padding:8px 14px; font-family:'Instrument Sans'; font-weight:600; font-size:13px; color:#17211c; cursor:pointer;" style-hover="border-color:#1e6b52; color:#1e6b52;">Reception override</button>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <div style="width:34px; height:34px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:13px;">SK</div>
+      <div style="font-size:13px;"><div style="font-weight:600;">Samer</div><div style="color:#6c7a71; font-size:11px;">Owner</div></div>
+    </div>
+  </header>
+
+  <main style="padding:24px 28px 40px; display:flex; flex-direction:column; gap:20px; max-width:1440px; width:100%; margin:0 auto; box-sizing:border-box;">
+    <section style="display:grid; grid-template-columns:repeat(5,1fr); gap:14px;">
+      <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="5">
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:{{ kpiPad }};">
+          <div style="font-size:12px; font-weight:600; color:#6c7a71; text-transform:uppercase; letter-spacing:.06em;">{{ k.label }}</div>
+          <div style="display:flex; align-items:baseline; gap:8px; margin-top:8px;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:32px; color:#124a38; line-height:1;">{{ k.value }}</div>
+            <div style="font-size:12px; font-weight:600; color:{{ k.deltaColor }};">{{ k.delta }}</div>
+          </div>
+          <div style="font-size:12px; color:#6c7a71; margin-top:6px;">{{ k.sub }}</div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section style="display:grid; grid-template-columns:2fr 1fr; gap:20px; align-items:start;">
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Occupancy today</div>
+            <div style="font-size:12px; color:#6c7a71;">solid = today · outline = typical Tuesday</div>
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:6px; height:140px; margin-top:18px;">
+            <sc-for list="{{ hours }}" as="h" hint-placeholder-count="16">
+              <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; height:100%; justify-content:flex-end;">
+                <div style="width:100%; position:relative; height:{{ h.typ }}%; border:1.5px dashed #c3d8cc; border-radius:6px 6px 0 0; box-sizing:border-box; display:flex; align-items:flex-end;">
+                  <div style="width:100%; height:{{ h.pct }}%; background:{{ h.color }}; border-radius:5px 5px 0 0;"></div>
+                </div>
+                <div style="font-size:10px; color:{{ h.labelColor }}; font-weight:{{ h.labelWeight }};">{{ h.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Inside now <span style="color:#1e6b52;">· {{ insideCount }}</span></div>
+            <a href="#">Full list</a>
+          </div>
+          <div style="display:grid; grid-template-columns:1.6fr 1fr .8fr .7fr .9fr; gap:0 12px; font-size:11px; font-weight:600; color:#6c7a71; text-transform:uppercase; letter-spacing:.05em; padding:14px 0 8px; border-bottom:1px solid #eef0ea;">
+            <div>Member</div><div>Plan</div><div>Entered</div><div>Locker</div><div>Activity</div>
+          </div>
+          <sc-for list="{{ inside }}" as="m" hint-placeholder-count="5">
+            <div style="display:grid; grid-template-columns:1.6fr 1fr .8fr .7fr .9fr; gap:0 12px; align-items:center; padding:{{ rowPad }} 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:28px; height:28px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:11px; flex-shrink:0;">{{ m.initials }}</div>
+                <div style="font-weight:600;">{{ m.name }}</div>
+              </div>
+              <div style="color:#6c7a71;">{{ m.plan }}</div>
+              <div style="color:#6c7a71;">{{ m.entered }}</div>
+              <div style="font-weight:600; color:#124a38;">{{ m.locker }}</div>
+              <div><span style="background:{{ m.actBg }}; color:{{ m.actFg }}; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px;">{{ m.activity }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="display:flex; align-items:baseline; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Revenue today <span style="color:#1e6b52;">· $742</span></div>
+            <div style="font-size:12px; color:#6c7a71;">from WalletTx</div>
+          </div>
+          <div style="display:flex; height:14px; border-radius:7px; overflow:hidden; margin-top:16px; gap:2px;">
+            <div style="width:52%; background:#124a38;"></div>
+            <div style="width:23%; background:#1e6b52;"></div>
+            <div style="width:15%; background:#6fae91;"></div>
+            <div style="width:10%; background:#c3d8cc;"></div>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:14px;">
+            <sc-for list="{{ revenue }}" as="r" hint-placeholder-count="4">
+              <div style="display:flex; flex-direction:column; gap:2px;">
+                <div style="display:flex; align-items:center; gap:6px; font-size:12px; color:#6c7a71;"><span style="width:8px; height:8px; border-radius:2px; background:{{ r.color }};"></span>{{ r.label }}</div>
+                <div style="font-weight:700; font-size:15px;">{{ r.amount }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:20px;">
+
+        <div style="background:#124a38; border-radius:16px; padding:20px 22px; color:#dff0e6;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px; color:#ffffff;">At-risk members</div>
+            <span style="background:rgba(255,255,255,.14); font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px;">{{ atRiskCount }}</span>
+          </div>
+          <div style="font-size:12px; color:#9ec7b3; margin-top:4px;">No visit in {{ atRiskDays }}+ days</div>
+          <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+            <sc-for list="{{ atRisk }}" as="m" hint-placeholder-count="3">
+              <div style="background:rgba(255,255,255,.07); border-radius:12px; padding:12px 14px; display:flex; align-items:center; gap:12px;">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:600; color:#ffffff; font-size:13px;">{{ m.name }}</div>
+                  <div style="font-size:11px; color:#9ec7b3; margin-top:2px;">{{ m.plan }} · last visit {{ m.last }}</div>
+                </div>
+                <button onClick="{{ noop }}" style="background:#dff0e6; color:#124a38; border:none; border-radius:8px; padding:6px 11px; font-family:'Instrument Sans'; font-weight:700; font-size:12px; cursor:pointer;" style-hover="background:#ffffff;">Send offer</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Equipment issues</div>
+            <a href="#">All issues</a>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:0; margin-top:8px;">
+            <sc-for list="{{ issues }}" as="i" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid #f2f4ee;">
+                <div style="flex:1; min-width:0;">
+                  <div style="font-weight:600; font-size:13px;">{{ i.what }}</div>
+                  <div style="font-size:11px; color:#6c7a71; margin-top:2px;">{{ i.by }}</div>
+                </div>
+                <span style="background:{{ i.bg }}; color:{{ i.fg }}; font-size:11px; font-weight:600; padding:3px 9px; border-radius:999px; white-space:nowrap;">{{ i.status }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Today's classes</div>
+          <div style="display:flex; flex-direction:column; gap:12px; margin-top:14px;">
+            <sc-for list="{{ classes }}" as="c" hint-placeholder-count="3">
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:13px;">
+                  <span style="font-weight:600;">{{ c.name }} <span style="color:#6c7a71; font-weight:400;">· {{ c.time }}</span></span>
+                  <span style="color:{{ c.fillColor }}; font-weight:600;">{{ c.fill }}</span>
+                </div>
+                <div style="height:6px; background:#eef0ea; border-radius:3px; margin-top:6px; overflow:hidden;">
+                  <div style="height:100%; width:{{ c.pct }}%; background:{{ c.barColor }}; border-radius:3px;"></div>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="background:#ffffff; border:1px solid #e3e6de; border-radius:16px; padding:20px 22px;">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:17px;">Entry denials</div>
+            <span style="background:#fbeaea; color:#a33a3a; font-size:12px; font-weight:600; padding:3px 10px; border-radius:999px;">3 today</span>
+          </div>
+          <div style="display:flex; flex-direction:column; margin-top:8px;">
+            <sc-for list="{{ denials }}" as="d" hint-placeholder-count="3">
+              <div style="display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
+                <div style="width:8px; height:8px; border-radius:50%; background:#c65b5b; flex-shrink:0;"></div>
+                <div style="flex:1;"><span style="font-weight:600;">{{ d.name }}</span> <span style="color:#6c7a71;">— {{ d.reason }}</span></div>
+                <div style="color:#6c7a71; font-size:12px;">{{ d.time }}</div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;livePulse&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Header&quot;}, &quot;density&quot;: {&quot;editor&quot;: &quot;enum&quot;, &quot;default&quot;: &quot;comfortable&quot;, &quot;options&quot;: [&quot;comfortable&quot;, &quot;compact&quot;], &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Layout&quot;}, &quot;atRiskDays&quot;: {&quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 10, &quot;min&quot;: 5, &quot;max&quot;: 30, &quot;step&quot;: 1, &quot;unit&quot;: &quot;days&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Churn&quot;}}">
+class Component extends DCLogic {
+  state = { clock: "6:42 PM" };
+  componentDidMount() {
+    this.tick = setInterval(() => {
+      const d = new Date();
+      this.setState({ clock: d.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }) });
+    }, 1000);
+  }
+  componentWillUnmount() { clearInterval(this.tick); }
+  renderVals() {
+    const compact = this.props.density === "compact";
+    const atRiskDays = this.props.atRiskDays ?? 10;
+    const green = "#1e6b52", deep = "#124a38";
+    const hourData = [
+      ["6a",18,25],["7a",34,40],["8a",42,48],["9a",30,36],["10a",22,28],["11a",20,24],
+      ["12p",38,42],["1p",33,38],["2p",20,26],["3p",18,24],["4p",28,34],["5p",55,62],
+      ["6p",72,80],["7p",64,74],["8p",40,52],["9p",22,30]
+    ];
+    const nowIdx = 12; // 6pm
+    const hours = hourData.map(([label, today, typ], i) => ({
+      label,
+      pct: Math.round((today / typ) * 100),
+      typ: Math.round((typ / 80) * 100),
+      color: i === nowIdx ? green : (i < nowIdx ? deep : "transparent"),
+      labelColor: i === nowIdx ? deep : "#9aa79f",
+      labelWeight: i === nowIdx ? 700 : 400
+    }));
+    const allAtRisk = [
+      { name: "Pamela <3", plan: "Monthly $95", last: "12 days ago", days: 12 },
+      { name: "Rami Aoun", plan: "Quarterly $255", last: "16 days ago", days: 16 },
+      { name: "Nour Haddad", plan: "Monthly $95", last: "21 days ago", days: 21 },
+      { name: "Karim Fares", plan: "Annual Elite $850", days: 9, last: "9 days ago" }
+    ].filter(m => m.days >= atRiskDays);
+    return {
+      clock: this.state.clock,
+      noop: () => {},
+      livePulseOn: this.props.livePulse ?? true,
+      kpiPad: compact ? "12px 16px" : "18px 20px",
+      rowPad: compact ? "7px" : "11px",
+      atRiskDays,
+      atRiskCount: allAtRisk.length,
+      atRisk: allAtRisk,
+      kpis: [
+        { label: "Inside now", value: "23", delta: "peak 6–8p", deltaColor: "#6c7a71", sub: "capacity 80 · 29% full" },
+        { label: "Entries today", value: "141", delta: "+12%", deltaColor: green, sub: "vs typical Tuesday" },
+        { label: "Revenue today", value: "$742", delta: "+$96", deltaColor: green, sub: "café leads non-dues" },
+        { label: "At-risk members", value: String(allAtRisk.length), delta: "churn watch", deltaColor: "#b0813a", sub: `no visit in ${atRiskDays}+ days` },
+        { label: "Open issues", value: "3", delta: "1 urgent", deltaColor: "#a33a3a", sub: "equipment reports" }
+      ],
+      insideCount: 23,
+      inside: [
+        { name: "Samer Khanji", initials: "SK", plan: "Annual Elite", entered: "5:12 PM", locker: "B-14", activity: "PT session", actBg: "#dff0e6", actFg: deep },
+        { name: "Jawad", initials: "J", plan: "Monthly", entered: "5:40 PM", locker: "A-03", activity: "Training", actBg: "#eef0ea", actFg: "#4a5a51" },
+        { name: "Mohamad", initials: "M", plan: "Monthly", entered: "6:02 PM", locker: "C-21", activity: "Class · HIIT", actBg: "#dff0e6", actFg: deep },
+        { name: "Lina Saab", initials: "LS", plan: "Quarterly", entered: "6:15 PM", locker: "A-11", activity: "Training", actBg: "#eef0ea", actFg: "#4a5a51" },
+        { name: "Omar Khal", initials: "OK", plan: "Monthly", entered: "6:28 PM", locker: "B-02", activity: "Café", actBg: "#f6efdf", actFg: "#8a6a2a" }
+      ],
+      revenue: [
+        { label: "Memberships", amount: "$385", color: deep },
+        { label: "Café", amount: "$171", color: green },
+        { label: "PT & classes", amount: "$112", color: "#6fae91" },
+        { label: "Shop & other", amount: "$74", color: "#c3d8cc" }
+      ],
+      issues: [
+        { what: "Treadmill #4 — belt slipping", by: "Reported by Jawad · 2h ago", status: "Urgent", bg: "#fbeaea", fg: "#a33a3a" },
+        { what: "Cable row — frayed cable", by: "Reported by staff · yesterday", status: "In repair", bg: "#f6efdf", fg: "#8a6a2a" },
+        { what: "Sauna door latch", by: "Reported by Pamela <3 · 3d ago", status: "Parts ordered", bg: "#eef0ea", fg: "#4a5a51" }
+      ],
+      classes: [
+        { name: "HIIT 45", time: "6:00 PM", fill: "18/18 · waitlist 4", pct: 100, fillColor: deep, barColor: deep },
+        { name: "Spin", time: "7:00 PM", fill: "14/20", pct: 70, fillColor: "#4a5a51", barColor: green },
+        { name: "Yoga Flow", time: "8:00 PM", fill: "6/16", pct: 38, fillColor: "#b0813a", barColor: "#c3d8cc" }
+      ],
+      denials: [
+        { name: "Pamela <3", reason: "membership frozen", time: "4:52 PM" },
+        { name: "Guest QR", reason: "pass expired (48h)", time: "2:10 PM" },
+        { name: "Mohamad", reason: "anti-passback: already inside", time: "12:33 PM" }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>
