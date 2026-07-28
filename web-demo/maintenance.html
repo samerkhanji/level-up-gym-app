@@ -7,70 +7,467 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
-  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
-  .dept-nav a.here { background:#124a38; color:#fff; }
-  .dept-head { text-align:center; max-width:640px; }
-  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
-  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
-  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
+    padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
+  .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
+  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .t-sub { font-size:12px; color:var(--muted); }
+  .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
+  .stats b.bad { color:var(--red); }
+  .qbar { display:flex; gap:7px; flex-wrap:wrap; }
+  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(23,33,28,.05); }
+  .qbar button.dark { background:var(--deep); color:#fff; }
+  .seg { display:flex; gap:6px; background:#eceee8; border-radius:14px; padding:4px; }
+  .seg button { flex:1; font-size:13px; font-weight:700; padding:9px 4px; border-radius:11px; color:var(--muted); }
+  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(23,33,28,.08); }
+  .wo { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
+  .wo.safety { background:var(--red-soft); outline:2px solid var(--red); }
+  .wo-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .wo-id { font-family:var(--display); font-weight:800; font-size:14px; }
+  .wo-meta { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+  .st-new { background:var(--amber-soft); color:var(--amber); animation:pulse 1.6s infinite; }
+  .st-prog { background:var(--deep); color:#fff; }
+  .st-wait { background:var(--amber-soft); color:var(--amber); }
+  .st-test { background:var(--mint); color:var(--deep); }
+  .st-ok { background:var(--mint); color:var(--deep); }
+  .st-bad { background:var(--red-soft); color:var(--red); }
+  .st-grey { background:#eceee8; color:var(--muted); }
+  .big-act { display:block; width:100%; margin-top:9px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
+  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:9px 7px; min-height:32px; }
+  .asset { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .asset:last-child { border-bottom:none; }
+  .asset .n { flex:1; min-width:0; font-weight:700; font-size:13.5px; }
+  .asset .loc { font-size:11.5px; color:var(--faint); display:block; font-weight:400; }
+  .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); color:var(--muted); }
+  .hist:last-child { border-bottom:none; }
+  .hist b { color:var(--ink); }
+  .partrow { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .partrow:last-child { border-bottom:none; }
+  .partrow .n { flex:1; font-weight:700; }
+  .partrow .meta { font-size:11.5px; color:var(--muted); }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .hidden { display:none !important; }
+  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:none; place-items:center; z-index:90; padding:16px; }
+  .overlay.show { display:grid; }
+  .modal { background:#fff; border-radius:20px; padding:18px; width:min(430px, 100%); max-height:86vh; overflow:auto; }
+  .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
+  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:13px; border-radius:13px; background:var(--paper); margin-top:7px; cursor:pointer; }
+  .opt.danger { background:var(--red-soft); color:var(--red); }
+  .opt.solid { background:var(--deep); color:#fff; }
+  .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
+  .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
+  .chk-line input { width:17px; height:17px; accent-color:var(--deep); }
 </style>
 </head>
 <body>
-  <nav class="dept-nav">
-    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" >Trainer</a><a href="cafe.html" >Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" class="here">Maintenance</a><a href="instructor.html" >Instructor</a><a href="staff.html">All departments</a>
-  </nav>
-  <div class="dept-head"><h1>Maintenance</h1><p>Reported → in progress → fixed, machines auto-hidden from members</p></div>
-  <div class="screen-wrap">
-      <div data-screen-label="Maintenance" style="width:700px; background:#f3f4ef; border-radius:28px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:22px;">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px;">Maintenance</div>
-          <div style="flex:1;"></div>
-          <div style="font-size:13px; color:#6c7a71;">Machine registry · <b style="color:#bb3a2a;">1 hidden from members</b></div>
-        </div>
-        <div style="display:flex; gap:12px; margin-bottom:14px;">
-          <div style="flex:1; background:#ffffff; border-radius:14px; padding:12px 16px; box-shadow:0 5px 14px rgba(23,33,28,.05); display:flex; align-items:baseline; gap:8px;"><span style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#124a38;">3</span><span style="font-size:12px; color:#6c7a71;">open issues</span></div>
-          <div style="flex:1; background:#ffffff; border-radius:14px; padding:12px 16px; box-shadow:0 5px 14px rgba(23,33,28,.05); display:flex; align-items:baseline; gap:8px;"><span style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#bb3a2a;">3 days</span><span style="font-size:12px; color:#6c7a71;">oldest unresolved — over 48 h</span></div>
-          <div style="flex:1; background:#ffffff; border-radius:14px; padding:12px 16px; box-shadow:0 5px 14px rgba(23,33,28,.05); display:flex; align-items:baseline; gap:8px;"><span style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#1e6b52;">3</span><span style="font-size:12px; color:#6c7a71;">fixed this week</span></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#a33a3a;">Reported · 1</div>
-            <div style="background:#fbeaea; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="font-weight:700; font-size:13px;">Treadmill #4</div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Belt slipping · by Jawad · 2h ago</div>
-              <div style="font-size:11px; color:#a33a3a; font-weight:700; margin-top:6px;">Auto-hidden from members</div>
-              <div style="background:#124a38; color:#ffffff; border-radius:9px; padding:8px; text-align:center; font-weight:700; font-size:12px; margin-top:10px;">Start repair</div>
-            </div>
-          </div>
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#a86408;">In progress · 2</div>
-            <div style="background:#fdf3ec; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="font-weight:700; font-size:13px;">Cable row</div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Frayed cable · parts ordered</div>
-              <div style="font-size:11px; color:#a86408; font-weight:700; margin-top:6px;">ETA Thursday</div>
-            </div>
-            <div style="background:#fdf3ec; border-radius:14px; padding:12px; margin-top:8px;">
-              <div style="font-weight:700; font-size:13px;">Sauna door latch</div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Reported by Pamela &lt;3</div>
-              <div style="font-size:11px; color:#a86408; font-weight:700; margin-top:6px;">Fix scheduled tomorrow</div>
-            </div>
-          </div>
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#1e6b52;">Fixed this week · 3</div>
-            <div style="background:#dff0e6; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="font-weight:700; font-size:13px;">Leg press #2</div>
-              <div style="font-size:11px; color:#1e6b52; font-weight:700; margin-top:4px;">✓ Reporter notified · back in service</div>
-            </div>
-            <div style="background:#dff0e6; border-radius:14px; padding:12px; margin-top:8px;">
-              <div style="font-weight:700; font-size:13px;">Rower #1</div>
-              <div style="font-size:11px; color:#1e6b52; font-weight:700; margin-top:4px;">✓ Back in service</div>
-            </div>
-          </div>
-        </div>
-      </div>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
+
+  <div class="card head">
+    <div class="avatar">SM</div>
+    <div><div class="t-name">Suhail M. — Maintenance</div><div class="t-sub" id="shiftLabel">Shift open · since 8:02 AM</div></div>
+    <div class="stats">
+      <div><b id="stCrit" class="bad">0</b>safety-critical</div>
+      <div><b id="stOut">0</b>out of service</div>
+      <div><b id="stMine">0</b>my jobs</div>
+      <div><b id="stParts">0</b>waiting parts</div>
+    </div>
   </div>
+
+  <div class="qbar">
+    <button class="dark" id="scanAsset">Scan asset</button>
+    <button id="newReport">Report issue</button>
+    <button id="inspection">Start inspection</button>
+  </div>
+
+  <div class="seg" id="mainSeg">
+    <button class="on" data-sec="work">Work orders</button>
+    <button data-sec="assets">Assets</button>
+    <button data-sec="parts">Parts</button>
+  </div>
+
+  <div id="secWork">
+    <div class="card"><div class="eyebrow">Safety &amp; urgent</div><div id="colSafety"></div></div>
+    <div class="card" style="margin-top:13px;"><div class="eyebrow">My assigned jobs</div><div id="colMine"></div></div>
+    <div class="card" style="margin-top:13px;"><div class="eyebrow">Needs attention</div><div id="colAttn"></div></div>
+    <div class="card" style="margin-top:13px;"><div class="eyebrow">Recently repaired</div><div id="colDone"></div></div>
+  </div>
+
+  <div id="secAssets" class="hidden">
+    <div class="card"><div class="eyebrow">Asset registry — status syncs to member, trainer &amp; reception apps</div><div id="assetList"></div></div>
+  </div>
+
+  <div id="secParts" class="hidden">
+    <div class="card"><div class="eyebrow">Spare parts — reserve on request, deduct on install, release on cancel</div><div id="partList"></div></div>
+  </div>
+
+  <div class="card hidden" id="assetCard"></div>
+
+  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+      Connected demo: member reports (Gym tab) arrive as work orders; isolating an asset hides it from member menus
+      with an alternative shown; verification is required before anything returns to service; the reporter is notified
+      with who fixed it and how. Every action is audit-logged. Statuses never change by timer.</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
+
+<script src="bus.js?v=3"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+const ME = 'Suhail M.';
+
+/* ---------------- state ---------------- */
+const MKEY = 'gym_maint_state';
+let M = {
+  assets: [
+    { id: 'AST-01', name: 'Treadmill #3', cat: 'Cardio', loc: 'Gym floor · row 1', status: 'Available', alt: 'Treadmill #1', history: [{ at: 'Jul 20', line: 'Preventive: belt alignment checked (Suhail M.)' }] },
+    { id: 'AST-02', name: 'Leg press', cat: 'Strength', loc: 'Gym floor · strength zone', status: 'Available', alt: 'Hack squat', history: [] },
+    { id: 'AST-03', name: 'Cable station A', cat: 'Strength', loc: 'Gym floor · centre', status: 'Available', alt: 'Cable station B', history: [] },
+    { id: 'AST-04', name: 'Bench #2', cat: 'Strength', loc: 'Free-weights area', status: 'Available', alt: 'Bench #4', history: [] },
+    { id: 'AST-05', name: 'Rowing machine #1', cat: 'Cardio', loc: 'Cardio mezzanine', status: 'Waiting for parts', alt: 'Rowing machine #2', history: [{ at: 'Jul 27', line: 'Chain worn — part ordered (Suhail M.)' }] },
+    { id: 'AST-06', name: 'Main gate scanner', cat: 'Access', loc: 'Entrance', status: 'Limited use', alt: 'Reception manual entry', history: [{ at: 'Today', line: 'Slow reads reported by reception' }] },
+    { id: 'AST-07', name: 'Sauna heater', cat: 'Recovery', loc: 'Recovery suite', status: 'Available', alt: null, history: [] },
+    { id: 'AST-08', name: 'Café blender', cat: 'Café', loc: 'Café counter', status: 'Available', alt: null, history: [] },
+  ],
+  wos: [
+    { id: 'WO-1041', asset: 'Rowing machine #1', priority: 'normal', status: 'Waiting for parts', assignee: ME, problem: 'Chain worn and skipping', reporter: 'Karim H. (trainer)', at: 'Jul 27', part: 'Drive chain', log: [{ at: 'Jul 27 · 9:10 AM', line: 'Reported by Karim H.' }, { at: 'Jul 27 · 9:40 AM', line: 'Assessed by Suhail M. — chain replacement needed, part reserved' }] },
+    { id: 'WO-1042', asset: 'Main gate scanner', priority: 'urgent', status: 'In progress', assignee: ME, problem: 'Intermittent slow reads', reporter: 'Lara (reception)', at: 'Today', log: [{ at: '8:15 AM', line: 'Reported by reception' }, { at: '8:30 AM', line: 'Accepted by Suhail M. — reader lens cleaning + firmware check' }] },
+  ],
+  parts: [
+    { n: 'Treadmill drive belt', no: 'TB-220', qty: 3, reserved: 0, min: 1, loc: 'Store B2' },
+    { n: 'Drive chain', no: 'RC-101', qty: 0, reserved: 1, min: 1, loc: 'On order · ETA Thu' },
+    { n: 'Cable (2.5 m)', no: 'CB-250', qty: 4, reserved: 0, min: 2, loc: 'Store B2' },
+    { n: 'Bench upholstery pad', no: 'UP-30', qty: 2, reserved: 0, min: 1, loc: 'Store B1' },
+    { n: 'Scanner power supply', no: 'PS-12', qty: 1, reserved: 0, min: 1, loc: 'IT cabinet' },
+  ],
+  log: [],
+};
+try { const s = JSON.parse(localStorage.getItem(MKEY)); if (s && s.assets) M = s; } catch (e) {}
+function save() { localStorage.setItem(MKEY, JSON.stringify(M)); }
+const assetOf = (name) => M.assets.find((a) => name && (a.name === name || name.startsWith(a.name)));
+const partOf = (n) => M.parts.find((p) => p.n === n);
+function audit(line) { M.log.unshift(now() + ' · ' + line); M.log = M.log.slice(0, 30); }
+
+/* status broadcast — every app sees the same asset state */
+function pushAssetStatus(a) {
+  GymBus.send('asset-status', { asset: a.name, status: a.status, alt: a.status === 'Available' ? null : a.alt }, 'maintenance');
+}
+
+/* ---------------- chooser ---------------- */
+function choose(title, sub, options, withNote) {
+  return new Promise((resolve) => {
+    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">${sub || ''}</div>
+      ${options.map((o, i) => `<button class="opt ${o.cls || ''}" data-oi="${i}">${o.label}</button>`).join('')}
+      ${withNote ? '<input class="opt" style="background:#fff; border:1.5px solid var(--line); font-weight:400;" id="optNote" placeholder="Note…" />' : ''}
+      <button class="m-cancel" id="optCancel">Cancel</button>`;
+    $('overlay').classList.add('show');
+    const close = (v) => { $('overlay').classList.remove('show'); resolve(v); };
+    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => close({ choice: options[Number(b.dataset.oi)].label, note: withNote ? ($('optNote')?.value || '') : '' }); });
+    $('optCancel').onclick = () => close(null);
+  });
+}
+$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) $('overlay').classList.remove('show'); });
+
+/* verification checklist — ALL items must be confirmed before return to service */
+function verifyChecklist(title) {
+  const items = ['Original problem resolved', 'Powers on & operates normally', 'Safety features tested', 'No loose components · area cleaned · tools removed'];
+  return new Promise((resolve) => {
+    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">Every box is required — nothing returns to service unverified.</div>
+      ${items.map((t, i) => `<label class="chk-line"><input type="checkbox" data-ck="${i}" /> ${t}</label>`).join('')}
+      <button class="opt solid" id="ckOK" disabled style="opacity:.5;">Verify &amp; return to service</button>
+      <button class="m-cancel" id="ckCancel">Cancel</button>`;
+    $('overlay').classList.add('show');
+    const update = () => {
+      const all = [...document.querySelectorAll('[data-ck]')].every((c) => c.checked);
+      $('ckOK').disabled = !all; $('ckOK').style.opacity = all ? '1' : '.5';
+    };
+    document.querySelectorAll('[data-ck]').forEach((c) => { c.onchange = update; });
+    $('ckOK').onclick = () => { $('overlay').classList.remove('show'); resolve(true); };
+    $('ckCancel').onclick = () => { $('overlay').classList.remove('show'); resolve(false); };
+  });
+}
+
+/* ---------------- nav ---------------- */
+document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
+  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
+  $('secWork').classList.toggle('hidden', b.dataset.sec !== 'work');
+  $('secAssets').classList.toggle('hidden', b.dataset.sec !== 'assets');
+  $('secParts').classList.toggle('hidden', b.dataset.sec !== 'parts');
+  if (b.dataset.sec === 'assets') renderAssets();
+  if (b.dataset.sec === 'parts') renderParts();
+}; });
+
+/* ---------------- work orders ---------------- */
+const ST_CLS = { 'New': 'st-new', 'In progress': 'st-prog', 'Waiting for parts': 'st-wait', 'Ready for testing': 'st-test', 'Verified': 'st-ok', 'Closed': 'st-ok', 'Cancelled': 'st-grey', 'Duplicate': 'st-grey', 'Cannot reproduce': 'st-grey' };
+
+function woCard(w) {
+  let act = '', more = true;
+  if (w.status === 'New') act = `<button class="big-act" data-w="${w.id}" data-a="accept">Assess &amp; accept${w.priority === 'safety' ? ' — isolate first' : ''}</button>`;
+  if (w.status === 'In progress') act = `<button class="big-act" data-w="${w.id}" data-a="test">Repair done → ready for testing</button>`;
+  if (w.status === 'Waiting for parts') act = `<button class="big-act" data-w="${w.id}" data-a="install">Part arrived — install (deducts stock)</button>`;
+  if (w.status === 'Ready for testing') act = `<button class="big-act" data-w="${w.id}" data-a="verify">Run verification checklist</button>`;
+  if (['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status)) { act = ''; more = false; }
+  return `<div class="wo ${w.priority === 'safety' ? 'safety' : ''}">
+    <div class="wo-top"><span class="wo-id">${w.id} · ${w.asset}</span><span class="st ${ST_CLS[w.status] || 'st-grey'}">${w.status.toUpperCase()}</span></div>
+    <div class="wo-meta">${w.problem} · reported by ${w.reporter} · ${w.at}${w.assignee ? ' · assigned: ' + w.assignee : ' · unassigned'}${w.part ? ' · part: ' + w.part : ''}</div>
+    ${w.priority === 'safety' ? '<div class="wo-meta" style="color:var(--red); font-weight:800;">⚠ SAFETY-CRITICAL — asset auto-isolated until verified</div>' : ''}
+    ${act}
+    ${more ? `<button class="more-btn" data-w="${w.id}" data-a="more">More…</button>` : `<div class="wo-meta">${(w.log[0] || {}).line || ''}</div>`}
+  </div>`;
+}
+
+function render() {
+  const safety = M.wos.filter((w) => w.priority === 'safety' && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status));
+  const urgent = M.wos.filter((w) => w.priority === 'urgent' && ['New', 'In progress', 'Ready for testing'].includes(w.status));
+  const mine = M.wos.filter((w) => w.assignee === ME && ['In progress', 'Ready for testing'].includes(w.status) && w.priority !== 'safety');
+  const attn = M.wos.filter((w) => w.status === 'New' && w.priority !== 'safety').concat(M.wos.filter((w) => w.status === 'Waiting for parts'));
+  const done = M.wos.filter((w) => ['Verified', 'Closed'].includes(w.status)).slice(0, 4);
+  $('colSafety').innerHTML = safety.concat(urgent.filter((w) => !safety.includes(w))).map(woCard).join('')
+    || '<div style="color:var(--faint); font-size:13px;">Nothing unsafe right now — safety reports appear here instantly and isolate the asset.</div>';
+  $('colMine').innerHTML = mine.map(woCard).join('')
+    || '<div style="color:var(--faint); font-size:13px;">No jobs assigned to you — unassigned requests are in Needs attention below.</div>';
+  $('colAttn').innerHTML = attn.filter((w) => !safety.includes(w)).map(woCard).join('')
+    || '<div style="color:var(--faint); font-size:13px;">All caught up — new reports and parts arrivals land here.</div>';
+  $('colDone').innerHTML = done.map(woCard).join('')
+    || '<div style="color:var(--faint); font-size:13px;">Nothing repaired yet today.</div>';
+  $('stCrit').textContent = safety.length;
+  $('stOut').textContent = M.assets.filter((a) => a.status !== 'Available' && a.status !== 'Limited use').length;
+  $('stMine').textContent = M.wos.filter((w) => w.assignee === ME && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status)).length;
+  $('stParts').textContent = M.wos.filter((w) => w.status === 'Waiting for parts').length;
+  document.querySelectorAll('[data-w]').forEach((b) => { b.onclick = () => act(b.dataset.w, b.dataset.a); });
+}
+
+function setAsset(name, status, auditLine) {
+  const a = assetOf(name); if (!a) return;
+  if (a.status === status) return;
+  a.status = status;
+  a.history.unshift({ at: now(), line: auditLine });
+  pushAssetStatus(a);
+  audit(auditLine + ' — ' + name);
+}
+
+async function act(id, action) {
+  const w = M.wos.find((x) => x.id === id); if (!w) return;
+
+  if (action === 'accept') {
+    if (w.status !== 'New') return; // double-click guard
+    const diag = prompt('Quick diagnosis (goes to the reporter + the log):', '');
+    if (diag == null) return;
+    w.status = 'In progress'; w.assignee = ME; w.startedAt = now();
+    w.log.unshift({ at: now(), line: 'Accepted by ' + ME + (diag ? ' — ' + diag : '') });
+    if (w.priority === 'safety') setAsset(w.asset, 'Out of service', 'Isolated by ' + ME + ' (safety)');
+    else setAsset(w.asset, 'Waiting for repair', 'Marked waiting for repair by ' + ME);
+    if (w.busId) GymBus.update(w.busId, 'Under review', ME, diag || 'Being assessed');
+    audit(w.id + ' accepted by ' + ME);
+    save(); render(); toast(w.id + ' accepted — reporter sees "under review"');
+  }
+  if (action === 'test') {
+    if (w.status !== 'In progress') return;
+    w.status = 'Ready for testing';
+    w.log.unshift({ at: now(), line: 'Repair complete — awaiting verification' });
+    setAsset(w.asset, 'Testing', 'Repair done, testing before return to service');
+    audit(w.id + ' ready for testing');
+    save(); render(); toast('Ready for testing — verification checklist required before service');
+  }
+  if (action === 'install') {
+    if (w.status !== 'Waiting for parts') return;
+    const p = partOf(w.part);
+    if (p) {
+      if (p.qty < 1 && p.reserved < 1) { toast(w.part + ' still not in stock'); return; }
+      if (p.reserved > 0) p.reserved -= 1; else p.qty -= 1;
+      audit(w.part + ' installed on ' + w.asset + ' — stock deducted (' + ME + ')');
+    }
+    w.status = 'In progress';
+    w.log.unshift({ at: now(), line: (w.part || 'Part') + ' installed by ' + ME + ' — stock deducted' });
+    save(); render(); renderParts(); toast(w.part + ' installed — finish the repair, then test');
+  }
+  if (action === 'verify') {
+    if (w.status !== 'Ready for testing') return;
+    const ok = await verifyChecklist('Verify ' + w.asset + ' — ' + w.id);
+    if (!ok) return;
+    w.status = 'Verified'; w.verifiedBy = ME; w.closedAt = now();
+    w.log.unshift({ at: now(), line: 'Verified by ' + ME + ' — returned to service' });
+    setAsset(w.asset, 'Available', 'Verified & returned to service by ' + ME);
+    if (w.busId) GymBus.update(w.busId, 'Repaired', ME, 'Repaired, tested and verified — back in service');
+    audit(w.id + ' verified by ' + ME + ' — ' + w.asset + ' back in service');
+    save(); render(); toast(w.asset + ' back in service ✓ — reporter notified');
+  }
+  if (action === 'more') {
+    const r = await choose(w.id + ' — more actions', w.asset + ' · ' + w.problem, [
+      { label: 'Request spare part (reserves stock)' },
+      { label: 'Reassign to vendor' },
+      { label: 'Cannot reproduce', cls: 'danger' },
+      { label: 'Duplicate report', cls: 'danger' },
+      { label: 'Cancel with reason', cls: 'danger' },
+    ], true);
+    if (!r) return;
+    if (r.choice.startsWith('Request spare part')) {
+      const avail = M.parts.filter((p) => p.qty > 0 || p.reserved > 0);
+      const pr = await choose('Which part?', 'Reserved now, deducted only when installed.',
+        M.parts.map((p) => ({ label: p.n + ' — ' + p.qty + ' in stock' + (p.qty === 0 ? ' (on order)' : '') })));
+      if (!pr) return;
+      const pn = pr.choice.split(' — ')[0];
+      const p = partOf(pn);
+      if (p && p.qty > 0) { p.qty -= 1; p.reserved += 1; }
+      w.part = pn; w.status = 'Waiting for parts';
+      w.log.unshift({ at: now(), line: pn + ' requested — reserved' });
+      audit(pn + ' reserved for ' + w.id);
+      save(); render(); renderParts(); toast(pn + ' reserved — job waits for installation');
+    }
+    if (r.choice === 'Reassign to vendor') {
+      w.assignee = 'External vendor'; w.status = 'Waiting for parts';
+      w.log.unshift({ at: now(), line: 'Escalated to vendor — ' + (r.note || 'appointment requested') });
+      save(); render(); toast('Vendor requested — arrival tracked here');
+    }
+    if (['Cannot reproduce', 'Duplicate report', 'Cancel with reason'].includes(r.choice)) {
+      if (r.choice === 'Cancel with reason' && !r.note) { toast('A reason is required to cancel'); return; }
+      const p = partOf(w.part);
+      if (p && p.reserved > 0) { p.reserved -= 1; p.qty += 1; audit(w.part + ' reservation released (' + w.id + ' ' + r.choice.toLowerCase() + ')'); }
+      w.status = r.choice === 'Cancel with reason' ? 'Cancelled' : r.choice;
+      w.log.unshift({ at: now(), line: r.choice + (r.note ? ' — ' + r.note : '') + ' (' + ME + ')' });
+      setAsset(w.asset, 'Available', r.choice + ' — asset back to normal (' + ME + ')');
+      if (w.busId) GymBus.update(w.busId, 'Repaired', ME, r.choice + (r.note ? ' — ' + r.note : ''));
+      save(); render(); renderParts(); toast(w.id + ': ' + r.choice.toLowerCase());
+    }
+  }
+}
+
+/* ---------------- assets & parts ---------------- */
+const A_CLS = (s) => s === 'Available' ? 'st-ok' : s === 'Limited use' ? 'st-wait' : s === 'Testing' ? 'st-test' : 'st-bad';
+function renderAssets() {
+  $('assetList').innerHTML = M.assets.map((a) => `
+    <div class="asset">
+      <div class="n">${a.name}<span class="loc">${a.id} · ${a.cat} · ${a.loc}</span></div>
+      <span class="st ${A_CLS(a.status)}">${a.status.toUpperCase()}</span>
+      <button class="more-btn" style="width:auto; margin:0;" data-open-asset="${a.name}">Open ›</button>
+    </div>`).join('');
+  document.querySelectorAll('[data-open-asset]').forEach((b) => { b.onclick = () => openAsset(b.dataset.openAsset); });
+}
+function openAsset(name) {
+  const a = assetOf(name); if (!a) { toast('Asset not found — check the QR or register it first'); return; }
+  const wo = M.wos.find((w) => w.asset === a.name && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status));
+  $('assetCard').classList.remove('hidden');
+  $('assetCard').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="eyebrow" style="margin:0;">${a.name} · ${a.id}</div>
+      <button class="more-btn" style="width:auto; margin:0;" id="acClose">✕</button></div>
+    <div style="font-size:13px; margin-top:6px;">${a.cat} · ${a.loc} · <span class="st ${A_CLS(a.status)}">${a.status.toUpperCase()}</span></div>
+    ${a.alt && a.status !== 'Available' ? `<div style="font-size:12.5px; color:var(--muted); margin-top:4px;">Members are shown the alternative: <b>${a.alt}</b></div>` : ''}
+    ${wo ? `<div style="font-size:12.5px; margin-top:6px;">Active: <b>${wo.id}</b> · ${wo.status} · ${wo.assignee || 'unassigned'}</div>` : ''}
+    <div class="eyebrow" style="margin-top:10px;">History ${a.history.length ? '' : '— none yet'}</div>
+    ${a.history.slice(0, 5).map((h) => `<div class="hist"><b>${h.at}</b> · ${h.line}</div>`).join('') || '<div style="font-size:12.5px; color:var(--faint);">No maintenance recorded — a first inspection creates the baseline.</div>'}
+    <div style="display:flex; gap:8px; margin-top:11px; flex-wrap:wrap;">
+      ${!wo ? `<button class="big-act" style="flex:1; margin:0;" id="acReport">Report issue on this asset</button>` : ''}
+      ${a.status === 'Available' ? `<button class="more-btn" style="width:auto;" id="acIsolate">Isolate (safety)</button>` : ''}
+    </div>`;
+  $('acClose').onclick = () => $('assetCard').classList.add('hidden');
+  const rep = $('acReport'); if (rep) rep.onclick = () => createReport(a.name);
+  const iso = $('acIsolate'); if (iso) iso.onclick = () => {
+    setAsset(a.name, 'Out of service', 'Manually isolated by ' + ME + ' (safety precaution)');
+    save(); render(); renderAssets(); openAsset(a.name); toast(a.name + ' isolated — members see the alternative');
+  };
+  $('assetCard').scrollIntoView({ behavior: 'smooth' });
+}
+function renderParts() {
+  $('partList').innerHTML = M.parts.map((p) => `
+    <div class="partrow">
+      <div class="n">${p.n}<div class="meta">${p.no} · ${p.loc}</div></div>
+      <div class="meta" style="text-align:right;">${p.qty} in stock${p.reserved ? ' · ' + p.reserved + ' reserved' : ''}${p.qty <= p.min ? ' · <b style="color:var(--amber);">LOW</b>' : ''}</div>
+    </div>`).join('');
+}
+
+/* ---------------- reporting & inspection ---------------- */
+async function createReport(assetName) {
+  const a = assetName ? assetOf(assetName) : null;
+  const pick = a ? { choice: a.name } : await choose('Which asset?', 'Scanning the QR opens this directly.', M.assets.map((x) => ({ label: x.name })));
+  if (!pick) return;
+  const issue = await choose('Problem type', 'Safety concerns isolate the asset immediately.', [
+    { label: 'Safety concern', cls: 'danger' }, { label: 'Not powering on' }, { label: 'Unusual noise' },
+    { label: 'Loose component' }, { label: 'Water leak' }, { label: 'Cleaning required' }, { label: 'Other' },
+  ], true);
+  if (!issue) return;
+  const safety = issue.choice === 'Safety concern';
+  const id = 'WO-' + (1043 + M.wos.length);
+  M.wos.unshift({ id, asset: pick.choice, priority: safety ? 'safety' : 'normal', status: 'New', assignee: null,
+    problem: issue.choice + (issue.note ? ' — ' + issue.note : ''), reporter: ME + ' (internal)', at: now(),
+    log: [{ at: now(), line: 'Reported internally by ' + ME }] });
+  if (safety) setAsset(pick.choice, 'Inspection required', 'Auto-isolated — safety concern reported by ' + ME);
+  audit(id + ' created — ' + pick.choice + ' (' + issue.choice + ')');
+  save(); render(); renderAssets();
+  toast(id + ' created' + (safety ? ' — asset isolated until reviewed' : ''));
+}
+$('newReport').onclick = () => createReport(null);
+$('scanAsset').onclick = async () => {
+  const pick = await choose('Scan asset QR', 'Demo: pick the asset the QR would resolve to.', M.assets.map((x) => ({ label: x.name + ' · ' + x.id })));
+  if (!pick) return;
+  openAsset(pick.choice.split(' · ')[0]);
+};
+$('inspection').onclick = async () => {
+  const area = await choose('Start inspection', 'Failed items create work orders automatically.', [
+    { label: 'Gym floor' }, { label: 'Locker rooms' }, { label: 'Recovery suite' }, { label: 'Café' },
+  ]);
+  if (!area) return;
+  const fail = await choose(area.choice + ' — result', 'Pass closes the inspection; a failed item names the asset.', [
+    { label: 'All items pass', cls: 'solid' }, { label: 'One item needs attention…' },
+  ]);
+  if (!fail) return;
+  if (fail.choice === 'All items pass') { audit('Inspection passed — ' + area.choice + ' (' + ME + ')'); save(); toast(area.choice + ' inspection passed — logged'); return; }
+  createReport(null);
+};
+
+/* ---------------- bus: reports from members & departments become work orders ---------------- */
+function ingestReport(ev) {
+  if (GymBus.isProcessed(ev.id, 'maintenance')) return;
+  GymBus.markProcessed(ev.id, 'maintenance');
+  const p = ev.payload;
+  const sameAsset = (x, y) => x === y || x.startsWith(y) || y.startsWith(x);
+  const dup = M.wos.find((w) => sameAsset(w.asset, p.machine) && ['New', 'In progress', 'Waiting for parts', 'Ready for testing'].includes(w.status));
+  if (dup) {
+    dup.log.unshift({ at: now(), line: 'Duplicate report merged — ' + (p.member || 'unknown') + ' (' + (p.issue || '') + ')' });
+    audit('Duplicate report on ' + p.machine + ' merged into ' + dup.id);
+    save(); render(); toast('Duplicate report on ' + p.machine + ' — merged into ' + dup.id);
+    return;
+  }
+  const safety = /safety/i.test(p.issue || '');
+  const id = 'WO-' + (1043 + M.wos.length);
+  M.wos.unshift({ id, asset: p.machine, priority: safety ? 'safety' : 'normal', status: 'New', assignee: null,
+    problem: (p.issue || 'Reported issue') + ' · ' + (p.ref || ''), reporter: p.member || 'member', at: ev.at, busId: ev.id,
+    log: [{ at: ev.at, line: 'Reported by ' + (p.member || 'member') + ' via app (' + (p.ref || '') + ')' }] });
+  if (safety) setAsset(p.machine, 'Inspection required', 'Auto-isolated — safety concern from ' + (p.member || 'member'));
+  audit(id + ' created from app report — ' + p.machine);
+  save(); render(); renderAssets();
+  toast((safety ? '⚠ SAFETY: ' : 'New report: ') + p.machine + ' — ' + (p.member || 'member'));
+}
+GymBus.on((kind, ev) => { if (kind === 'event' && ev.type === 'report') ingestReport(ev); });
+GymBus.all().forEach((ev) => { if (ev.type === 'report' && !['Repaired', 'Fixed'].includes(ev.status)) ingestReport(ev); });
+
+render(); renderAssets(); renderParts();
+/* broadcast current non-available assets so member menus stay accurate after reload */
+M.assets.filter((a) => a.status !== 'Available').forEach(pushAssetStatus);
+</script>
 </body>
 </html>

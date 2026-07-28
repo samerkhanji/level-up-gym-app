@@ -913,10 +913,19 @@ function renderGym() {
         </div>`).join('')}
     </div>
 
+    ${Object.keys(state.assetStatus || {}).length ? `
+    <div class="card" style="border-left:4px solid var(--amber);">
+      ${eyebrow('tool', 'Equipment out of service')}
+      ${Object.entries(state.assetStatus).map(([a, v]) => `
+        <div class="row"><b>${a}</b><span class="chip chip-warn">${v.status}</span></div>
+        ${v.alt ? `<div class="dim small">Alternative: <b>${v.alt}</b></div>` : ''}`).join('')}
+      <div class="dim small">You'll be notified when it's repaired and verified.</div>
+    </div>` : ''}
+
     <div class="card" id="reportCard">
       ${eyebrow('tool', 'Report an equipment issue')}
       <div class="dim small">In the gym you'd scan the QR sticker on the machine — pick one here instead.</div>
-      <select class="input slim" id="repMachine">${machines.map((m) => `<option>${m}</option>`).join('')}</select>
+      <select class="input slim" id="repMachine">${machines.map((m) => `<option ${(state.assetStatus || {})[m] ? 'disabled' : ''}>${m}${(state.assetStatus || {})[m] ? ' — already reported' : ''}</option>`).join('')}</select>
       <select class="input slim" id="repIssue">${issueTypes.map((t) => `<option>${t}</option>`).join('')}</select>
       <button class="book-btn wide" data-action="report-issue">Send report</button>
       ${state.reports.length ? `
@@ -2093,6 +2102,14 @@ function handleBus(kind, ev) {
     if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
     return;
   }
+  if (kind === 'event' && ev.type === 'asset-status') {
+    state.assetStatus = state.assetStatus || {};
+    if (ev.payload.status === 'Available') delete state.assetStatus[ev.payload.asset];
+    else state.assetStatus[ev.payload.asset] = { status: ev.payload.status, alt: ev.payload.alt || null };
+    save();
+    if (document.getElementById('view-gym')?.classList.contains('active')) renderGym();
+    return;
+  }
   if (kind === 'event' && ev.type === 'cafe-status') {
     state.cafeOpen = ev.payload.open !== false;
     save();
@@ -2314,6 +2331,11 @@ GymBus.on(handleBus);
       (ev.payload.items || []).forEach((i) => { state.cafeAv[i.name] = i.av; });
     }
     if (ev.type === 'cafe-status') state.cafeOpen = ev.payload.open !== false; // latest wins
+    if (ev.type === 'asset-status') { // latest status per asset wins
+      state.assetStatus = state.assetStatus || {};
+      if (ev.payload.status === 'Available') delete state.assetStatus[ev.payload.asset];
+      else state.assetStatus[ev.payload.asset] = { status: ev.payload.status, alt: ev.payload.alt || null };
+    }
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
       state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
