@@ -7,79 +7,292 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
-  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
-  .dept-nav a.here { background:#124a38; color:#fff; }
-  .dept-head { text-align:center; max-width:640px; }
-  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
-  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
-  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6; --mint-ink:#9ec7b3;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
+    padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
+  .wrap { width:min(440px, 100%); display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .head { display:flex; align-items:center; gap:12px; }
+  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
+  .avatar.sm { width:32px; height:32px; font-size:12px; background:var(--mint); color:var(--deep); }
+  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .t-sub { font-size:12px; color:var(--muted); }
+  select.status { margin-left:auto; border:1.5px solid var(--mint); border-radius:11px; padding:8px 10px;
+    font-family:var(--body); font-weight:700; font-size:12.5px; color:var(--deep); background:var(--mint); }
+  .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .sess:last-child { border-bottom:none; }
+  .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; }
+  .sess-body { flex:1; min-width:0; }
+  .sess-n { font-weight:700; font-size:14px; }
+  .sess-s { font-size:11.5px; color:var(--muted); }
+  .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
+  .st-sched { background:var(--paper); color:var(--muted); }
+  .st-arr { background:var(--mint); color:var(--deep); animation:pulse 1.6s infinite; }
+  .st-live { background:var(--deep); color:#fff; }
+  .st-wait { background:var(--amber-soft); color:var(--amber); }
+  .st-ok { background:var(--mint); color:var(--deep); }
+  .st-bad { background:var(--red-soft); color:var(--red); }
+  .open-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; }
+  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper);
+    display:flex; align-items:center; gap:10px; animation:rise .3s ease both; flex-wrap:wrap; }
+  .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
+  .task-b { flex:1; min-width:180px; }
+  .task-t { font-weight:700; font-size:13px; } .task-s { font-size:11.5px; color:var(--muted); }
+  .task .act { display:flex; gap:6px; flex-shrink:0; }
+  .task .act button { font-size:11px; font-weight:700; padding:7px 11px; border-radius:9px; background:var(--deep); color:#fff; }
+  .task .act button.ghost { background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(23,33,28,.08); }
+  .primary { background:var(--deep); color:#fff; border-radius:14px; padding:14px; font-weight:800; font-size:14.5px; width:100%; }
+  .ghosty { background:var(--paper); color:var(--muted); border-radius:14px; padding:11px; font-weight:600; font-size:13px; width:100%; }
+  .ex { border-bottom:1px solid var(--line); padding:12px 0; }
+  .ex:last-child { border-bottom:none; }
+  .ex-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .ex-n { font-weight:700; font-size:14.5px; }
+  .ex-target { font-size:12px; color:var(--muted); white-space:nowrap; }
+  .ex-prev { font-size:11.5px; color:var(--faint); margin-top:2px; }
+  .ex-inputs { display:flex; gap:8px; margin-top:8px; }
+  .ex-inputs input { flex:1; border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; font-size:13.5px; font-family:var(--body); min-width:0; }
+  .pr-flag { font-size:11px; font-weight:800; color:var(--amber); display:none; margin-top:4px; }
+  textarea { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
+  .banner { background:var(--mint); border-radius:16px; padding:13px 15px; font-size:13.5px; font-weight:600; color:var(--deep); animation:rise .3s ease both; }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .hidden { display:none !important; }
 </style>
 </head>
 <body>
-  <nav class="dept-nav">
-    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" class="here">Trainer</a><a href="cafe.html" >Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" >Maintenance</a><a href="instructor.html" >Instructor</a><a href="staff.html">All departments</a>
-  </nav>
-  <div class="dept-head"><h1>Trainer</h1><p>Karim's day — sessions, requests, the confirm-to-complete trust mechanic</p></div>
-  <div class="screen-wrap">
-      <div data-screen-label="Trainer app" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
-        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
-          <div style="width:42px; height:42px; border-radius:50%; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-weight:800; font-size:15px;">KH</div>
-          <div style="flex:1;">
-            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:18px;">Karim H.</div>
-            <div style="font-size:12px; color:#6c7a71;">Strength · Rehab · ★ 4.9</div>
-          </div>
-        </div>
-        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; justify-content:space-between;">
-          <div><div style="font-weight:700; font-size:15px;">Available now</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Members see your live status</div></div>
-          <div style="width:52px; height:30px; border-radius:999px; background:#1e6b52; position:relative;"><div style="position:absolute; top:3px; right:3px; width:24px; height:24px; border-radius:50%; background:#ffffff;"></div></div>
-        </div>
-        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:18px; color:#ffffff;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#9ec7b3;">Now · 6:00 PM</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-            <div><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px;">Samer Khanji</div><div style="font-size:12px; color:#9ec7b3; margin-top:2px;">Session 7 of 10 · Push day</div></div>
-            <div style="background:#7ee2b1; color:#124a38; border-radius:12px; padding:10px 14px; font-weight:800; font-size:13px;">Ask to confirm</div>
-          </div>
-          <div style="font-size:11px; color:#9ec7b3; margin-top:10px;">Counts only after Samer confirms in his app.</div>
-        </div>
-        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Earlier today — the trust mechanic</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
-            <span><b>4:00</b> · Lina Saab</span>
-            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ Confirmed · 1 deducted</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
-            <span><b>5:00</b> · Omar Khal</span>
-            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Waiting member confirmation</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; font-size:13px;">
-            <span><b>6:00</b> · Samer Khanji</span>
-            <span style="background:#f3f4ef; color:#6c7a71; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Mark complete</span>
-          </div>
-        </div>
-        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Requests</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f2f4ee;">
-            <div><div style="font-weight:600; font-size:14px;">Lina Saab · new client</div><div style="font-size:12px; color:#6c7a71;">Tomorrow 5:00 PM</div></div>
-            <div style="display:flex; gap:8px;"><span style="background:#dff0e6; color:#124a38; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Accept</span><span style="background:#f3f4ef; color:#6c7a71; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Decline</span></div>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0;">
-            <div><div style="font-weight:600; font-size:14px;">Omar Khal · reschedule</div><div style="font-size:12px; color:#6c7a71;">Fri 7:00 → Sat 10:00</div></div>
-            <div style="display:flex; gap:8px;"><span style="background:#dff0e6; color:#124a38; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Accept</span></div>
-          </div>
-        </div>
-        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); flex:1;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Client files</div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f2f4ee; font-size:14px;">
-            <span style="font-weight:600;">Samer Khanji</span><span style="font-size:12px; color:#6c7a71;">PR deadlift 140 kg · 3 left ›</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; font-size:14px;">
-            <span style="font-weight:600;">Omar Khal</span><span style="font-size:12px; color:#6c7a71;">Rehab block · 8 left ›</span>
-          </div>
-        </div>
-      </div>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="index.html">Member app</a></nav>
+
+  <div class="card head">
+    <div class="avatar">KH</div>
+    <div><div class="t-name">Karim H.</div><div class="t-sub">Strength · Rehab · ★ 4.9</div></div>
+    <select class="status" id="statusSel">
+      <option>Available now</option><option>In session</option><option>On break</option><option>Unavailable</option>
+    </select>
   </div>
+
+  <div id="arrivalBanner"></div>
+
+  <div class="card">
+    <div class="eyebrow">Today — schedule</div>
+    <div id="schedule"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Needs attention</div>
+    <div id="queue"></div>
+  </div>
+
+  <div class="card hidden" id="liveCard">
+    <div class="eyebrow" id="liveTitle">Live session</div>
+    <div id="liveBody"></div>
+  </div>
+
+  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+      Connected demo: open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab.
+      Booking requests, gate check-ins, session confirmations and disputes travel live over GymBus —
+      statuses change only by human action on either side, never by timers.</div>
+  </div>
+</div>
+
+<script src="bus.js?v=1"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+
+/* trainer state — persisted so the journey survives refresh */
+const TKEY = 'gym_trainer_state';
+let T = {
+  sessions: [
+    { id: 's1', time: '4:00 PM', member: 'Lina Saab', type: 'PT session', status: 'confirmed' },
+    { id: 's2', time: '5:00 PM', member: 'Omar Khal', type: 'PT session', status: 'awaiting' },
+    { id: 's3', time: '6:00 PM', member: 'Samer Khanji', type: 'PT · Push day', status: 'scheduled', pkgLeft: 3 },
+  ],
+  queue: [],
+};
+try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) T = s; } catch (e) {}
+function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
+
+const STATUS_LABEL = {
+  scheduled: ['Scheduled', 'st-sched'], arrived: ['Arrived — in gym', 'st-arr'], started: ['In session', 'st-live'],
+  awaiting: ['Waiting member confirm', 'st-wait'], confirmed: ['Confirmed · deducted', 'st-ok'],
+  disputed: ['Disputed → manager', 'st-bad'], noshow: ['No-show', 'st-bad'],
+};
+
+function renderSchedule() {
+  $('schedule').innerHTML = T.sessions.map((s) => {
+    const [lbl, cls] = STATUS_LABEL[s.status] || STATUS_LABEL.scheduled;
+    const openable = ['arrived', 'started', 'scheduled'].includes(s.status);
+    return `<div class="sess">
+      <div class="sess-time">${s.time}</div>
+      <div class="avatar sm">${s.member[0]}</div>
+      <div class="sess-body"><div class="sess-n">${s.member}</div>
+        <div class="sess-s">${s.type}${s.pkgLeft != null ? ' · ' + s.pkgLeft + ' of 10 left' : ''}${s.checkin ? ' · in gym since ' + s.checkin : ''}</div></div>
+      <span class="st ${cls}">${lbl}</span>
+      ${openable ? `<button class="open-btn" data-open="${s.id}">Open ›</button>` : ''}
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openLive(b.dataset.open); });
+}
+
+function addQ(q) { if (T.queue.some((x) => x.key === q.key)) return; q.at = now(); T.queue.unshift(q); save(); renderQueue(); }
+function delQ(key) { T.queue = T.queue.filter((x) => x.key !== key); save(); renderQueue(); }
+function renderQueue() {
+  $('queue').innerHTML = T.queue.map((q) => `
+    <div class="task ${q.urg || ''}">
+      <div class="task-b"><div class="task-t">${q.t}</div><div class="task-s">${q.s} · ${q.at}</div></div>
+      <div class="act">${(q.actions || []).map((a) => `<button class="${a.ghost ? 'ghost' : ''}" data-qa="${q.key}" data-act="${a.a}">${a.l}</button>`).join('')}</div>
+    </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear.</div>';
+  document.querySelectorAll('[data-qa]').forEach((b) => { b.onclick = () => queueAction(b.dataset.qa, b.dataset.act); });
+}
+
+function reqActions() {
+  return [{ a: 'accept', l: 'Accept' }, { a: 'propose', l: 'Propose time', ghost: true }, { a: 'decline', l: 'Decline', ghost: true }];
+}
+
+function queueAction(key, act) {
+  const q = T.queue.find((x) => x.key === key); if (!q) return;
+  if (act === 'accept') {
+    GymBus.update(q.busId, 'accepted', 'Karim H.', q.slot || '');
+    T.sessions.push({ id: 's' + Date.now(), time: q.slot || 'Tomorrow 6:00 PM', member: q.member, type: 'PT session', status: 'scheduled' });
+    delQ(key); renderSchedule();
+    toast('Accepted — member notified, on both calendars');
+  }
+  if (act === 'propose') {
+    GymBus.update(q.busId, 'proposed', 'Karim H.', 'Saturday · 10:00 AM');
+    delQ(key); toast('Proposed Saturday 10:00 AM — member decides');
+  }
+  if (act === 'decline') {
+    const r = prompt('Reason for declining (sent to the member):', 'Fully booked this week');
+    if (r == null) return;
+    GymBus.update(q.busId, 'declined', 'Karim H.', r);
+    delQ(key); toast('Declined with reason — member notified');
+  }
+  if (act === 'reco') {
+    GymBus.send('renewal', { member: q.member, plan: '10-session strength package — trainer recommendation (Karim H.)' });
+    delQ(key); toast('Recommendation sent to reception — they handle price & payment');
+  }
+  if (act === 'open') openLive(q.sid);
+}
+
+/* ---------- live session ---------- */
+const EXS = [
+  { n: 'Bench press', target: '4 × 8 @ 70 kg', prevW: 67.5, prev: '4 × 8 @ 67.5 kg' },
+  { n: 'Incline dumbbell press', target: '3 × 10 @ 28 kg', prevW: 28, prev: '3 × 10 @ 28 kg' },
+  { n: 'Overhead press', target: '3 × 8 @ 50 kg', prevW: 50, prev: '3 × 8 @ 50 kg' },
+  { n: 'Cable fly', target: '3 × 12 @ 18 kg', prevW: 18, prev: '3 × 12 @ 18 kg' },
+];
+let liveStart = null;
+
+function openLive(sid) {
+  const s = T.sessions.find((x) => x.id === sid); if (!s) return;
+  if (s.status === 'arrived' || s.status === 'scheduled') { s.status = 'started'; s.startAt = now(); save(); renderSchedule(); }
+  liveStart = Date.now();
+  $('liveCard').classList.remove('hidden');
+  $('liveTitle').textContent = 'Live session — ' + s.member + ' · Push day · started ' + (s.startAt || now());
+  $('liveBody').innerHTML = `
+    ${EXS.map((e, i) => `<div class="ex">
+      <div class="ex-head"><span class="ex-n">${e.n}</span><span class="ex-target">${e.target}</span></div>
+      <div class="ex-prev">Previous: ${e.prev}</div>
+      <div class="ex-inputs">
+        <input id="reps${i}" placeholder="Reps today, e.g. 8/8/7/6" autocomplete="off" />
+        <input id="w${i}" type="number" placeholder="kg" style="max-width:80px;" />
+      </div>
+      <div class="pr-flag" id="pr${i}">★ NEW PR — beats ${e.prevW} kg</div>
+    </div>`).join('')}
+    <div class="eyebrow" style="margin-top:12px;">Session notes — required before requesting confirmation</div>
+    <textarea id="liveNotes" rows="2" placeholder="Performance, pain flags, adjustments, plan for next session…"></textarea>
+    <button class="primary" id="completeBtn" style="margin-top:12px;">Mark complete → ask ${s.member.split(' ')[0]} to confirm</button>
+    <button class="ghosty" id="noshowBtn" style="margin-top:8px;">Member no-show (no deduction)</button>`;
+  EXS.forEach((e, i) => { $('w' + i).oninput = () => { $('pr' + i).style.display = Number($('w' + i).value) > e.prevW ? 'block' : 'none'; }; });
+  $('completeBtn').onclick = () => completeSession(s);
+  $('noshowBtn').onclick = () => {
+    s.status = 'noshow'; save(); renderSchedule(); $('liveCard').classList.add('hidden');
+    toast('No-show recorded — no session deducted');
+  };
+  $('liveCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function completeSession(s) {
+  const notes = $('liveNotes').value.trim();
+  if (notes.length < 5) { toast('Session notes are required first'); $('liveNotes').focus(); return; }
+  const results = EXS.map((e, i) => ({ name: e.n, reps: $('reps' + i).value.trim(), w: Number($('w' + i).value) || null, pr: Number($('w' + i).value) > e.prevW }));
+  const done = results.filter((r) => r.reps);
+  const prs = results.filter((r) => r.pr).map((r) => ({ name: r.name, value: r.w + ' kg' }));
+  const summary = done.length
+    ? done.map((r) => r.name + ' ' + r.reps + (r.w ? ' @ ' + r.w + ' kg' : '')).join(' · ')
+    : 'Session completed';
+  s.status = 'awaiting'; s.notes = notes; save(); renderSchedule();
+  $('liveCard').classList.add('hidden');
+  s.busId = GymBus.send('pt-session', { member: s.member, trainer: 'Karim H.', summary, notes, prs });
+  save();
+  addQ({ key: 'conf-' + s.id, t: "Waiting for " + s.member.split(' ')[0] + "'s confirmation", s: 'Deducts 1 session only when the member confirms in their app', urg: 'warn', actions: [] });
+  toast('Sent — ' + s.member.split(' ')[0] + ' confirms in their app before any deduction');
+}
+
+/* ---------- bus: member events reach the trainer ---------- */
+function ingestRequest(ev) {
+  addQ({ key: 'req-' + ev.id, busId: ev.id, member: ev.payload.member, slot: ev.payload.slot,
+    t: 'Booking request — ' + ev.payload.member, s: ev.payload.slot + ' · PT package eligible', urg: 'warn', actions: reqActions() });
+}
+
+GymBus.on((kind, ev) => {
+  if (kind === 'event' && ev.type === 'gate-entry') {
+    const s = T.sessions.find((x) => x.member === ev.payload.member && x.status === 'scheduled');
+    if (s) {
+      s.status = 'arrived'; s.checkin = ev.payload.time; save(); renderSchedule();
+      $('arrivalBanner').innerHTML = `<div class="banner">✓ ${ev.payload.member} checked in at ${ev.payload.time}. Session begins at ${s.time}.</div>`;
+      addQ({ key: 'arr-' + s.id, sid: s.id, t: ev.payload.member + ' has arrived', s: 'Session at ' + s.time + ' — open when ready', actions: [{ a: 'open', l: 'Open session' }] });
+      toast(ev.payload.member + ' is in the gym');
+    }
+  }
+  if (kind === 'event' && ev.type === 'pt-request') { ingestRequest(ev); toast('New booking request — ' + ev.payload.member); }
+  if (kind === 'update' && ev.type === 'pt-request') {
+    const last = ev.history[ev.history.length - 1] || {};
+    if (ev.status === 'accepted' && last.by !== 'Karim H.') {
+      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Saturday 10:00 AM', member: ev.payload.member, type: 'PT session', status: 'scheduled' });
+      save(); renderSchedule(); toast(ev.payload.member + ' accepted the proposed time');
+    }
+  }
+  if (kind === 'update' && ev.type === 'pt-session') {
+    const s = T.sessions.find((x) => x.busId === ev.id); if (!s) return;
+    const last = ev.history[ev.history.length - 1] || {};
+    if (ev.status === 'confirmed') {
+      s.status = 'confirmed'; if (s.pkgLeft != null) s.pkgLeft -= 1;
+      delQ('conf-' + s.id); save(); renderSchedule();
+      toast('✓ ' + s.member.split(' ')[0] + ' confirmed — 1 session deducted' + (s.pkgLeft != null ? ' · ' + s.pkgLeft + ' left' : ''));
+      if (s.pkgLeft != null && s.pkgLeft <= 3) {
+        addQ({ key: 'reco-' + s.id, member: s.member, t: 'Package nearly finished — ' + s.member,
+          s: s.pkgLeft + ' sessions left · recommend renewal (reception handles payment)', actions: [{ a: 'reco', l: 'Recommend 10-pack' }] });
+      }
+    }
+    if (ev.status === 'disputed') {
+      s.status = 'disputed'; delQ('conf-' + s.id); save(); renderSchedule();
+      addQ({ key: 'disp-' + s.id, urg: 'urgent', t: 'Session disputed — ' + s.member,
+        s: '"' + (last.note || '') + '" · goes to manager review with entry records — the deduction cannot be forced', actions: [] });
+    }
+  }
+});
+
+/* catch-up: requests sent while this dashboard was closed */
+GymBus.all().forEach((ev) => { if (ev.type === 'pt-request' && ev.status === 'open') ingestRequest(ev); });
+
+$('statusSel').onchange = () => toast('Status: ' + $('statusSel').value + ' — members only see genuinely bookable slots');
+renderSchedule(); renderQueue();
+</script>
 </body>
 </html>

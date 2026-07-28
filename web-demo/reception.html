@@ -752,8 +752,9 @@ function busTask(ev){
 }
 GymBus.on((kind,ev)=>{ if(kind==='event'&&['sos','report','ticket','renewal'].includes(ev.type)){busTask(ev);
   if(ev.type==='sos')toast('🆘 SOS from '+ev.payload.member+' — '+ev.payload.sosType);} });
-/* catch-up: open member events from before this dashboard was opened */
-GymBus.all().filter(ev=>['sos','report','ticket','renewal'].includes(ev.type)&&!['closed','resolved','done','Repaired'].includes(ev.status)).forEach(busTask);
+/* catch-up: open member events from before this dashboard was opened.
+   Called from seedScreen (which resets tasks) so recovered tasks survive boot + sheet hydration. */
+function busCatchUp(){GymBus.all().filter(ev=>['sos','report','ticket','renewal'].includes(ev.type)&&!['closed','resolved','done','Repaired'].includes(ev.status)).forEach(busTask);}
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}
@@ -771,6 +772,7 @@ function seedScreen(insideRows){
   if(noWaiver)addTask({t:'Unsigned waiver — '+noWaiver.name,s:'Must sign before next entry',urg:'warn',kind:'waiver',name:noWaiver.name,dtype:'waiver'});
   addTask({t:'2 memberships expire today',s:'Call before 8 PM · scripts in notes',urg:'ok',kind:'expiry'});
   addTask({t:'Failed payment — Dana T.',s:'Card declined $95 · retry or collect at desk',urg:'warn',kind:'payment'});
+  busCatchUp();
   renderOcc();renderStats();renderUpcoming();renderTasks();renderFeed();
 }
 (async()=>{

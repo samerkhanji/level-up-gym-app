@@ -746,7 +746,25 @@ function renderTrain() {
   }
 
   if (segTrain === 'trainers') {
+    const b = state.booking;
     body = `
+      ${state.pendingPt ? `
+      <div class="card" style="border:2px solid var(--deep, #124a38);">
+        ${eyebrow('check', 'Confirm your session')}
+        <div style="margin-bottom:4px;"><b>${state.pendingPt.trainer}</b> marked today's session complete.</div>
+        <div class="dim small" style="margin-bottom:4px;">${state.pendingPt.summary}</div>
+        <div class="dim small" style="margin-bottom:10px;">Trainer notes: “${state.pendingPt.notes}”</div>
+        <button class="accent-btn slim" data-action="pt-confirm">Confirm — deduct 1 session</button>
+        <button class="book-btn wide warn" data-action="pt-dispute" style="margin-top:8px;">This session didn't happen</button>
+        <div class="dim small center" style="margin-top:6px;">Nothing is deducted until you confirm. Disputes go to the manager.</div>
+      </div>` : ''}
+      ${b ? `
+      <div class="card">
+        <div class="row"><b>${b.trainer} · ${b.when}</b>
+          <span class="chip ${b.status === 'accepted' ? 'chip-ok' : 'chip-warn'}">${b.status === 'accepted' ? 'Confirmed ✓' : b.status === 'proposed' ? 'New time proposed' : 'Awaiting trainer'}</span></div>
+        ${b.note ? `<div class="dim small">${b.note}</div>` : ''}
+        ${b.status === 'proposed' ? `<button class="accent-btn slim" data-action="pt-accept-time" style="margin-top:8px;">Accept ${b.when}</button>` : ''}
+      </div>` : ''}
       <div class="card">
         ${eyebrow('dumbbell', 'Personal training package')}
         <div class="row"><b>Karim H.</b><b class="accent">${left} of ${state.pkgTotal} left</b></div>
@@ -1266,6 +1284,8 @@ document.getElementById('gateBtn').onclick = () => {
     state.checkedIn = true;
     state.enteredAt = Date.now();
     state.sessionEvents = [];
+    // the gate tells the building: trainers with a session today get an arrival alert
+    GymBus.send('gate-entry', { member: state.memberName, time: fmtTime(Date.now()) });
     // assign a free locker from the Lockers table (fallback: random number)
     let number, zone = 'Changing room A';
     const freeLockers = (lockersPool || []).filter((l) => l.status === 'free');
@@ -1338,9 +1358,35 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'book-trainer') {
     const t = trainers[Number(el.dataset.i)];
-    state.booking = { trainer: t.name, when: 'Tomorrow · 6:00 PM', price: t.price };
+    const busId = GymBus.send('pt-request', { member: state.memberName, trainer: t.name, slot: 'Tomorrow · 6:00 PM' });
+    state.booking = { trainer: t.name, when: 'Tomorrow · 6:00 PM', price: t.price, status: 'requested', busId };
     save(); renderTrain();
-    toast(`Session requested with ${t.name} — awaiting confirmation`);
+    toast(`Request sent — ${t.name} accepts, proposes a time or declines`);
+  }
+  if (a === 'pt-accept-time') {
+    const b = state.booking; if (!b || b.status !== 'proposed') return;
+    GymBus.update(b.busId, 'accepted', state.memberName, b.when);
+    b.status = 'accepted'; b.note = null; save(); renderTrain();
+    pushNotif('Session confirmed', `${b.trainer} · ${b.when} — on both calendars.`);
+  }
+  if (a === 'pt-confirm') {
+    const p = state.pendingPt; if (!p) return;
+    GymBus.update(p.busId, 'confirmed', state.memberName, 'Confirmed in app');
+    state.pkgUsed = Math.min(state.pkgTotal, state.pkgUsed + 1);
+    (p.prs || []).forEach((pr) => state.prs.unshift({ name: pr.name, value: pr.value, when: 'Today' }));
+    if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: `PT session confirmed — ${p.trainer}`, sub: `Session ${state.pkgUsed} of ${state.pkgTotal}${p.prs && p.prs.length ? ' · new PR: ' + p.prs.map((x) => x.name).join(', ') : ''}` });
+    state.pendingPt = null; save(); renderTrain();
+    if (p.prs && p.prs.length) earnPoints(POINTS.pr, 'new PR');
+    pushNotif('Session confirmed', `1 session deducted — ${state.pkgTotal - state.pkgUsed} of ${state.pkgTotal} left. ${p.trainer}'s notes are saved to your progress.`);
+    toast(`Confirmed · ${state.pkgTotal - state.pkgUsed} sessions left`);
+  }
+  if (a === 'pt-dispute') {
+    const p = state.pendingPt; if (!p) return;
+    const r = prompt('Tell us what happened — this goes to the manager with entry records:', '');
+    if (r == null) return;
+    GymBus.update(p.busId, 'disputed', state.memberName, r || 'No details given');
+    state.pendingPt = null; save(); renderTrain();
+    pushNotif('Sent to manager review', 'No session was deducted. The manager compares trainer notes with entry records and gets back to you.');
   }
   if (a === 'class') {
     const id = el.dataset.c, act = el.dataset.a;
@@ -1678,7 +1724,34 @@ function handleBus(kind, ev) {
     rerenderActive();
     return;
   }
+  if (kind === 'event' && ev.type === 'pt-session' && mine) {
+    state.pendingPt = { busId: ev.id, trainer: ev.payload.trainer, summary: ev.payload.summary, notes: ev.payload.notes, prs: ev.payload.prs };
+    save();
+    pushNotif('Confirm your session', `${ev.payload.trainer} marked your session complete — confirm it in Train → Trainers. Nothing is deducted until you do.`);
+    toast('Session complete — please confirm');
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
   if (kind !== 'update' || !mine) return;
+  if (ev.type === 'pt-request' && state.booking && state.booking.busId === ev.id) {
+    if (ev.status === 'accepted' && last.by !== state.memberName) {
+      state.booking.status = 'accepted'; state.booking.note = null;
+      pushNotif('Session confirmed', `${last.by} accepted — ${state.booking.when}. It's on both calendars.`);
+      toast('✓ ' + last.by + ' accepted your session');
+    }
+    if (ev.status === 'proposed') {
+      state.booking.status = 'proposed'; state.booking.when = last.note;
+      state.booking.note = `${last.by} can't make the requested time and proposed ${last.note}.`;
+      pushNotif('New time proposed', state.booking.note);
+    }
+    if (ev.status === 'declined') {
+      state.booking = null;
+      pushNotif('Session declined', `${last.by}: “${last.note}” — pick another trainer or time in Train → Trainers.`);
+    }
+    save();
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
   if (ev.type === 'sos') {
     if (ev.status === 'acknowledged') { pushNotif('Staff acknowledged', `${last.by} confirmed your alert — help is on the way.`); toast('✓ ' + last.by + ' acknowledged — help is coming'); }
     if (ev.status === 'closed') pushNotif('Incident closed', `Closed by ${last.by}${last.note ? ' — ' + last.note : ''}.`);
@@ -1713,9 +1786,11 @@ GymBus.on(handleBus);
 (function busCatchUp() {
   state.busSeen = state.busSeen || {};
   GymBus.all().forEach((ev) => {
-    const key = ev.id + ':' + ev.history.length;
     if (ev.history.length && ev.payload?.member === state.memberName && state.busSeen[ev.id] !== ev.history.length) {
       handleBus('update', ev);
+    }
+    if (ev.type === 'pt-session' && ev.status === 'open' && ev.payload?.member === state.memberName && !state.pendingPt) {
+      state.pendingPt = { busId: ev.id, trainer: ev.payload.trainer, summary: ev.payload.summary, notes: ev.payload.notes, prs: ev.payload.prs };
     }
     state.busSeen[ev.id] = ev.history.length;
   });
