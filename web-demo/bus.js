@@ -34,10 +34,15 @@ const GymBus = (() => {
   const P_KEY = 'gym_bus_processed';
   const readP = () => { try { return JSON.parse(localStorage.getItem(P_KEY)) || {}; } catch (e) { return {}; } };
   function isProcessed(key, screen) { const m = readP(); return !!(m[screen] && m[screen][key]); }
+  /* Retention: newest 2000 entries per screen, and nothing older than 7 days —
+     long-running browsers never accumulate event IDs indefinitely. */
+  const P_MAX = 2000, P_AGE_MS = 7 * 24 * 3600 * 1000;
   function markProcessed(key, screen) {
     const m = readP(); (m[screen] = m[screen] || {})[key] = Date.now();
-    const keys = Object.keys(m[screen]);
-    if (keys.length > 150) keys.slice(0, keys.length - 150).forEach((k) => delete m[screen][k]);
+    const cutoff = Date.now() - P_AGE_MS;
+    Object.keys(m[screen]).forEach((k) => { if (m[screen][k] < cutoff) delete m[screen][k]; });
+    const keys = Object.keys(m[screen]).sort((a, b) => m[screen][a] - m[screen][b]);
+    if (keys.length > P_MAX) keys.slice(0, keys.length - P_MAX).forEach((k) => delete m[screen][k]);
     localStorage.setItem(P_KEY, JSON.stringify(m));
   }
 

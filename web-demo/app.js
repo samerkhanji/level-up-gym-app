@@ -187,6 +187,7 @@ const defaultState = {
   reports: [],
   allergies: ['peanuts'], // declared in the onboarding health questionnaire
   orderHistory: [],
+  ptThread: [], ptThreadResolved: false,
   prs: [
     { name: 'Bench press', value: '85 kg', when: 'Jul 19' },
     { name: 'Deadlift', value: '150 kg', when: 'Jul 10' },
@@ -715,6 +716,37 @@ function renderHome() {
 
 /* ================= TRAIN ================= */
 
+/* trainer conversation — session context auto-attached, read receipts, proposals */
+function renderPtThread() {
+  const th = state.ptThread || [];
+  if (!th.length && !state.msgOpen) {
+    return `<div class="card">
+      <button class="book-btn wide" data-action="msg-open">Message Karim H.</button>
+      <div class="dim small center">About sessions, programs or how you feel today — trainers reply in the app, no phone numbers shared.</div>
+    </div>`;
+  }
+  let changed = false; // rendering the thread = reading it
+  th.forEach((m) => { if (m.from === 'trainer' && m.status !== 'read') { m.status = 'read'; GymBus.update(m.id, 'read', state.memberName); changed = true; } });
+  if (changed) save();
+  const ctx = state.booking ? `Re: ${state.booking.when} session with ${state.booking.trainer}` : 'Re: PT training';
+  return `<div class="card">
+    ${eyebrow('bell', 'Karim H.' + (state.ptThreadResolved ? ' · resolved ✓' : ''))}
+    ${th.slice(-6).map((m) => {
+      if (m.sys) return `<div class="dim small center" style="background:var(--mint, #dff0e6); border-radius:10px; padding:7px 10px; margin-top:7px;">${m.text}</div>`;
+      const mine = m.from === 'member';
+      return `<div style="max-width:85%; border-radius:13px; padding:8px 11px; margin-top:7px; font-size:13.5px;
+          ${mine ? 'margin-left:auto; background:var(--deep, #124a38); color:#fff;' : 'background:var(--paper, #f3f4ef);'}">
+        ${m.text}
+        ${m.proposal && !m.proposalDone && !mine ? `<div style="margin-top:6px;"><button class="book-btn" data-action="msg-accept-proposal" data-id="${m.id}" style="background:#fff; color:#124a38;">Accept: ${m.proposal.from} → ${m.proposal.to}</button></div>` : ''}
+        <div style="font-size:10.5px; opacity:.7; margin-top:3px;">${m.at}${mine ? ' · ' + (m.status === 'read' ? 'Read' : 'Sent') : ''}</div>
+      </div>`;
+    }).join('')}
+    <input class="input" id="ptMsgInput" placeholder="Type a message…" autocomplete="off" style="margin-top:9px;" />
+    <div class="dim small">Attached automatically: ${ctx}</div>
+    <button class="accent-btn slim" data-action="msg-send">Send</button>
+  </div>`;
+}
+
 function renderTrain() {
   const left = state.pkgTotal - state.pkgUsed;
   let body = '';
@@ -777,6 +809,7 @@ function renderTrain() {
         <button class="book-btn wide" data-action="renew-pkg">Renew 10-pack · $${PRICES.pt_package} ($${Math.round(PRICES.pt_package / 10)}/session)</button>
         <div class="dim small">Sessions are only marked complete after you confirm them in the app.</div>
       </div>
+      ${renderPtThread()}
       ${state.pickSlot ? `
       <div class="card">
         ${eyebrow('calendar', 'Pick a time — ' + state.pickSlot.trainer)}
@@ -1449,6 +1482,26 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     toast(`Request sent for ${slot} — ${p.trainer} accepts, proposes a time or declines`);
   }
   if (a === 'book-cancel') { state.pickSlot = null; save(); renderTrain(); }
+  if (a === 'msg-open') { state.msgOpen = true; save(); renderTrain(); document.getElementById('ptMsgInput')?.focus(); }
+  if (a === 'msg-send') {
+    const inp = document.getElementById('ptMsgInput');
+    const text = (inp?.value || '').trim(); if (!text) return;
+    const ctx = state.booking ? `Re: ${state.booking.when} session` : 'Re: PT training';
+    const id = GymBus.send('pt-msg', { member: state.memberName, from: 'member', by: state.memberName, text, ctx }, 'member-app');
+    state.ptThread = state.ptThread || [];
+    state.ptThread.push({ id, from: 'member', text, at: fmtTime(Date.now()), status: 'sent' });
+    state.ptThreadResolved = false; state.msgOpen = true;
+    save(); renderTrain();
+  }
+  if (a === 'msg-accept-proposal') {
+    const m = (state.ptThread || []).find((x) => x.id === el.dataset.id);
+    if (!m || m.proposalDone) return;
+    m.proposalDone = true;
+    GymBus.update(m.id, 'accepted', state.memberName);
+    state.ptThread.push({ id: 'sys' + Date.now(), sys: true, text: `You accepted ${m.proposal.from} → ${m.proposal.to} — program updating…`, at: fmtTime(Date.now()) });
+    save(); renderTrain();
+    toast('Accepted — your program updates automatically');
+  }
   if (a === 'pt-accept-time') {
     const b = state.booking; if (!b || b.status !== 'proposed') return;
     GymBus.update(b.busId, 'accepted', state.memberName, b.when);
@@ -1878,6 +1931,34 @@ function handleBus(kind, ev) {
     if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
     return;
   }
+  if (kind === 'event' && ev.type === 'pt-msg' && mine && ev.payload.from === 'trainer') {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.ptThread = state.ptThread || [];
+    state.ptThread.push({ id: ev.id, from: 'trainer', text: ev.payload.text, at: ev.at, status: 'delivered', proposal: ev.payload.proposal || null });
+    state.ptThreadResolved = false;
+    save();
+    pushNotif('Message from ' + ev.payload.by, ev.payload.text.slice(0, 90) + (ev.payload.proposal ? ' — open Train → Trainers to accept.' : ''));
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'pt-msg-resolved' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.ptThreadResolved = true; save();
+    pushNotif('Conversation resolved', `${ev.payload.by} marked your conversation resolved — it stays in your history.`);
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'pt-booked' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.booking = { trainer: ev.payload.trainer, when: ev.payload.slot, status: 'accepted' };
+    save();
+    pushNotif('Session added', `${ev.payload.trainer} booked you in — ${ev.payload.slot}. It's on both calendars.`);
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
   if (kind === 'event' && ev.type === 'pt-session' && mine) {
     if (GymBus.isProcessed(ev.id + ':pending', 'member')) return;
     GymBus.markProcessed(ev.id + ':pending', 'member');
@@ -1894,6 +1975,14 @@ function handleBus(kind, ev) {
   const upKey = ev.id + ':' + ev.status + ':' + ev.history.length;
   if (GymBus.isProcessed(upKey, 'member')) return;
   GymBus.markProcessed(upKey, 'member');
+  if (ev.type === 'pt-msg') {
+    if (ev.status === 'read' && last.by !== state.memberName) {
+      (state.ptThread || []).forEach((m) => { if (m.id === ev.id) m.status = 'read'; });
+      save();
+      if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    }
+    return;
+  }
   if (ev.type === 'pt-request' && state.booking && state.booking.busId === ev.id) {
     if (ev.status === 'accepted' && last.by !== state.memberName) {
       state.booking.status = 'accepted'; state.booking.note = null;
@@ -2009,6 +2098,19 @@ GymBus.on(handleBus);
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
       state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
+    }
+    if (ev.type === 'pt-msg' && ev.payload?.member === state.memberName && ev.payload.from === 'trainer' && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.ptThread = state.ptThread || [];
+      state.ptThread.push({ id: ev.id, from: 'trainer', text: ev.payload.text, at: ev.at, status: 'delivered', proposal: ev.payload.proposal || null });
+      state.ptThreadResolved = false;
+    }
+    if (ev.type === 'pt-msg-resolved' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member'); state.ptThreadResolved = true;
+    }
+    if (ev.type === 'pt-booked' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.booking = { trainer: ev.payload.trainer, when: ev.payload.slot, status: 'accepted' };
     }
     state.busSeen[ev.id] = ev.history.length;
   });

@@ -14,7 +14,7 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
     padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
-  .wrap { width:min(460px, 100%); display:flex; flex-direction:column; gap:13px; }
+  .wrap { width:min(520px, 100%); display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
@@ -23,11 +23,15 @@
   .head { display:flex; align-items:center; gap:12px; }
   .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
     display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
-  .avatar.sm { width:32px; height:32px; font-size:12px; background:var(--mint); color:var(--deep); }
+  .avatar.sm { width:34px; height:34px; font-size:12.5px; background:var(--mint); color:var(--deep); }
   .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .t-sub { font-size:12px; color:var(--muted); }
   select.status { margin-left:auto; border:1.5px solid var(--mint); border-radius:11px; padding:8px 10px;
     font-family:var(--body); font-weight:700; font-size:12.5px; color:var(--deep); background:var(--mint); }
+  .seg { display:flex; gap:6px; background:#eceee8; border-radius:14px; padding:4px; }
+  .seg button { flex:1; font-size:13px; font-weight:700; padding:9px 4px; border-radius:11px; color:var(--muted); position:relative; }
+  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(23,33,28,.08); }
+  .seg .dot { position:absolute; top:5px; right:8px; width:8px; height:8px; border-radius:50%; background:var(--red); }
   .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
   .sess:last-child { border-bottom:none; }
   .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; }
@@ -43,10 +47,12 @@
   .st-ok { background:var(--mint); color:var(--deep); }
   .st-bad { background:var(--red-soft); color:var(--red); }
   .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:4px 6px; }
+  .qbar { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .qbar button { font-size:11.5px; font-weight:700; padding:8px 12px; border-radius:999px; background:var(--paper); color:var(--ink); }
   .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper);
     display:flex; align-items:center; gap:10px; animation:rise .3s ease both; flex-wrap:wrap; }
   .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
-  .task-b { flex:1; min-width:180px; }
+  .task-b { flex:1; min-width:170px; }
   .task-t { font-weight:700; font-size:13px; } .task-s { font-size:11.5px; color:var(--muted); }
   .task .act { display:flex; gap:6px; flex-shrink:0; }
   .task .act button { font-size:11px; font-weight:700; padding:7px 11px; border-radius:9px; background:var(--deep); color:#fff; }
@@ -62,7 +68,7 @@
   .ex-inputs { display:flex; gap:8px; margin-top:8px; }
   .ex-inputs input { flex:1; border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; font-size:13.5px; font-family:var(--body); min-width:0; }
   .pr-flag { font-size:11px; font-weight:800; color:var(--amber); display:none; margin-top:4px; }
-  textarea { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
+  textarea, input.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
   .banner { background:var(--mint); border-radius:16px; padding:13px 15px; font-size:13.5px; font-weight:600; color:var(--deep); animation:rise .3s ease both; }
   .banner.soft { background:var(--card); color:var(--ink); box-shadow:0 6px 18px rgba(23,33,28,.05); }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
@@ -71,13 +77,11 @@
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
   .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
   .hidden { display:none !important; }
-  /* client file */
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:11.5px; font-weight:700;
     border-radius:999px; padding:5px 11px; margin:2px 4px 2px 0; }
   .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
   .hist:last-child { border-bottom:none; }
   .hist b { font-size:12.5px; } .hist span { color:var(--muted); }
-  /* program builder */
   .prow { display:flex; gap:6px; align-items:center; margin-top:8px; }
   .prow select { flex:1; min-width:0; border:1.5px solid var(--line); border-radius:10px; padding:8px; font-size:12.5px; font-family:var(--body); background:#fff; }
   .prow input { width:46px; border:1.5px solid var(--line); border-radius:10px; padding:8px 6px; font-size:12.5px; font-family:var(--body); text-align:center; }
@@ -85,15 +89,35 @@
   .warnbox { background:var(--red-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--red); margin-top:8px; animation:rise .25s ease both; }
   .warnbox b { display:block; margin-bottom:4px; }
   .altbtn { background:#fff; color:var(--deep); font-size:11.5px; font-weight:700; border-radius:999px; padding:6px 11px; margin:4px 4px 0 0; box-shadow:0 2px 6px rgba(23,33,28,.1); }
-  /* availability */
   .slot { display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:8px 13px; margin:3px 4px 3px 0; cursor:pointer; }
   .slot.on { background:var(--mint); color:var(--deep); }
   .slot.off { background:var(--paper); color:var(--faint); text-decoration:line-through; }
+  /* clients */
+  .client { display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--line); align-items:flex-start; }
+  .client:last-child { border-bottom:none; }
+  .cl-b { flex:1; min-width:0; }
+  .cl-n { font-weight:800; font-size:14.5px; font-family:var(--display); }
+  .cl-s { font-size:12px; color:var(--muted); margin-top:1px; }
+  .cl-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+  .cl-acts button { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); }
+  .cl-acts button.solid { background:var(--deep); color:#fff; }
+  .badge { display:inline-block; min-width:18px; text-align:center; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 6px; }
+  /* messages */
+  .thread { display:flex; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); cursor:pointer; align-items:center; }
+  .thread:last-child { border-bottom:none; }
+  .msg { max-width:82%; border-radius:14px; padding:9px 12px; margin-top:8px; font-size:13.5px; }
+  .msg.me { background:var(--deep); color:#fff; margin-left:auto; }
+  .msg.them { background:var(--paper); }
+  .msg .meta { font-size:10.5px; opacity:.7; margin-top:3px; }
+  .msg.sys { background:var(--mint); color:var(--deep); font-size:12px; font-weight:600; max-width:100%; text-align:center; }
+  .quick { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
+  .quick button { font-size:11px; font-weight:700; padding:7px 11px; border-radius:999px; background:var(--paper); color:var(--deep); }
+  .chk { width:17px; height:17px; accent-color:var(--deep); }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="index.html">Member app</a></nav>
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
 
   <div class="card head">
     <div class="avatar">KH</div>
@@ -103,16 +127,69 @@
     </select>
   </div>
 
-  <div id="arrivalBanner"></div>
-
-  <div class="card">
-    <div class="eyebrow">Today — schedule</div>
-    <div id="schedule"></div>
+  <div class="seg" id="mainSeg">
+    <button class="on" data-sec="dash">Dashboard</button>
+    <button data-sec="clients">Clients</button>
+    <button data-sec="msgs">Messages<span class="dot hidden" id="msgDot"></span></button>
   </div>
 
-  <div class="card">
-    <div class="eyebrow">Needs attention</div>
-    <div id="queue"></div>
+  <div id="arrivalBanner"></div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <div id="secDash">
+    <div class="card">
+      <div class="eyebrow">Today — schedule</div>
+      <div id="schedule"></div>
+      <div class="qbar">
+        <button id="addSess">+ Add session</button>
+        <button id="blockTime">Block time</button>
+        <button id="addBreak">Add break</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:13px;">
+      <div class="eyebrow">Needs attention</div>
+      <div id="queue"></div>
+    </div>
+
+    <div class="card" style="margin-top:13px;">
+      <div class="eyebrow">Messages</div>
+      <div id="msgSummary" style="font-size:13.5px; font-weight:600;"></div>
+    </div>
+
+    <div class="card" style="margin-top:13px;">
+      <div class="eyebrow">My tasks today</div>
+      <div id="taskList"></div>
+      <button class="ghosty" id="addTask" style="margin-top:8px;">+ Add task</button>
+    </div>
+
+    <div class="card" style="margin-top:13px;">
+      <div class="eyebrow">My availability — this week</div>
+      <div id="availChips"></div>
+      <div style="font-size:11.5px; color:var(--faint); margin-top:8px;">
+        Tap a slot to open or close it. Published instantly — members can only book slots that are on.</div>
+    </div>
+  </div>
+
+  <!-- ============ CLIENTS ============ -->
+  <div id="secClients" class="hidden">
+    <div class="card">
+      <div class="eyebrow">My clients</div>
+      <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
+      <div id="clientList"></div>
+      <div style="font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5;">
+        Phone numbers are visible only to assigned trainers, access is audit-logged, and lists cannot be
+        exported. "Call through gym" connects without exposing personal numbers on either side.</div>
+    </div>
+  </div>
+
+  <!-- ============ MESSAGES ============ -->
+  <div id="secMsgs" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Conversations</div>
+      <div id="threadList"></div>
+    </div>
+    <div class="card hidden" id="convoCard" style="margin-top:13px;"></div>
   </div>
 
   <div class="card hidden" id="clientCard"></div>
@@ -122,50 +199,46 @@
     <div id="liveBody"></div>
   </div>
 
-  <div class="card">
-    <div class="eyebrow">My availability — this week</div>
-    <div id="availChips"></div>
-    <div style="font-size:11.5px; color:var(--faint); margin-top:8px;">
-      Tap a slot to open or close it. Published instantly — members can only book slots that are on.</div>
-  </div>
-
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
       Connected demo: open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab.
-      Requests, arrivals, program edits, availability and confirmations travel live over GymBus with idempotent
-      per-screen processing — no event is ever applied twice, and no status changes by timer.</div>
+      Requests, arrivals, messages, program edits and confirmations travel over GymBus with idempotent per-screen
+      processing. Statuses change only by human action; the arrival watcher only surfaces time context.</div>
   </div>
 </div>
 
-<script src="bus.js?v=2"></script>
+<script src="bus.js?v=3"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const GYM_TZ = 'Asia/Beirut'; // demo runs in gym-local time; production stores UTC epochs + this zone
+const fmtT = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const now = () => fmtT(Date.now());
 function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+const ME = 'Karim H.';
 
-/* Arrival window: gate check-in only raises a session alert inside this many
-   minutes before the appointment; earlier check-ins show "In gym — session later". */
-const ARRIVAL_WINDOW = 45;
+const ARRIVAL_WINDOW = 45; // minutes before start in which check-in = "arrived for session"
 function parseTime(str) {
   const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i); if (!m) return null;
   let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + (+m[2]);
 }
-function minsUntil(str) {
+/* epoch ms for a clock-time TODAY in gym-local time */
+function todayAt(str) {
   const t = parseTime(str); if (t == null) return null;
-  const n = new Date(); return t - (n.getHours() * 60 + n.getMinutes());
+  const d = new Date(); d.setHours(Math.floor(t / 60), t % 60, 0, 0); return d.getTime();
 }
-function fmtLead(mu) {
-  if (mu >= 60) return Math.floor(mu / 60) + ' h ' + (mu % 60) + ' min';
-  return mu + ' min';
+function minsUntil(s) {
+  const target = s.tMs != null ? s.tMs : todayAt(s.time); // timestamps first, strings as fallback
+  return target == null ? null : Math.round((target - Date.now()) / 60000);
 }
+function fmtLead(mu) { return mu >= 60 ? Math.floor(mu / 60) + ' h ' + (mu % 60) + ' min' : mu + ' min'; }
 
-/* trainer state — persisted so the journey survives refresh */
+/* ---------------- trainer state ---------------- */
 const TKEY = 'gym_trainer_state';
 let T = {
   sessions: [
-    { id: 's1', time: '4:00 PM', member: 'Lina Saab', type: 'PT session', status: 'confirmed' },
-    { id: 's2', time: '5:00 PM', member: 'Omar Khal', type: 'PT session', status: 'awaiting' },
-    { id: 's3', time: '6:00 PM', member: 'Samer Khanji', type: 'PT · Push day', status: 'scheduled', pkgLeft: 3 },
+    { id: 's1', time: '4:00 PM', tMs: todayAt('4:00 PM'), member: 'Lina Saab', type: 'PT session', status: 'confirmed' },
+    { id: 's2', time: '5:00 PM', tMs: todayAt('5:00 PM'), member: 'Omar Khal', type: 'PT session', status: 'awaiting' },
+    { id: 's3', time: '6:00 PM', tMs: todayAt('6:00 PM'), member: 'Samer Khanji', type: 'PT · Push day', status: 'scheduled', pkgLeft: 3 },
   ],
   queue: [],
   program: { member: 'Samer Khanji', title: 'Push day', ex: [
@@ -178,14 +251,23 @@ let T = {
     { s: 'Tue · 5:00 PM', on: true }, { s: 'Tue · 6:00 PM', on: true }, { s: 'Wed · 7:00 AM', on: true },
     { s: 'Thu · 6:00 PM', on: false }, { s: 'Sat · 10:00 AM', on: true },
   ],
+  tasks: [
+    { t: "Update Samer's program", done: false },
+    { t: 'Prepare assessment sheet for the 10 AM consult', done: false },
+    { t: "Review Jad's progress charts", done: false },
+  ],
+  threads: {}, // member → [{id, from:'member'|'trainer', text, at, t, status, proposal?}] + {resolved}
 };
-try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.program = T.program || null; T.avail = T.avail || []; } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.tasks = T.tasks || []; T.threads = T.threads || {}; T.avail = T.avail || []; } } catch (e) {}
 function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
 
-/* client files: goals, history, injury & safety flags */
+/* ---------------- clients ---------------- */
 const CLIENTS = {
   'Samer Khanji': {
+    phone: '+961 70 123 456', email: 'samer@example.com', emerg: 'Lara K. · +961 3 555 111', pref: 'In-app messages',
+    status: 'Active membership', pkg: 'Strength package',
     goals: 'Build pressing strength · 78 kg → 80 kg lean · bench 80 kg by October',
+    goalShort: 'Bench press 80 kg',
     injuries: [{ flag: 'shoulder', label: 'Right shoulder impingement', note: 'Avoid overhead / behind-neck pressing at end range; stop on any pinch.' }],
     history: [
       { when: 'Jul 25', what: 'Push day — session 7', note: 'Bench 4×8 @ 67.5, solid, no pain' },
@@ -193,11 +275,9 @@ const CLIENTS = {
       { when: 'Jul 12', what: 'Assessment retest', note: 'Body fat 18.2% · added 1.1 kg lean since June' },
     ],
   },
-  'Lina Saab': { goals: 'General strength · 2×/week', injuries: [], history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
-  'Omar Khal': { goals: 'Return from knee rehab', injuries: [{ flag: 'knee', label: 'ACL reconstruction (2025)', note: 'No deep jumps; leg extensions cleared by physio.' }], history: [] },
+  'Lina Saab': { phone: '+961 71 222 333', email: 'lina@example.com', emerg: '—', pref: 'Phone call', status: 'Active membership', pkg: 'Starter pack', goals: 'General strength · 2×/week', goalShort: 'Squat form', injuries: [], history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
+  'Omar Khal': { phone: '+961 76 444 555', email: 'omar@example.com', emerg: '—', pref: 'In-app messages', status: 'Active membership', pkg: 'Rehab pack', goals: 'Return from knee rehab', goalShort: 'Pain-free squat', injuries: [{ flag: 'knee', label: 'ACL reconstruction (2025)', note: 'No deep jumps; leg extensions cleared by physio.' }], history: [] },
 };
-
-/* exercise catalog with contraindication tags; `alt` marks approved substitutes per flag */
 const CATALOG = [
   { n: 'Bench press' }, { n: 'Incline dumbbell press' }, { n: 'Machine chest press' },
   { n: 'Overhead press' }, { n: 'Cable fly' }, { n: 'Dumbbell pullover' }, { n: 'Triceps pushdown' },
@@ -206,9 +286,30 @@ const CATALOG = [
   { n: 'Box jump', risk: ['knee'] }, { n: 'Leg extension', alt: ['knee'] },
 ];
 
-/* ---------- schedule ---------- */
+function pkgInfo(member) {
+  const s = T.sessions.find((x) => x.member === member && x.pkgLeft != null);
+  return s ? (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : '—';
+}
+function nextSessionOf(member) {
+  const s = T.sessions.find((x) => x.member === member && ['scheduled', 'ingym', 'arrived'].includes(x.status));
+  return s ? s.time : null;
+}
+
+/* ---------------- section nav ---------------- */
+document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
+  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
+  $('secDash').classList.toggle('hidden', b.dataset.sec !== 'dash');
+  $('secClients').classList.toggle('hidden', b.dataset.sec !== 'clients');
+  $('secMsgs').classList.toggle('hidden', b.dataset.sec !== 'msgs');
+  if (b.dataset.sec === 'clients') renderClients();
+  if (b.dataset.sec === 'msgs') renderThreads();
+}; });
+
+/* ---------------- schedule ---------------- */
 function labelFor(s) {
-  const mu = minsUntil(s.time);
+  if (s.kind === 'block') return ['Blocked', 'st-sched'];
+  if (s.kind === 'break') return ['Break', 'st-sched'];
+  const mu = minsUntil(s);
   if (s.status === 'scheduled') return (mu != null && mu < -10) ? ['Late — not in gym', 'st-bad'] : ['Scheduled', 'st-sched'];
   if (s.status === 'ingym') return ['In gym — session later', 'st-ingym'];
   if (s.status === 'arrived') return ['Arrived — waiting for trainer', 'st-arr'];
@@ -217,12 +318,17 @@ function labelFor(s) {
   if (s.status === 'confirmed') return ['Confirmed · deducted', 'st-ok'];
   if (s.status === 'disputed') return ['Disputed → manager', 'st-bad'];
   if (s.status === 'noshow') return ['No-show', 'st-bad'];
+  if (s.status === 'cancelled') return ['Cancelled', 'st-bad'];
   return ['Scheduled', 'st-sched'];
 }
 
 function renderSchedule() {
-  $('schedule').innerHTML = T.sessions.map((s) => {
+  const rows = [...T.sessions].sort((a, b) => (a.tMs || 0) - (b.tMs || 0));
+  $('schedule').innerHTML = rows.map((s) => {
     const [lbl, cls] = labelFor(s);
+    if (s.kind) return `<div class="sess"><div class="sess-time">${s.time}</div>
+      <div class="sess-body"><div class="sess-n" style="color:var(--muted);">${s.kind === 'break' ? 'Break' : 'Blocked — ' + (s.note || 'personal')}</div></div>
+      <span class="st ${cls}">${lbl}</span><button class="mini-btn" data-del="${s.id}">✕</button></div>`;
     const openable = ['arrived', 'started', 'scheduled', 'ingym'].includes(s.status);
     return `<div class="sess">
       <div class="sess-time">${s.time}</div>
@@ -233,22 +339,44 @@ function renderSchedule() {
       <button class="mini-btn" data-file="${s.member}">File</button>
       ${openable ? `<button class="mini-btn" data-open="${s.id}">Open ›</button>` : ''}
     </div>`;
-  }).join('');
+  }).join('') || '<div style="color:var(--faint); font-size:13px;">Nothing scheduled.</div>';
   document.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openLive(b.dataset.open); });
   document.querySelectorAll('[data-file]').forEach((b) => { b.onclick = () => openFile(b.dataset.file); });
+  document.querySelectorAll('[data-del]').forEach((b) => { b.onclick = () => { T.sessions = T.sessions.filter((x) => x.id !== b.dataset.del); save(); renderSchedule(); }; });
 }
 
-/* arrival-window watcher — DISPLAY of time context only. It promotes
-   "in gym (checked in earlier)" to "arrived" once the clock enters the window;
-   the underlying fact (gate check-in) came from a real event, never invented. */
+/* scheduling actions */
+$('addSess').onclick = () => addSessionFlow();
+function addSessionFlow(presetMember) {
+  const names = Object.keys(CLIENTS);
+  const member = presetMember || prompt('Client:\n' + names.join('\n'), names[0]); if (!member) return;
+  const time = prompt('Time today (e.g. 9:00 AM):', '7:00 PM'); if (!time) return;
+  T.sessions.push({ id: 's' + Date.now(), time, tMs: todayAt(time), member, type: 'PT session', status: 'scheduled' });
+  save(); renderSchedule();
+  GymBus.send('pt-booked', { member, trainer: ME, slot: 'Today · ' + time }, 'trainer');
+  toast(member.split(' ')[0] + ' added at ' + time + ' — member notified, on both calendars');
+}
+$('blockTime').onclick = () => {
+  const time = prompt('Block from (e.g. 2:00 PM):', '2:00 PM'); if (!time) return;
+  const note = prompt('Reason (private):', 'personal') || 'personal';
+  T.sessions.push({ id: 'b' + Date.now(), time, tMs: todayAt(time), kind: 'block', note });
+  save(); renderSchedule(); toast('Time blocked — members cannot book over it');
+};
+$('addBreak').onclick = () => {
+  const time = prompt('Break at (e.g. 12:00 PM):', '12:00 PM'); if (!time) return;
+  T.sessions.push({ id: 'k' + Date.now(), time, tMs: todayAt(time), kind: 'break' });
+  save(); renderSchedule(); toast('Break added');
+};
+
+/* arrival-window watcher — surfaces time context; the check-in fact came from a real gate event */
 setInterval(() => {
   let changed = false;
   T.sessions.forEach((s) => {
-    const mu = minsUntil(s.time);
+    const mu = minsUntil(s);
     if (s.status === 'ingym' && mu != null && mu <= ARRIVAL_WINDOW) { s.status = 'arrived'; arrivalAlert(s); changed = true; }
   });
-  if (changed) { save(); }
-  renderSchedule(); // refresh Late/lead-time displays
+  if (changed) save();
+  renderSchedule();
 }, 30000);
 
 function arrivalAlert(s) {
@@ -257,7 +385,7 @@ function arrivalAlert(s) {
   toast(s.member + ' arrived for the ' + s.time + ' session');
 }
 
-/* ---------- queue ---------- */
+/* ---------------- queue ---------------- */
 function addQ(q) { if (T.queue.some((x) => x.key === q.key)) return; q.at = now(); T.queue.unshift(q); save(); renderQueue(); }
 function delQ(key) { T.queue = T.queue.filter((x) => x.key !== key); save(); renderQueue(); }
 function renderQueue() {
@@ -268,44 +396,85 @@ function renderQueue() {
     </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear.</div>';
   document.querySelectorAll('[data-qa]').forEach((b) => { b.onclick = () => queueAction(b.dataset.qa, b.dataset.act); });
 }
-
-function reqActions() {
-  return [{ a: 'accept', l: 'Accept' }, { a: 'propose', l: 'Propose time', ghost: true }, { a: 'decline', l: 'Decline', ghost: true }];
-}
-
+function reqActions() { return [{ a: 'accept', l: 'Accept' }, { a: 'propose', l: 'Propose time', ghost: true }, { a: 'decline', l: 'Decline', ghost: true }]; }
 function queueAction(key, act) {
   const q = T.queue.find((x) => x.key === key); if (!q) return;
   if (act === 'accept') {
-    GymBus.update(q.busId, 'accepted', 'Karim H.', q.slot || '');
-    T.sessions.push({ id: 's' + Date.now(), time: q.slot || 'Tomorrow 6:00 PM', member: q.member, type: 'PT session', status: 'scheduled' });
-    delQ(key); renderSchedule();
-    toast('Accepted — member notified, on both calendars');
+    GymBus.update(q.busId, 'accepted', ME, q.slot || '');
+    T.sessions.push({ id: 's' + Date.now(), time: q.slot || 'Tomorrow 6:00 PM', tMs: null, member: q.member, type: 'PT session', status: 'scheduled' });
+    delQ(key); renderSchedule(); toast('Accepted — member notified, on both calendars');
   }
   if (act === 'propose') {
     const open = T.avail.filter((a) => a.on).map((a) => a.s);
     const alt = open.find((s) => s !== q.slot) || 'Sat · 10:00 AM';
-    GymBus.update(q.busId, 'proposed', 'Karim H.', alt);
+    GymBus.update(q.busId, 'proposed', ME, alt);
     delQ(key); toast('Proposed ' + alt + ' — member decides');
   }
   if (act === 'decline') {
     const r = prompt('Reason for declining (sent to the member):', 'Fully booked this week');
     if (r == null) return;
-    GymBus.update(q.busId, 'declined', 'Karim H.', r);
+    GymBus.update(q.busId, 'declined', ME, r);
     delQ(key); toast('Declined with reason — member notified');
   }
   if (act === 'reco') {
-    GymBus.send('renewal', {
-      member: q.member, price: 300,
-      plan: 'PT package renewal · 10 sessions · $300 ($30/session — single sessions are $35)',
-    }, 'trainer');
+    GymBus.send('renewal', { member: q.member, price: 300, plan: 'PT package renewal · 10 sessions · $300 ($30/session — single sessions are $35)' }, 'trainer');
     delQ(key); toast('Recommendation sent to reception — itemized, they take payment');
   }
   if (act === 'open') openLive(q.sid);
+  if (act === 'msg') { openThread(q.member || q.t.split('— ')[1]); delQ(key); }
 }
 
-/* ---------- client file + program builder ---------- */
-let fileMember = null, draft = null;
+/* ---------------- tasks ---------------- */
+function renderTasks() {
+  $('taskList').innerHTML = T.tasks.map((t, i) => `
+    <div class="task" style="background:${t.done ? 'var(--mint)' : 'var(--paper)'};">
+      <input type="checkbox" class="chk" data-tk="${i}" ${t.done ? 'checked' : ''} />
+      <div class="task-b"><div class="task-t" style="${t.done ? 'text-decoration:line-through; color:var(--muted);' : ''}">${t.t}</div></div>
+    </div>`).join('') || '<div style="color:var(--faint); font-size:13px;">No tasks.</div>';
+  document.querySelectorAll('[data-tk]').forEach((c) => { c.onchange = () => { T.tasks[Number(c.dataset.tk)].done = c.checked; save(); renderTasks(); }; });
+}
+$('addTask').onclick = () => { const t = prompt('Task:', ''); if (!t) return; T.tasks.push({ t, done: false }); save(); renderTasks(); };
 
+/* ---------------- clients directory ---------------- */
+function unreadFrom(member) { return (T.threads[member]?.msgs || []).filter((m) => m.from === 'member' && m.status !== 'read').length; }
+
+function renderClients() {
+  const q = ($('clientSearch').value || '').toLowerCase();
+  const rows = Object.keys(CLIENTS).filter((n) => {
+    const c = CLIENTS[n];
+    return !q || n.toLowerCase().includes(q) || c.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')) || (c.goalShort || '').toLowerCase().includes(q) || (c.pkg || '').toLowerCase().includes(q);
+  });
+  $('clientList').innerHTML = rows.map((n) => {
+    const c = CLIENTS[n]; const un = unreadFrom(n); const next = nextSessionOf(n);
+    return `<div class="client">
+      <div class="avatar sm">${n[0]}</div>
+      <div class="cl-b">
+        <div class="cl-n">${n} ${un ? `<span class="badge">${un}</span>` : ''}</div>
+        <div class="cl-s">${c.phone} · ${c.status}</div>
+        <div class="cl-s">${c.pkg} · ${pkgInfo(n)}${next ? ' · next: ' + next : ' · no upcoming session'}</div>
+        <div class="cl-s">Goal: ${c.goalShort}</div>
+        ${c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span>`).join('')}
+        <div class="cl-acts">
+          <button class="solid" data-copen="${n}">Open client</button>
+          <button data-ccall="${n}">Call through gym</button>
+          <button data-cmsg="${n}">Message</button>
+          <button data-cbook="${n}">Book session</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No matches.</div>';
+  document.querySelectorAll('[data-copen]').forEach((b) => { b.onclick = () => openFile(b.dataset.copen); });
+  document.querySelectorAll('[data-ccall]').forEach((b) => { b.onclick = () => { logTimeline(b.dataset.ccall, 'Call placed through gym line by ' + ME); toast('Connecting through the gym line — personal numbers stay hidden'); }; });
+  document.querySelectorAll('[data-cmsg]').forEach((b) => { b.onclick = () => { openThread(b.dataset.cmsg); }; });
+  document.querySelectorAll('[data-cbook]').forEach((b) => { b.onclick = () => addSessionFlow(b.dataset.cbook); });
+}
+$('clientSearch').oninput = () => renderClients();
+function logTimeline(member, what) {
+  (CLIENTS[member].history = CLIENTS[member].history || []).unshift({ when: 'Today', what, note: '' });
+}
+
+/* ---------------- client profile + program builder ---------------- */
+let fileMember = null, draft = null;
 function riskFor(exName, member) {
   const cat = CATALOG.find((c) => c.n === exName);
   const flags = (CLIENTS[member]?.injuries || []).map((i) => i.flag);
@@ -324,20 +493,25 @@ function openFile(member) {
   renderFile(c, hasProgram);
   $('clientCard').scrollIntoView({ behavior: 'smooth' });
 }
-
 function renderFile(c, hasProgram) {
   const m = fileMember;
   $('clientCard').innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">Client file — ${m}</div>
+      <div class="eyebrow" style="margin:0;">Client — ${m}</div>
       <button class="mini-btn" id="fileClose">Close ✕</button>
     </div>
+    <div style="margin-top:10px;"><div class="eyebrow">Contact <span style="text-transform:none; letter-spacing:0;">(access audit-logged)</span></div>
+      <div style="font-size:13px;">${c.phone || '—'} · ${c.email || ''}<br>Emergency: ${c.emerg || '—'} · Prefers: ${c.pref || '—'}</div>
+      <div class="cl-acts"><button data-ccall="${m}">Call through gym</button><button data-cmsg="${m}">Message</button></div>
+    </div>
+    <div style="margin-top:10px;"><div class="eyebrow">Package</div>
+      <div style="font-size:13px;">${c.pkg || '—'} · ${pkgInfo(m)}${nextSessionOf(m) ? ' · next: ' + nextSessionOf(m) : ''}</div></div>
     <div style="margin-top:10px;"><div class="eyebrow">Goals</div><div style="font-size:13.5px;">${c.goals}</div></div>
     <div style="margin-top:12px;"><div class="eyebrow">Injury &amp; safety flags</div>
       ${c.injuries.length ? c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span><div style="font-size:12px; color:var(--muted); margin-top:4px;">${i.note}</div>`).join('') : '<div style="font-size:13px; color:var(--faint);">None on file.</div>'}
     </div>
-    <div style="margin-top:12px;"><div class="eyebrow">Recent history</div>
-      ${c.history.length ? c.history.map((h) => `<div class="hist"><b>${h.when}</b> · ${h.what}<br><span>“${h.note}”</span></div>`).join('') : '<div style="font-size:13px; color:var(--faint);">No sessions yet.</div>'}
+    <div style="margin-top:12px;"><div class="eyebrow">Timeline</div>
+      ${c.history.length ? c.history.slice(0, 5).map((h) => `<div class="hist"><b>${h.when}</b> · ${h.what}${h.note ? `<br><span>“${h.note}”</span>` : ''}</div>`).join('') : '<div style="font-size:13px; color:var(--faint);">No entries yet.</div>'}
     </div>
     ${hasProgram ? `
     <div style="margin-top:14px;"><div class="eyebrow">Prepared workout — ${T.program.title} <span style="text-transform:none; letter-spacing:0;">(editable)</span></div>
@@ -345,12 +519,12 @@ function renderFile(c, hasProgram) {
       <div id="progWarn"></div>
       <button class="ghosty" id="progAdd" style="margin-top:10px;">+ Add exercise</button>
       <button class="primary" id="progSave" style="margin-top:8px;">Save &amp; sync to ${m.split(' ')[0]}'s app</button>
-      <div style="font-size:11.5px; color:var(--faint); margin-top:6px;">Unsafe picks are checked against the injury flags above before saving.</div>
     </div>` : ''}`;
   $('fileClose').onclick = () => { $('clientCard').classList.add('hidden'); fileMember = null; };
+  document.querySelectorAll('#clientCard [data-ccall]').forEach((b) => { b.onclick = () => { logTimeline(m, 'Call placed through gym line by ' + ME); toast('Connecting through the gym line'); }; });
+  document.querySelectorAll('#clientCard [data-cmsg]').forEach((b) => { b.onclick = () => openThread(m); });
   if (hasProgram) { renderProg(); $('progAdd').onclick = () => { draft.push({ n: 'Machine chest press', sets: 3, reps: 10, w: 30, prevW: 30, prev: '—' }); renderProg(); }; $('progSave').onclick = saveProgram; }
 }
-
 function renderProg() {
   $('progRows').innerHTML = draft.map((e, i) => `
     <div class="prow">
@@ -364,9 +538,8 @@ function renderProg() {
   document.querySelectorAll('[data-ps]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.ps)].sets = Number(s.value) || 0; }; });
   document.querySelectorAll('[data-pr]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pr)].reps = Number(s.value) || 0; }; });
   document.querySelectorAll('[data-pw]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pw)].w = Number(s.value) || 0; }; });
-  document.querySelectorAll('[data-pd]').forEach((s) => { s.onclick = () => { draft.splice(Number(s.dataset.pd), 1); renderProg(); checkDraft(); }; });
+  document.querySelectorAll('[data-pd]').forEach((s) => { s.onclick = () => { draft.splice(Number(s.dataset.pd), 1); renderProg(); }; });
 }
-
 function pickExercise(i, name, sel) {
   const inj = riskFor(name, fileMember);
   if (inj) {
@@ -384,31 +557,26 @@ function pickExercise(i, name, sel) {
       draft[Number(b.dataset.keep)].n = name; draft[Number(b.dataset.keep)].override = true;
       $('progWarn').innerHTML = ''; toast('Kept with safety override — recorded in the program');
     }; });
-    sel.value = draft[i].n; // revert visual until a choice is made
+    sel.value = draft[i].n;
   } else {
     draft[i] = { ...draft[i], n: name, prev: draft[i].n === name ? draft[i].prev : '—', prevW: draft[i].w };
     $('progWarn').innerHTML = '';
   }
 }
-
-function checkDraft() {
+function saveProgram(auditVia) {
   const bad = draft.find((e) => riskFor(e.n, fileMember) && !e.override);
-  if (bad) { pickExercise(draft.indexOf(bad), bad.n, { value: bad.n }); return false; }
-  return true;
-}
-
-function saveProgram() {
-  if (!checkDraft()) { toast('Resolve the safety conflict first'); return; }
+  if (bad) { toast('Resolve the safety conflict first'); return; }
   if (!draft.length) { toast('Program is empty'); return; }
   T.program.ex = draft; save();
   GymBus.send('program-update', {
-    member: fileMember, title: T.program.title, by: 'Karim H.',
+    member: fileMember, title: T.program.title, by: ME,
     exercises: draft.map((e) => ({ name: e.n + (e.override ? ' (modified for you)' : ''), sets: e.sets + ' sets × ' + e.reps + (e.w ? ' @ ' + e.w + ' kg' : ''), last: e.prev || '—' })),
   }, 'trainer');
+  logTimeline(fileMember, 'Program updated by ' + ME + (auditVia ? ' — ' + auditVia : ''));
   toast('Saved — ' + fileMember.split(' ')[0] + "'s app updated instantly");
 }
 
-/* ---------- availability (gates member booking) ---------- */
+/* ---------------- availability ---------------- */
 function renderAvail() {
   $('availChips').innerHTML = T.avail.map((a, i) => `<span class="slot ${a.on ? 'on' : 'off'}" data-av="${i}">${a.s}</span>`).join('');
   document.querySelectorAll('[data-av]').forEach((c) => { c.onclick = () => {
@@ -417,10 +585,105 @@ function renderAvail() {
   }; });
 }
 function publishAvail() {
-  GymBus.send('trainer-avail', { trainer: 'Karim H.', slots: T.avail.filter((a) => a.on).map((a) => a.s) }, 'trainer');
+  GymBus.send('trainer-avail', { trainer: ME, slots: T.avail.filter((a) => a.on).map((a) => a.s) }, 'trainer');
 }
 
-/* ---------- live session ---------- */
+/* ---------------- messaging ---------------- */
+let openThreadMember = null;
+function threadOf(member) { return T.threads[member] = T.threads[member] || { msgs: [], resolved: false }; }
+
+function msgCounts() {
+  let unread = 0, awaiting = 0;
+  Object.keys(T.threads).forEach((m) => {
+    const th = T.threads[m];
+    unread += th.msgs.filter((x) => x.from === 'member' && x.status !== 'read').length;
+    if (th.msgs.length && th.msgs[th.msgs.length - 1].from === 'member' && !th.resolved) awaiting++;
+  });
+  return { unread, awaiting };
+}
+function renderMsgSummary() {
+  const { unread, awaiting } = msgCounts();
+  $('msgSummary').innerHTML = unread + ' unread · ' + awaiting + ' awaiting your reply' +
+    (unread ? ' — <a style="color:var(--green); cursor:pointer;" id="goMsgs">open</a>' : '');
+  $('msgDot').classList.toggle('hidden', !unread);
+  const go = $('goMsgs'); if (go) go.onclick = () => document.querySelector('[data-sec="msgs"]').click();
+}
+function renderThreads() {
+  const members = Object.keys(T.threads).filter((m) => T.threads[m].msgs.length);
+  $('threadList').innerHTML = members.map((m) => {
+    const th = T.threads[m]; const lastM = th.msgs[th.msgs.length - 1];
+    const un = unreadFrom(m);
+    const inj = (CLIENTS[m]?.injuries || [])[0];
+    return `<div class="thread" data-th="${m}">
+      <div class="avatar sm">${m[0]}</div>
+      <div class="cl-b">
+        <div class="cl-n">${m} ${un ? `<span class="badge">${un}</span>` : ''} ${th.resolved ? '<span class="st st-ok">Resolved</span>' : ''}</div>
+        <div class="cl-s">${lastM.text.slice(0, 60)}</div>
+        <div class="cl-s">${lastM.at}${inj ? ' · ⚠ ' + inj.label : ''}</div>
+      </div></div>`;
+  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No conversations yet.</div>';
+  document.querySelectorAll('[data-th]').forEach((t) => { t.onclick = () => openThread(t.dataset.th); });
+}
+const QUICK = ["I'll review this before your session.", 'Please avoid that exercise today.', "I've updated your program.", 'Please speak to reception.', 'Running ~10 minutes late — sorry!'];
+
+function openThread(member) {
+  document.querySelector('[data-sec="msgs"]').click();
+  openThreadMember = member;
+  const th = threadOf(member);
+  /* opening = reading: mark member messages read (member sees the receipt) */
+  th.msgs.forEach((m) => { if (m.from === 'member' && m.status !== 'read') { m.status = 'read'; GymBus.update(m.id, 'read', ME); } });
+  save(); renderThreads(); renderMsgSummary();
+  const c = CLIENTS[member] || { injuries: [] };
+  const next = nextSessionOf(member);
+  $('convoCard').classList.remove('hidden');
+  $('convoCard').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="eyebrow" style="margin:0;">${member}</div>
+      <div><button class="mini-btn" id="thResolve">${th.resolved ? 'Reopen' : 'Mark resolved'}</button>
+      <button class="mini-btn" id="thClose">✕</button></div>
+    </div>
+    <div style="font-size:12px; color:var(--muted); margin-top:4px;">
+      ${next ? 'Next session: ' + next + ' · ' : ''}${T.program && T.program.member === member ? T.program.title + ' program · ' : ''}${c.injuries.map((i) => '⚠ ' + i.label).join(' · ') || 'no injury flags'}</div>
+    <div id="msgList">${th.msgs.map(renderMsg).join('')}</div>
+    <div class="quick">${QUICK.map((q, i) => `<button data-qr="${i}">${q}</button>`).join('')}</div>
+    ${T.program && T.program.member === member ? `<button class="ghosty" id="proposeBtn" style="margin-top:8px;">Propose an exercise change…</button>` : ''}
+    <input class="txt" id="msgInput" placeholder="Type a message…" autocomplete="off" />
+    <button class="primary" id="msgSend" style="margin-top:8px;">Send</button>`;
+  $('thClose').onclick = () => { $('convoCard').classList.add('hidden'); openThreadMember = null; };
+  $('thResolve').onclick = () => {
+    th.resolved = !th.resolved; save();
+    if (th.resolved) GymBus.send('pt-msg-resolved', { member, by: ME }, 'trainer');
+    openThread(member);
+  };
+  document.querySelectorAll('[data-qr]').forEach((b) => { b.onclick = () => sendMsg(member, QUICK[Number(b.dataset.qr)]); });
+  const pb = $('proposeBtn');
+  if (pb) pb.onclick = () => {
+    const from = prompt('Replace which exercise?\n' + T.program.ex.map((e) => e.n).join('\n'), T.program.ex[2]?.n || '');
+    if (!from) return;
+    const flag = (c.injuries[0] || {}).flag;
+    const to = prompt('Replace with:', (flag ? altsFor(flag)[0] : 'Machine chest press') || 'Machine chest press');
+    if (!to) return;
+    sendMsg(member, `Let's swap ${from} → ${to} for your next session. OK?`, { from, to });
+  };
+  $('msgSend').onclick = () => { const v = $('msgInput').value.trim(); if (v) sendMsg(member, v); };
+  $('convoCard').scrollIntoView({ behavior: 'smooth' });
+}
+function renderMsg(m) {
+  if (m.sys) return `<div class="msg sys">${m.text} · ${m.at}</div>`;
+  const mine = m.from === 'trainer';
+  return `<div class="msg ${mine ? 'me' : 'them'}">${m.text}
+    ${m.proposal && !m.proposalDone ? `<div class="meta">waiting for member to accept</div>` : ''}
+    <div class="meta">${m.at} · ${mine ? (m.status === 'read' ? 'Read' : 'Sent') : (m.ctx ? m.ctx : '')}</div></div>`;
+}
+function sendMsg(member, text, proposal) {
+  const th = threadOf(member);
+  const id = GymBus.send('pt-msg', { member, from: 'trainer', by: ME, text, proposal: proposal || null }, 'trainer');
+  th.msgs.push({ id, from: 'trainer', text, at: now(), t: Date.now(), status: 'sent', proposal: proposal || null });
+  th.resolved = false;
+  save(); openThread(member);
+}
+
+/* ---------------- live session ---------------- */
 let liveEx = [], liveStart = null;
 function exListFor(member) {
   if (T.program && T.program.member === member) {
@@ -428,7 +691,6 @@ function exListFor(member) {
   }
   return [{ n: 'Full-body circuit', target: '3 rounds', prevW: 0, prev: '—' }];
 }
-
 function openLive(sid) {
   const s = T.sessions.find((x) => x.id === sid); if (!s) return;
   if (['arrived', 'scheduled', 'ingym'].includes(s.status)) { s.status = 'started'; s.startAt = now(); save(); renderSchedule(); }
@@ -453,34 +715,40 @@ function openLive(sid) {
     <button class="ghosty" id="noshowBtn" style="margin-top:8px;">Member no-show (no deduction)</button>`;
   liveEx.forEach((e, i) => { $('w' + i).oninput = () => { $('pr' + i).style.display = Number($('w' + i).value) > e.prevW ? 'block' : 'none'; }; });
   $('completeBtn').onclick = () => completeSession(s);
-  $('noshowBtn').onclick = () => {
-    s.status = 'noshow'; save(); renderSchedule(); $('liveCard').classList.add('hidden');
-    toast('No-show recorded — no session deducted');
-  };
+  $('noshowBtn').onclick = () => { s.status = 'noshow'; save(); renderSchedule(); $('liveCard').classList.add('hidden'); toast('No-show recorded — no session deducted'); };
   $('liveCard').scrollIntoView({ behavior: 'smooth' });
 }
-
 function completeSession(s) {
   const notes = $('liveNotes').value.trim();
   if (notes.length < 5) { toast('Session notes are required first'); $('liveNotes').focus(); return; }
   const results = liveEx.map((e, i) => ({ name: e.n, reps: $('reps' + i).value.trim(), w: Number($('w' + i).value) || null, pr: Number($('w' + i).value) > e.prevW }));
   const done = results.filter((r) => r.reps);
   const prs = results.filter((r) => r.pr).map((r) => ({ name: r.name, value: r.w + ' kg' }));
-  const summary = done.length
-    ? done.map((r) => r.name + ' ' + r.reps + (r.w ? ' @ ' + r.w + ' kg' : '')).join(' · ')
-    : 'Session completed';
+  const summary = done.length ? done.map((r) => r.name + ' ' + r.reps + (r.w ? ' @ ' + r.w + ' kg' : '')).join(' · ') : 'Session completed';
   s.status = 'awaiting'; s.notes = notes; save(); renderSchedule();
   $('liveCard').classList.add('hidden');
-  s.busId = GymBus.send('pt-session', { member: s.member, trainer: 'Karim H.', summary, notes, prs }, 'trainer');
+  s.busId = GymBus.send('pt-session', { member: s.member, trainer: ME, summary, notes, prs }, 'trainer');
   save();
   addQ({ key: 'conf-' + s.id, t: "Waiting for " + s.member.split(' ')[0] + "'s confirmation", s: 'Deducts 1 session only when the member confirms in their app', urg: 'warn', actions: [] });
   toast('Sent — ' + s.member.split(' ')[0] + ' confirms in their app before any deduction');
 }
 
-/* ---------- bus: member events reach the trainer (idempotent per event-state) ---------- */
+/* ---------------- bus ---------------- */
 function ingestRequest(ev) {
   addQ({ key: 'req-' + ev.id, busId: ev.id, member: ev.payload.member, slot: ev.payload.slot,
     t: 'Booking request — ' + ev.payload.member, s: ev.payload.slot + ' · PT package eligible', urg: 'warn', actions: reqActions() });
+}
+function ingestMsg(ev) {
+  if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
+  const p = ev.payload;
+  const th = threadOf(p.member);
+  th.msgs.push({ id: ev.id, from: 'member', text: p.text, at: ev.at, t: ev.t || Date.now(), status: 'delivered', ctx: p.ctx || '' });
+  th.resolved = false;
+  save(); renderMsgSummary(); renderThreads();
+  addQ({ key: 'msg-' + ev.id, member: p.member, urg: 'warn', t: 'New message — ' + p.member,
+    s: '"' + p.text.slice(0, 50) + '"' + (p.ctx ? ' · ' + p.ctx : ''), actions: [{ a: 'msg', l: 'Open' }] });
+  toast('Message from ' + p.member);
+  if (openThreadMember === p.member) openThread(p.member);
 }
 
 GymBus.on((kind, ev) => {
@@ -490,24 +758,48 @@ GymBus.on((kind, ev) => {
     if (!s) return;
     GymBus.markProcessed(ev.id, 'trainer');
     s.checkin = ev.payload.time;
-    const mu = minsUntil(s.time);
+    const mu = minsUntil(s);
     if (mu != null && mu > ARRIVAL_WINDOW) {
       s.status = 'ingym'; save(); renderSchedule();
       $('arrivalBanner').innerHTML = `<div class="banner soft">${ev.payload.member} checked in at ${ev.payload.time} — session at ${s.time}, ${fmtLead(mu)} away. Arrival alert fires inside the ${ARRIVAL_WINDOW}-min window.</div>`;
       toast(ev.payload.member + ' is in the gym — session later');
-    } else {
-      s.status = 'arrived'; save(); renderSchedule(); arrivalAlert(s);
-    }
+    } else { s.status = 'arrived'; save(); renderSchedule(); arrivalAlert(s); }
   }
   if (kind === 'event' && ev.type === 'pt-request') {
     if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
     ingestRequest(ev); toast('New booking request — ' + ev.payload.member);
   }
+  if (kind === 'event' && ev.type === 'pt-msg' && ev.payload.from === 'member') ingestMsg(ev);
+  if (kind === 'update' && ev.type === 'pt-msg') {
+    const last = ev.history[ev.history.length - 1] || {};
+    /* member read my message */
+    if (ev.status === 'read' && last.by !== ME) {
+      Object.values(T.threads).forEach((th) => { const m = th.msgs.find((x) => x.id === ev.id); if (m) m.status = 'read'; });
+      save(); if (openThreadMember) openThread(openThreadMember);
+    }
+    /* member accepted a proposed exercise change → apply + sync + audit */
+    if (ev.status === 'accepted' && ev.payload.proposal) {
+      if (GymBus.isProcessed(ev.id + ':accepted', 'trainer')) return; GymBus.markProcessed(ev.id + ':accepted', 'trainer');
+      const { from, to } = ev.payload.proposal;
+      const member = ev.payload.member;
+      const th = threadOf(member);
+      const m = th.msgs.find((x) => x.id === ev.id); if (m) m.proposalDone = true;
+      if (T.program && T.program.member === member) {
+        const e = T.program.ex.find((x) => x.n === from);
+        if (e) { e.n = to; e.prev = '—'; }
+        fileMember = member; draft = JSON.parse(JSON.stringify(T.program.ex));
+        saveProgram('accepted in chat by ' + member);
+      }
+      th.msgs.push({ id: 'sys' + Date.now(), sys: true, from: 'trainer', text: `Program updated: ${from} → ${to} · changed by ${ME}, accepted by ${member}`, at: now(), t: Date.now(), status: 'read' });
+      save(); if (openThreadMember === member) openThread(member); renderThreads();
+      toast(member.split(' ')[0] + ' accepted — program updated on both sides');
+    }
+  }
   if (kind === 'update' && ev.type === 'pt-request') {
     const last = ev.history[ev.history.length - 1] || {};
-    if (ev.status === 'accepted' && last.by !== 'Karim H.') {
+    if (ev.status === 'accepted' && last.by !== ME) {
       if (GymBus.isProcessed(ev.id + ':accepted', 'trainer')) return; GymBus.markProcessed(ev.id + ':accepted', 'trainer');
-      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Sat · 10:00 AM', member: ev.payload.member, type: 'PT session', status: 'scheduled' });
+      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Sat · 10:00 AM', tMs: null, member: ev.payload.member, type: 'PT session', status: 'scheduled' });
       save(); renderSchedule(); toast(ev.payload.member + ' accepted the proposed time');
     }
   }
@@ -529,21 +821,21 @@ GymBus.on((kind, ev) => {
       if (GymBus.isProcessed(ev.id + ':disputed', 'trainer')) return; GymBus.markProcessed(ev.id + ':disputed', 'trainer');
       s.status = 'disputed'; delQ('conf-' + s.id); save(); renderSchedule();
       addQ({ key: 'disp-' + s.id, urg: 'urgent', t: 'Session disputed — ' + s.member,
-        s: '"' + (last.note || '') + '" · goes to manager review with entry records — the deduction cannot be forced', actions: [] });
+        s: '"' + (last.note || '') + '" · manager review with entry records — the deduction cannot be forced', actions: [] });
     }
   }
 });
 
-/* catch-up: requests sent while this dashboard was closed (idempotency ledger
-   prevents double-ingestion; open-status filter prevents resurrecting handled ones) */
+/* catch-up */
 GymBus.all().forEach((ev) => {
   if (ev.type === 'pt-request' && ev.status === 'open' && !GymBus.isProcessed(ev.id, 'trainer')) {
     GymBus.markProcessed(ev.id, 'trainer'); ingestRequest(ev);
   }
+  if (ev.type === 'pt-msg' && ev.payload?.from === 'member') ingestMsg(ev); // ingestMsg is ledger-guarded
 });
 
 $('statusSel').onchange = () => toast('Status: ' + $('statusSel').value + ' — members only see genuinely bookable slots');
-renderSchedule(); renderQueue(); renderAvail(); publishAvail();
+renderSchedule(); renderQueue(); renderTasks(); renderAvail(); renderMsgSummary(); publishAvail();
 </script>
 </body>
 </html>
