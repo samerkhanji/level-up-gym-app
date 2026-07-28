@@ -147,6 +147,20 @@
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(23,33,28,.3); max-width:92vw; }
   @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 12%,82%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
 </style>
+<style>
+  /* search results — pick the right person, never the first fuzzy match */
+  .search-wrap{position:relative;}
+  .search-drop{position:absolute; top:110%; left:0; min-width:290px; background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(23,33,28,.18); z-index:60; overflow:hidden; display:none;}
+  .search-drop.show{display:block;}
+  .sr{display:flex; align-items:center; gap:9px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #f2f4ee; font-size:13px;}
+  .sr:last-child{border-bottom:none;}
+  .sr.sel,.sr:hover{background:#f3f4ef;}
+  .sr .av{width:28px; height:28px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:800; font-size:11px; flex-shrink:0;}
+  .sr b{display:block; font-size:13px;}
+  .sr span{font-size:11px; color:#9aa79f;}
+  .sr .stx{margin-left:auto; font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px;}
+  .stx.ok{background:#dff0e6; color:#124a38;} .stx.bad{background:#fae7e3; color:#bb3a2a;}
+</style>
 </head>
 <body>
   <div class="topbar">
@@ -155,7 +169,10 @@
     <button class="occ-pill" data-open="occupancy"><span class="dot"></span><span id="occPill">—</span></button>
     <button class="sys-pill sys-ok" id="sysPill" data-open="system"><span class="dot dg"></span>All systems</button>
     <div class="spacer"></div>
-    <input class="search" id="searchBox" placeholder="⌕  Search member, phone, ID…" autocomplete="off" />
+    <div class="search-wrap">
+      <input class="search" id="searchBox" placeholder="⌕  Search member, phone, ID…  ( / )" autocomplete="off" />
+      <div class="search-drop" id="searchDrop"></div>
+    </div>
     <button class="tb-btn tb-light" id="scanBtn">Scan ID</button>
     <button class="tb-btn tb-light" data-open="pos">Take payment</button>
     <button class="tb-btn tb-dark" data-open="guest">Sell guest pass</button>
@@ -173,18 +190,14 @@
     <a href="staff.html">All departments →</a>
   </div>
 
+  <!-- primary actions only — everything else is contextual (member drawer) or under More -->
   <div class="qa">
     <button class="dark" data-qa="scan">Scan member</button>
     <button data-qa="register">+ Register member</button>
-    <button data-qa="renew">Renew</button>
     <button data-qa="pay">Take payment</button>
     <button data-qa="daypass">Day pass</button>
     <button data-qa="guest">Guest pass</button>
-    <button data-qa="mentry">Manual entry</button>
-    <button data-qa="mexit">Manual exit</button>
-    <button data-qa="book">Book a class</button>
-    <button class="warn" data-qa="mgr">Contact manager</button>
-    <button data-qa="announce">Announce</button>
+    <button data-qa="moremenu">More ▾</button>
   </div>
 
   <div class="offline-banner" id="offlineBanner">
@@ -213,6 +226,7 @@
           <div><div class="occ-num" id="oOut">0</div><div class="occ-lbl">exits today</div></div>
         </div>
         <div class="cap-bar"><div class="cap-fill" id="capFill" style="width:0%"></div></div>
+        <div class="occ-lbl" id="occSplit" style="margin-top:7px;"></div>
         <div style="margin-top:12px;"><div class="eyebrow" style="font-size:10px;">Inside unusually long</div><div id="longInside"></div></div>
       </div>
     </div>
@@ -274,7 +288,7 @@ const FALLBACK_USERS=[
   {name:'Maya F.',phone:'03 890123',tier:'Elite',status:'active',plan:'Annual',joined:'Dec 2025'}];
 let members=[], classes=[{name:'HIIT Burn',when:'Today · 7:00 PM',instructor:'Tony A.',spots:'4'},{name:'Reformer Pilates',when:'Tomorrow · 9:00 AM',instructor:'Rita S.',spots:'0'}], trainers=[{name:'Karim H.',specialty:'Strength',availability:'available'},{name:'Maya R.',specialty:'Mobility',availability:'busy'}], lockers=[], family=[];
 let inside={};              // name -> entry ts
-let entriesToday=141, exitsToday=118, denialsToday=0, guestsToday=4, renewalsToday=2;
+let entriesToday=141, exitsToday=118, denialsToday=0, guestsToday=4, renewalsToday=2, guestsInside=0;
 let feed=[], tasks=[], txs=[
   {t:'6:41 PM', what:'Membership renewal · Jawad', amt:95, how:'cash'},
   {t:'6:12 PM', what:'Guest pass · walk-in', amt:10, how:'card'},
@@ -321,6 +335,7 @@ function renderOcc(){
   $('oInside').textContent=n; $('oCap').textContent=pct+'%'; $('oCapMax').textContent='of '+CAPACITY;
   $('oIn').textContent=entriesToday; $('oOut').textContent=exitsToday;
   $('capFill').style.width=Math.min(100,pct)+'%';
+  $('occSplit').textContent=n+' members · '+guestsInside+' guest'+(guestsInside===1?'':'s')+' inside — tap the pill above for the full evacuation list';
   const longs=Object.entries(inside).map(([name,ts])=>({name,min:Math.round((Date.now()-ts)/60000)}))
     .filter(x=>x.min>150).sort((a,b)=>b.min-a.min).slice(0,3);
   $('longInside').innerHTML=longs.length?longs.map(l=>
@@ -330,6 +345,11 @@ function renderOcc(){
 
 /* ---------- gate feed ---------- */
 function pushEvent(ev){ ev.time=now(); ev.gate=ev.gate||'Main gate'; feed.unshift(ev); if(feed.length>25)feed.pop(); renderFeed(); }
+/* trainer-session context on admissions (e.g. "Trainer session — Tue · 6:00 PM") */
+function ptCtx(name){
+  const ev=GymBus.all().slice().reverse().find(x=>((x.type==='pt-request'&&x.status==='accepted')||x.type==='pt-booked')&&x.payload?.member===name);
+  return ev?'Trainer session — '+(ev.payload.slot||'today'):null;
+}
 function renderFeed(){
   const list=feed.filter(e=>filter==='all'||e.kind===filter);
   $('feedCount').textContent=list.length+' events';
@@ -341,12 +361,19 @@ function renderFeed(){
       <div class="ev-top"><div class="avatar ${av}">${initial(e.name)}</div>
         <div><div class="ev-name">${e.name}</div>
           <div class="ev-meta">${m?m.plan+' · '+m.tier+' · ':''}${e.time} · ${e.gate}${m&&e.kind!=='out'?' · last entry '+m.lastEntry:''}</div>
-          ${e.reason?`<div class="ev-reason">${e.reason}</div>`:''}</div>
+          ${e.reason?`<div class="ev-reason">${e.reason}</div>`:''}
+          ${e.kind==='ok'&&ptCtx(e.name)?`<div class="ev-reason" style="color:#1e6b52;">${ptCtx(e.name)}</div>`:''}</div>
         <span class="ev-state ${st[1]}">${st[0]}</span></div>
       <div class="ev-actions">
         <button data-view="${e.name}">View member</button>
-        ${e.kind==='deny'?`<button class="hot" data-assist="${e.name}">Assist</button><button data-retry="${i}">Retry scan</button><button data-mgr="${e.name}">Call manager</button>`:''}
-      </div></div>`;}).join('')||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">No events for this filter.</div>';
+        ${e.kind==='deny'?`<button class="hot" data-assist="${e.name}">${(e.dtype&&DENIALS[e.dtype]&&FIX_LABELS[(DENIALS[e.dtype].fix||[])[0]])||'Assist'}</button><button data-retry="${i}">Retry scan</button><button data-mgr="${e.name}">Call manager</button>`:''}
+      </div></div>`;}).join('')||`<div style="color:var(--faint); font-size:13px; padding:14px 0;">
+        No gate activity for this filter — live admissions and denials appear here as members scan.
+        <button class="tb-btn tb-light" id="demoScan" style="margin-left:6px;">Run demo scan</button></div>`;
+  const ds=$('feed').querySelector('#demoScan');
+  if(ds)ds.onclick=()=>{const act=members.filter(u=>u.status==='active'&&!inside[u.name]);
+    const u=act[Math.floor(Math.random()*act.length)]||members[0];
+    inside[u.name]=Date.now();entriesToday++;pushEvent({name:u.name,kind:'ok'});renderOcc();toast('Demo scan — '+u.name+' admitted');};
   $('feed').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.view,false));
   $('feed').querySelectorAll('[data-assist]').forEach(b=>{
     const ev=feed.find(e=>e.name===b.dataset.assist&&e.kind==='deny');
@@ -410,6 +437,7 @@ function renderTasks(){
         deskLog('<b>Repair closed</b> · '+r,'Done','done');},true);}}
     else if(t.kind==='ticketbus'){reasonModal('Resolve '+(t.tkt||'ticket')+' — '+t.member,'Your reply reaches the member app',(r,n)=>{
       GymBus.update(t.busId,'resolved','Lara',n||r);tasks.splice(i,1);renderTasks();
+      if(String(t.tkt||'').startsWith('GST-')){guestsInside++;guestsToday++;renderOcc();renderStats();}
       deskLog('<b>Ticket resolved</b> · '+t.member,'Sent','done');},true);}
     else if(t.kind==='renewalbus'){const amt=t.amount||95,isPkg=(t.plan||'').toLowerCase().includes('package');
       reasonModal('Renewal payment — '+t.member,(t.plan||'Membership renewal')+' · $'+amt+' cash/card at desk',(r,n)=>{
@@ -707,12 +735,43 @@ function renderUpcoming(){
   ].map(u=>`<div class="tx-row"><span>${u.s}</span><b style="color:var(--muted); font-weight:600;">${u.t}</b></div>`).join('');
 }
 
-/* search */
-$('searchBox').addEventListener('input',()=>{
+/* search — results list (photo initial, ID, phone ending, status) so the wrong
+   person is never opened. Enter = first result, arrows navigate, Esc closes. */
+let srSel=0;
+function renderSearch(){
   const q=$('searchBox').value.trim().toLowerCase();
-  if(q.length<2)return;
-  const hit=members.find(u=>(u.name||'').toLowerCase().includes(q)||(u.phone||'').includes(q)||(u.id||'').toLowerCase().includes(q));
-  if(hit){openDrawer(hit.name,false);$('searchBox').value='';}
+  const drop=$('searchDrop');
+  if(q.length<2){drop.classList.remove('show');drop.innerHTML='';return;}
+  const hits=members.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.phone||'').replace(/\s/g,'').includes(q.replace(/\s/g,''))||(u.id||'').toLowerCase().includes(q)).slice(0,5);
+  srSel=Math.min(srSel,Math.max(0,hits.length-1));
+  drop.innerHTML=hits.map((u,i)=>`<div class="sr ${i===srSel?'sel':''}" data-sr="${u.name}">
+      <div class="av">${initial(u.name)}</div>
+      <div><b>${u.name}</b><span>${u.id||'—'} · ····${(u.phone||'').replace(/\D/g,'').slice(-4)||'????'}</span></div>
+      <span class="stx ${u.status==='active'?'ok':'bad'}">${u.status||'?'}</span></div>`).join('')
+    ||'<div class="sr"><span>No matches — check spelling or scan the member QR.</span></div>';
+  drop.classList.add('show');
+  drop.querySelectorAll('[data-sr]').forEach(x=>x.onclick=()=>pickSearch(x.dataset.sr));
+}
+function pickSearch(name){
+  $('searchDrop').classList.remove('show');$('searchBox').value='';
+  openDrawer(name,members.find(m=>m.name===name)?.status!=='active');
+}
+$('searchBox').addEventListener('input',()=>{srSel=0;renderSearch();});
+$('searchBox').addEventListener('keydown',e=>{
+  const hits=[...$('searchDrop').querySelectorAll('[data-sr]')];
+  if(e.key==='Enter'&&hits.length){e.preventDefault();pickSearch(hits[srSel].dataset.sr);}
+  if(e.key==='ArrowDown'){e.preventDefault();srSel=Math.min(hits.length-1,srSel+1);renderSearch();}
+  if(e.key==='ArrowUp'){e.preventDefault();srSel=Math.max(0,srSel-1);renderSearch();}
+  if(e.key==='Escape'){$('searchDrop').classList.remove('show');$('searchBox').blur();}
+});
+/* keyboard shortcuts — never fire while typing in a form field */
+document.addEventListener('keydown',e=>{
+  const typing=/input|textarea|select/i.test(document.activeElement?.tagName||'');
+  if(e.key==='Escape'){closeModal();closeDrawer();$('searchDrop').classList.remove('show');return;}
+  if(typing)return;
+  if(e.key==='/'){e.preventDefault();$('searchBox').focus();}
+  if(e.ctrlKey&&e.key.toLowerCase()==='p'){e.preventDefault();openPOS(null);}
+  if(e.ctrlKey&&e.key.toLowerCase()==='g'){e.preventDefault();openGuest();}
 });
 $('scanBtn').onclick=()=>{const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');};
 
@@ -724,9 +783,18 @@ document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',(
   if(k==='denials'){const f=[...$('filters').querySelectorAll('button')].find(x=>x.textContent.trim()==='Denied');
     if(f)f.click();$('feed').scrollIntoView({behavior:'smooth'});toast('Gate feed filtered to denials');}
 }));
-document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=>{
-  const k=b.dataset.qa;
+document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=>qaAction(b.dataset.qa)));
+function qaAction(k){
   const names=()=>members.map(m=>m.name);
+  if(k==='moremenu'){
+    modal(`<h3>More actions</h3><div class="sub">Restricted and less-common actions. Manual entry/exit always start by selecting the member.</div>
+      ${[['renew','Renew membership'],['book','Book a class'],['mentry','Manual entry (select member first)'],['mexit','Manual exit (select member first)'],['mgr','Contact manager'],['announce','Announce to all members']]
+        .map(([kk,l])=>`<button class="fix-btn" data-more="${kk}" style="display:block; width:100%; text-align:left; margin-top:7px;">${l}</button>`).join('')}
+      <div class="mrow"><button class="m-cancel" id="mCancel">Close</button></div>`,
+      ()=>{$('mCancel').onclick=closeModal;
+        document.querySelectorAll('[data-more]').forEach(x=>x.onclick=()=>{closeModal();qaAction(x.dataset.more);});});
+    return;
+  }
   if(k==='scan'){const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');}
   if(k==='register')openRegister();
   if(k==='renew')memberPicker('Renew membership',names(),n=>{openDrawer(n,false);resolveAction('renew');});
@@ -746,7 +814,7 @@ document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=
       if(t.length<3){toast('Write the announcement');return;}
       GymBus.send('announcement',{text:t});closeModal();
       deskLog('<b>Announcement</b> · '+t.slice(0,40),'Published','done');toast('Published to member apps');};});
-}));
+}
 
 /* ---------- cross-dashboard receiver: member events arrive as tasks ---------- */
 function busTask(ev){
