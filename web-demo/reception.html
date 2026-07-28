@@ -390,7 +390,7 @@ function renderTasks(){
     return `<div class="task ${t.urg==='urgent'?'urgent':t.urg==='warn'?'warn':''}">
       <span class="badge ${t.urg==='urgent'?'b-red':t.urg==='warn'?'b-amber':'b-grey'}">${t.urg==='urgent'?'NOW':t.urg==='warn'?'SOON':'TODAY'}</span>
       <div class="task-body"><div class="task-t">${t.t}</div><div class="task-s">${t.s}${wait?' · waiting '+wait+' min':''} · assigned: Lara</div></div>
-      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':t.kind==='sos'?(t.stage?'Close':'Acknowledge'):t.kind==='reportbus'?(t.stage?'Mark repaired':'Start review'):t.kind==='ticketbus'?'Respond':t.kind==='renewalbus'?'Take $'+(t.amount||95):'Resolve'}</button></div>`;}).join('')
+      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':t.kind==='sos'?(t.stage?'Close':'Acknowledge'):t.kind==='reportbus'?(t.stage?'Mark repaired':'Start review'):t.kind==='ticketbus'?'Respond':t.kind==='renewalbus'?'Take $'+(t.amount||95):t.kind==='cafepay'?'Take $'+t.amount:'Resolve'}</button></div>`;}).join('')
     ||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">Queue clear. 🎉</div>';
   $('tasks').querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
     const i=Number(b.dataset.task), t=tasks[i];
@@ -416,6 +416,10 @@ function renderTasks(){
       txs.unshift({t:now(),what:(isPkg?'PT package':'Membership renewal')+' · '+t.member,amt,how:'cash'});renewalsToday++;
       GymBus.update(t.busId,'done','Lara',isPkg?'10 sessions added':'Aug 28, 2026');tasks.splice(i,1);renderTasks();renderStats();
       deskLog('<b>'+(isPkg?'PT package':'Renewal')+'</b> · '+t.member,'$'+amt);toast('Member notified — '+(isPkg?'10 sessions added':'renewed to Aug 28'));});}
+    else if(t.kind==='cafepay'){reasonModal('Café payment — '+t.member,'Order #'+t.code+' · $'+t.amount+' cash/card (café is notified, they control preparation)',(r,n)=>{
+      txs.unshift({t:now(),what:'Café order #'+t.code+' · '+t.member,amt:t.amount,how:'cash'});
+      GymBus.update(t.busId,'paid','Lara');tasks.splice(i,1);renderTasks();renderStats();
+      deskLog('<b>Café payment</b> · '+t.member+' #'+t.code,'$'+t.amount);toast('Paid — café can start preparing');});}
     else{tasks.splice(i,1);renderTasks();toast('Task resolved · logged');}});
 }
 function resolveTasksFor(name){ tasks=tasks.filter(t=>t.name!==name); renderTasks(); }
@@ -752,12 +756,14 @@ function busTask(ev){
   if(ev.type==='report')addTask({t:'Equipment report '+ev.payload.ref,s:ev.payload.machine+' — '+ev.payload.issue+' · by '+ev.payload.member,urg:'warn',kind:'reportbus',busId:ev.id,stage:ev.status==='Under review'?1:0});
   if(ev.type==='ticket')addTask({t:'Ticket '+ev.payload.tkt+' — '+ev.payload.member,s:'"'+ev.payload.subject+'" · '+ev.at,urg:'warn',kind:'ticketbus',busId:ev.id,member:ev.payload.member,tkt:ev.payload.tkt});
   if(ev.type==='renewal')addTask({t:'Renewal request — '+ev.payload.member,s:(ev.payload.plan||'Membership renewal')+' · pay at desk',urg:'ok',kind:'renewalbus',busId:ev.id,member:ev.payload.member,amount:ev.payload.price||95,plan:ev.payload.plan||'Membership renewal'});
+  /* café pay-at-desk: reception ONLY collects payment — preparation stays with café staff */
+  if(ev.type==='cafe-order'&&ev.payload.pay==='reception')addTask({t:'Café payment — '+ev.payload.member,s:'#'+ev.payload.code+' · '+ev.payload.items.map(i=>i.n+' ×'+i.qty).join(', ')+' · café waits for payment',urg:'warn',kind:'cafepay',busId:ev.id,member:ev.payload.member,amount:ev.payload.total,code:ev.payload.code});
 }
-GymBus.on((kind,ev)=>{ if(kind==='event'&&['sos','report','ticket','renewal'].includes(ev.type)){busTask(ev);
+GymBus.on((kind,ev)=>{ if(kind==='event'&&['sos','report','ticket','renewal','cafe-order'].includes(ev.type)){busTask(ev);
   if(ev.type==='sos')toast('🆘 SOS from '+ev.payload.member+' — '+ev.payload.sosType);} });
 /* catch-up: open member events from before this dashboard was opened.
    Called from seedScreen (which resets tasks) so recovered tasks survive boot + sheet hydration. */
-function busCatchUp(){GymBus.all().filter(ev=>['sos','report','ticket','renewal'].includes(ev.type)&&!['closed','resolved','done','Repaired'].includes(ev.status)).forEach(busTask);}
+function busCatchUp(){GymBus.all().filter(ev=>['sos','report','ticket','renewal','cafe-order'].includes(ev.type)&&!['closed','resolved','done','Repaired','paid','accepted','preparing','ready','collected','rejected'].includes(ev.status)).forEach(busTask);}
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}

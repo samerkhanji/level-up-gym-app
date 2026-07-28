@@ -7,79 +7,364 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
-  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
-  .dept-nav a.here { background:#124a38; color:#fff; }
-  .dept-head { text-align:center; max-width:640px; }
-  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
-  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
-  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px; }
+  .wrap { max-width:1060px; margin:0 auto; display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; }
+  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .t-sub { font-size:12px; color:var(--muted); }
+  .stats { margin-left:auto; display:flex; gap:14px; font-size:12px; color:var(--muted); flex-wrap:wrap; }
+  .stats b { display:block; font-family:var(--display); font-size:17px; color:var(--ink); }
+  .cols { display:grid; grid-template-columns:1fr 1fr 1fr; gap:13px; align-items:start; }
+  @media (max-width:900px){ .cols { grid-template-columns:1fr; } }
+  .order { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
+  .order.late { outline:2px solid var(--red); }
+  .o-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .o-code { font-family:var(--display); font-weight:800; font-size:14.5px; }
+  .o-time { font-size:11px; color:var(--faint); }
+  .o-items { font-size:13px; font-weight:600; margin-top:4px; }
+  .o-custom { font-size:12px; color:var(--muted); }
+  .chip { display:inline-block; font-size:10.5px; font-weight:800; border-radius:999px; padding:3px 9px; margin:5px 4px 0 0; }
+  .c-warn { background:var(--red-soft); color:var(--red); }
+  .c-pay { background:var(--mint); color:var(--deep); }
+  .c-wait { background:var(--amber-soft); color:var(--amber); }
+  .c-grey { background:#eceee8; color:var(--muted); }
+  .o-act { display:flex; gap:6px; margin-top:9px; flex-wrap:wrap; }
+  .o-act button { font-size:11.5px; font-weight:700; padding:7px 12px; border-radius:9px; background:var(--deep); color:#fff; }
+  .o-act button.ghost { background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(23,33,28,.08); }
+  .o-act button.danger { background:#fff; color:var(--red); box-shadow:0 2px 6px rgba(23,33,28,.08); }
+  .task { border-radius:14px; padding:10px 12px; margin-top:8px; background:var(--paper); font-size:12.5px; }
+  .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
+  .task b { display:block; font-size:13px; }
+  .stockrow { display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .stockrow:last-child { border-bottom:none; }
+  .stockrow .n { flex:1; font-weight:600; }
+  .stockrow .cnt { font-size:12px; color:var(--muted); width:64px; }
+  .av { font-size:10.5px; font-weight:800; border-radius:999px; padding:4px 10px; cursor:pointer; }
+  .av-ok { background:var(--mint); color:var(--deep); }
+  .av-low { background:var(--amber-soft); color:var(--amber); }
+  .av-out { background:var(--red-soft); color:var(--red); }
+  .empty { color:var(--faint); font-size:12.5px; padding:8px 0; }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .shiftline { font-size:12.5px; padding:5px 0; border-bottom:1px solid var(--line); color:var(--muted); }
+  .primary { background:var(--deep); color:#fff; border-radius:12px; padding:10px 14px; font-weight:800; font-size:12.5px; }
 </style>
 </head>
 <body>
-  <nav class="dept-nav">
-    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" >Trainer</a><a href="cafe.html" class="here">Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" >Maintenance</a><a href="instructor.html" >Instructor</a><a href="staff.html">All departments</a>
-  </nav>
-  <div class="dept-head"><h1>Café</h1><p>Order lanes timed to member workouts, 86 board, today strip</p></div>
-  <div class="screen-wrap">
-      <div data-screen-label="Cafe lanes" style="width:700px; background:#f3f4ef; border-radius:28px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:22px;">
-        <div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px;">Café</div>
-          <div style="flex:1;"></div>
-          <div style="background:#fbeaea; color:#a33a3a; border-radius:12px; padding:9px 14px; font-weight:700; font-size:13px;">86 board · 2 items</div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Queued · 2</div>
-            <div style="background:#f3f4ef; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="font-weight:700; font-size:13px;">Jawad</div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Acai bowl</div>
-              <div style="font-size:11px; color:#a86408; font-weight:700; margin-top:6px;">Start ~7:20 — mid-workout</div>
-            </div>
-            <div style="background:#f3f4ef; border-radius:14px; padding:12px; margin-top:8px;">
-              <div style="font-weight:700; font-size:13px;">Walk-in #14</div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Espresso ×2</div>
-              <div style="font-size:11px; color:#1e6b52; font-weight:700; margin-top:6px;">Start now</div>
-            </div>
-          </div>
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#a86408;">Preparing · 1</div>
-            <div style="background:#fdf3ec; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="display:flex; justify-content:space-between;"><div style="font-weight:700; font-size:13px;">Samer Khanji</div><span style="font-size:11px; font-weight:700; color:#a86408;">⚠ milk</span></div>
-              <div style="font-size:12px; color:#6c7a71; margin-top:3px;">Protein shake · Chicken wrap</div>
-              <div style="font-size:11px; color:#a86408; font-weight:700; margin-top:6px;">Finishing workout — ETA 7:00</div>
-              <div style="background:#124a38; color:#ffffff; border-radius:9px; padding:8px; text-align:center; font-weight:700; font-size:12px; margin-top:10px;">Mark ready</div>
-            </div>
-          </div>
-          <div style="background:#ffffff; border-radius:18px; padding:14px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#1e6b52;">Ready · 1</div>
-            <div style="background:#dff0e6; border-radius:14px; padding:12px; margin-top:10px;">
-              <div style="font-weight:700; font-size:13px;">Mohamad</div>
-              <div style="font-size:12px; color:#2f5d4b; margin-top:3px;">Recovery smoothie</div>
-              <div style="font-size:11px; color:#1e6b52; font-weight:700; margin-top:6px;">Notified · waiting 2 min</div>
-              <div style="background:#ffffff; color:#124a38; border-radius:9px; padding:8px; text-align:center; font-weight:700; font-size:12px; margin-top:10px;">Picked up</div>
-            </div>
-          </div>
-        </div>
-        <div style="display:grid; grid-template-columns:1.4fr 1fr; gap:14px; margin-top:14px;">
-          <div style="background:#ffffff; border-radius:18px; padding:14px 16px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-            <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">86 board — flip to hide from every member's app</div>
-            <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center; gap:8px; background:#f3f4ef; border-radius:999px; padding:6px 8px 6px 14px; font-size:13px; font-weight:600;">Protein shake <div style="width:36px; height:20px; border-radius:999px; background:#1e6b52; position:relative;"><div style="position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:50%; background:#ffffff;"></div></div></div>
-              <div style="display:flex; align-items:center; gap:8px; background:#f3f4ef; border-radius:999px; padding:6px 8px 6px 14px; font-size:13px; font-weight:600;">Chicken wrap <div style="width:36px; height:20px; border-radius:999px; background:#1e6b52; position:relative;"><div style="position:absolute; top:2px; right:2px; width:16px; height:16px; border-radius:50%; background:#ffffff;"></div></div></div>
-              <div style="display:flex; align-items:center; gap:8px; background:#fbeaea; border-radius:999px; padding:6px 8px 6px 14px; font-size:13px; font-weight:700; color:#a33a3a;">Acai bowl — 86'd <div style="width:36px; height:20px; border-radius:999px; background:#d8d8d4; position:relative;"><div style="position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#ffffff;"></div></div></div>
-              <div style="display:flex; align-items:center; gap:8px; background:#fbeaea; border-radius:999px; padding:6px 8px 6px 14px; font-size:13px; font-weight:700; color:#a33a3a;">Banana bread — 86'd <div style="width:36px; height:20px; border-radius:999px; background:#d8d8d4; position:relative;"><div style="position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#ffffff;"></div></div></div>
-            </div>
-          </div>
-          <div style="background:#124a38; border-radius:18px; padding:14px 16px; color:#dff0e6; display:flex; align-items:center; justify-content:space-between; gap:10px;">
-            <div><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#ffffff;">31</div><div style="font-size:11px; color:#9ec7b3;">orders today</div></div>
-            <div><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#ffffff;">Shake</div><div style="font-size:11px; color:#9ec7b3;">top item</div></div>
-            <div><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px; color:#7ee2b1;">7:20</div><div style="font-size:11px; color:#9ec7b3;">next pickup</div></div>
-          </div>
-        </div>
-      </div>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="index.html">Member app</a><a href="trainer.html">Trainer</a></nav>
+
+  <div class="card head">
+    <div class="avatar">NA</div>
+    <div><div class="t-name">Nour A. — Café</div><div class="t-sub" id="shiftLabel">Shift open · since 7:00 AM</div></div>
+    <div class="stats">
+      <div><b id="stNew">0</b>new</div>
+      <div><b id="stPrep">0</b>in progress</div>
+      <div><b id="stReady">0</b>ready</div>
+      <div><b id="stDone">0</b>collected</div>
+      <div><b id="stRev">$0</b>revenue</div>
+    </div>
   </div>
+
+  <div class="cols">
+    <div class="card">
+      <div class="eyebrow">New &amp; awaiting</div>
+      <div id="colNew"><div class="empty">No new orders.</div></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Preparing &amp; ready</div>
+      <div id="colPrep"><div class="empty">Nothing on the bar.</div></div>
+    </div>
+    <div>
+      <div class="card">
+        <div class="eyebrow">Needs attention</div>
+        <div id="attn"><div class="empty">All clear.</div></div>
+      </div>
+      <div class="card" style="margin-top:13px;">
+        <div class="eyebrow">Availability &amp; stock — tap to cycle, syncs to member app</div>
+        <div id="stockList"></div>
+      </div>
+      <div class="card" style="margin-top:13px;">
+        <div class="eyebrow">Shift</div>
+        <div id="shiftBody"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+      Connected demo: order from the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> Food tab.
+      Orders, availability, substitutions and verified collection travel over GymBus. Reception collects
+      pay-at-desk amounts but cannot change preparation statuses. Points are issued only at verified collection.</div>
+  </div>
+</div>
+
+<script src="bus.js?v=2"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+const STAFF = 'Nour A.';
+
+/* café state — persisted */
+const CKEY = 'gym_cafe_state';
+let C = {
+  orders: [], waste: [], log: [], shiftOpen: true, collected: 0, revenue: 0,
+  stock: [
+    { name: 'Whey Protein Shake', price: 6, stock: 12, av: 'ok' },
+    { name: 'Grilled Chicken Bowl', price: 12, stock: 6, av: 'ok' },
+    { name: 'Salmon & Quinoa', price: 15, stock: 2, av: 'low' },
+    { name: 'Iced Matcha', price: 5, stock: 14, av: 'ok' },
+    { name: 'Protein Bar', price: 4, stock: 0, av: 'out' },
+  ],
+};
+try { const s = JSON.parse(localStorage.getItem(CKEY)); if (s && s.stock) C = s; } catch (e) {}
+function save() { localStorage.setItem(CKEY, JSON.stringify(C)); }
+
+function stockOf(name) { return C.stock.find((s) => s.name === name); }
+function publishMenu() {
+  GymBus.send('cafe-menu', { items: C.stock.map((s) => ({ name: s.name, av: s.stock === 0 ? 'out' : s.av })) }, 'cafe');
+}
+
+/* ---------- order board ---------- */
+function minsSince(t) { return Math.max(0, Math.round((Date.now() - t) / 60000)); }
+
+function orderCard(o) {
+  const waitMin = minsSince(o.t);
+  const late = o.estAt && Date.now() > o.estAt && ['accepted', 'preparing'].includes(o.status);
+  const pay = o.pay === 'wallet' ? 'Paid · wallet' : (o.paid ? 'Paid · reception' : 'UNPAID — reception collects');
+  let acts = '';
+  if (o.status === 'awaiting-payment') acts = `<span class="chip c-wait">Waiting for reception payment — preparation locked</span>`;
+  if (o.status === 'new') acts = `
+    <button data-o="${o.code}" data-a="accept">Accept · ~6 min</button>
+    <button class="ghost" data-o="${o.code}" data-a="sub">Suggest substitution</button>
+    <button class="danger" data-o="${o.code}" data-a="reject">Reject</button>`;
+  if (o.status === 'sub-waiting') acts = `<span class="chip c-wait">Substitution offered: ${o.subOffer} — waiting for member</span>`;
+  if (o.status === 'accepted') acts = `
+    <button data-o="${o.code}" data-a="prep">Start preparing</button>
+    <button class="ghost" data-o="${o.code}" data-a="est">Update estimate</button>`;
+  if (o.status === 'preparing') acts = `
+    <button data-o="${o.code}" data-a="ready">Mark ready</button>
+    <button class="danger" data-o="${o.code}" data-a="waste">Cancel (waste)</button>`;
+  if (o.status === 'ready') acts = `
+    <button data-o="${o.code}" data-a="collect">Verify code &amp; hand over</button>`;
+  return `<div class="order ${late ? 'late' : ''}">
+    <div class="o-top"><span class="o-code">#${o.code} · ${o.member}</span><span class="o-time">${o.at} · waiting ${waitMin} min</span></div>
+    <div class="o-items">${o.items.map((i) => i.n + ' ×' + i.qty).join(' · ')}</div>
+    ${o.custom && o.custom.length ? `<div class="o-custom">${o.custom.join(' · ')}</div>` : ''}
+    ${(o.allergens || []).map((a) => `<span class="chip c-warn">⚠ ${a} allergen</span>`).join('')}
+    <span class="chip ${o.pay === 'wallet' || o.paid ? 'c-pay' : 'c-wait'}">${pay} · $${o.total}</span>
+    ${o.pickup ? `<span class="chip c-grey">${o.pickup}</span>` : ''}
+    ${o.est && ['accepted', 'preparing'].includes(o.status) ? `<span class="chip ${late ? 'c-warn' : 'c-grey'}">${late ? 'LATE — was due ' + o.est : 'ready ~' + o.est}</span>` : ''}
+    <div class="o-act">${acts}</div>
+  </div>`;
+}
+
+function render() {
+  const open = C.orders.filter((o) => ['awaiting-payment', 'new', 'sub-waiting'].includes(o.status));
+  const prep = C.orders.filter((o) => ['accepted', 'preparing', 'ready'].includes(o.status));
+  $('colNew').innerHTML = open.map(orderCard).join('') || '<div class="empty">No new orders.</div>';
+  $('colPrep').innerHTML = prep.map(orderCard).join('') || '<div class="empty">Nothing on the bar.</div>';
+  $('stNew').textContent = open.length;
+  $('stPrep').textContent = C.orders.filter((o) => ['accepted', 'preparing'].includes(o.status)).length;
+  $('stReady').textContent = C.orders.filter((o) => o.status === 'ready').length;
+  $('stDone').textContent = C.collected;
+  $('stRev').textContent = '$' + C.revenue;
+  document.querySelectorAll('[data-o]').forEach((b) => { b.onclick = () => act(b.dataset.o, b.dataset.a); });
+  renderAttn(); renderStock(); renderShift();
+}
+
+function renderAttn() {
+  const items = [];
+  C.orders.forEach((o) => {
+    const waitMin = minsSince(o.t);
+    if (o.status === 'new' && waitMin >= 2) items.push({ cls: 'warn', t: '#' + o.code + ' not accepted', s: 'Waiting ' + waitMin + ' min — accept, substitute or reject' });
+    if (o.status === 'awaiting-payment') items.push({ cls: 'warn', t: '#' + o.code + ' unpaid', s: 'Reception collects $' + o.total + ' before preparation can start' });
+    if (o.status === 'sub-waiting') items.push({ cls: 'warn', t: '#' + o.code + ' substitution pending', s: 'Waiting for ' + o.member.split(' ')[0] + "'s answer" });
+    if (o.status === 'ready' && minsSince(o.readyAt || o.t) >= 5) items.push({ cls: 'urgent', t: '#' + o.code + ' ready, not collected', s: 'Ready ' + minsSince(o.readyAt) + ' min — send final pickup reminder' });
+    if (o.estAt && Date.now() > o.estAt && ['accepted', 'preparing'].includes(o.status)) items.push({ cls: 'urgent', t: '#' + o.code + ' is late', s: 'Update the estimate so the member is not misled' });
+  });
+  C.stock.forEach((s) => {
+    if (s.stock === 0) items.push({ cls: 'urgent', t: s.name + ' sold out', s: 'Hidden from the member app until restocked' });
+    else if (s.av === 'low' || s.stock <= 2) items.push({ cls: 'warn', t: s.name + ' low stock', s: s.stock + ' left — flagged in member app' });
+  });
+  $('attn').innerHTML = items.map((i) => `<div class="task ${i.cls}"><b>${i.t}</b>${i.s}</div>`).join('') || '<div class="empty">All clear.</div>';
+}
+
+function renderStock() {
+  $('stockList').innerHTML = C.stock.map((s, i) => `
+    <div class="stockrow">
+      <span class="n">${s.name}</span>
+      <span class="cnt">${s.stock} in stock</span>
+      <span class="av av-${s.stock === 0 ? 'out' : s.av}" data-av="${i}">${s.stock === 0 ? 'SOLD OUT' : s.av === 'ok' ? 'AVAILABLE' : s.av === 'low' ? 'LOW' : 'OFF MENU'}</span>
+    </div>`).join('');
+  document.querySelectorAll('[data-av]').forEach((c) => { c.onclick = () => {
+    const s = C.stock[Number(c.dataset.av)];
+    if (s.stock === 0) { toast(s.name + ' has no stock — restock first'); return; }
+    s.av = s.av === 'ok' ? 'low' : s.av === 'low' ? 'out' : 'ok';
+    save(); publishMenu(); render();
+    toast(s.name + ' → ' + (s.av === 'ok' ? 'available' : s.av === 'low' ? 'low stock' : 'temporarily unavailable') + ' — member menus updated');
+  }; });
+}
+
+function renderShift() {
+  const uncollected = C.orders.filter((o) => o.status === 'ready').length;
+  $('shiftBody').innerHTML = C.shiftOpen ? `
+    <div class="shiftline">Collected today: <b>${C.collected}</b> · Revenue: <b>$${C.revenue}</b></div>
+    <div class="shiftline">Waste entries: <b>${C.waste.length}</b>${C.waste.length ? ' — ' + C.waste.map((w) => w.item + ' (' + w.reason + ')').join(', ') : ''}</div>
+    <div class="shiftline">Uncollected ready orders: <b>${uncollected}</b></div>
+    ${C.log.slice(0, 4).map((l) => `<div class="shiftline">${l}</div>`).join('')}
+    <button class="primary" id="closeShift" style="margin-top:10px;">Close shift — count stock &amp; reconcile</button>`
+    : `<div class="shiftline">Shift closed. ${C.closeNote || ''}</div><button class="primary" id="openShift" style="margin-top:10px;">Open shift</button>`;
+  const cs = $('closeShift'), os = $('openShift');
+  if (cs) cs.onclick = () => {
+    if (uncollected) { toast(uncollected + ' ready order(s) not collected — resolve before closing'); return; }
+    C.shiftOpen = false;
+    C.closeNote = `Closed ${now()} — ${C.collected} orders · $${C.revenue} · ${C.waste.length} waste entries · stock counted.`;
+    $('shiftLabel').textContent = 'Shift closed';
+    save(); renderShift(); toast('Shift closed — summary logged for management');
+  };
+  if (os) os.onclick = () => { C.shiftOpen = true; $('shiftLabel').textContent = 'Shift open · since ' + now(); save(); renderShift(); };
+}
+
+/* ---------- staff actions (the ONLY way an order changes state) ---------- */
+function logLine(s) { C.log.unshift(now() + ' · ' + s); C.log = C.log.slice(0, 12); }
+
+function act(code, a) {
+  const o = C.orders.find((x) => x.code === code); if (!o) return;
+  if (!C.shiftOpen) { toast('Shift is closed — open it first'); return; }
+
+  if (a === 'accept') {
+    const short = C.stock.length && o.items.find((i) => { const s = stockOf(i.n); return s && s.stock < i.qty; });
+    if (short) { toast(short.n + ' — not enough stock. Reject or substitute.'); return; }
+    o.items.forEach((i) => { const s = stockOf(i.n); if (s) s.stock -= i.qty; }); // reserve
+    o.reserved = true;
+    o.status = 'accepted'; o.est = new Date(Date.now() + 6 * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    o.estAt = Date.now() + 6 * 60000;
+    GymBus.update(o.busId, 'accepted', STAFF, o.est);
+    logLine('Accepted #' + o.code + ' (' + STAFF + ')');
+    save(); publishMenu(); render(); toast('#' + o.code + ' accepted — member notified, ready ~' + o.est);
+  }
+  if (a === 'est') {
+    const m = prompt('New estimate in minutes from now:', '10'); if (m == null) return;
+    o.est = new Date(Date.now() + Number(m) * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    o.estAt = Date.now() + Number(m) * 60000;
+    GymBus.update(o.busId, 'accepted', STAFF, o.est);
+    save(); render(); toast('Estimate updated — member sees ' + o.est);
+  }
+  if (a === 'reject') {
+    const r = prompt('Reason (sent to the member; payment auto-refunds):', 'Blender out of service');
+    if (r == null) return;
+    if (o.reserved) o.items.forEach((i) => { const s = stockOf(i.n); if (s) s.stock += i.qty; }); // restore
+    o.status = 'rejected';
+    GymBus.update(o.busId, 'rejected', STAFF, r);
+    logLine('Rejected #' + o.code + ' — ' + r + ' (' + STAFF + ')');
+    save(); publishMenu(); render(); toast('Rejected — member refunded automatically');
+  }
+  if (a === 'sub') {
+    const avail = C.stock.filter((s) => s.stock > 0 && s.av !== 'out' && !o.items.some((i) => i.n === s.name)).map((s) => s.name);
+    const choice = prompt('Offer instead (member must approve):\n' + avail.join('\n'), avail[0] || '');
+    if (!choice) return;
+    o.status = 'sub-waiting'; o.subOffer = choice;
+    GymBus.update(o.busId, 'sub-offer', STAFF, choice);
+    save(); render(); toast('Substitution offered — waiting for ' + o.member.split(' ')[0]);
+  }
+  if (a === 'prep') {
+    o.status = 'preparing'; // stock already reserved at accept; now permanently deducted
+    GymBus.update(o.busId, 'preparing', STAFF);
+    save(); render(); toast('Preparing #' + o.code);
+  }
+  if (a === 'ready') {
+    o.status = 'ready'; o.readyAt = Date.now();
+    GymBus.update(o.busId, 'ready', STAFF, o.code);
+    logLine('#' + o.code + ' ready');
+    save(); render(); toast('Ready — member notified with code ' + o.code);
+  }
+  if (a === 'collect') {
+    const entered = prompt('Verify collection — enter the order code from the member\'s phone:', '');
+    if (entered == null) return;
+    if (entered.trim().toUpperCase().replace(/^#/, '') !== o.code.toUpperCase()) {
+      toast('Code mismatch — do NOT hand over. Check identity or ask reception.'); return;
+    }
+    o.status = 'collected';
+    C.collected++; C.revenue += o.total;
+    GymBus.update(o.busId, 'collected', STAFF);
+    logLine('#' + o.code + ' collected — verified by code');
+    save(); render(); toast('#' + o.code + ' collected ✓ — points issued to member');
+  }
+  if (a === 'waste') {
+    const r = prompt('Waste reason (member is refunded):', 'Wrong preparation');
+    if (r == null) return;
+    o.status = 'rejected';
+    C.waste.push({ item: o.items.map((i) => i.n).join(', '), qty: o.items.reduce((s, i) => s + i.qty, 0), reason: r, cost: o.total, by: STAFF, at: now() });
+    GymBus.update(o.busId, 'rejected', STAFF, 'Cancelled after preparation — ' + r + '. Refunded in full.');
+    logLine('Waste: #' + o.code + ' — ' + r);
+    save(); render(); toast('Recorded as waste — member refunded');
+  }
+}
+
+/* ---------- bus: orders arrive, member answers substitutions ---------- */
+function ingestOrder(ev) {
+  if (GymBus.isProcessed(ev.id, 'cafe')) return;
+  GymBus.markProcessed(ev.id, 'cafe');
+  const p = ev.payload;
+  C.orders.unshift({
+    busId: ev.id, code: p.code, member: p.member, items: p.items, custom: p.custom || [],
+    allergens: p.allergens || [], total: p.total, pay: p.pay, pickup: p.pickup,
+    paid: p.pay === 'wallet', status: p.pay === 'reception' ? 'awaiting-payment' : 'new',
+    at: ev.at, t: ev.t || Date.now(),
+  });
+  save(); render();
+  toast('New order #' + p.code + ' — ' + p.member);
+}
+
+GymBus.on((kind, ev) => {
+  if (kind === 'event' && ev.type === 'cafe-order') ingestOrder(ev);
+  if (kind === 'update' && ev.type === 'cafe-order') {
+    const o = C.orders.find((x) => x.busId === ev.id); if (!o) return;
+    const last = ev.history[ev.history.length - 1] || {};
+    if (ev.status === 'paid' && last.by !== STAFF) { // reception collected the money
+      if (GymBus.isProcessed(ev.id + ':paid', 'cafe')) return; GymBus.markProcessed(ev.id + ':paid', 'cafe');
+      o.paid = true; if (o.status === 'awaiting-payment') o.status = 'new';
+      save(); render(); toast('#' + o.code + ' paid at reception — you can accept it now');
+    }
+    if (ev.status === 'sub-accepted') {
+      if (GymBus.isProcessed(ev.id + ':sub-accepted', 'cafe')) return; GymBus.markProcessed(ev.id + ':sub-accepted', 'cafe');
+      o.items = [{ n: o.subOffer, qty: 1, price: stockOf(o.subOffer)?.price || o.total }];
+      o.custom = []; o.status = 'new'; o.subOffer = null;
+      save(); render(); toast('#' + o.code + ': member accepted the substitution — accept to proceed');
+    }
+    if (ev.status === 'sub-declined') {
+      if (GymBus.isProcessed(ev.id + ':sub-declined', 'cafe')) return; GymBus.markProcessed(ev.id + ':sub-declined', 'cafe');
+      o.status = 'rejected';
+      GymBus.update(o.busId, 'rejected', STAFF, 'Substitution declined — order cancelled and refunded in full.');
+      logLine('#' + o.code + ' cancelled — substitution declined');
+      save(); render(); toast('#' + o.code + ' cancelled — member refunded');
+    }
+  }
+});
+
+/* catch-up: orders placed while this dashboard was closed */
+GymBus.all().forEach((ev) => { if (ev.type === 'cafe-order' && !['collected', 'rejected'].includes(ev.status)) ingestOrder(ev); });
+
+publishMenu();
+render();
+setInterval(render, 30000); // refresh waiting times & late flags (display only)
+</script>
 </body>
 </html>

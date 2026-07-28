@@ -185,6 +185,8 @@ const defaultState = {
   parking: { plate: 'B 123456', spot: 'P-12 (premium)', carWash: false },
   recoveryBookings: [],
   reports: [],
+  allergies: ['peanuts'], // declared in the onboarding health questionnaire
+  orderHistory: [],
   prs: [
     { name: 'Bench press', value: '85 kg', when: 'Jul 19' },
     { name: 'Deadlift', value: '150 kg', when: 'Jul 10' },
@@ -234,6 +236,7 @@ const defaultState = {
 
 let state = load();
 let cart = {};
+let cafeCheckout = null; // in-flight checkout options (not persisted)
 
 /* ================= Google Sheet data source =================
    The sheet is the content database: staff edit tabs, the app reads them.
@@ -927,31 +930,87 @@ function renderFood() {
   let body = '';
 
   if (segFood === 'cafe') {
-    const cats = [...new Set(menu.map((m) => m.cat))];
-    const ids = Object.keys(cart);
-    const count = ids.reduce((s, id) => s + cart[id], 0);
-    const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
-    body = cats.map((cat) =>
-      `<div class="menu-cat">${cat}</div>` +
-      menu.filter((m) => m.cat === cat).map((m) => `
-        <div class="menu-item">
-          <div class="info">
-            <div class="n">${m.name} <span class="accent">$${m.price}</span></div>
-            <div>
-              <span class="macro">${m.cal} kcal</span><span class="macro">${m.p}P</span>
-              <span class="macro">${m.c}C</span><span class="macro">${m.f}F</span>
-              ${m.allerg ? `<span class="macro warn">⚠ ${m.allerg}</span>` : ''}
+    /* live order status card — statuses come ONLY from café staff via the bus */
+    const o = state.order;
+    const statusCard = o ? `
+      <div class="card" ${o.subOffer ? 'style="border:2px solid var(--deep, #124a38);"' : ''}>
+        ${eyebrow('cafe', 'Your order · #' + (o.code || ''))}
+        <div class="row"><b>${o.items}</b><b class="accent">$${o.total}</b></div>
+        <div class="dim small">${o.custom && o.custom.length ? o.custom.join(' · ') + ' · ' : ''}${o.pay === 'reception' ? 'Pay at reception · ' : ''}${o.status}</div>
+        ${o.subOffer ? `
+          <div class="dim small" style="margin-top:6px;"><b>Substitution offered:</b> ${o.subOffer}</div>
+          <button class="accent-btn slim" data-action="sub-accept">Accept ${o.subOffer}</button>
+          <button class="book-btn wide warn" data-action="sub-decline" style="margin-top:6px;">No thanks — cancel &amp; refund</button>` : ''}
+      </div>` : '';
+
+    if (cafeCheckout) {
+      /* ---- checkout: itemized, customized, allergens visible BEFORE paying ---- */
+      const ids = Object.keys(cart);
+      const hasShake = ids.some((id) => /shake/i.test(menu.find((m) => m.id === id)?.name || ''));
+      const co = cafeCheckout;
+      let total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
+      if (hasShake) { if (co.milk !== 'Regular milk') total += 0.5; if (co.banana) total += 1; }
+      const allergens = [...new Set(ids.map((id) => menu.find((m) => m.id === id).allerg).filter(Boolean).join(' · ').split(' · ').filter(Boolean))];
+      const kcal = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).cal, 0) + (co.banana ? 90 : 0);
+      const declared = (state.allergies || []).join(', ');
+      body = `
+      <div class="card">
+        ${eyebrow('cafe', 'Checkout')}
+        ${ids.map((id) => { const m = menu.find((x) => x.id === id); return `<div class="row"><b>${m.name} ×${cart[id]}</b><span>$${m.price * cart[id]}</span></div>`; }).join('')}
+        ${hasShake ? `
+        <div class="dim small" style="margin:8px 0 4px;"><b>Customize your shake</b></div>
+        <select class="input" data-coset="milk" style="margin-bottom:6px;">
+          ${['Regular milk', 'Almond milk (+$0.50)', 'Oat milk (+$0.50)'].map((m) => `<option ${co.milk === m.split(' (')[0] ? 'selected' : ''}>${m}</option>`).join('')}
+        </select>
+        <button class="book-btn wide ${co.banana ? '' : 'warn'}" data-action="co-toggle" data-k="banana">${co.banana ? '✓ ' : ''}Add banana +$1</button>
+        <button class="book-btn wide ${co.noHoney ? '' : 'warn'}" data-action="co-toggle" data-k="noHoney" style="margin-top:6px;">${co.noHoney ? '✓ ' : ''}No honey</button>
+        <button class="book-btn wide warn" disabled style="margin-top:6px; opacity:.55;">Add peanut butter — blocked</button>
+        <div class="dim small">⚠ You declared a ${declared} allergy in your health profile — this add-on is blocked. Staff can review with a manager if this is outdated.</div>` : ''}
+        <div class="dim small" style="margin-top:8px;">${allergens.length ? '⚠ Contains: ' + allergens.join(', ') + ' · prepared with shared equipment — not guaranteed allergen-free. ' : ''}≈${kcal} kcal total.</div>
+        <div class="dim small" style="margin:8px 0 4px;"><b>Pickup</b></div>
+        <select class="input" data-coset="pickup" style="margin-bottom:6px;">
+          ${['Prepare now', 'Ready after workout', 'Pick a time — 6:30 PM'].map((p) => `<option ${co.pickup === p ? 'selected' : ''}>${p}</option>`).join('')}
+        </select>
+        <div class="dim small" style="margin:4px 0;"><b>Payment</b></div>
+        <select class="input" data-coset="pay" style="margin-bottom:8px;">
+          <option ${co.pay === 'wallet' ? 'selected' : ''} value="wallet">Wallet ($${state.wallet} available)</option>
+          <option ${co.pay === 'reception' ? 'selected' : ''} value="reception">Pay at reception (order waits until paid)</option>
+        </select>
+        <div class="row"><b>Total</b><b class="accent">$${total}</b></div>
+        <button class="accent-btn slim" data-action="place-order">${co.pay === 'wallet' ? 'Pay $' + total + ' & send to café' : 'Send order — pay $' + total + ' at reception'}</button>
+        <button class="book-btn wide warn" data-action="co-back" style="margin-top:6px;">Back to menu</button>
+      </div>`;
+    } else {
+      const cats = [...new Set(menu.map((m) => m.cat))];
+      const ids = Object.keys(cart);
+      const count = ids.reduce((s, id) => s + cart[id], 0);
+      const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
+      body = statusCard + cats.map((cat) =>
+        `<div class="menu-cat">${cat}</div>` +
+        menu.filter((m) => m.cat === cat).map((m) => {
+          const av = (state.cafeAv || {})[m.name] || 'ok';
+          const off = av === 'out';
+          return `
+          <div class="menu-item" ${off ? 'style="opacity:.45;"' : ''}>
+            <div class="info">
+              <div class="n">${m.name} <span class="accent">$${m.price}</span>
+                ${off ? '<span class="macro warn">SOLD OUT</span>' : av === 'low' ? '<span class="macro warn">low stock</span>' : ''}</div>
+              <div>
+                <span class="macro">${m.cal} kcal</span><span class="macro">${m.p}P</span>
+                <span class="macro">${m.c}C</span><span class="macro">${m.f}F</span>
+                ${m.allerg ? `<span class="macro warn">⚠ ${m.allerg}</span>` : ''}
+              </div>
             </div>
-          </div>
-          <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="-1">−</button>
-          <span class="qty">${cart[m.id] || 0}</span>
-          <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="1">+</button>
-        </div>`).join('')).join('') +
-      (count ? `
-        <div class="cart-bar">
-          <div class="row"><b>${count} item${count > 1 ? 's' : ''} · $${total}</b><span class="dim small">paid from wallet</span></div>
-          <button class="accent-btn slim" data-action="order">Order · pick up after workout</button>
-        </div>` : '');
+            <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="-1" ${off ? 'disabled' : ''}>−</button>
+            <span class="qty">${cart[m.id] || 0}</span>
+            <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="1" ${off ? 'disabled' : ''}>+</button>
+          </div>`; }).join('')).join('') +
+        (count ? `
+          <div class="cart-bar">
+            <div class="row"><b>${count} item${count > 1 ? 's' : ''} · $${total}</b><span class="dim small">customize at checkout</span></div>
+            <button class="accent-btn slim" data-action="order">Review &amp; checkout</button>
+          </div>` : '');
+    }
   }
 
   if (segFood === 'plan') {
@@ -1307,7 +1366,7 @@ document.getElementById('gateBtn').onclick = () => {
     state.locker = { number, zone, locked: true };
     state.sessionEvents.push({ time: fmtTime(Date.now()), title: `Locker ${number} assigned`, sub: 'Yours for this visit · unlock from the app' });
     pushNotif(`Your locker today: #${number}`, 'Assigned for this visit only. Lock and unlock it from the Gym tab — it frees up automatically when you check out.');
-    if (state.order) {
+    if (state.order && !state.order.busId) { // legacy pre-bus orders only — café staff drive real statuses
       state.order.status = 'Preparing — ready when you finish';
       state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order confirmed', sub: `${state.order.items} · $${state.order.total} wallet` });
     }
@@ -1328,6 +1387,14 @@ document.getElementById('simLeave').onclick = () => {
 };
 
 /* ================= delegated actions ================= */
+
+document.getElementById('screen').addEventListener('change', (ev) => {
+  const el = ev.target.closest('[data-coset]');
+  if (!el || !cafeCheckout) return;
+  const k = el.dataset.coset;
+  cafeCheckout[k] = k === 'milk' ? el.value.split(' (')[0] : el.value;
+  renderFood();
+});
 
 document.getElementById('screen').addEventListener('click', (ev) => {
   const el = ev.target.closest('[data-action]');
@@ -1477,17 +1544,56 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     renderFood();
   }
   if (a === 'order') {
+    if (!Object.keys(cart).length) return;
+    if (state.order) { toast('You already have an open order — wait for it or cancel it first'); return; }
+    cafeCheckout = { milk: 'Regular milk', banana: false, noHoney: false, pickup: 'Ready after workout', pay: 'wallet' };
+    renderFood();
+  }
+  if (a === 'co-toggle') { cafeCheckout[el.dataset.k] = !cafeCheckout[el.dataset.k]; renderFood(); }
+  if (a === 'co-back') { cafeCheckout = null; renderFood(); }
+  if (a === 'place-order') {
     const ids = Object.keys(cart);
-    if (!ids.length) return;
-    const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
-    if (!payWallet(total, 'Café order')) return;
-    const items = ids.map((id) => (cart[id] > 1 ? cart[id] + '× ' : '') + menu.find((m) => m.id === id).name).join(', ');
-    state.order = { items, total, status: state.checkedIn ? 'Preparing — ready when you finish' : 'Scheduled — prepared when you arrive' };
-    if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order placed', sub: `${items} · $${total} wallet` });
-    cart = {};
-    state.points += POINTS.cafe_order;
-    save(); show('home');
-    toast(`Order placed · paid from wallet · +${POINTS.cafe_order} pts`);
+    if (!ids.length) { cafeCheckout = null; renderFood(); return; }
+    const co = cafeCheckout;
+    const hasShake = ids.some((id) => /shake/i.test(menu.find((m) => m.id === id)?.name || ''));
+    let total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
+    const custom = [];
+    if (hasShake) {
+      if (co.milk !== 'Regular milk') { total += 0.5; custom.push(co.milk); }
+      if (co.banana) { total += 1; custom.push('Add banana'); }
+      if (co.noHoney) custom.push('No honey');
+    }
+    if (co.pay === 'wallet' && !payWallet(total, 'Café order')) return;
+    const code = 'C-' + (1000 + Math.floor(Math.random() * 9000));
+    const items = ids.map((id) => { const m = menu.find((x) => x.id === id); return { n: m.name, qty: cart[id], price: m.price }; });
+    const allergens = [...new Set(items.map((i) => menu.find((m) => m.name === i.n).allerg).filter(Boolean).join(' · ').split(' · ').filter(Boolean))];
+    const busId = GymBus.send('cafe-order', {
+      member: state.memberName, code, items, custom, allergens, total,
+      pay: co.pay, pickup: co.pickup,
+    }, 'member-app');
+    state.order = {
+      busId, code, total, pay: co.pay, custom,
+      items: items.map((i) => (i.qty > 1 ? i.qty + '× ' : '') + i.n).join(', '),
+      status: co.pay === 'wallet' ? 'Sent to café — waiting for them to accept' : 'Waiting for payment at reception — café starts after you pay',
+    };
+    if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order ' + code, sub: `${state.order.items} · $${total}${co.pay === 'wallet' ? ' wallet' : ' — pay at reception'}` });
+    cart = {}; cafeCheckout = null;
+    save(); renderFood();
+    toast(co.pay === 'wallet' ? `Order ${code} sent · $${total} from wallet` : `Order ${code} sent — pay $${total} at reception`);
+  }
+  if (a === 'sub-accept') {
+    const o = state.order; if (!o || !o.subOffer) return;
+    GymBus.update(o.busId, 'sub-accepted', state.memberName, o.subOffer);
+    o.items = o.subOffer; o.custom = []; o.subOffer = null;
+    o.status = 'Substitution accepted — waiting for café';
+    save(); renderFood();
+    toast('Swapped — the café will confirm shortly');
+  }
+  if (a === 'sub-decline') {
+    const o = state.order; if (!o || !o.subOffer) return;
+    GymBus.update(o.busId, 'sub-declined', state.memberName);
+    o.subOffer = null; save(); renderFood();
+    toast('Declined — the café will cancel and refund');
   }
   if (a === 'buy') {
     const s = shop.find((x) => x.id === el.dataset.s);
@@ -1736,6 +1842,7 @@ function rerenderActive() {
   if (active === 'home') renderHome();
   if (active === 'gym') renderGym();
   if (active === 'account') renderAccount();
+  if (active === 'food') renderFood();
 }
 function handleBus(kind, ev) {
   const mine = ev.payload && ev.payload.member === state.memberName;
@@ -1744,6 +1851,13 @@ function handleBus(kind, ev) {
     CONFIG.announcement = ev.payload.text;
     pushNotif('Gym announcement', ev.payload.text);
     rerenderActive();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'cafe-menu') {
+    state.cafeAv = {};
+    (ev.payload.items || []).forEach((i) => { state.cafeAv[i.name] = i.av; });
+    save();
+    if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
     return;
   }
   if (kind === 'event' && ev.type === 'trainer-avail') {
@@ -1830,6 +1944,41 @@ function handleBus(kind, ev) {
     save();
     rerenderActive();
   }
+  if (ev.type === 'cafe-order' && state.order && state.order.busId === ev.id) {
+    const o = state.order;
+    if (ev.status === 'paid') { o.status = 'Paid at reception ✓ — café can start now'; pushNotif('Café order paid', `${last.by} took $${o.total} at the desk — the café was told to start.`); }
+    if (ev.status === 'accepted') { o.status = `Accepted by ${last.by} · ready ~${last.note || 'soon'}`; pushNotif('Order ' + o.code + ' accepted', `${last.by} is on it — ready around ${last.note || 'soon'}.`); }
+    if (ev.status === 'preparing') o.status = 'Being prepared right now';
+    if (ev.status === 'ready') {
+      o.status = 'READY — show code ' + o.code + ' at the counter';
+      pushNotif('Order ' + o.code + ' is ready 🥤', 'Collect at the café counter — they will ask for your code ' + o.code + '.');
+      toast('Order ready — code ' + o.code);
+    }
+    if (ev.status === 'collected') {
+      earnPoints(POINTS.cafe_order, 'café order');
+      state.orderHistory = state.orderHistory || [];
+      state.orderHistory.unshift({ code: o.code, items: o.items, total: o.total, when: 'Today' });
+      if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order collected', sub: `${o.items} · $${o.total}` });
+      pushNotif('Receipt — ' + o.code, `${o.items} · $${o.total}${o.pay === 'wallet' ? ' paid from wallet' : ' paid at reception'} · +${POINTS.cafe_order} pts. Enjoy!`);
+      state.order = null;
+    }
+    if (ev.status === 'rejected') {
+      if (o.pay === 'wallet') {
+        state.wallet += o.total;
+        state.walletTx.unshift({ label: 'Refund — café ' + o.code, when: 'Today', amount: o.total });
+      }
+      pushNotif('Order ' + o.code + ' cancelled', `${last.by}: ${last.note || 'Not available.'}${o.pay === 'wallet' ? ` $${o.total} refunded to your wallet.` : ''}`);
+      state.order = null;
+    }
+    if (ev.status === 'sub-offer') {
+      o.subOffer = last.note;
+      pushNotif('Substitution offered', `${last.by}: they suggest ${last.note} instead — accept or decline in Food → Café.`);
+    }
+    save();
+    if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
+    rerenderActive();
+    return;
+  }
   if (ev.type === 'gate-resolved') {
     state.userStatus = 'active'; state.frozen = false; save();
     pushNotif('Entry resolved', `${last.by} sorted it at the desk — ${last.note || 'you can enter now'}.`);
@@ -1852,6 +2001,10 @@ GymBus.on(handleBus);
     if (ev.type === 'trainer-avail') { // later events overwrite → latest published set wins
       state.trainerSlots = state.trainerSlots || {};
       state.trainerSlots[ev.payload.trainer] = ev.payload.slots;
+    }
+    if (ev.type === 'cafe-menu') { // latest availability snapshot wins
+      state.cafeAv = {};
+      (ev.payload.items || []).forEach((i) => { state.cafeAv[i.name] = i.av; });
     }
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
