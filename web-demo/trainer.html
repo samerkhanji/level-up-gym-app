@@ -46,7 +46,7 @@
   .st-wait { background:var(--amber-soft); color:var(--amber); }
   .st-ok { background:var(--mint); color:var(--deep); }
   .st-bad { background:var(--red-soft); color:var(--red); }
-  .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:4px 6px; }
+  .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:9px 7px; min-height:32px; }
   .qbar { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
   .qbar button { font-size:11.5px; font-weight:700; padding:8px 12px; border-radius:999px; background:var(--paper); color:var(--ink); }
   .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper);
@@ -122,7 +122,7 @@
   <div class="card head">
     <div class="avatar">KH</div>
     <div><div class="t-name">Karim H.</div><div class="t-sub">Strength · Rehab · ★ 4.9</div></div>
-    <select class="status" id="statusSel">
+    <select class="status" id="statusSel" aria-label="Trainer availability status">
       <option>Available now</option><option>In session</option><option>On break</option><option>Unavailable</option>
     </select>
   </div>
@@ -136,7 +136,9 @@
 
   <!-- ============ DASHBOARD ============ -->
   <div id="secDash">
-    <div class="card">
+    <div class="card" id="nextCard"></div>
+
+    <div class="card" style="margin-top:13px;">
       <div class="eyebrow">Today — schedule</div>
       <div id="schedule"></div>
       <div class="qbar">
@@ -304,7 +306,41 @@ function labelFor(s) {
   return ['Scheduled', 'st-sched'];
 }
 
+/* next session — one obvious primary action, everything relevant in one glance */
+function renderNext() {
+  const upcoming = [...T.sessions]
+    .filter((s) => !s.kind && ['scheduled', 'ingym', 'arrived', 'started'].includes(s.status))
+    .sort((a, b) => (a.tMs || Infinity) - (b.tMs || Infinity));
+  const s = upcoming[0];
+  if (!s) {
+    $('nextCard').innerHTML = `<div class="eyebrow">Next session</div>
+      <div style="font-size:13.5px; color:var(--faint);">Nothing coming up — add a session or open a slot below.</div>`;
+    return;
+  }
+  const c = CLIENTS[s.member] || { injuries: [] };
+  const [lbl] = labelFor(s);
+  $('nextCard').innerHTML = `
+    <div class="row" style="display:flex; justify-content:space-between; align-items:baseline;">
+      <div class="eyebrow" style="margin:0;">Next session — ${s.time}</div>
+      <span class="st ${labelFor(s)[1]}">${lbl}</span></div>
+    <div style="display:flex; gap:11px; align-items:center; margin-top:9px;">
+      <div class="avatar sm">${s.member[0]}</div>
+      <div style="flex:1; min-width:0;">
+        <div style="font-weight:800; font-family:var(--display); font-size:16px;">${s.member}</div>
+        <div style="font-size:12px; color:var(--muted);">${c.phone || ''} · ${T.program && T.program.member === s.member ? T.program.title + ' program' : s.type}${s.pkgLeft != null ? ' · ' + (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : ''}</div>
+        ${c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span>`).join('')}
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; margin-top:11px;">
+      <button class="primary" style="flex:1; padding:12px;" data-nextopen="${s.id}">${s.status === 'started' ? 'Back to session' : 'Start session'}</button>
+      <button class="ghosty" style="flex:0 0 auto; width:auto; padding:12px 16px;" data-nextfile="${s.member}">Client file</button>
+    </div>`;
+  document.querySelector('[data-nextopen]').onclick = () => openLive(s.id);
+  document.querySelector('[data-nextfile]').onclick = () => openFile(s.member);
+}
+
 function renderSchedule() {
+  renderNext();
   const rows = [...T.sessions].sort((a, b) => (a.tMs || 0) - (b.tMs || 0));
   $('schedule').innerHTML = rows.map((s) => {
     const [lbl, cls] = labelFor(s);
@@ -321,7 +357,7 @@ function renderSchedule() {
       <button class="mini-btn" data-file="${s.member}">File</button>
       ${openable ? `<button class="mini-btn" data-open="${s.id}">Open ›</button>` : ''}
     </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px;">Nothing scheduled.</div>';
+  }).join('') || '<div style="color:var(--faint); font-size:13px;">Nothing scheduled today — sessions you add, accept or receive from member bookings appear here. Use <b>+ Add session</b> below.</div>';
   document.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openLive(b.dataset.open); });
   document.querySelectorAll('[data-file]').forEach((b) => { b.onclick = () => openFile(b.dataset.file); });
   document.querySelectorAll('[data-del]').forEach((b) => { b.onclick = () => { T.sessions = T.sessions.filter((x) => x.id !== b.dataset.del); save(); renderSchedule(); }; });
@@ -329,11 +365,31 @@ function renderSchedule() {
 
 /* scheduling actions */
 $('addSess').onclick = () => addSessionFlow();
+/* conflict prevention: no overlaps with sessions/blocks/breaks, no double-booking
+   the member, and only inside working hours */
+const WORK_START = 6 * 60, WORK_END = 22 * 60, SESSION_MIN = 55;
+function slotConflict(tMs, member) {
+  if (tMs == null) return 'Time not recognised — use e.g. 7:00 PM';
+  if (tMs < Date.now() - 5 * 60000) return 'That time has already passed today';
+  const mins = new Date(tMs).getHours() * 60 + new Date(tMs).getMinutes();
+  if (mins < WORK_START || mins + SESSION_MIN > WORK_END) return 'Outside working hours (6:00 AM – 10:00 PM)';
+  const clash = T.sessions.find((s) => s.tMs != null && !['cancelled', 'noshow'].includes(s.status || '')
+    && Math.abs(s.tMs - tMs) < SESSION_MIN * 60000);
+  if (clash) return 'Clashes with ' + (clash.kind ? (clash.kind === 'break' ? 'your break' : 'blocked time') : clash.member + "'s " + clash.time + ' session');
+  const dbl = T.sessions.find((s) => !s.kind && s.member === member && s.tMs != null
+    && ['scheduled', 'ingym', 'arrived', 'started'].includes(s.status) && Math.abs(s.tMs - tMs) < 12 * 3600000);
+  if (dbl) return member.split(' ')[0] + ' already has a session today (' + dbl.time + ')';
+  return null;
+}
 function addSessionFlow(presetMember) {
   const names = Object.keys(CLIENTS);
   const member = presetMember || prompt('Client:\n' + names.join('\n'), names[0]); if (!member) return;
+  if (!CLIENTS[member]) { toast('Unknown client — pick a name from your list'); return; }
   const time = prompt('Time today (e.g. 9:00 AM):', '7:00 PM'); if (!time) return;
-  T.sessions.push({ id: 's' + Date.now(), time, tMs: todayAt(time), member, type: 'PT session', status: 'scheduled' });
+  const tMs = todayAt(time);
+  const conflict = slotConflict(tMs, member);
+  if (conflict) { toast('Not booked — ' + conflict); return; }
+  T.sessions.push({ id: 's' + Date.now(), time, tMs, member, type: 'PT session', status: 'scheduled' });
   save(); renderSchedule();
   GymBus.send('pt-booked', { member, trainer: ME, slot: 'Today · ' + time }, 'trainer');
   toast(member.split(' ')[0] + ' added at ' + time + ' — member notified, on both calendars');
@@ -375,7 +431,7 @@ function renderQueue() {
     <div class="task ${q.urg || ''}">
       <div class="task-b"><div class="task-t">${q.t}</div><div class="task-s">${q.s} · ${q.at}</div></div>
       <div class="act">${(q.actions || []).map((a) => `<button class="${a.ghost ? 'ghost' : ''}" data-qa="${q.key}" data-act="${a.a}">${a.l}</button>`).join('')}</div>
-    </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear.</div>';
+    </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear — booking requests, arrivals, pending confirmations, disputes and renewal opportunities land here.</div>';
   document.querySelectorAll('[data-qa]').forEach((b) => { b.onclick = () => queueAction(b.dataset.qa, b.dataset.act); });
 }
 function reqActions() { return [{ a: 'accept', l: 'Accept' }, { a: 'propose', l: 'Propose time', ghost: true }, { a: 'decline', l: 'Decline', ghost: true }]; }
@@ -537,8 +593,12 @@ function pickExercise(i, name, sel) {
       $('progWarn').innerHTML = ''; renderProg(); toast('Swapped to ' + b.dataset.alt + ' — safe for ' + inj.flag);
     }; });
     document.querySelectorAll('[data-keep]').forEach((b) => { b.onclick = () => {
+      const why = prompt('Safety override requires a reason (permanently audited):', '');
+      if (!why || why.trim().length < 5) { toast('Override needs a real reason — not saved'); return; }
       draft[Number(b.dataset.keep)].n = name; draft[Number(b.dataset.keep)].override = true;
-      $('progWarn').innerHTML = ''; toast('Kept with safety override — recorded in the program');
+      draft[Number(b.dataset.keep)].overrideReason = why.trim();
+      logTimeline(fileMember, 'SAFETY OVERRIDE by ' + ME + ': kept ' + name + ' despite ' + inj.label + ' — "' + why.trim() + '"');
+      $('progWarn').innerHTML = ''; toast('Kept with logged override — reason recorded in the client timeline');
     }; });
     sel.value = draft[i].n;
   } else {
