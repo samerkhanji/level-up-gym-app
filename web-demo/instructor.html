@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — Instructor</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
+  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
+  .dept-nav a.here { background:#124a38; color:#fff; }
+  .dept-head { text-align:center; max-width:640px; }
+  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
+  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
+  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+</style>
+</head>
+<body>
+  <nav class="dept-nav">
+    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" >Trainer</a><a href="cafe.html" >Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" >Maintenance</a><a href="instructor.html" class="here">Instructor</a><a href="staff.html">All departments</a>
+  </nav>
+  <div class="dept-head"><h1>Instructor</h1><p>Class check-in, waitlist promotion, post-class summary</p></div>
+  <div class="screen-wrap">
+      <div data-screen-label="Instructor" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="padding:0 4px;">
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px;">HIIT 45</div>
+          <div style="font-size:13px; color:#6c7a71; margin-top:2px;">Today 6:00 PM · Studio 1 · Coach Karim</div>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#124a38;">18/18</div><div style="font-size:11px; color:#6c7a71;">reserved</div></div>
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#1e6b52;">15</div><div style="font-size:11px; color:#6c7a71;">checked in</div></div>
+          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#a86408;">4</div><div style="font-size:11px; color:#6c7a71;">waitlist</div></div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:6px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); flex:1;">
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:12px;">M</div><span style="font-weight:600; font-size:14px;">Mohamad</span></div>
+            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ In class</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:12px;">L</div><span style="font-weight:600; font-size:14px;">Lina Saab</span></div>
+            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ In class</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
+            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:700; font-size:12px;">O</div><span style="font-weight:600; font-size:14px;">Omar Khal</span></div>
+            <span style="background:#f3f4ef; color:#6c7a71; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Tap to check in</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0;">
+            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#fbeaea; color:#a33a3a; display:grid; place-items:center; font-weight:700; font-size:12px;">R</div><span style="font-weight:600; font-size:14px;">Rami Aoun</span></div>
+            <span style="background:#fbeaea; color:#a33a3a; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">No-show</span>
+          </div>
+        </div>
+        <div style="background:#fdf3ec; border-radius:20px; padding:16px 18px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div><div style="font-weight:700; font-size:14px; color:#a86408;">Waitlist auto-promotion</div><div style="font-size:12px; color:#8a6a2a; margin-top:2px;">Rami's spot → promote next in line?</div></div>
+            <div style="background:#a86408; color:#ffffff; border-radius:10px; padding:9px 14px; font-weight:700; font-size:12px;">Promote</div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:20px; padding:14px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Post-class summary</div>
+          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:8px;"><span><b style="color:#124a38;">16</b> attended · <b style="color:#a33a3a;">2</b> no-shows</span><span style="color:#a86408; font-weight:700;">★ 4.8 avg rating</span></div>
+        </div>
+        <div style="background:#124a38; color:#ffffff; border-radius:16px; padding:15px; text-align:center; font-weight:800; font-size:15px;">Start class · 15 in</div>
+      </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — Trainer</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
+  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
+  .dept-nav a.here { background:#124a38; color:#fff; }
+  .dept-head { text-align:center; max-width:640px; }
+  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
+  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
+  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+</style>
+</head>
+<body>
+  <nav class="dept-nav">
+    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" class="here">Trainer</a><a href="cafe.html" >Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" >Maintenance</a><a href="instructor.html" >Instructor</a><a href="staff.html">All departments</a>
+  </nav>
+  <div class="dept-head"><h1>Trainer</h1><p>Karim's day — sessions, requests, the confirm-to-complete trust mechanic</p></div>
+  <div class="screen-wrap">
+      <div data-screen-label="Trainer app" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
+        <div style="display:flex; align-items:center; gap:12px; padding:0 4px;">
+          <div style="width:42px; height:42px; border-radius:50%; background:#124a38; color:#dff0e6; display:grid; place-items:center; font-weight:800; font-size:15px;">KH</div>
+          <div style="flex:1;">
+            <div style="font-family:'Bricolage Grotesque'; font-weight:700; font-size:18px;">Karim H.</div>
+            <div style="font-size:12px; color:#6c7a71;">Strength · Rehab · ★ 4.9</div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); display:flex; align-items:center; justify-content:space-between;">
+          <div><div style="font-weight:700; font-size:15px;">Available now</div><div style="font-size:12px; color:#6c7a71; margin-top:2px;">Members see your live status</div></div>
+          <div style="width:52px; height:30px; border-radius:999px; background:#1e6b52; position:relative;"><div style="position:absolute; top:3px; right:3px; width:24px; height:24px; border-radius:50%; background:#ffffff;"></div></div>
+        </div>
+        <div style="background:linear-gradient(135deg,#1e6b52,#124a38); border-radius:24px; padding:18px; color:#ffffff;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#9ec7b3;">Now · 6:00 PM</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:19px;">Samer Khanji</div><div style="font-size:12px; color:#9ec7b3; margin-top:2px;">Session 7 of 10 · Push day</div></div>
+            <div style="background:#7ee2b1; color:#124a38; border-radius:12px; padding:10px 14px; font-weight:800; font-size:13px;">Ask to confirm</div>
+          </div>
+          <div style="font-size:11px; color:#9ec7b3; margin-top:10px;">Counts only after Samer confirms in his app.</div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Earlier today — the trust mechanic</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
+            <span><b>4:00</b> · Lina Saab</span>
+            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ Confirmed · 1 deducted</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid #f2f4ee; font-size:13px;">
+            <span><b>5:00</b> · Omar Khal</span>
+            <span style="background:#fdf3ec; color:#a86408; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Waiting member confirmation</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:11px 0; font-size:13px;">
+            <span><b>6:00</b> · Samer Khanji</span>
+            <span style="background:#f3f4ef; color:#6c7a71; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Mark complete</span>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Requests</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f2f4ee;">
+            <div><div style="font-weight:600; font-size:14px;">Lina Saab · new client</div><div style="font-size:12px; color:#6c7a71;">Tomorrow 5:00 PM</div></div>
+            <div style="display:flex; gap:8px;"><span style="background:#dff0e6; color:#124a38; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Accept</span><span style="background:#f3f4ef; color:#6c7a71; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Decline</span></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0;">
+            <div><div style="font-weight:600; font-size:14px;">Omar Khal · reschedule</div><div style="font-size:12px; color:#6c7a71;">Fri 7:00 → Sat 10:00</div></div>
+            <div style="display:flex; gap:8px;"><span style="background:#dff0e6; color:#124a38; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px;">Accept</span></div>
+          </div>
+        </div>
+        <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); flex:1;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Client files</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #f2f4ee; font-size:14px;">
+            <span style="font-weight:600;">Samer Khanji</span><span style="font-size:12px; color:#6c7a71;">PR deadlift 140 kg · 3 left ›</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; font-size:14px;">
+            <span style="font-weight:600;">Omar Khal</span><span style="font-size:12px; color:#6c7a71;">Rehab block · 8 left ›</span>
+          </div>
+        </div>
+      </div>
+  </div>
+</body>
+</html>

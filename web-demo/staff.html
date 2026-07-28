@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — All Departments</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:#f3f4ef; font-family:'Instrument Sans',sans-serif; color:#17211c; min-height:100vh; padding:48px 20px 80px; }
+  .wrap { max-width:860px; margin:0 auto; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#1e6b52; }
+  h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:32px; margin:8px 0 6px; }
+  .sub { color:#6c7a71; font-size:15px; margin-bottom:28px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:14px; }
+  a.card { display:block; background:#fff; border-radius:20px; padding:20px; text-decoration:none; color:#17211c;
+    box-shadow:0 6px 18px rgba(23,33,28,.05); transition:transform .15s ease, box-shadow .15s ease; }
+  a.card:hover { transform:translateY(-3px); box-shadow:0 14px 32px rgba(23,33,28,.1); }
+  .icon { width:40px; height:40px; border-radius:12px; display:grid; place-items:center; font-family:'Bricolage Grotesque'; font-weight:800; font-size:16px; margin-bottom:12px; }
+  .i-green { background:#124a38; color:#dff0e6; }
+  .i-mint { background:#dff0e6; color:#124a38; }
+  .name { font-family:'Bricolage Grotesque'; font-weight:800; font-size:17px; }
+  .desc { color:#6c7a71; font-size:13px; margin-top:4px; line-height:1.45; }
+  .tag { display:inline-block; margin-top:10px; font-size:11px; font-weight:700; border-radius:999px; padding:4px 10px; }
+  .t-live { background:#dff0e6; color:#124a38; }
+  .t-design { background:#fdf3ec; color:#a86408; }
+  .section { margin:26px 0 12px; font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="eyebrow">GYM · one system, every viewpoint</div>
+    <h1>All departments</h1>
+    <div class="sub">The member's phone on one side, every staff role on the other — all reading the same data.</div>
+
+    <div class="section">Members</div>
+    <div class="grid">
+      <a class="card" href="index.html"><div class="icon i-green">G</div><div class="name">Member app</div><div class="desc">Entry pass, wallet, lockers, training, café, account — the phone is the membership.</div><span class="tag t-live">Live · full app</span></a>
+    </div>
+
+    <div class="section">Staff</div>
+    <div class="grid">
+      <a class="card" href="reception.html"><div class="icon i-green">R</div><div class="name">Reception</div><div class="desc">Live gate feed, denied-entry assist, member lookup, overrides with logged reasons, payments, guest passes.</div><span class="tag t-live">Live · wired to data</span></a>
+      <a class="card" href="trainer.html"><div class="icon i-mint">T</div><div class="name">Trainer</div><div class="desc">Today's sessions, booking requests, client files, confirm-to-complete trust mechanic.</div><span class="tag t-design">Design preview</span></a>
+      <a class="card" href="cafe.html"><div class="icon i-mint">C</div><div class="name">Café</div><div class="desc">Order lanes timed to member workouts, allergen flags, 86 board, today strip.</div><span class="tag t-design">Design preview</span></a>
+      <a class="card" href="nutritionist.html"><div class="icon i-mint">N</div><div class="name">Nutritionist</div><div class="desc">Consultations, meal-plan editor with macro totals, roster freshness flags.</div><span class="tag t-design">Design preview</span></a>
+      <a class="card" href="maintenance.html"><div class="icon i-mint">M</div><div class="name">Maintenance</div><div class="desc">Reported → in progress → fixed. Broken machines auto-hidden from member apps.</div><span class="tag t-design">Design preview</span></a>
+      <a class="card" href="instructor.html"><div class="icon i-mint">I</div><div class="name">Instructor</div><div class="desc">Class check-in roster, waitlist auto-promotion, post-class summary.</div><span class="tag t-design">Design preview</span></a>
+    </div>
+
+    <div class="section">Pitch</div>
+    <div class="grid">
+      <a class="card" href="features.html"><div class="icon i-green">★</div><div class="name">Feature map</div><div class="desc">Every feature on one poster — built vs next.</div><span class="tag t-live">Poster</span></a>
+    </div>
+  </div>
+</body>
+</html>
