@@ -11,110 +11,135 @@
     --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
     --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6; --mint-ink:#9ec7b3;
     --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-ink:#a33a3a;
-    --red-soft:#fbeaea; --red-line:#e5b8b2;
+    --red-soft:#fbeaea; --red-line:#e5b8b2; --grey-soft:#eceee8;
     --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:22px 24px; }
-  button { font-family:var(--body); cursor:pointer; border:none; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:16px 20px 40px; font-size:14px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
 
-  .topbar { display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
-  .logo { width:36px; height:36px; border-radius:10px; background:var(--deep); color:var(--mint);
-    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; }
-  .title { font-family:var(--display); font-weight:800; font-size:20px; }
-  .pill { display:flex; align-items:center; gap:7px; background:var(--mint); color:var(--deep);
-    font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; }
-  .pill .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.6s ease-in-out infinite; }
+  .topbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .logo { width:34px; height:34px; border-radius:10px; background:var(--deep); color:var(--mint); display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:15px; }
+  .title { font-family:var(--display); font-weight:800; font-size:19px; }
   .spacer { flex:1; }
-  .search { background:var(--card); border-radius:12px; padding:10px 16px; font-size:13px;
-    width:260px; box-shadow:0 4px 12px rgba(23,33,28,.05); border:none; font-family:var(--body); color:var(--ink); }
-  .search::placeholder { color:var(--faint); }
-  .primary-btn { background:var(--deep); color:#fff; border-radius:12px; padding:10px 16px; font-weight:700; font-size:13px; }
-  .staff { font-size:13px; color:var(--muted); }
+  .search { background:var(--card); border-radius:12px; padding:9px 14px; font-size:13px; width:230px; box-shadow:0 4px 12px rgba(23,33,28,.05); border:none; color:var(--ink); }
+  .tb-btn { border-radius:12px; padding:9px 14px; font-weight:700; font-size:12.5px; }
+  .tb-dark { background:var(--deep); color:#fff; }
+  .tb-light { background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(23,33,28,.05); }
+  .occ-pill { display:flex; align-items:center; gap:7px; background:var(--mint); color:var(--deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; }
+  .occ-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite; }
+  .sys-pill { display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:999px; cursor:pointer; }
+  .sys-ok { background:var(--mint); color:var(--deep); }
+  .sys-warn { background:var(--amber-soft); color:var(--amber); }
+  .sys-off { background:var(--red-soft); color:var(--red-ink); }
 
-  .grid { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:16px; align-items:start; }
-  @media (max-width:1000px) { .grid { grid-template-columns:1fr; } }
+  .nav { display:flex; gap:6px; margin:12px 0 14px; flex-wrap:wrap; }
+  .nav button { font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:999px; color:var(--muted); background:var(--card); box-shadow:0 3px 10px rgba(23,33,28,.04); }
+  .nav button.on { background:var(--deep); color:#fff; }
+  .nav a { font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:999px; color:var(--green); background:var(--card); text-decoration:none; box-shadow:0 3px 10px rgba(23,33,28,.04); }
 
-  .card { background:var(--card); border-radius:20px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
+  .offline-banner { display:none; background:var(--red-soft); border:1.5px solid var(--red-line); color:var(--red-ink); border-radius:14px; padding:11px 16px; font-weight:700; font-size:13px; margin-bottom:12px; }
+  .offline-banner.show { display:flex; justify-content:space-between; align-items:center; }
+
+  .grid { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; align-items:start; }
+  @media (max-width:980px) { .grid { grid-template-columns:1fr; } }
+  .card { background:var(--card); border-radius:18px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
+  .filters { display:flex; gap:6px; margin:10px 0 4px; }
+  .filters button { font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:999px; background:var(--paper); color:var(--muted); }
+  .filters button.on { background:var(--deep); color:#fff; }
 
-  .feed-row { display:flex; justify-content:space-between; align-items:center; padding:12px 2px;
-    border-bottom:1px solid var(--line); animation:rise .35s ease both; }
-  .feed-row:last-child { border-bottom:none; }
-  .feed-left { display:flex; align-items:center; gap:10px; }
-  .avatar { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:12px; flex-shrink:0; }
-  .av-in { background:var(--mint); color:var(--deep); }
-  .av-out { background:var(--paper); color:var(--muted); }
-  .av-deny { background:var(--red); color:#fff; }
-  .f-name { font-weight:600; font-size:14px; }
-  .f-sub { font-size:12px; color:var(--muted); }
-  .tag-in { color:var(--green); font-weight:700; font-size:12px; }
-  .tag-out { color:var(--faint); font-weight:700; font-size:12px; }
+  .ev { border-radius:14px; padding:11px 12px; margin-top:8px; animation:rise .3s ease both; border:1.5px solid transparent; }
+  .ev.ok { background:#f7faf6; border-color:#e2ede5; }
+  .ev.deny { background:var(--red-soft); border-color:var(--red-line); }
+  .ev.warn { background:var(--amber-soft); border-color:#eed9bd; }
+  .ev.out { background:var(--grey-soft); }
+  .ev-top { display:flex; align-items:center; gap:10px; }
+  .avatar { width:32px; height:32px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:12px; flex-shrink:0; }
+  .av-g { background:var(--mint); color:var(--deep); } .av-r { background:var(--red); color:#fff; }
+  .av-o { background:var(--amber); color:#fff; } .av-x { background:#d8dbd3; color:var(--muted); }
+  .ev-name { font-weight:700; font-size:13.5px; }
+  .ev-meta { font-size:11.5px; color:var(--muted); }
+  .ev-reason { font-size:11.5px; font-weight:700; }
+  .ev.deny .ev-reason { color:var(--red-ink); } .ev.warn .ev-reason { color:var(--amber); }
+  .ev-state { margin-left:auto; font-size:11px; font-weight:800; }
+  .st-ok { color:var(--green); } .st-deny { color:var(--red-ink); } .st-warn { color:var(--amber); } .st-out { color:var(--faint); }
+  .ev-actions { display:flex; gap:6px; margin-top:8px; }
+  .ev-actions button { font-size:11px; font-weight:700; padding:5px 10px; border-radius:8px; background:#fff; color:var(--deep); box-shadow:0 2px 6px rgba(23,33,28,.08); }
+  .ev-actions button.hot { background:var(--red); color:#fff; }
 
-  .deny-card { background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:14px;
-    padding:12px 14px; margin-top:8px; animation:rise .35s ease both; }
-  .deny-card .f-name { font-weight:700; }
-  .deny-card .f-sub { color:var(--red-ink); }
-  .assist-btn { background:var(--red); color:#fff; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px; }
+  .occ-card { margin-top:14px; }
+  .occ-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; }
+  .occ-num { font-family:var(--display); font-weight:800; font-size:22px; color:var(--deep); }
+  .occ-lbl { font-size:10.5px; color:var(--muted); }
+  .cap-bar { height:8px; background:var(--line); border-radius:4px; margin-top:10px; overflow:hidden; }
+  .cap-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--deep)); border-radius:4px; transition:width .5s ease; }
+  .long-row { display:flex; justify-content:space-between; font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
+  .long-row:last-child { border-bottom:none; }
 
-  .note { background:var(--paper); border-radius:12px; padding:11px 14px; margin-top:10px; font-size:12px; color:var(--muted); }
+  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper); display:flex; align-items:center; gap:10px; animation:rise .3s ease both; }
+  .task.urgent { background:var(--red-soft); }
+  .task.warn { background:var(--amber-soft); }
+  .task-body { flex:1; min-width:0; }
+  .task-t { font-weight:700; font-size:13px; }
+  .task-s { font-size:11.5px; color:var(--muted); }
+  .task button { font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:9px; background:var(--deep); color:#fff; flex-shrink:0; }
+  .badge { font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px; flex-shrink:0; }
+  .b-red { background:var(--red); color:#fff; } .b-amber { background:var(--amber); color:#fff; } .b-grey { background:#d8dbd3; color:var(--muted); }
 
-  .member-file { background:var(--paper); border-radius:14px; padding:14px; margin-top:12px; }
-  .mf-head { display:flex; align-items:center; gap:10px; }
-  .mf-avatar { width:34px; height:34px; border-radius:50%; background:var(--deep); color:var(--mint);
-    display:grid; place-items:center; font-weight:700; font-size:13px; }
-  .mf-name { font-weight:700; font-size:14px; }
-  .mf-sub { font-size:12px; font-weight:600; }
-  .mf-sub.ok { color:var(--green); } .mf-sub.bad { color:var(--red-ink); } .mf-sub.warn { color:var(--amber); }
-  .mf-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
-  .mf-actions button { border-radius:10px; padding:9px; text-align:center; font-weight:600; font-size:12px; background:#fff; color:var(--ink); }
-  .mf-actions button.main { background:var(--deep); color:#fff; font-weight:700; }
-  .mf-actions button.second { color:var(--deep); font-weight:700; }
-  .mf-empty { color:var(--faint); font-size:13px; padding:22px 0; text-align:center; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:14px; }
+  .stat { background:var(--card); border-radius:16px; padding:13px 15px; box-shadow:0 5px 14px rgba(23,33,28,.05); cursor:pointer; }
+  .stat b { font-family:var(--display); font-weight:800; font-size:21px; color:var(--deep); display:block; }
+  .stat span { font-size:11px; color:var(--muted); }
 
-  .desk-row { display:flex; justify-content:space-between; padding:11px 2px; border-bottom:1px solid var(--line); font-size:13px; animation:rise .3s ease both; }
-  .desk-row:last-child { border-bottom:none; }
-  .money { color:var(--deep); font-weight:700; }
-  .done { color:var(--green); font-weight:700; }
+  /* drawer */
+  .drawer-wrap { position:fixed; inset:0; background:rgba(23,33,28,.35); z-index:40; display:none; }
+  .drawer-wrap.show { display:block; }
+  .drawer { position:absolute; top:0; right:0; bottom:0; width:min(430px,94vw); background:var(--card); box-shadow:-20px 0 60px rgba(23,33,28,.25); padding:20px; overflow-y:auto; }
+  .d-head { display:flex; gap:12px; align-items:center; }
+  .d-avatar { width:52px; height:52px; border-radius:50%; background:var(--deep); color:var(--mint); display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:20px; }
+  .d-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .d-sub { font-size:12px; color:var(--muted); }
+  .d-close { margin-left:auto; font-size:22px; color:var(--muted); }
+  .d-chips { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
+  .chip { font-size:11px; font-weight:700; padding:5px 10px; border-radius:999px; }
+  .c-ok { background:var(--mint); color:var(--deep); } .c-bad { background:var(--red-soft); color:var(--red-ink); }
+  .c-warn { background:var(--amber-soft); color:var(--amber); } .c-grey { background:var(--paper); color:var(--muted); }
+  .d-sec { border-top:1px solid var(--line); padding:12px 0; }
+  .d-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
+  .d-row b.due { color:var(--red-ink); }
+  .d-note { background:var(--amber-soft); border-radius:10px; padding:9px 12px; font-size:12px; color:#7a5a1e; margin-top:6px; }
+  .resolve { background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:14px; padding:12px; margin:12px 0; }
+  .resolve h4 { font-size:13px; color:var(--red-ink); margin-bottom:8px; }
+  .r-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+  .r-grid button { font-size:11.5px; font-weight:700; padding:8px; border-radius:9px; background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(23,33,28,.06); }
+  .r-grid button.main { background:var(--deep); color:#fff; }
+  .d-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:8px; }
+  .d-actions button { font-size:12px; font-weight:700; padding:9px; border-radius:10px; background:var(--paper); color:var(--ink); }
+  .d-actions button.main { background:var(--deep); color:#fff; }
 
-  .col3 { display:flex; flex-direction:column; gap:16px; }
-  .today { background:var(--deep); border-radius:20px; padding:18px; color:var(--mint); }
-  .today .eyebrow { color:var(--mint-ink); }
-  .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
-  .t-num { font-family:var(--display); font-weight:800; font-size:26px; color:#fff; }
-  .t-num.g { color:#7ee2b1; }
-  .t-lbl { font-size:11px; color:var(--mint-ink); }
-
-  .attn-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); font-size:13px; }
-  .attn-row:last-child { border-bottom:none; }
-  .badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
-  .b-amber { background:var(--amber-soft); color:var(--amber); }
-  .b-red { background:var(--red-soft); color:var(--red-ink); }
-  .b-grey { background:var(--paper); color:var(--muted); }
-
-  .results { position:absolute; top:46px; left:0; right:0; background:#fff; border-radius:12px;
-    box-shadow:0 12px 32px rgba(23,33,28,.14); z-index:30; overflow:hidden; }
-  .result { padding:10px 14px; font-size:13px; cursor:pointer; display:flex; justify-content:space-between; }
-  .result:hover { background:var(--paper); }
-  .search-wrap { position:relative; }
-
-  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.4); display:none; place-items:center; z-index:50; }
+  /* modals */
+  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:none; place-items:center; z-index:60; }
   .overlay.show { display:grid; }
-  .modal { background:#fff; border-radius:20px; padding:22px; width:min(420px, 92vw); box-shadow:0 24px 60px rgba(23,33,28,.3); }
-  .modal h3 { font-family:var(--display); font-weight:800; font-size:18px; margin-bottom:6px; }
-  .modal p { font-size:13px; color:var(--muted); margin-bottom:12px; }
-  .modal input { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-size:14px; font-family:var(--body); }
-  .modal .row { display:flex; gap:10px; margin-top:14px; }
-  .modal .row button { flex:1; border-radius:12px; padding:12px; font-weight:700; font-size:14px; }
+  .modal { background:#fff; border-radius:20px; padding:22px; width:min(460px,94vw); max-height:88vh; overflow-y:auto; box-shadow:0 24px 60px rgba(23,33,28,.3); }
+  .modal h3 { font-family:var(--display); font-weight:800; font-size:18px; margin-bottom:4px; }
+  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .modal label { display:block; font-size:11.5px; font-weight:700; color:var(--muted); margin:10px 0 4px; }
+  .modal input, .modal select, .modal textarea { width:100%; border:1.5px solid var(--line); border-radius:10px; padding:10px 12px; font-size:13.5px; font-family:var(--body); background:#fff; }
+  .modal .mrow { display:flex; gap:10px; margin-top:16px; }
+  .modal .mrow button { flex:1; border-radius:12px; padding:12px; font-weight:700; font-size:14px; }
   .m-cancel { background:var(--paper); color:var(--ink); }
   .m-confirm { background:var(--deep); color:#fff; }
   .m-err { color:var(--red-ink); font-size:12px; margin-top:8px; display:none; }
+  .tx-row { display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .checkline { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0; }
+  .sys-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
+  .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .dg { background:var(--green); } .da { background:var(--amber); } .dr { background:var(--red); }
 
-  .toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:70;
-    animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(23,33,28,.3); }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(23,33,28,.3); max-width:92vw; }
   @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 12%,82%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
 </style>
 </head>
@@ -122,316 +147,473 @@
   <div class="topbar">
     <div class="logo">G</div>
     <div class="title">Reception</div>
-    <div class="pill"><span class="dot"></span><span id="insidePill">— inside</span></div>
+    <button class="occ-pill" data-open="occupancy"><span class="dot"></span><span id="occPill">—</span></button>
+    <button class="sys-pill sys-ok" id="sysPill" data-open="system"><span class="dot dg"></span>All systems</button>
     <div class="spacer"></div>
-    <div class="search-wrap">
-      <input class="search" id="searchBox" placeholder="⌕  Find a member…" autocomplete="off" />
-      <div class="results" id="searchResults" hidden></div>
-    </div>
-    <button class="primary-btn" id="guestBtn">Sell guest pass</button>
-    <div class="staff"><b>Lara</b> · front desk · <span id="clock"></span></div>
-    <a href="staff.html" style="font-size:12px; font-weight:700; color:var(--green); text-decoration:none;">All departments →</a>
+    <input class="search" id="searchBox" placeholder="⌕  Search member, phone, ID…" autocomplete="off" />
+    <button class="tb-btn tb-light" id="scanBtn">Scan ID</button>
+    <button class="tb-btn tb-light" data-open="pos">Take payment</button>
+    <button class="tb-btn tb-dark" data-open="guest">Sell guest pass</button>
+    <div class="staff" style="font-size:12.5px; color:var(--muted);"><b>Lara</b> · <span id="clock"></span></div>
+  </div>
+
+  <div class="nav">
+    <button class="on" data-nav="gate">Gate</button>
+    <button data-nav="members">Members</button>
+    <button data-open="pos">Payments</button>
+    <button data-open="guest">Guests</button>
+    <button data-open="bookings">Bookings</button>
+    <button data-open="incidents">Incidents</button>
+    <button data-open="shift">Shift</button>
+    <a href="staff.html">All departments →</a>
+  </div>
+
+  <div class="offline-banner" id="offlineBanner">
+    <span>⚠ OFFLINE MODE — gate in manual entry. Everything you record syncs when the connection returns.</span>
+    <button class="tb-btn tb-light" data-open="system">System status</button>
   </div>
 
   <div class="grid">
-    <div class="card">
-      <div class="eyebrow">At the gate — live feed</div>
-      <div id="feed" style="margin-top:6px;"></div>
-      <div class="note">Overrides require a typed reason and are logged with your name.</div>
-    </div>
-
-    <div class="card">
-      <div class="eyebrow">At the desk</div>
-      <div id="memberFile"><div class="mf-empty">Search a member, or tap Assist on a denied entry.</div></div>
-      <div id="deskLog" style="margin-top:8px;"></div>
-    </div>
-
-    <div class="col3">
-      <div class="today">
-        <div class="eyebrow">Today</div>
-        <div class="today-grid">
-          <div><div class="t-num" id="tEntries">0</div><div class="t-lbl">entries</div></div>
-          <div><div class="t-num" id="tRevenue">$0</div><div class="t-lbl">revenue</div></div>
-          <div><div class="t-num" id="tDenials">0</div><div class="t-lbl">denials</div></div>
-          <div><div class="t-num g" id="tGuests">0</div><div class="t-lbl">guest passes</div></div>
-        </div>
-      </div>
+    <div>
       <div class="card">
-        <div class="eyebrow">Needs attention</div>
-        <div id="attention" style="margin-top:4px;"></div>
+        <div style="display:flex; align-items:center;"><div class="eyebrow">At the gate — live feed</div>
+          <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="feedCount"></span></div>
+        <div class="filters" id="filters">
+          <button class="on" data-f="all">All</button><button data-f="ok">Admitted</button>
+          <button data-f="deny">Denied</button><button data-f="warn">Overrides</button><button data-f="out">Exited</button>
+        </div>
+        <div id="feed"></div>
+      </div>
+
+      <div class="card occ-card">
+        <div class="eyebrow">Occupancy — live</div>
+        <div class="occ-grid">
+          <div><div class="occ-num" id="oInside">0</div><div class="occ-lbl">inside now · evacuation count</div></div>
+          <div><div class="occ-num" id="oCap">0%</div><div class="occ-lbl">of capacity <span id="oCapMax"></span></div></div>
+          <div><div class="occ-num" id="oIn">0</div><div class="occ-lbl">entries today</div></div>
+          <div><div class="occ-num" id="oOut">0</div><div class="occ-lbl">exits today</div></div>
+        </div>
+        <div class="cap-bar"><div class="cap-fill" id="capFill" style="width:0%"></div></div>
+        <div style="margin-top:12px;"><div class="eyebrow" style="font-size:10px;">Inside unusually long</div><div id="longInside"></div></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <div style="display:flex; align-items:center;"><div class="eyebrow">Needs attention — task queue</div>
+          <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="taskCount"></span></div>
+        <div id="tasks"></div>
+      </div>
+      <div class="card" style="margin-top:14px;">
+        <div class="eyebrow">Upcoming — next 2 hours</div>
+        <div id="upcoming"></div>
       </div>
     </div>
   </div>
 
-  <div class="overlay" id="overlay">
-    <div class="modal">
-      <h3 id="mTitle">Confirm</h3>
-      <p id="mBody">This action is logged with your name.</p>
-      <input id="mReason" placeholder="Reason (required)" />
-      <div class="m-err" id="mErr">A reason is required.</div>
-      <div class="row">
-        <button class="m-cancel" id="mCancel">Cancel</button>
-        <button class="m-confirm" id="mConfirm">Confirm</button>
-      </div>
-    </div>
+  <div class="stats" id="stats">
+    <button class="stat" data-open="txlist"><b id="sRev">$0</b><span>revenue today · tap for breakdown</span></button>
+    <button class="stat" data-open="guest"><b id="sGuests">0</b><span>guest passes</span></button>
+    <button class="stat" data-open="txlist"><b id="sRenew">0</b><span>renewals</span></button>
+    <button class="stat"><b id="sDeny">0</b><span>denials</span></button>
+    <button class="stat" data-open="shift"><b id="sDrawer">$0</b><span>cash drawer</span></button>
   </div>
+
+  <!-- member drawer -->
+  <div class="drawer-wrap" id="drawerWrap">
+    <div class="drawer" id="drawer"></div>
+  </div>
+
+  <!-- generic modal -->
+  <div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
 <script>
-/* GYM Reception — live data from the GYM-APP Data sheet. */
 const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
-
-function parseCSV(text) {
-  const rows = []; let row = [], cell = '', q = false;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (q) { if (ch === '"' && text[i+1] === '"') { cell += '"'; i++; } else if (ch === '"') q = false; else cell += ch; }
-    else if (ch === '"') q = true;
-    else if (ch === ',') { row.push(cell); cell = ''; }
-    else if (ch === '\n' || ch === '\r') { if (cell !== '' || row.length) { row.push(cell); rows.push(row); row = []; cell = ''; } if (ch === '\r' && text[i+1] === '\n') i++; }
-    else cell += ch;
-  }
-  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
-  const [h, ...b] = rows;
-  return b.filter(r => r.some(c => c.trim() !== ''))
-    .map(r => Object.fromEntries(h.map((k, i) => [k.trim().toLowerCase(), (r[i] ?? '').trim()])));
-}
-async function tab(name) {
-  const r = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`);
-  if (!r.ok) throw new Error(name);
-  return parseCSV(await r.text());
-}
+function parseCSV(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];
+  if(q){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(ch==='"')q=false;else cell+=ch;}
+  else if(ch==='"')q=true;else if(ch===','){row.push(cell);cell='';}
+  else if(ch==='\n'||ch==='\r'){if(cell!==''||row.length){row.push(cell);rows.push(row);row=[];cell='';}if(ch==='\r'&&text[i+1]==='\n')i++;}
+  else cell+=ch;}
+  if(cell!==''||row.length){row.push(cell);rows.push(row);}
+  const[h,...b]=rows;return b.filter(r=>r.some(c=>c.trim()!==''))
+    .map(r=>Object.fromEntries(h.map((k,i)=>[k.trim().toLowerCase(),(r[i]??'').trim()])));}
+async function tab(n){const r=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(n)}`);if(!r.ok)throw new Error(n);return parseCSV(await r.text());}
 
 /* ---------- state ---------- */
-let users = [], insideNames = [], lockers = [], machines = [], classes = [];
-let entries = 141, revenue = 742, denials = 0, guests = 4;
-let selected = null;
-const usedLockers = {};
+const CAPACITY = 120, GUEST_LIMIT = 3;
+let members=[], classes=[], trainers=[], lockers=[], family=[];
+let inside={};              // name -> entry ts
+let entriesToday=141, exitsToday=118, denialsToday=0, guestsToday=4, renewalsToday=2;
+let feed=[], tasks=[], txs=[
+  {t:'6:41 PM', what:'Membership renewal · Jawad', amt:95, how:'cash'},
+  {t:'6:12 PM', what:'Guest pass · walk-in', amt:10, how:'card'},
+  {t:'5:55 PM', what:'PT package · Dana T.', amt:300, how:'card'},
+  {t:'5:20 PM', what:'Day pass', amt:15, how:'cash'},
+];
+let incidents=[]; let shift={in:'2:00 PM', startCash:100, note:''};
+let offline=false; let filter='all'; let guestVisits={'Rami B.':3};
+const sys={Gate:'ok','QR scanner':'ok','Door controller':'ok',Internet:'ok','Payment terminal':'ok',Printer:'warn'};
+let lastSync=Date.now();
 
-const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-function toast(msg) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2700); }
-function initial(n) { return (n || '?').trim()[0].toUpperCase(); }
+const $=id=>document.getElementById(id);
+const now=()=>new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+function toast(m){const e=document.createElement('div');e.className='toast';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2700);}
+const initial=n=>(n||'?').trim()[0].toUpperCase();
+const cashTotal=()=>shift.startCash+txs.filter(t=>t.how==='cash').reduce((s,t)=>s+t.amt,0);
+const revToday=()=>txs.reduce((s,t)=>s+t.amt,0);
 
-function freeLocker() {
-  const free = lockers.filter(l => l.status === 'free' && !usedLockers[l.number]);
-  if (!free.length) return null;
-  const pick = free[Math.floor(Math.random() * free.length)];
-  usedLockers[pick.number] = true;
-  return pick.number;
-}
+/* enrich sheet members with reception-side records */
+function enrich(u,i){return {...u,
+  id:'M-10'+String(10+i), balance: u.status==='expired'?95:0,
+  waiver: u.name==='Maya F.'?false:true,
+  guestLeft: u.tier==='Elite'?2:1, ptLeft: u.name==='Samer Khanji'?3:(u.name==='Mohamad'?8:0),
+  lastEntry: ['Yesterday 6:10 PM','Jul 26 · 7:44 AM','Jul 25 · 6:02 PM'][i%3],
+  notes: u.status==='frozen'?'Asked to freeze while travelling — back Aug 5.':(u.name==='Pamela <3'?'Prefers evening classes; ask about PT trial.':''),
+  expiry: u.status==='expired'?'expired Jul 1':'Dec 28, 2026'};}
 
-/* ---------- today ---------- */
-function renderToday() {
-  $('tEntries').textContent = entries;
-  $('tRevenue').textContent = '$' + revenue;
-  $('tDenials').textContent = denials;
-  $('tGuests').textContent = guests;
-  $('insidePill').textContent = insideNames.length + ' inside';
+/* ---------- occupancy ---------- */
+function renderOcc(){
+  const n=Object.keys(inside).length, pct=Math.round(n/CAPACITY*100);
+  $('occPill').textContent=n+' inside · '+pct+'%';
+  $('oInside').textContent=n; $('oCap').textContent=pct+'%'; $('oCapMax').textContent='of '+CAPACITY;
+  $('oIn').textContent=entriesToday; $('oOut').textContent=exitsToday;
+  $('capFill').style.width=Math.min(100,pct)+'%';
+  const longs=Object.entries(inside).map(([name,ts])=>({name,min:Math.round((Date.now()-ts)/60000)}))
+    .filter(x=>x.min>150).sort((a,b)=>b.min-a.min).slice(0,3);
+  $('longInside').innerHTML=longs.length?longs.map(l=>
+    `<div class="long-row"><span>${l.name}</span><span style="color:var(--amber); font-weight:700;">${Math.floor(l.min/60)} h ${l.min%60} min</span></div>`).join('')
+    :'<div class="long-row"><span style="color:var(--faint);">No one over 2.5 hours.</span></div>';
 }
 
 /* ---------- gate feed ---------- */
-function feedRow({ name, sub, dir }) {
-  const div = document.createElement('div');
-  if (dir === 'deny') {
-    div.className = 'deny-card';
-    div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="feed-left"><div class="avatar av-deny">${initial(name)}</div>
-        <div><div class="f-name">${name} — DENIED</div><div class="f-sub">${sub}</div></div></div>
-      <button class="assist-btn" data-name="${name}">Assist →</button></div>`;
-    div.querySelector('.assist-btn').onclick = () => { selectMemberByName(name); };
-  } else {
-    div.className = 'feed-row';
-    div.innerHTML = `<div class="feed-left"><div class="avatar ${dir === 'in' ? 'av-in' : 'av-out'}">${initial(name)}</div>
-      <div><div class="f-name">${name} · ${dir === 'in' ? 'entered' : 'exited'}</div><div class="f-sub">${sub}</div></div></div>
-      <span class="${dir === 'in' ? 'tag-in' : 'tag-out'}">${dir === 'in' ? 'IN' : 'OUT'}</span>`;
-  }
-  const feed = $('feed');
-  feed.insertBefore(div, feed.firstChild);
-  while (feed.children.length > 7) feed.removeChild(feed.lastChild);
+function pushEvent(ev){ ev.time=now(); ev.gate=ev.gate||'Main gate'; feed.unshift(ev); if(feed.length>25)feed.pop(); renderFeed(); }
+function renderFeed(){
+  const list=feed.filter(e=>filter==='all'||e.kind===filter);
+  $('feedCount').textContent=list.length+' events';
+  $('feed').innerHTML=list.slice(0,9).map((e,i)=>{
+    const av=e.kind==='ok'?'av-g':e.kind==='deny'?'av-r':e.kind==='warn'?'av-o':'av-x';
+    const st=e.kind==='ok'?['ADMITTED','st-ok']:e.kind==='deny'?['DENIED','st-deny']:e.kind==='warn'?['OVERRIDE','st-warn']:['EXITED','st-out'];
+    const m=members.find(x=>x.name===e.name);
+    return `<div class="ev ${e.kind}">
+      <div class="ev-top"><div class="avatar ${av}">${initial(e.name)}</div>
+        <div><div class="ev-name">${e.name}</div>
+          <div class="ev-meta">${m?m.plan+' · '+m.tier+' · ':''}${e.time} · ${e.gate}${m&&e.kind!=='out'?' · last entry '+m.lastEntry:''}</div>
+          ${e.reason?`<div class="ev-reason">${e.reason}</div>`:''}</div>
+        <span class="ev-state ${st[1]}">${st[0]}</span></div>
+      <div class="ev-actions">
+        <button data-view="${e.name}">View member</button>
+        ${e.kind==='deny'?`<button class="hot" data-assist="${e.name}">Assist</button><button data-retry="${i}">Retry scan</button><button data-mgr="${e.name}">Call manager</button>`:''}
+      </div></div>`;}).join('')||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">No events for this filter.</div>';
+  $('feed').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.view,false));
+  $('feed').querySelectorAll('[data-assist]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.assist,true));
+  $('feed').querySelectorAll('[data-retry]').forEach(b=>b.onclick=()=>{toast('Gate asked to rescan — waiting…');setTimeout(()=>toast('Same result — use Assist to resolve'),1500);});
+  $('feed').querySelectorAll('[data-mgr]').forEach(b=>b.onclick=()=>{toast('Manager paged about '+b.dataset.mgr);addTask({t:'Manager approval — '+b.dataset.mgr,s:'Paged '+now(),urg:'warn',kind:'mgr',name:b.dataset.mgr});});
+}
+$('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;
+  $('filters').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderFeed();});
+
+function simulate(){
+  if(offline)return;
+  const act=members.filter(u=>u.status==='active'), blk=members.filter(u=>u.status!=='active');
+  const r=Math.random();
+  if(r<.15&&blk.length){const u=blk[Math.floor(Math.random()*blk.length)];denialsToday++;$('sDeny').textContent=denialsToday;
+    pushEvent({name:u.name,kind:'deny',reason:'Denial: membership '+u.status+(u.balance?' · $'+u.balance+' due':'')});
+    addTask({t:'Denied at gate — '+u.name,s:'Waiting '+now()+' · membership '+u.status,urg:'urgent',kind:'deny',name:u.name});}
+  else if(r<.6&&act.length){const u=act[Math.floor(Math.random()*act.length)];
+    if(!inside[u.name]){inside[u.name]=Date.now();entriesToday++;pushEvent({name:u.name,kind:'ok'});}}
+  else{const names=Object.keys(inside);if(names.length>4){const n=names[Math.floor(Math.random()*names.length)];
+    delete inside[n];exitsToday++;pushEvent({name:n,kind:'out'});}}
+  renderOcc();
 }
 
-function simulateGate() {
-  const active = users.filter(u => (u.status || '') === 'active');
-  const blocked = users.filter(u => u.status === 'frozen' || u.status === 'expired');
-  const roll = Math.random();
-  if (roll < 0.18 && blocked.length) {
-    const u = blocked[Math.floor(Math.random() * blocked.length)];
-    denials++;
-    feedRow({ name: u.name, sub: `Membership ${u.status} · ${now()}`, dir: 'deny' });
-  } else if (roll < 0.62 && active.length) {
-    const u = active[Math.floor(Math.random() * active.length)];
-    if (!insideNames.includes(u.name)) {
-      insideNames.push(u.name);
-      entries++;
-      const lk = freeLocker();
-      feedRow({ name: u.name, sub: `${now()}${lk ? ' · locker ' + lk + ' assigned' : ''}`, dir: 'in' });
-    }
-  } else if (insideNames.length > 3) {
-    const name = insideNames.splice(Math.floor(Math.random() * insideNames.length), 1)[0];
-    feedRow({ name, sub: `${now()} · locker released`, dir: 'out' });
-  }
-  renderToday();
+/* ---------- tasks ---------- */
+function addTask(t){ if(tasks.some(x=>x.t===t.t))return; t.at=Date.now(); tasks.unshift(t); renderTasks(); }
+function renderTasks(){
+  $('taskCount').textContent=tasks.length+' open';
+  $('tasks').innerHTML=tasks.slice(0,7).map((t,i)=>{
+    const wait=Math.max(0,Math.round((Date.now()-t.at)/60000));
+    return `<div class="task ${t.urg==='urgent'?'urgent':t.urg==='warn'?'warn':''}">
+      <span class="badge ${t.urg==='urgent'?'b-red':t.urg==='warn'?'b-amber':'b-grey'}">${t.urg==='urgent'?'NOW':t.urg==='warn'?'SOON':'TODAY'}</span>
+      <div class="task-body"><div class="task-t">${t.t}</div><div class="task-s">${t.s}${wait?' · waiting '+wait+' min':''} · assigned: Lara</div></div>
+      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':'Resolve'}</button></div>`;}).join('')
+    ||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">Queue clear. 🎉</div>';
+  $('tasks').querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
+    const t=tasks[Number(b.dataset.task)];
+    if(t.kind==='deny'&&t.name){openDrawer(t.name,true);}
+    else if(t.kind==='mgr'){tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Manager approved — one-time access granted');}
+    else{tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Task resolved · logged');}});
+}
+function resolveTasksFor(name){ tasks=tasks.filter(t=>t.name!==name); renderTasks(); }
+
+/* ---------- member drawer ---------- */
+let drawerMember=null;
+function openDrawer(name,assist){
+  const m=members.find(x=>x.name===name); if(!m)return;
+  drawerMember=m;
+  const isIn=!!inside[m.name];
+  const st=m.status==='active'?`<span class="chip c-ok">Active · ${m.expiry}</span>`
+    :m.status==='frozen'?`<span class="chip c-warn">Frozen · asked while travelling</span>`
+    :`<span class="chip c-bad">Expired · ${m.expiry}</span>`;
+  const fam=family.filter(f=>true).slice(0,2);
+  $('drawer').innerHTML=`
+    <div class="d-head"><div class="d-avatar">${initial(m.name)}</div>
+      <div><div class="d-name">${m.name}</div><div class="d-sub">${m.id} · ${m.phone||'no phone'} · ${m.tier}</div></div>
+      <button class="d-close" id="dClose">✕</button></div>
+    <div class="d-chips">${st}
+      ${m.balance?`<span class="chip c-bad">$${m.balance} due</span>`:'<span class="chip c-ok">No balance</span>'}
+      ${m.waiver?'<span class="chip c-ok">Waiver signed</span>':'<span class="chip c-bad">Waiver missing</span>'}
+      <span class="chip ${isIn?'c-ok':'c-grey'}">${isIn?'INSIDE now':'Outside'}</span></div>
+    ${assist?`<div class="resolve"><h4>Resolve denial — pick the fix</h4><div class="r-grid">
+      ${m.balance?'<button class="main" data-r="pay">Collect $'+m.balance+'</button>':''}
+      ${m.status==='expired'?'<button class="main" data-r="renew">Renew membership</button>':''}
+      ${m.status==='frozen'?'<button class="main" data-r="unfreeze">Remove freeze</button>':''}
+      ${!m.waiver?'<button data-r="waiver">Sign waiver</button>':''}
+      <button data-r="daypass">Sell day pass · $15</button>
+      <button data-r="once">One-time access</button>
+      <button data-r="mgr">Manager approval</button>
+      <button data-r="contact">Contact member</button>
+      <button data-r="retry">Retry gate</button></div></div>`:''}
+    <div class="d-sec"><div class="eyebrow">Account</div>
+      <div class="d-row"><span>Plan</span><b>${m.plan} · ${m.tier}</b></div>
+      <div class="d-row"><span>Balance</span><b class="${m.balance?'due':''}">${m.balance?'$'+m.balance+' overdue':'$0'}</b></div>
+      <div class="d-row"><span>Guest passes left</span><b>${m.guestLeft}</b></div>
+      <div class="d-row"><span>PT sessions left</span><b>${m.ptLeft||'—'}</b></div>
+      <div class="d-row"><span>Last entry</span><b>${m.lastEntry}</b></div></div>
+    <div class="d-sec"><div class="eyebrow">Bookings</div>
+      <div class="d-row"><span>${classes[0]?classes[0].name:'Class'} · ${classes[0]?classes[0].when:''}</span><b>reserved</b></div>
+      <div class="d-row"><span>Sauna · today after workout</span><b>booked</b></div></div>
+    ${fam.length?`<div class="d-sec"><div class="eyebrow">Family on account</div>
+      ${fam.map(f=>`<div class="d-row"><span>${f.name}</span><b>${f.relation||''}</b></div>`).join('')}</div>`:''}
+    ${m.notes?`<div class="d-sec"><div class="eyebrow">Staff notes</div><div class="d-note">${m.notes}</div></div>`:''}
+    <div class="d-sec"><div class="eyebrow">Quick actions</div>
+      <div class="d-actions">
+        <button class="main" data-r="${isIn?'mexit':'mentry'}">${isIn?'Manual exit':'Manual entry'}</button>
+        <button data-r="pos">Take payment</button>
+        <button data-r="device">Replace device</button>
+        <button data-r="note">Add staff note</button></div></div>`;
+  $('dClose').onclick=closeDrawer;
+  $('drawer').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>resolveAction(b.dataset.r));
+  $('drawerWrap').classList.add('show');
+}
+function closeDrawer(){$('drawerWrap').classList.remove('show');}
+$('drawerWrap').addEventListener('click',e=>{if(e.target===$('drawerWrap'))closeDrawer();});
+
+/* ---------- resolution actions ---------- */
+const REASONS=['Payment collected at desk','Membership renewed','Freeze removed at member request','Manager approved exception','Waiver completed','Technical issue at gate','Other (note required)'];
+function reasonModal(title,sub,cb,needNote){
+  modal(`<h3>${title}</h3><div class="sub">${sub} · logged as <b>Lara</b></div>
+    <label>Reason code</label><select id="mReasonSel">${REASONS.map(r=>`<option>${r}</option>`).join('')}</select>
+    <label>Note ${needNote?'(required for this action)':'(optional)'}</label><textarea id="mNote" rows="2" placeholder="What happened…"></textarea>
+    <div class="m-err" id="mErr">A written note is required for this action.</div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Confirm & log</button></div>`);
+  $('mCancel').onclick=closeModal;
+  $('mOK').onclick=()=>{const note=$('mNote').value.trim();
+    if(needNote&&note.length<3){$('mErr').style.display='block';return;}
+    closeModal();cb($('mReasonSel').value,note);};
+}
+function resolveAction(kind){
+  const m=drawerMember; if(!m)return;
+  if(kind==='pay')reasonModal('Collect $'+m.balance+' — '+m.name,'Overdue balance',(r,n)=>{
+    txs.unshift({t:now(),what:'Overdue balance · '+m.name,amt:m.balance,how:'cash'});m.balance=0;m.status='active';
+    afterFix(m,'Balance collected · gate cleared');});
+  else if(kind==='renew')reasonModal('Renew membership — '+m.name,'Monthly $95, cash/card',(r,n)=>{
+    txs.unshift({t:now(),what:'Membership renewal · '+m.name,amt:95,how:'card'});m.status='active';m.expiry='Aug 28, 2026';renewalsToday++;
+    afterFix(m,'Renewed until Aug 28 · gate cleared');});
+  else if(kind==='unfreeze')reasonModal('Remove freeze — '+m.name,'Resumes membership now',(r,n)=>{
+    m.status='active';afterFix(m,'Freeze removed · gate cleared');});
+  else if(kind==='waiver'){m.waiver=true;toast('Waiver signed on tablet · stored');openDrawer(m.name,m.status!=='active');}
+  else if(kind==='daypass')reasonModal('Day pass $15 — '+m.name,'Single-day access, no membership change',(r,n)=>{
+    txs.unshift({t:now(),what:'Day pass · '+m.name,amt:15,how:'cash'});grantEntry(m,'day pass');});
+  else if(kind==='once')reasonModal('One-time access — '+m.name,'Sensitive: requires a written note',(r,n)=>{grantEntry(m,'one-time access');},true);
+  else if(kind==='mgr'){toast('Manager paged — approval pending');addTask({t:'Manager approval — '+m.name,s:'Requested '+now(),urg:'warn',kind:'mgr',name:m.name});}
+  else if(kind==='contact'){toast('Calling '+(m.phone||'member')+'…');}
+  else if(kind==='retry'){toast('Gate asked to rescan…');}
+  else if(kind==='mentry')reasonModal('Manual entry — '+m.name,'Opens the gate without a scan',(r,n)=>{grantEntry(m,'manual entry: '+r);},true);
+  else if(kind==='mexit')reasonModal('Manual exit — '+m.name,'Records the exit',(r,n)=>{
+    delete inside[m.name];exitsToday++;pushEvent({name:m.name,kind:'out',reason:'Manual exit — '+r});renderOcc();openDrawer(m.name,false);toast('Manual exit logged');});
+  else if(kind==='device')reasonModal('Replace device — '+m.name,'Old phone stops being the key',(r,n)=>{toast('Device replaced · old key dead');});
+  else if(kind==='note')modal(`<h3>Staff note — ${m.name}</h3><div class="sub">Visible to staff only</div>
+    <textarea id="mNote" rows="3" placeholder="Note…"></textarea>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Save</button></div>`,
+    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{m.notes=$('mNote').value.trim();closeModal();openDrawer(m.name,false);toast('Note saved');};});
+  else if(kind==='pos')openPOS(m);
+}
+function grantEntry(m,how){inside[m.name]=Date.now();entriesToday++;
+  pushEvent({name:m.name,kind:'warn',reason:'Override — '+how});resolveTasksFor(m.name);renderOcc();renderStats();
+  openDrawer(m.name,false);toast(m.name+' admitted — '+how);}
+function afterFix(m,msg){resolveTasksFor(m.name);renderStats();openDrawer(m.name,false);toast(msg);}
+
+/* ---------- modals ---------- */
+function modal(html,after){$('modalBox').innerHTML=html;$('overlay').classList.add('show');if(after)after();}
+function closeModal(){$('overlay').classList.remove('show');}
+$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal();});
+
+const POS_ITEMS=[['Membership renewal · Monthly',95],['Membership upgrade → 6-Month',385],['Day pass',15],['Guest pass',10],['PT package · 10 sessions',300],['Class pack · 10',120],['Locker rental · month',12],['Recovery · sauna',8],['Café credit top-up',25],['Outstanding invoice',95]];
+function openPOS(member){
+  modal(`<h3>Take payment</h3><div class="sub">${member?('For '+member.name):'Walk-in or member'} · receipt goes to app/email</div>
+    <label>Item</label><select id="posItem">${POS_ITEMS.map((x,i)=>`<option value="${i}">${x[0]} — $${x[1]}</option>`).join('')}</select>
+    <label>Payment method</label><select id="posHow"><option>cash</option><option>card</option><option>wallet</option></select>
+    <div class="checkline"><input type="checkbox" id="posDisc" style="width:auto;"> <span>Apply discount (manager approval)</span></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Charge & receipt</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
+    const it=POS_ITEMS[Number($('posItem').value)];let amt=it[1];
+    if($('posDisc').checked){amt=Math.round(amt*0.9);toast('10% discount — manager approval logged');}
+    txs.unshift({t:now(),what:it[0]+(member?' · '+member.name:''),amt,how:$('posHow').value});
+    if(it[0].includes('renewal'))renewalsToday++;
+    if(it[0].includes('Guest pass')){guestsToday++;}
+    closeModal();renderStats();toast('$'+amt+' '+$('posHow').value+' · receipt sent');};});
 }
 
-/* ---------- member file ---------- */
-function selectMemberByName(name) {
-  const u = users.find(x => x.name === name);
-  if (u) selectMember(u);
-}
-function selectMember(u) {
-  selected = u;
-  const inside = insideNames.includes(u.name);
-  const st = u.status || 'active';
-  const stLine = st === 'frozen' ? `<div class="mf-sub bad">Frozen · ${u.plan || ''} plan</div>`
-    : st === 'expired' ? `<div class="mf-sub warn">Expired · ${u.plan || ''} plan</div>`
-    : `<div class="mf-sub ok">Active · ${u.plan || ''} · ${inside ? 'INSIDE' : 'outside'}</div>`;
-  const actions = [];
-  if (st === 'frozen') actions.push(`<button class="main" data-act="unfreeze">Unfreeze now</button>`);
-  if (st === 'expired') actions.push(`<button class="main" data-act="renew">Take payment · renew</button>`);
-  if (st === 'active') actions.push(inside
-    ? `<button class="main" data-act="mexit">Manual exit</button>`
-    : `<button class="main" data-act="mentry">Manual entry</button>`);
-  actions.push(`<button class="second" data-act="payment">Take payment</button>`);
-  actions.push(`<button data-act="history">Entry history</button>`);
-  actions.push(`<button data-act="device">Replace device</button>`);
-  $('memberFile').innerHTML = `<div class="member-file">
-    <div class="mf-head"><div class="mf-avatar">${initial(u.name)}</div>
-      <div style="flex:1;"><div class="mf-name">${u.name}</div>${stLine}
-      <div style="font-size:12px; color:var(--muted);">${u.tier || ''} · ${u.phone || 'no phone'} · joined ${u.joined || '—'}</div></div></div>
-    <div class="mf-actions">${actions.join('')}</div></div>`;
-  $('memberFile').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+function openGuest(){
+  modal(`<h3>Guest registration</h3><div class="sub">One visit · $10 · logged under the host member</div>
+    <label>Guest full name</label><input id="gName" placeholder="Full name" />
+    <label>Phone</label><input id="gPhone" placeholder="Phone" />
+    <label>Host member</label><select id="gHost">${members.map(m=>`<option>${m.name}</option>`).join('')}</select>
+    <label>Visit purpose</label><select id="gWhy"><option>Try the gym</option><option>Train with host</option><option>Event</option><option>Tour</option></select>
+    <label>Validity</label><select id="gValid"><option>Today only</option><option>48 hours</option></select>
+    <div class="checkline"><input type="checkbox" id="gWaiver" style="width:auto;"> <span>Waiver signed on tablet</span></div>
+    <div class="checkline"><span style="width:60px;height:44px;background:var(--paper);border-radius:8px;display:grid;place-items:center;color:var(--faint);font-size:10px;">photo</span><span style="color:var(--muted);font-size:12px;">Capture at desk camera</span></div>
+    <div class="m-err" id="mErr">Name and signed waiver are required.</div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Sell pass · $10</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
+    const n=$('gName').value.trim(), host=$('gHost').value;
+    if(n.length<2||!$('gWaiver').checked){$('mErr').style.display='block';return;}
+    const prev=(guestVisits[n]||0)+1;guestVisits[n]=prev;
+    closeModal();guestsToday++;txs.unshift({t:now(),what:'Guest pass · '+n+' (host '+host+')',amt:10,how:'cash'});
+    const code='GST-'+String(Date.now()).slice(-6);
+    inside['Guest: '+n]=Date.now();entriesToday++;
+    pushEvent({name:'Guest: '+n,kind:'ok',reason:'Pass '+code+' · host '+host+' · visit #'+prev});
+    if(prev>=GUEST_LIMIT)addTask({t:'Guest limit — '+n,s:prev+' visits used · suggest membership (convert to prospect)',urg:'warn',kind:'guest'});
+    renderStats();renderOcc();toast('Guest pass '+code+' · waiver stored');};});
 }
 
-function deskLog(text, right, cls) {
-  const div = document.createElement('div');
-  div.className = 'desk-row';
-  div.innerHTML = `<span>${text}</span><b class="${cls || 'money'}">${right}</b>`;
-  const log = $('deskLog');
-  log.insertBefore(div, log.firstChild);
-  while (log.children.length > 5) log.removeChild(log.lastChild);
+function openTxList(){
+  modal(`<h3>Today's transactions</h3><div class="sub">$${revToday()} total · ${txs.length} payments</div>
+    ${txs.map(t=>`<div class="tx-row"><span>${t.t} · ${t.what} <span style="color:var(--faint);">(${t.how})</span></span><b style="color:var(--deep);">$${t.amt}</b></div>`).join('')}
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,()=>{$('mCancel').onclick=closeModal;});
 }
 
-/* ---------- actions with reason modal ---------- */
-let pendingAction = null;
-function askReason(title, body, cb) {
-  $('mTitle').textContent = title;
-  $('mBody').textContent = body;
-  $('mReason').value = '';
-  $('mErr').style.display = 'none';
-  $('overlay').classList.add('show');
-  pendingAction = cb;
-  setTimeout(() => $('mReason').focus(), 50);
-}
-$('mCancel').onclick = () => { $('overlay').classList.remove('show'); pendingAction = null; };
-$('mConfirm').onclick = () => {
-  const reason = $('mReason').value.trim();
-  if (reason.length < 3) { $('mErr').style.display = 'block'; return; }
-  $('overlay').classList.remove('show');
-  if (pendingAction) pendingAction(reason);
-  pendingAction = null;
-};
-
-function act(kind) {
-  if (!selected) return;
-  const u = selected;
-  if (kind === 'mentry') askReason('Manual entry — ' + u.name, 'Logged as: Lara · front desk. This opens the gate without a scan.', (r) => {
-    insideNames.push(u.name); entries++;
-    const lk = freeLocker();
-    feedRow({ name: u.name, sub: `${now()} · manual entry — ${r}${lk ? ' · locker ' + lk : ''}`, dir: 'in' });
-    deskLog(`<b>Manual entry</b> · ${u.name} · ${r}`, 'Logged', 'done');
-    renderToday(); selectMember(u); toast('Manual entry logged · ' + u.name);
-  });
-  if (kind === 'mexit') askReason('Manual exit — ' + u.name, 'Logged as: Lara · front desk.', (r) => {
-    insideNames = insideNames.filter(n => n !== u.name);
-    feedRow({ name: u.name, sub: `${now()} · manual exit — ${r}`, dir: 'out' });
-    deskLog(`<b>Manual exit</b> · ${u.name} · ${r}`, 'Logged', 'done');
-    renderToday(); selectMember(u); toast('Manual exit logged · ' + u.name);
-  });
-  if (kind === 'unfreeze') askReason('Unfreeze — ' + u.name, 'Membership resumes immediately. Logged with your name.', (r) => {
-    u.status = 'active';
-    deskLog(`<b>Unfrozen</b> · ${u.name} · ${r}`, 'Done', 'done');
-    selectMember(u); toast(u.name + ' unfrozen — can enter now');
-  });
-  if (kind === 'renew' || kind === 'payment') askReason(
-    (kind === 'renew' ? 'Renewal payment — ' : 'Payment — ') + u.name,
-    'Enter what this payment is for (cash at desk).', (r) => {
-    const amt = kind === 'renew' ? 95 : 25;
-    if (kind === 'renew') u.status = 'active';
-    revenue += amt;
-    deskLog(`<b>Cash payment</b> · ${u.name} · ${r}`, '$' + amt);
-    renderToday(); selectMember(u); toast('Payment recorded · $' + amt);
-  });
-  if (kind === 'device') askReason('Replace device — ' + u.name, 'Old phone is deactivated as the member\'s key.', (r) => {
-    deskLog(`<b>Device replaced</b> · ${u.name} · ${r}`, 'Logged', 'done');
-    toast('Device replaced · old key deactivated');
-  });
-  if (kind === 'history') {
-    deskLog(`<b>Entry history</b> · ${u.name} · viewed`, now(), 'done');
-    toast('Full history lives in the member app · Visits');
-  }
+function openBookings(){
+  modal(`<h3>Bookings assist</h3><div class="sub">Book, cancel and check members in from the desk</div>
+    <div class="eyebrow" style="margin-top:6px;">Classes today</div>
+    ${classes.slice(0,4).map((c,i)=>`<div class="tx-row"><span>${c.name} · ${c.when} · ${c.instructor} · ${Number(c.spots)===0?'FULL':c.spots+' spots'}</span>
+      <button style="font-weight:700; color:var(--deep);" data-book="${i}">${Number(c.spots)===0?'Waitlist':'Book member'}</button></div>`).join('')}
+    <div class="eyebrow" style="margin-top:12px;">Trainer availability now</div>
+    ${trainers.slice(0,4).map(t=>`<div class="tx-row"><span>${t.name} · ${t.specialty||''}</span><b style="color:${t.availability==='available'?'var(--green)':'var(--amber)'};">${t.availability||'—'}</b></div>`).join('')}
+    <div class="eyebrow" style="margin-top:12px;">Facilities</div>
+    <div class="tx-row"><span>Free lockers</span><b>${lockers.filter(l=>l.status==='free').length} of ${lockers.length}</b></div>
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;
+    document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>{toast('Booked — member notified in their app');});});
 }
 
-/* ---------- guest pass ---------- */
-$('guestBtn').onclick = () => askReason('Sell guest pass · $10', 'Guest name or inviting member (logged).', (r) => {
-  guests++; revenue += 10;
-  const code = 'GST-' + String(Date.now()).slice(-6);
-  deskLog(`<b>Guest pass sold</b> · ${r}`, '$10');
-  feedRow({ name: 'Guest ' + code, sub: `${now()} · sold at desk · ${r}`, dir: 'in' });
-  renderToday(); toast('Guest pass ' + code + ' · $10');
+function openIncidents(){
+  modal(`<h3>Incident log</h3><div class="sub">Today · visible to managers</div>
+    ${incidents.length?incidents.map(i=>`<div class="tx-row"><span>${i.t} · <b>${i.type}</b> — ${i.note}</span></div>`).join(''):'<div style="color:var(--faint); font-size:13px; padding:10px 0;">No incidents logged today.</div>'}
+    <label>Type</label><select id="incType"><option>Lost property</option><option>Member complaint</option><option>Injury</option><option>Equipment danger</option><option>Altercation</option><option>Other</option></select>
+    <label>What happened</label><textarea id="incNote" rows="2"></textarea>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button><button class="m-confirm" id="mOK">Log incident</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
+    const note=$('incNote').value.trim();if(note.length<3){toast('Describe what happened');return;}
+    incidents.unshift({t:now(),type:$('incType').value,note});closeModal();toast('Incident logged · manager notified');};});
+}
+
+function openShift(){
+  const expected=cashTotal();
+  modal(`<h3>Shift — Lara</h3><div class="sub">Clocked in ${shift.in} · front desk</div>
+    <div class="tx-row"><span>Starting cash</span><b>$${shift.startCash}</b></div>
+    <div class="tx-row"><span>Cash payments today</span><b>$${expected-shift.startCash}</b></div>
+    <div class="tx-row"><span>Drawer should hold</span><b>$${expected}</b></div>
+    <div class="checkline"><input type="checkbox" checked style="width:auto;"> Opening checklist done (7 items)</div>
+    <div class="checkline"><input type="checkbox" style="width:auto;" id="shiftClose"> Closing checklist</div>
+    <label>Count the drawer</label><input id="shiftCount" type="number" placeholder="Counted cash $" />
+    <label>Handover note</label><textarea id="shiftNote" rows="2" placeholder="For the next shift…">${shift.note}</textarea>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button><button class="m-confirm" id="mOK">Reconcile & clock out</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
+    const counted=Number($('shiftCount').value);
+    if(!counted){$('mErr').textContent='Enter the counted amount.';$('mErr').style.display='block';return;}
+    const varc=counted-expected;shift.note=$('shiftNote').value;
+    closeModal();
+    toast(varc===0?'Drawer balanced · supervisor sign-off requested':'Variance $'+varc+' reported · supervisor sign-off requested');};});
+}
+
+function openOccupancy(){
+  modal(`<h3>Occupancy detail</h3><div class="sub">Live · from check-ins, no sensors</div>
+    <div class="tx-row"><span>Inside now (evacuation count)</span><b>${Object.keys(inside).length}</b></div>
+    <div class="tx-row"><span>Capacity</span><b>${Math.round(Object.keys(inside).length/CAPACITY*100)}% of ${CAPACITY}</b></div>
+    <div class="tx-row"><span>Entries / exits today</span><b>${entriesToday} / ${exitsToday}</b></div>
+    <div class="tx-row"><span>Peak forecast</span><b>6–8 PM (from entry history)</b></div>
+    <div class="eyebrow" style="margin:12px 0 4px;">Everyone inside</div>
+    ${Object.entries(inside).map(([n,ts])=>`<div class="tx-row"><span>${n}</span><b>${Math.round((Date.now()-ts)/60000)} min</b></div>`).join('')||'—'}
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,()=>{$('mCancel').onclick=closeModal;});
+}
+
+function openSystem(){
+  modal(`<h3>System & gate health</h3><div class="sub">Last sync ${Math.round((Date.now()-lastSync)/1000)}s ago</div>
+    ${Object.entries(sys).map(([k,v])=>`<div class="sys-row"><span>${k}</span><span><span class="dot ${v==='ok'?'dg':v==='warn'?'da':'dr'}"></span> <b style="font-size:12px;">${v==='ok'?'Online':v==='warn'?'Degraded':'Offline'}</b></span></div>`).join('')}
+    <div class="checkline" style="margin-top:10px;"><input type="checkbox" id="offlineToggle" ${offline?'checked':''} style="width:auto;"> <span><b>Offline / manual mode</b> — keep operating without internet; records sync later</span></div>
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
+  ()=>{$('mCancel').onclick=closeModal;
+    $('offlineToggle').onchange=e=>{offline=e.target.checked;
+      $('offlineBanner').classList.toggle('show',offline);
+      sys.Internet=offline?'off':'ok';sys.Gate=offline?'warn':'ok';
+      const p=$('sysPill');p.className='sys-pill '+(offline?'sys-off':'sys-warn');
+      p.innerHTML=offline?'<span class="dot dr"></span>OFFLINE — manual mode':'<span class="dot da"></span>Printer degraded';
+      toast(offline?'Offline mode ON — manual entries only':'Back online — synced');};});
+}
+
+/* ---------- stats / misc ---------- */
+function renderStats(){$('sRev').textContent='$'+revToday();$('sGuests').textContent=guestsToday;
+  $('sRenew').textContent=renewalsToday;$('sDeny').textContent=denialsToday;$('sDrawer').textContent='$'+cashTotal();}
+function renderUpcoming(){
+  $('upcoming').innerHTML=[
+    ...classes.slice(0,3).map(c=>({t:c.when,s:c.name+' · '+c.instructor+(Number(c.spots)===0?' · FULL':''),})),
+    {t:'7:00 PM',s:'PT — Karim H. with Samer Khanji'},
+    {t:'7:30 PM',s:'Guest expected · GST-482913 (host Samer)'}
+  ].map(u=>`<div class="tx-row"><span>${u.s}</span><b style="color:var(--muted); font-weight:600;">${u.t}</b></div>`).join('');
+}
+
+/* search */
+$('searchBox').addEventListener('input',()=>{
+  const q=$('searchBox').value.trim().toLowerCase();
+  if(q.length<2)return;
+  const hit=members.find(u=>(u.name||'').toLowerCase().includes(q)||(u.phone||'').includes(q)||(u.id||'').toLowerCase().includes(q));
+  if(hit){openDrawer(hit.name,false);$('searchBox').value='';}
 });
+$('scanBtn').onclick=()=>{const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');};
 
-/* ---------- search ---------- */
-$('searchBox').addEventListener('input', () => {
-  const q = $('searchBox').value.trim().toLowerCase();
-  const box = $('searchResults');
-  if (!q) { box.hidden = true; return; }
-  const hits = users.filter(u => (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q)).slice(0, 6);
-  box.innerHTML = hits.length
-    ? hits.map((u, i) => `<div class="result" data-i="${i}"><span>${u.name}</span><span style="color:var(--faint);">${u.status}</span></div>`).join('')
-    : '<div class="result"><span style="color:var(--faint);">No members found</span></div>';
-  box.hidden = false;
-  box.querySelectorAll('[data-i]').forEach(el => el.onclick = () => {
-    selectMember(hits[Number(el.dataset.i)]);
-    box.hidden = true; $('searchBox').value = '';
-  });
-});
-document.addEventListener('click', (e) => { if (!e.target.closest('.search-wrap')) $('searchResults').hidden = true; });
-
-/* ---------- needs attention ---------- */
-function renderAttention() {
-  const items = [];
-  machines.filter(m => (m.status || 'ok') !== 'ok').forEach(m =>
-    items.push({ text: `${m.name} (${m.zone}) out of service`, badge: 'Urgent', cls: 'b-red' }));
-  const openLocker = lockers.find(l => l.status === 'taken');
-  if (openLocker) items.push({ text: `Locker ${openLocker.number} left open 12 min`, badge: 'Check', cls: 'b-amber' });
-  const expired = users.filter(u => u.status === 'expired');
-  if (expired.length) items.push({ text: `${expired.length} membership${expired.length > 1 ? 's' : ''} expired — call`, badge: 'Call', cls: 'b-grey' });
-  const full = classes.filter(c => Number(c.spots) === 0);
-  if (full.length) items.push({ text: `${full[0].name} full — waitlist running`, badge: 'Info', cls: 'b-grey' });
-  $('attention').innerHTML = items.map(i =>
-    `<div class="attn-row"><span>${i.text}</span><span class="badge ${i.cls}">${i.badge}</span></div>`).join('')
-    || '<div class="attn-row"><span style="color:var(--faint);">All clear.</span></div>';
-}
+document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{
+  const k=b.dataset.open;
+  if(k==='pos')openPOS(null); if(k==='guest')openGuest(); if(k==='txlist')openTxList();
+  if(k==='bookings')openBookings(); if(k==='incidents')openIncidents(); if(k==='shift')openShift();
+  if(k==='occupancy')openOccupancy(); if(k==='system')openSystem();
+}));
+document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}
+}));
 
 /* ---------- boot ---------- */
-(async () => {
-  setInterval(() => { $('clock').textContent = now(); }, 1000);
-  $('clock').textContent = now();
-  try {
-    const [u, inside, lk, mc, cl] = await Promise.all([tab('Users'), tab('InsideNow'), tab('Lockers'), tab('Machines'), tab('Classes')]);
-    users = u; lockers = lk; machines = mc; classes = cl;
-    insideNames = inside.map(r => r.name);
-    inside.slice(-3).forEach(r => feedRow({ name: r.name, sub: `${r.entered || ''} · scanned in`, dir: 'in' }));
-    // seed a denial so the assist flow is immediately demonstrable
-    const blocked = users.find(x => x.status === 'frozen') || users.find(x => x.status === 'expired');
-    if (blocked) { denials++; feedRow({ name: blocked.name, sub: `Membership ${blocked.status} · ${now()}`, dir: 'deny' }); }
-    deskLog('<b>Cash payment</b> · Jawad · renewal', '$95');
-    deskLog('<b>Guest pass sold</b> · walk-in', '$10');
-    renderToday(); renderAttention();
-    setInterval(simulateGate, 9000);
-  } catch (e) {
-    $('feed').innerHTML = '<div class="f-sub">Could not reach the data sheet — check connection.</div>';
-  }
+(async()=>{
+  setInterval(()=>{$('clock').textContent=now();},1000);$('clock').textContent=now();
+  $('sysPill').className='sys-pill sys-warn';$('sysPill').innerHTML='<span class="dot da"></span>Printer degraded';
+  try{
+    const[u,ins,lk,mc,cl,tr,fam]=await Promise.all([tab('Users'),tab('InsideNow'),tab('Lockers'),tab('Machines'),tab('Classes'),tab('Trainers'),tab('Family')]);
+    members=u.map(enrich);lockers=lk;classes=cl;trainers=tr;family=fam;
+    ins.forEach((r,i)=>{inside[r.name]=Date.now()-(i===0?200:Math.floor(Math.random()*160)+10)*60000;});
+    ins.slice(-2).forEach(r=>pushEvent({name:r.name,kind:'ok'}));
+    const blocked=members.find(x=>x.status==='frozen')||members.find(x=>x.status==='expired');
+    if(blocked){denialsToday++;pushEvent({name:blocked.name,kind:'deny',reason:'Denial: membership '+blocked.status+(blocked.balance?' · $'+blocked.balance+' due':'')});
+      addTask({t:'Denied at gate — '+blocked.name,s:'membership '+blocked.status,urg:'urgent',kind:'deny',name:blocked.name});}
+    const noWaiver=members.find(m=>!m.waiver);
+    if(noWaiver)addTask({t:'Unsigned waiver — '+noWaiver.name,s:'Must sign before next entry',urg:'warn',kind:'waiver',name:noWaiver.name});
+    addTask({t:'2 memberships expire today',s:'Call before 8 PM · scripts in notes',urg:'ok',kind:'expiry'});
+    addTask({t:'Failed payment — Dana T.',s:'Card declined $95 · retry or collect at desk',urg:'warn',kind:'payment'});
+    renderOcc();renderStats();renderUpcoming();renderTasks();renderFeed();
+    setInterval(simulate,9000);
+    setInterval(()=>{if(!offline)lastSync=Date.now();renderOcc();renderTasks();},30000);
+  }catch(e){$('feed').innerHTML='<div style="color:var(--faint); padding:12px 0;">Could not reach the data sheet.</div>';}
 })();
 </script>
 </body>
