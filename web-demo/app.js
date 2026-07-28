@@ -120,6 +120,37 @@ const redeemOptions = [
 const PRICES = { guest_pass: 10, car_wash: 12, assessment: 25, nutritionist: 30, pt_package: 300, renewal: 480 };
 const POINTS = { visit: 10, class: 15, pr: 20, cafe_order: 5, referral: 300, challenge: 500 };
 const CONFIG = { gym_name: 'GYM', referral_code: 'SAMER-2026', freeze_days_per_year: 30, qr_refresh_seconds: 25 };
+
+/* 12 palettes from the Claude Design color exploration — tap to retheme the whole app */
+const THEMES = [
+  { name: 'Club Green', mood: 'athletic club', deep: '#124a38', accent: '#1e6b52', tint: '#dff0e6', paper: '#f3f4ef', muted: '#6c7a71', bar: '#e3e6de' },
+  { name: 'Midnight & Lime', mood: 'dark performance', deep: '#101b14', accent: '#2e7d4f', tint: '#d8f26e', paper: '#f2f3ec', muted: '#6d766c', bar: '#e4e6dc' },
+  { name: 'Charcoal & Signal', mood: 'industrial / iron', deep: '#26282b', accent: '#d4552b', tint: '#fbe3d6', paper: '#f4f2ef', muted: '#75716c', bar: '#e8e4df' },
+  { name: 'Deep Ocean', mood: 'recovery / calm', deep: '#123a4a', accent: '#1e5b6b', tint: '#dcecf0', paper: '#eff3f2', muted: '#68797c', bar: '#dfe6e5' },
+  { name: 'Espresso & Brass', mood: 'boutique premium', deep: '#3a2a1e', accent: '#8a6a3a', tint: '#f0e6d6', paper: '#f5f2ec', muted: '#7c7266', bar: '#e9e2d6' },
+  { name: 'Ink & Volt', mood: 'hardcore', deep: '#17181a', accent: '#3a3d42', tint: '#e8f05e', paper: '#f1f1ee', muted: '#73756f', bar: '#e2e2dc' },
+  { name: 'Royal & Ice', mood: 'modern premium', deep: '#1e2a5e', accent: '#3d52b8', tint: '#dfe6fa', paper: '#f1f2f0', muted: '#6c7280', bar: '#e2e4e8' },
+  { name: 'Forest & Clay', mood: 'earthy / outdoor', deep: '#2c3b26', accent: '#5c7248', tint: '#e9e6d2', paper: '#f4f2ea', muted: '#75796a', bar: '#e5e4d6' },
+  { name: 'Plum & Blush', mood: 'boutique studio', deep: '#4a1e3a', accent: '#8a3564', tint: '#f5dfe9', paper: '#f5f0f2', muted: '#7d6d76', bar: '#eadfe4' },
+  { name: 'Graphite & Red', mood: 'combat / intensity', deep: '#1c1c1e', accent: '#b3272d', tint: '#f6dcdc', paper: '#f2f1ef', muted: '#75726f', bar: '#e4e2df' },
+  { name: 'Slate & Aqua', mood: 'tech / data', deep: '#22333b', accent: '#1e8a8a', tint: '#d6f2ee', paper: '#eff2f1', muted: '#6a7a7c', bar: '#dfe6e4' },
+  { name: 'Sand & Terracotta', mood: 'warm wellness', deep: '#7a4a2b', accent: '#c07a4a', tint: '#f7e8d8', paper: '#f6f1e8', muted: '#84766a', bar: '#ece1d2' },
+];
+
+function applyTheme(name) {
+  const t = THEMES.find((x) => x.name === name) || THEMES[0];
+  const r = document.documentElement.style;
+  r.setProperty('--green', t.accent);
+  r.setProperty('--green-deep', t.deep);
+  r.setProperty('--green-bright', t.accent);
+  r.setProperty('--mint', t.tint);
+  r.setProperty('--paper', t.paper);
+  r.setProperty('--muted', t.muted);
+  r.setProperty('--line', t.bar);
+  r.setProperty('--tint', t.bar);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', t.paper);
+  return t;
+}
 let pointsRules = [];   // [{action, points}] shown in Account
 let plansCatalog = [];  // [{name, price, duration, benefits}] shown in Account
 const branchInfo = { name: 'City Center', capacity: 120 };
@@ -132,6 +163,7 @@ let memberRows = [];      // Member tab rows — the login accounts (name + pass
 
 const defaultState = {
   loggedIn: false,
+  theme: '',                 // palette name; empty = sheet default or Club Green
   memberName: 'Samer Khanji', tier: 'Performance',
   memberSince: 'March 2026', subPlan: '6-Month · Performance',
   challengeRewarded: false,
@@ -1010,6 +1042,19 @@ function renderAccount() {
     </div>
 
     <div class="card">
+      ${eyebrow('star', 'Appearance')}
+      <div class="dim small">Pick the club's palette — the whole app recolors instantly.</div>
+      <div class="swatches">
+        ${THEMES.map((t) => `
+          <button class="swatch ${(state.theme || CONFIG.theme || 'Club Green') === t.name ? 'current' : ''}" data-action="theme" data-t="${t.name}">
+            <span class="sw-dots"><i style="background:${t.deep}"></i><i style="background:${t.accent}"></i><i style="background:${t.tint}"></i></span>
+            <span class="sw-name">${t.name}</span>
+            <span class="sw-mood">${t.mood}</span>
+          </button>`).join('')}
+      </div>
+    </div>
+
+    <div class="card">
       ${eyebrow('shield', 'Privacy')}
       <div class="btn-row">
         <button class="book-btn" data-action="export-data">Export my data</button>
@@ -1394,6 +1439,13 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     }
     save(); renderAccount();
   }
+  if (a === 'theme') {
+    state.theme = el.dataset.t;
+    save();
+    const t = applyTheme(state.theme);
+    renderAccount();
+    toast(`Theme: ${t.name}`);
+  }
   if (a === 'copy-ref') toast('Referral link shared');
   if (a === 'export-data') toast('Data export requested — link arrives by email');
   if (a === 'delete-data') toast('Deletion request logged — reception will confirm identity');
@@ -1440,5 +1492,6 @@ setInterval(() => {
   }
 }, 30000);
 
+applyTheme(state.theme || 'Club Green');
 show(state.loggedIn ? 'home' : 'login');
-loadSheetData();
+loadSheetData().then(() => { if (!state.theme && CONFIG.theme) applyTheme(CONFIG.theme); });
