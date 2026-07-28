@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — Motion</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing:border-box; }
+  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; }
+  a { color:#1e6b52; } a:hover { color:#124a38; }
+  @keyframes pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.35; transform:scale(.8)} }
+  @keyframes growBar { from { transform:scaleY(0); } to { transform:scaleY(1); } }
+  @keyframes fillBar { from { transform:scaleX(0); } to { transform:scaleX(1); } }
+  @keyframes cardIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
+  @keyframes qrTick { from { transform:scaleX(1); } to { transform:scaleX(0); } }
+  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; padding:20px 16px 0; }
+  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
+  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01s !important; } }
+</style>
+</head>
+<body>
+<nav class="dept-nav">
+  <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="nutritionist.html">Nutritionist</a><a href="maintenance.html">Maintenance</a><a href="instructor.html">Instructor</a><a href="staff.html">All departments</a>
+</nav>
+<section style="padding:36px 56px 80px; display:flex; gap:48px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
+  <div style="max-width:340px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#1e6b52;">GYM · Motion language</div>
+    <h1 style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:30px; margin:8px 0 12px;">A touch of animation</h1>
+    <p style="color:#6c7a71; font-size:15px; line-height:1.55;">Everything animates once, on load, then settles — numbers count up, bars grow, cards rise in staggered. Only the live dot and the QR timer keep moving. Press replay to watch it again.</p>
+    <button id="replayBtn" style="margin-top:16px; background:#1e6b52; color:#ffffff; border:none; border-radius:14px; padding:13px 26px; font-family:'Instrument Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer;">↻ Replay</button>
+  </div>
+  <div style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); padding:26px 18px 18px;">
+    <div id="motionRoot"></div>
+  </div>
+</section>
+<script>
+const heights = [24,42,36,26,44,38,52,88,100,70,34];
+let counter = null, qrTimer = null, qrSeconds = 25;
+
+function template() {
+  const bars = heights.map((h, i) =>
+    `<div style="flex:1; height:${h}%; background:${i === 6 ? '#1e6b52' : '#e3e6de'}; border-radius:3px 3px 0 0; transform-origin:bottom; animation:growBar .6s ${(i * 0.05).toFixed(2)}s cubic-bezier(.2,.8,.2,1) both;"></div>`).join('');
+  return `
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="background:#dff0e6; border-radius:24px; padding:20px; animation:cardIn .5s ease-out both;">
+        <div style="display:flex; align-items:center; gap:9px;">
+          <span style="width:10px; height:10px; border-radius:50%; background:#1e6b52; animation:pulse 1.6s ease-in-out infinite;"></span>
+          <span style="font-weight:800; color:#124a38; font-size:16px; font-family:'Bricolage Grotesque';">Inside the gym</span>
+        </div>
+        <div style="color:#2f5d4b; font-size:14px; margin-top:8px;">Since 6:15 PM · <span data-bind="minutes">0</span> min · locker #47</div>
+      </div>
+      <div style="display:flex; gap:12px;">
+        <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .08s ease-out both;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Wallet</div>
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">$<span data-bind="wallet">0</span></div>
+        </div>
+        <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .14s ease-out both;">
+          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Points</div>
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;"><span data-bind="points">0</span></div>
+        </div>
+      </div>
+      <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .2s ease-out both;">
+        <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Gym right now</div>
+        <div style="display:flex; align-items:baseline; gap:10px; margin-top:8px;">
+          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:34px; color:#124a38;"><span data-bind="occupancy">0</span></div>
+          <div style="font-weight:700; color:#1e6b52; font-size:15px;">Moderate</div>
+        </div>
+        <div style="display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:12px;">${bars}</div>
+        <div style="font-size:12px; color:#6c7a71; margin-top:8px;">Usually busiest 6–8 PM</div>
+      </div>
+      <div style="background:#ffffff; border-radius:24px; border-left:5px solid #1e6b52; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .28s ease-out both;">
+        <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="font-weight:700;">30-Day Consistency</span><span style="font-weight:700; color:#124a38;"><span data-bind="challenge">0</span>/20</span></div>
+        <div style="height:8px; background:#eef0ea; border-radius:4px; margin-top:10px; overflow:hidden;"><div style="width:65%; height:100%; background:#1e6b52; border-radius:4px; transform-origin:left; animation:fillBar .9s .5s cubic-bezier(.2,.8,.2,1) both;"></div></div>
+        <div style="font-size:12px; color:#1e6b52; font-weight:600; margin-top:8px;">Today counted. 7 visits to +500 pts.</div>
+      </div>
+      <div style="background:#124a38; border-radius:24px; padding:18px 20px; color:#dff0e6; animation:cardIn .5s .36s ease-out both;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <span style="letter-spacing:.22em; font-weight:800; font-size:12px; color:#7ee2b1;">SCAN TO ENTER</span>
+          <span style="font-size:12px; color:#9ec7b3;">refreshes in <span data-bind="qr">25</span>s</span>
+        </div>
+        <div style="height:4px; background:rgba(255,255,255,.15); border-radius:2px; margin-top:12px; overflow:hidden;">
+          <div style="height:100%; background:#7ee2b1; border-radius:2px; transform-origin:left; animation:qrTick 25s linear infinite;"></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function bind(name, value) {
+  document.querySelectorAll(`[data-bind="${name}"]`).forEach((el) => { el.textContent = value; });
+}
+
+function run() {
+  clearInterval(counter);
+  document.getElementById('motionRoot').innerHTML = template(); // remount restarts CSS animations
+  const t0 = performance.now(), dur = 1100;
+  const ease = (t) => 1 - Math.pow(1 - t, 3);
+  counter = setInterval(() => {
+    const t = Math.min(1, (performance.now() - t0) / dur), e = ease(t);
+    bind('wallet', Math.round(58 * e));
+    bind('points', Math.round(355 * e));
+    bind('occupancy', Math.round(23 * e));
+    bind('minutes', Math.round(47 * e));
+    bind('challenge', Math.round(13 * e));
+    if (t >= 1) clearInterval(counter);
+  }, 16);
+  qrSeconds = 25;
+  clearInterval(qrTimer);
+  qrTimer = setInterval(() => { qrSeconds = qrSeconds <= 1 ? 25 : qrSeconds - 1; bind('qr', qrSeconds); }, 1000);
+}
+
+document.getElementById('replayBtn').onclick = run;
+run();
+</script>
+</body>
+</html>
