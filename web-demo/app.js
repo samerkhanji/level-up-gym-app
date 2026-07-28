@@ -717,10 +717,12 @@ function renderTrain() {
   let body = '';
 
   if (segTrain === 'workouts') {
+    const tw = state.customWorkout || todayWorkout;
     body = `
       <div class="card">
-        <div class="row">${eyebrow('dumbbell', todayWorkout.program)}<span class="chip chip-ok">${todayWorkout.day}</span></div>
-        ${todayWorkout.exercises.map((e) => `
+        <div class="row">${eyebrow('dumbbell', tw.program)}<span class="chip chip-ok">${tw.day}</span></div>
+        ${state.customWorkout ? `<div class="dim small" style="margin-bottom:6px;">Updated by ${state.customWorkout.by} — synced live from your trainer.</div>` : ''}
+        ${tw.exercises.map((e) => `
           <div class="exercise">
             <div><b>${e.name}</b><div class="dim small">${e.sets}</div></div>
             <span class="dim small">last: ${e.last}</span>
@@ -767,11 +769,18 @@ function renderTrain() {
       </div>` : ''}
       <div class="card">
         ${eyebrow('dumbbell', 'Personal training package')}
-        <div class="row"><b>Karim H.</b><b class="accent">${left} of ${state.pkgTotal} left</b></div>
+        <div class="row"><b>Karim H. · 10-session pack</b><b class="accent">${state.pkgUsed} used · ${left} remaining</b></div>
         <div class="bar pkg-bar"><div class="fill" style="width:${(left / state.pkgTotal) * 100}%"></div></div>
-        <button class="book-btn wide" data-action="renew-pkg">Renew package · $${PRICES.pt_package}</button>
+        <button class="book-btn wide" data-action="renew-pkg">Renew 10-pack · $${PRICES.pt_package} ($${Math.round(PRICES.pt_package / 10)}/session)</button>
         <div class="dim small">Sessions are only marked complete after you confirm them in the app.</div>
       </div>
+      ${state.pickSlot ? `
+      <div class="card">
+        ${eyebrow('calendar', 'Pick a time — ' + state.pickSlot.trainer)}
+        ${state.pickSlot.slots.map((s) => `<button class="book-btn wide" data-action="book-slot" data-slot="${s}" style="margin-top:6px;">${s}</button>`).join('')}
+        <button class="book-btn wide warn" data-action="book-cancel" style="margin-top:8px;">Cancel</button>
+        <div class="dim small">Only genuinely open slots are shown — ${state.pickSlot.trainer.split(' ')[0]}'s live availability controls this list.</div>
+      </div>` : ''}
       ${trainers.map((t, i) => `
         <div class="trainer">
           <div class="avatar tone-${i % 4}">${t.initial}</div>
@@ -1285,7 +1294,7 @@ document.getElementById('gateBtn').onclick = () => {
     state.enteredAt = Date.now();
     state.sessionEvents = [];
     // the gate tells the building: trainers with a session today get an arrival alert
-    GymBus.send('gate-entry', { member: state.memberName, time: fmtTime(Date.now()) });
+    GymBus.send('gate-entry', { member: state.memberName, time: fmtTime(Date.now()) }, 'member-app');
     // assign a free locker from the Lockers table (fallback: random number)
     let number, zone = 'Changing room A';
     const freeLockers = (lockersPool || []).filter((l) => l.status === 'free');
@@ -1358,11 +1367,21 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'book-trainer') {
     const t = trainers[Number(el.dataset.i)];
-    const busId = GymBus.send('pt-request', { member: state.memberName, trainer: t.name, slot: 'Tomorrow · 6:00 PM' });
-    state.booking = { trainer: t.name, when: 'Tomorrow · 6:00 PM', price: t.price, status: 'requested', busId };
+    const published = (state.trainerSlots || {})[t.name];
+    if (published && !published.length) { toast(`${t.name} has no open slots right now — check back`); return; }
+    state.pickSlot = { trainer: t.name, price: t.price, slots: published || ['Tomorrow · 6:00 PM'] };
     save(); renderTrain();
-    toast(`Request sent — ${t.name} accepts, proposes a time or declines`);
   }
+  if (a === 'book-slot') {
+    const p = state.pickSlot; if (!p) return;
+    const slot = el.dataset.slot;
+    const busId = GymBus.send('pt-request', { member: state.memberName, trainer: p.trainer, slot }, 'member-app');
+    state.booking = { trainer: p.trainer, when: slot, price: p.price, status: 'requested', busId };
+    state.pickSlot = null;
+    save(); renderTrain();
+    toast(`Request sent for ${slot} — ${p.trainer} accepts, proposes a time or declines`);
+  }
+  if (a === 'book-cancel') { state.pickSlot = null; save(); renderTrain(); }
   if (a === 'pt-accept-time') {
     const b = state.booking; if (!b || b.status !== 'proposed') return;
     GymBus.update(b.busId, 'accepted', state.memberName, b.when);
@@ -1371,14 +1390,17 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'pt-confirm') {
     const p = state.pendingPt; if (!p) return;
+    // idempotency: a replayed confirmation can never deduct twice
+    if (GymBus.isProcessed(p.busId + ':deduct', 'member')) { state.pendingPt = null; save(); renderTrain(); return; }
+    GymBus.markProcessed(p.busId + ':deduct', 'member');
     GymBus.update(p.busId, 'confirmed', state.memberName, 'Confirmed in app');
     state.pkgUsed = Math.min(state.pkgTotal, state.pkgUsed + 1);
     (p.prs || []).forEach((pr) => state.prs.unshift({ name: pr.name, value: pr.value, when: 'Today' }));
     if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: `PT session confirmed — ${p.trainer}`, sub: `Session ${state.pkgUsed} of ${state.pkgTotal}${p.prs && p.prs.length ? ' · new PR: ' + p.prs.map((x) => x.name).join(', ') : ''}` });
     state.pendingPt = null; save(); renderTrain();
     if (p.prs && p.prs.length) earnPoints(POINTS.pr, 'new PR');
-    pushNotif('Session confirmed', `1 session deducted — ${state.pkgTotal - state.pkgUsed} of ${state.pkgTotal} left. ${p.trainer}'s notes are saved to your progress.`);
-    toast(`Confirmed · ${state.pkgTotal - state.pkgUsed} sessions left`);
+    pushNotif('Session completed', `${state.pkgUsed} used · ${state.pkgTotal - state.pkgUsed} remaining. ${p.trainer}'s notes are saved to your progress.`);
+    toast(`Session completed · ${state.pkgUsed} used · ${state.pkgTotal - state.pkgUsed} remaining`);
   }
   if (a === 'pt-dispute') {
     const p = state.pendingPt; if (!p) return;
@@ -1526,7 +1548,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     toast(`Theme: ${t.name}`);
   }
   if (a === 'renew-request') {
-    GymBus.send('renewal', { member: state.memberName, plan: state.subPlan });
+    GymBus.send('renewal', { member: state.memberName, plan: (state.subPlan || 'Monthly membership') + ' · $95/month', price: 95 }, 'member-app');
     pushNotif('Renewal requested', 'Reception will prepare your renewal — pay at the desk on your next visit.');
     toast('Request sent to reception');
   }
@@ -1724,7 +1746,27 @@ function handleBus(kind, ev) {
     rerenderActive();
     return;
   }
+  if (kind === 'event' && ev.type === 'trainer-avail') {
+    state.trainerSlots = state.trainerSlots || {};
+    state.trainerSlots[ev.payload.trainer] = ev.payload.slots;
+    if (state.pickSlot && state.pickSlot.trainer === ev.payload.trainer) state.pickSlot.slots = ev.payload.slots.length ? ev.payload.slots : state.pickSlot.slots;
+    save();
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'program-update' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
+    save();
+    pushNotif('Workout updated', `${ev.payload.by} adjusted your ${ev.payload.title} program — see Train → Workouts.`);
+    toast('Your ' + ev.payload.title + ' program was updated');
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
   if (kind === 'event' && ev.type === 'pt-session' && mine) {
+    if (GymBus.isProcessed(ev.id + ':pending', 'member')) return;
+    GymBus.markProcessed(ev.id + ':pending', 'member');
     state.pendingPt = { busId: ev.id, trainer: ev.payload.trainer, summary: ev.payload.summary, notes: ev.payload.notes, prs: ev.payload.prs };
     save();
     pushNotif('Confirm your session', `${ev.payload.trainer} marked your session complete — confirm it in Train → Trainers. Nothing is deducted until you do.`);
@@ -1733,6 +1775,11 @@ function handleBus(kind, ev) {
     return;
   }
   if (kind !== 'update' || !mine) return;
+  // idempotency: one guard for EVERY staff update — live delivery followed by
+  // catch-up replay (or double catch-up) can never re-apply the same transition
+  const upKey = ev.id + ':' + ev.status + ':' + ev.history.length;
+  if (GymBus.isProcessed(upKey, 'member')) return;
+  GymBus.markProcessed(upKey, 'member');
   if (ev.type === 'pt-request' && state.booking && state.booking.busId === ev.id) {
     if (ev.status === 'accepted' && last.by !== state.memberName) {
       state.booking.status = 'accepted'; state.booking.note = null;
@@ -1768,11 +1815,19 @@ function handleBus(kind, ev) {
     toast('Ticket resolved by ' + last.by);
   }
   if (ev.type === 'renewal' && ev.status === 'done') {
-    state.subEnds = last.note || state.subEnds;
-    state.userStatus = 'active'; state.frozen = false;
-    state.invoices.unshift({ label: 'Renewal (paid at desk)', date: 'Today', amount: 95 });
+    if (GymBus.isProcessed(ev.id + ':done', 'member')) return;
+    GymBus.markProcessed(ev.id + ':done', 'member');
+    if ((ev.payload.plan || '').toLowerCase().includes('package')) {
+      state.pkgUsed = 0;
+      state.invoices.unshift({ label: 'PT package (10 sessions)', date: 'Today', amount: ev.payload.price || 300 });
+      pushNotif('PT package renewed', `Processed by ${last.by} — 10 fresh sessions. 0 used · 10 remaining.`);
+    } else {
+      state.subEnds = last.note || state.subEnds;
+      state.userStatus = 'active'; state.frozen = false;
+      state.invoices.unshift({ label: 'Renewal (paid at desk)', date: 'Today', amount: ev.payload.price || 95 });
+      pushNotif('Membership renewed', `Processed by ${last.by} — valid until ${state.subEnds}.`);
+    }
     save();
-    pushNotif('Membership renewed', `Processed by ${last.by} — valid until ${state.subEnds}.`);
     rerenderActive();
   }
   if (ev.type === 'gate-resolved') {
@@ -1789,8 +1844,18 @@ GymBus.on(handleBus);
     if (ev.history.length && ev.payload?.member === state.memberName && state.busSeen[ev.id] !== ev.history.length) {
       handleBus('update', ev);
     }
-    if (ev.type === 'pt-session' && ev.status === 'open' && ev.payload?.member === state.memberName && !state.pendingPt) {
+    if (ev.type === 'pt-session' && ev.status === 'open' && ev.payload?.member === state.memberName && !state.pendingPt
+        && !GymBus.isProcessed(ev.id + ':pending', 'member')) {
+      GymBus.markProcessed(ev.id + ':pending', 'member');
       state.pendingPt = { busId: ev.id, trainer: ev.payload.trainer, summary: ev.payload.summary, notes: ev.payload.notes, prs: ev.payload.prs };
+    }
+    if (ev.type === 'trainer-avail') { // later events overwrite → latest published set wins
+      state.trainerSlots = state.trainerSlots || {};
+      state.trainerSlots[ev.payload.trainer] = ev.payload.slots;
+    }
+    if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
     }
     state.busSeen[ev.id] = ev.history.length;
   });

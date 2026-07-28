@@ -14,7 +14,7 @@
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
     padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
-  .wrap { width:min(440px, 100%); display:flex; flex-direction:column; gap:13px; }
+  .wrap { width:min(460px, 100%); display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
@@ -36,12 +36,13 @@
   .sess-s { font-size:11.5px; color:var(--muted); }
   .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
   .st-sched { background:var(--paper); color:var(--muted); }
+  .st-ingym { background:var(--mint); color:var(--deep); }
   .st-arr { background:var(--mint); color:var(--deep); animation:pulse 1.6s infinite; }
   .st-live { background:var(--deep); color:#fff; }
   .st-wait { background:var(--amber-soft); color:var(--amber); }
   .st-ok { background:var(--mint); color:var(--deep); }
   .st-bad { background:var(--red-soft); color:var(--red); }
-  .open-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; }
+  .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:4px 6px; }
   .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper);
     display:flex; align-items:center; gap:10px; animation:rise .3s ease both; flex-wrap:wrap; }
   .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
@@ -63,12 +64,31 @@
   .pr-flag { font-size:11px; font-weight:800; color:var(--amber); display:none; margin-top:4px; }
   textarea { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
   .banner { background:var(--mint); border-radius:16px; padding:13px 15px; font-size:13.5px; font-weight:600; color:var(--deep); animation:rise .3s ease both; }
+  .banner.soft { background:var(--card); color:var(--ink); box-shadow:0 6px 18px rgba(23,33,28,.05); }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
   .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
   .hidden { display:none !important; }
+  /* client file */
+  .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:11.5px; font-weight:700;
+    border-radius:999px; padding:5px 11px; margin:2px 4px 2px 0; }
+  .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
+  .hist:last-child { border-bottom:none; }
+  .hist b { font-size:12.5px; } .hist span { color:var(--muted); }
+  /* program builder */
+  .prow { display:flex; gap:6px; align-items:center; margin-top:8px; }
+  .prow select { flex:1; min-width:0; border:1.5px solid var(--line); border-radius:10px; padding:8px; font-size:12.5px; font-family:var(--body); background:#fff; }
+  .prow input { width:46px; border:1.5px solid var(--line); border-radius:10px; padding:8px 6px; font-size:12.5px; font-family:var(--body); text-align:center; }
+  .prow .del { color:var(--red); font-weight:800; font-size:15px; padding:4px 6px; }
+  .warnbox { background:var(--red-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--red); margin-top:8px; animation:rise .25s ease both; }
+  .warnbox b { display:block; margin-bottom:4px; }
+  .altbtn { background:#fff; color:var(--deep); font-size:11.5px; font-weight:700; border-radius:999px; padding:6px 11px; margin:4px 4px 0 0; box-shadow:0 2px 6px rgba(23,33,28,.1); }
+  /* availability */
+  .slot { display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:8px 13px; margin:3px 4px 3px 0; cursor:pointer; }
+  .slot.on { background:var(--mint); color:var(--deep); }
+  .slot.off { background:var(--paper); color:var(--faint); text-decoration:line-through; }
 </style>
 </head>
 <body>
@@ -95,24 +115,49 @@
     <div id="queue"></div>
   </div>
 
+  <div class="card hidden" id="clientCard"></div>
+
   <div class="card hidden" id="liveCard">
     <div class="eyebrow" id="liveTitle">Live session</div>
     <div id="liveBody"></div>
   </div>
 
+  <div class="card">
+    <div class="eyebrow">My availability — this week</div>
+    <div id="availChips"></div>
+    <div style="font-size:11.5px; color:var(--faint); margin-top:8px;">
+      Tap a slot to open or close it. Published instantly — members can only book slots that are on.</div>
+  </div>
+
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
       Connected demo: open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab.
-      Booking requests, gate check-ins, session confirmations and disputes travel live over GymBus —
-      statuses change only by human action on either side, never by timers.</div>
+      Requests, arrivals, program edits, availability and confirmations travel live over GymBus with idempotent
+      per-screen processing — no event is ever applied twice, and no status changes by timer.</div>
   </div>
 </div>
 
-<script src="bus.js?v=1"></script>
+<script src="bus.js?v=2"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+
+/* Arrival window: gate check-in only raises a session alert inside this many
+   minutes before the appointment; earlier check-ins show "In gym — session later". */
+const ARRIVAL_WINDOW = 45;
+function parseTime(str) {
+  const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i); if (!m) return null;
+  let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + (+m[2]);
+}
+function minsUntil(str) {
+  const t = parseTime(str); if (t == null) return null;
+  const n = new Date(); return t - (n.getHours() * 60 + n.getMinutes());
+}
+function fmtLead(mu) {
+  if (mu >= 60) return Math.floor(mu / 60) + ' h ' + (mu % 60) + ' min';
+  return mu + ' min';
+}
 
 /* trainer state — persisted so the journey survives refresh */
 const TKEY = 'gym_trainer_state';
@@ -123,32 +168,96 @@ let T = {
     { id: 's3', time: '6:00 PM', member: 'Samer Khanji', type: 'PT · Push day', status: 'scheduled', pkgLeft: 3 },
   ],
   queue: [],
+  program: { member: 'Samer Khanji', title: 'Push day', ex: [
+    { n: 'Bench press', sets: 4, reps: 8, w: 70, prevW: 67.5, prev: '4 × 8 @ 67.5 kg' },
+    { n: 'Incline dumbbell press', sets: 3, reps: 10, w: 28, prevW: 28, prev: '3 × 10 @ 28 kg' },
+    { n: 'Overhead press', sets: 3, reps: 8, w: 50, prevW: 50, prev: '3 × 8 @ 50 kg' },
+    { n: 'Cable fly', sets: 3, reps: 12, w: 18, prevW: 18, prev: '3 × 12 @ 18 kg' },
+  ] },
+  avail: [
+    { s: 'Tue · 5:00 PM', on: true }, { s: 'Tue · 6:00 PM', on: true }, { s: 'Wed · 7:00 AM', on: true },
+    { s: 'Thu · 6:00 PM', on: false }, { s: 'Sat · 10:00 AM', on: true },
+  ],
 };
-try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) T = s; } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.program = T.program || null; T.avail = T.avail || []; } } catch (e) {}
 function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
 
-const STATUS_LABEL = {
-  scheduled: ['Scheduled', 'st-sched'], arrived: ['Arrived — in gym', 'st-arr'], started: ['In session', 'st-live'],
-  awaiting: ['Waiting member confirm', 'st-wait'], confirmed: ['Confirmed · deducted', 'st-ok'],
-  disputed: ['Disputed → manager', 'st-bad'], noshow: ['No-show', 'st-bad'],
+/* client files: goals, history, injury & safety flags */
+const CLIENTS = {
+  'Samer Khanji': {
+    goals: 'Build pressing strength · 78 kg → 80 kg lean · bench 80 kg by October',
+    injuries: [{ flag: 'shoulder', label: 'Right shoulder impingement', note: 'Avoid overhead / behind-neck pressing at end range; stop on any pinch.' }],
+    history: [
+      { when: 'Jul 25', what: 'Push day — session 7', note: 'Bench 4×8 @ 67.5, solid, no pain' },
+      { when: 'Jul 19', what: 'Push day — session 6', note: 'Shoulder tight on OHP warm-up — kept it light' },
+      { when: 'Jul 12', what: 'Assessment retest', note: 'Body fat 18.2% · added 1.1 kg lean since June' },
+    ],
+  },
+  'Lina Saab': { goals: 'General strength · 2×/week', injuries: [], history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
+  'Omar Khal': { goals: 'Return from knee rehab', injuries: [{ flag: 'knee', label: 'ACL reconstruction (2025)', note: 'No deep jumps; leg extensions cleared by physio.' }], history: [] },
 };
+
+/* exercise catalog with contraindication tags; `alt` marks approved substitutes per flag */
+const CATALOG = [
+  { n: 'Bench press' }, { n: 'Incline dumbbell press' }, { n: 'Machine chest press' },
+  { n: 'Overhead press' }, { n: 'Cable fly' }, { n: 'Dumbbell pullover' }, { n: 'Triceps pushdown' },
+  { n: 'Landmine press', alt: ['shoulder'] }, { n: 'Low-incline dumbbell press', alt: ['shoulder'] }, { n: 'Cable Y-raise', alt: ['shoulder'] },
+  { n: 'Behind-the-neck press', risk: ['shoulder'] }, { n: 'Upright row', risk: ['shoulder'] },
+  { n: 'Box jump', risk: ['knee'] }, { n: 'Leg extension', alt: ['knee'] },
+];
+
+/* ---------- schedule ---------- */
+function labelFor(s) {
+  const mu = minsUntil(s.time);
+  if (s.status === 'scheduled') return (mu != null && mu < -10) ? ['Late — not in gym', 'st-bad'] : ['Scheduled', 'st-sched'];
+  if (s.status === 'ingym') return ['In gym — session later', 'st-ingym'];
+  if (s.status === 'arrived') return ['Arrived — waiting for trainer', 'st-arr'];
+  if (s.status === 'started') return ['In session', 'st-live'];
+  if (s.status === 'awaiting') return ['Waiting member confirm', 'st-wait'];
+  if (s.status === 'confirmed') return ['Confirmed · deducted', 'st-ok'];
+  if (s.status === 'disputed') return ['Disputed → manager', 'st-bad'];
+  if (s.status === 'noshow') return ['No-show', 'st-bad'];
+  return ['Scheduled', 'st-sched'];
+}
 
 function renderSchedule() {
   $('schedule').innerHTML = T.sessions.map((s) => {
-    const [lbl, cls] = STATUS_LABEL[s.status] || STATUS_LABEL.scheduled;
-    const openable = ['arrived', 'started', 'scheduled'].includes(s.status);
+    const [lbl, cls] = labelFor(s);
+    const openable = ['arrived', 'started', 'scheduled', 'ingym'].includes(s.status);
     return `<div class="sess">
       <div class="sess-time">${s.time}</div>
       <div class="avatar sm">${s.member[0]}</div>
       <div class="sess-body"><div class="sess-n">${s.member}</div>
-        <div class="sess-s">${s.type}${s.pkgLeft != null ? ' · ' + s.pkgLeft + ' of 10 left' : ''}${s.checkin ? ' · in gym since ' + s.checkin : ''}</div></div>
+        <div class="sess-s">${s.type}${s.pkgLeft != null ? ' · ' + (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : ''}${s.checkin ? ' · in gym since ' + s.checkin : ''}</div></div>
       <span class="st ${cls}">${lbl}</span>
-      ${openable ? `<button class="open-btn" data-open="${s.id}">Open ›</button>` : ''}
+      <button class="mini-btn" data-file="${s.member}">File</button>
+      ${openable ? `<button class="mini-btn" data-open="${s.id}">Open ›</button>` : ''}
     </div>`;
   }).join('');
   document.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openLive(b.dataset.open); });
+  document.querySelectorAll('[data-file]').forEach((b) => { b.onclick = () => openFile(b.dataset.file); });
 }
 
+/* arrival-window watcher — DISPLAY of time context only. It promotes
+   "in gym (checked in earlier)" to "arrived" once the clock enters the window;
+   the underlying fact (gate check-in) came from a real event, never invented. */
+setInterval(() => {
+  let changed = false;
+  T.sessions.forEach((s) => {
+    const mu = minsUntil(s.time);
+    if (s.status === 'ingym' && mu != null && mu <= ARRIVAL_WINDOW) { s.status = 'arrived'; arrivalAlert(s); changed = true; }
+  });
+  if (changed) { save(); }
+  renderSchedule(); // refresh Late/lead-time displays
+}, 30000);
+
+function arrivalAlert(s) {
+  $('arrivalBanner').innerHTML = `<div class="banner">✓ ${s.member} is here for the ${s.time} session (checked in ${s.checkin}).</div>`;
+  addQ({ key: 'arr-' + s.id, sid: s.id, t: s.member + ' — arrived for session', s: 'Session at ' + s.time + ' — open when ready', actions: [{ a: 'open', l: 'Open session' }] });
+  toast(s.member + ' arrived for the ' + s.time + ' session');
+}
+
+/* ---------- queue ---------- */
 function addQ(q) { if (T.queue.some((x) => x.key === q.key)) return; q.at = now(); T.queue.unshift(q); save(); renderQueue(); }
 function delQ(key) { T.queue = T.queue.filter((x) => x.key !== key); save(); renderQueue(); }
 function renderQueue() {
@@ -173,8 +282,10 @@ function queueAction(key, act) {
     toast('Accepted — member notified, on both calendars');
   }
   if (act === 'propose') {
-    GymBus.update(q.busId, 'proposed', 'Karim H.', 'Saturday · 10:00 AM');
-    delQ(key); toast('Proposed Saturday 10:00 AM — member decides');
+    const open = T.avail.filter((a) => a.on).map((a) => a.s);
+    const alt = open.find((s) => s !== q.slot) || 'Sat · 10:00 AM';
+    GymBus.update(q.busId, 'proposed', 'Karim H.', alt);
+    delQ(key); toast('Proposed ' + alt + ' — member decides');
   }
   if (act === 'decline') {
     const r = prompt('Reason for declining (sent to the member):', 'Fully booked this week');
@@ -183,29 +294,151 @@ function queueAction(key, act) {
     delQ(key); toast('Declined with reason — member notified');
   }
   if (act === 'reco') {
-    GymBus.send('renewal', { member: q.member, plan: '10-session strength package — trainer recommendation (Karim H.)' });
-    delQ(key); toast('Recommendation sent to reception — they handle price & payment');
+    GymBus.send('renewal', {
+      member: q.member, price: 300,
+      plan: 'PT package renewal · 10 sessions · $300 ($30/session — single sessions are $35)',
+    }, 'trainer');
+    delQ(key); toast('Recommendation sent to reception — itemized, they take payment');
   }
   if (act === 'open') openLive(q.sid);
 }
 
+/* ---------- client file + program builder ---------- */
+let fileMember = null, draft = null;
+
+function riskFor(exName, member) {
+  const cat = CATALOG.find((c) => c.n === exName);
+  const flags = (CLIENTS[member]?.injuries || []).map((i) => i.flag);
+  if (!cat || !cat.risk) return null;
+  const hit = cat.risk.find((r) => flags.includes(r));
+  return hit ? (CLIENTS[member].injuries.find((i) => i.flag === hit)) : null;
+}
+function altsFor(flag) { return CATALOG.filter((c) => (c.alt || []).includes(flag)).map((c) => c.n); }
+
+function openFile(member) {
+  fileMember = member;
+  const c = CLIENTS[member] || { goals: '—', injuries: [], history: [] };
+  const hasProgram = T.program && T.program.member === member;
+  draft = hasProgram ? JSON.parse(JSON.stringify(T.program.ex)) : null;
+  $('clientCard').classList.remove('hidden');
+  renderFile(c, hasProgram);
+  $('clientCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+function renderFile(c, hasProgram) {
+  const m = fileMember;
+  $('clientCard').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="eyebrow" style="margin:0;">Client file — ${m}</div>
+      <button class="mini-btn" id="fileClose">Close ✕</button>
+    </div>
+    <div style="margin-top:10px;"><div class="eyebrow">Goals</div><div style="font-size:13.5px;">${c.goals}</div></div>
+    <div style="margin-top:12px;"><div class="eyebrow">Injury &amp; safety flags</div>
+      ${c.injuries.length ? c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span><div style="font-size:12px; color:var(--muted); margin-top:4px;">${i.note}</div>`).join('') : '<div style="font-size:13px; color:var(--faint);">None on file.</div>'}
+    </div>
+    <div style="margin-top:12px;"><div class="eyebrow">Recent history</div>
+      ${c.history.length ? c.history.map((h) => `<div class="hist"><b>${h.when}</b> · ${h.what}<br><span>“${h.note}”</span></div>`).join('') : '<div style="font-size:13px; color:var(--faint);">No sessions yet.</div>'}
+    </div>
+    ${hasProgram ? `
+    <div style="margin-top:14px;"><div class="eyebrow">Prepared workout — ${T.program.title} <span style="text-transform:none; letter-spacing:0;">(editable)</span></div>
+      <div id="progRows"></div>
+      <div id="progWarn"></div>
+      <button class="ghosty" id="progAdd" style="margin-top:10px;">+ Add exercise</button>
+      <button class="primary" id="progSave" style="margin-top:8px;">Save &amp; sync to ${m.split(' ')[0]}'s app</button>
+      <div style="font-size:11.5px; color:var(--faint); margin-top:6px;">Unsafe picks are checked against the injury flags above before saving.</div>
+    </div>` : ''}`;
+  $('fileClose').onclick = () => { $('clientCard').classList.add('hidden'); fileMember = null; };
+  if (hasProgram) { renderProg(); $('progAdd').onclick = () => { draft.push({ n: 'Machine chest press', sets: 3, reps: 10, w: 30, prevW: 30, prev: '—' }); renderProg(); }; $('progSave').onclick = saveProgram; }
+}
+
+function renderProg() {
+  $('progRows').innerHTML = draft.map((e, i) => `
+    <div class="prow">
+      <select data-pi="${i}">${CATALOG.map((c) => `<option ${c.n === e.n ? 'selected' : ''}>${c.n}</option>`).join('')}</select>
+      <input data-ps="${i}" value="${e.sets}" /> ×
+      <input data-pr="${i}" value="${e.reps}" /> @
+      <input data-pw="${i}" value="${e.w}" /> kg
+      <button class="del" data-pd="${i}">✕</button>
+    </div>`).join('');
+  document.querySelectorAll('[data-pi]').forEach((s) => { s.onchange = () => pickExercise(Number(s.dataset.pi), s.value, s); });
+  document.querySelectorAll('[data-ps]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.ps)].sets = Number(s.value) || 0; }; });
+  document.querySelectorAll('[data-pr]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pr)].reps = Number(s.value) || 0; }; });
+  document.querySelectorAll('[data-pw]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pw)].w = Number(s.value) || 0; }; });
+  document.querySelectorAll('[data-pd]').forEach((s) => { s.onclick = () => { draft.splice(Number(s.dataset.pd), 1); renderProg(); checkDraft(); }; });
+}
+
+function pickExercise(i, name, sel) {
+  const inj = riskFor(name, fileMember);
+  if (inj) {
+    const alts = altsFor(inj.flag);
+    $('progWarn').innerHTML = `<div class="warnbox">
+      <b>⚠ ${name} conflicts with an injury flag: ${inj.label}</b>
+      ${inj.note}<br>Approved alternatives:
+      <div>${alts.map((a) => `<button class="altbtn" data-alt="${a}" data-alti="${i}">${a}</button>`).join('')}
+      <button class="altbtn" data-keep="${i}" style="color:var(--red);">Keep anyway (logged)</button></div></div>`;
+    document.querySelectorAll('[data-alt]').forEach((b) => { b.onclick = () => {
+      draft[Number(b.dataset.alti)] = { ...draft[Number(b.dataset.alti)], n: b.dataset.alt, prev: '—', prevW: draft[Number(b.dataset.alti)].w };
+      $('progWarn').innerHTML = ''; renderProg(); toast('Swapped to ' + b.dataset.alt + ' — safe for ' + inj.flag);
+    }; });
+    document.querySelectorAll('[data-keep]').forEach((b) => { b.onclick = () => {
+      draft[Number(b.dataset.keep)].n = name; draft[Number(b.dataset.keep)].override = true;
+      $('progWarn').innerHTML = ''; toast('Kept with safety override — recorded in the program');
+    }; });
+    sel.value = draft[i].n; // revert visual until a choice is made
+  } else {
+    draft[i] = { ...draft[i], n: name, prev: draft[i].n === name ? draft[i].prev : '—', prevW: draft[i].w };
+    $('progWarn').innerHTML = '';
+  }
+}
+
+function checkDraft() {
+  const bad = draft.find((e) => riskFor(e.n, fileMember) && !e.override);
+  if (bad) { pickExercise(draft.indexOf(bad), bad.n, { value: bad.n }); return false; }
+  return true;
+}
+
+function saveProgram() {
+  if (!checkDraft()) { toast('Resolve the safety conflict first'); return; }
+  if (!draft.length) { toast('Program is empty'); return; }
+  T.program.ex = draft; save();
+  GymBus.send('program-update', {
+    member: fileMember, title: T.program.title, by: 'Karim H.',
+    exercises: draft.map((e) => ({ name: e.n + (e.override ? ' (modified for you)' : ''), sets: e.sets + ' sets × ' + e.reps + (e.w ? ' @ ' + e.w + ' kg' : ''), last: e.prev || '—' })),
+  }, 'trainer');
+  toast('Saved — ' + fileMember.split(' ')[0] + "'s app updated instantly");
+}
+
+/* ---------- availability (gates member booking) ---------- */
+function renderAvail() {
+  $('availChips').innerHTML = T.avail.map((a, i) => `<span class="slot ${a.on ? 'on' : 'off'}" data-av="${i}">${a.s}</span>`).join('');
+  document.querySelectorAll('[data-av]').forEach((c) => { c.onclick = () => {
+    const a = T.avail[Number(c.dataset.av)]; a.on = !a.on; save(); renderAvail(); publishAvail();
+    toast(a.s + (a.on ? ' opened' : ' closed') + ' — members see this immediately');
+  }; });
+}
+function publishAvail() {
+  GymBus.send('trainer-avail', { trainer: 'Karim H.', slots: T.avail.filter((a) => a.on).map((a) => a.s) }, 'trainer');
+}
+
 /* ---------- live session ---------- */
-const EXS = [
-  { n: 'Bench press', target: '4 × 8 @ 70 kg', prevW: 67.5, prev: '4 × 8 @ 67.5 kg' },
-  { n: 'Incline dumbbell press', target: '3 × 10 @ 28 kg', prevW: 28, prev: '3 × 10 @ 28 kg' },
-  { n: 'Overhead press', target: '3 × 8 @ 50 kg', prevW: 50, prev: '3 × 8 @ 50 kg' },
-  { n: 'Cable fly', target: '3 × 12 @ 18 kg', prevW: 18, prev: '3 × 12 @ 18 kg' },
-];
-let liveStart = null;
+let liveEx = [], liveStart = null;
+function exListFor(member) {
+  if (T.program && T.program.member === member) {
+    return T.program.ex.map((e) => ({ n: e.n, target: e.sets + ' × ' + e.reps + ' @ ' + e.w + ' kg', prevW: e.prevW ?? e.w, prev: e.prev || '—' }));
+  }
+  return [{ n: 'Full-body circuit', target: '3 rounds', prevW: 0, prev: '—' }];
+}
 
 function openLive(sid) {
   const s = T.sessions.find((x) => x.id === sid); if (!s) return;
-  if (s.status === 'arrived' || s.status === 'scheduled') { s.status = 'started'; s.startAt = now(); save(); renderSchedule(); }
+  if (['arrived', 'scheduled', 'ingym'].includes(s.status)) { s.status = 'started'; s.startAt = now(); save(); renderSchedule(); }
+  delQ('arr-' + s.id);
   liveStart = Date.now();
+  liveEx = exListFor(s.member);
   $('liveCard').classList.remove('hidden');
-  $('liveTitle').textContent = 'Live session — ' + s.member + ' · Push day · started ' + (s.startAt || now());
+  $('liveTitle').textContent = 'Live session — ' + s.member + (T.program && T.program.member === s.member ? ' · ' + T.program.title : '') + ' · started ' + (s.startAt || now());
   $('liveBody').innerHTML = `
-    ${EXS.map((e, i) => `<div class="ex">
+    ${liveEx.map((e, i) => `<div class="ex">
       <div class="ex-head"><span class="ex-n">${e.n}</span><span class="ex-target">${e.target}</span></div>
       <div class="ex-prev">Previous: ${e.prev}</div>
       <div class="ex-inputs">
@@ -218,7 +451,7 @@ function openLive(sid) {
     <textarea id="liveNotes" rows="2" placeholder="Performance, pain flags, adjustments, plan for next session…"></textarea>
     <button class="primary" id="completeBtn" style="margin-top:12px;">Mark complete → ask ${s.member.split(' ')[0]} to confirm</button>
     <button class="ghosty" id="noshowBtn" style="margin-top:8px;">Member no-show (no deduction)</button>`;
-  EXS.forEach((e, i) => { $('w' + i).oninput = () => { $('pr' + i).style.display = Number($('w' + i).value) > e.prevW ? 'block' : 'none'; }; });
+  liveEx.forEach((e, i) => { $('w' + i).oninput = () => { $('pr' + i).style.display = Number($('w' + i).value) > e.prevW ? 'block' : 'none'; }; });
   $('completeBtn').onclick = () => completeSession(s);
   $('noshowBtn').onclick = () => {
     s.status = 'noshow'; save(); renderSchedule(); $('liveCard').classList.add('hidden');
@@ -230,7 +463,7 @@ function openLive(sid) {
 function completeSession(s) {
   const notes = $('liveNotes').value.trim();
   if (notes.length < 5) { toast('Session notes are required first'); $('liveNotes').focus(); return; }
-  const results = EXS.map((e, i) => ({ name: e.n, reps: $('reps' + i).value.trim(), w: Number($('w' + i).value) || null, pr: Number($('w' + i).value) > e.prevW }));
+  const results = liveEx.map((e, i) => ({ name: e.n, reps: $('reps' + i).value.trim(), w: Number($('w' + i).value) || null, pr: Number($('w' + i).value) > e.prevW }));
   const done = results.filter((r) => r.reps);
   const prs = results.filter((r) => r.pr).map((r) => ({ name: r.name, value: r.w + ' kg' }));
   const summary = done.length
@@ -238,13 +471,13 @@ function completeSession(s) {
     : 'Session completed';
   s.status = 'awaiting'; s.notes = notes; save(); renderSchedule();
   $('liveCard').classList.add('hidden');
-  s.busId = GymBus.send('pt-session', { member: s.member, trainer: 'Karim H.', summary, notes, prs });
+  s.busId = GymBus.send('pt-session', { member: s.member, trainer: 'Karim H.', summary, notes, prs }, 'trainer');
   save();
   addQ({ key: 'conf-' + s.id, t: "Waiting for " + s.member.split(' ')[0] + "'s confirmation", s: 'Deducts 1 session only when the member confirms in their app', urg: 'warn', actions: [] });
   toast('Sent — ' + s.member.split(' ')[0] + ' confirms in their app before any deduction');
 }
 
-/* ---------- bus: member events reach the trainer ---------- */
+/* ---------- bus: member events reach the trainer (idempotent per event-state) ---------- */
 function ingestRequest(ev) {
   addQ({ key: 'req-' + ev.id, busId: ev.id, member: ev.payload.member, slot: ev.payload.slot,
     t: 'Booking request — ' + ev.payload.member, s: ev.payload.slot + ' · PT package eligible', urg: 'warn', actions: reqActions() });
@@ -252,19 +485,29 @@ function ingestRequest(ev) {
 
 GymBus.on((kind, ev) => {
   if (kind === 'event' && ev.type === 'gate-entry') {
+    if (GymBus.isProcessed(ev.id, 'trainer')) return;
     const s = T.sessions.find((x) => x.member === ev.payload.member && x.status === 'scheduled');
-    if (s) {
-      s.status = 'arrived'; s.checkin = ev.payload.time; save(); renderSchedule();
-      $('arrivalBanner').innerHTML = `<div class="banner">✓ ${ev.payload.member} checked in at ${ev.payload.time}. Session begins at ${s.time}.</div>`;
-      addQ({ key: 'arr-' + s.id, sid: s.id, t: ev.payload.member + ' has arrived', s: 'Session at ' + s.time + ' — open when ready', actions: [{ a: 'open', l: 'Open session' }] });
-      toast(ev.payload.member + ' is in the gym');
+    if (!s) return;
+    GymBus.markProcessed(ev.id, 'trainer');
+    s.checkin = ev.payload.time;
+    const mu = minsUntil(s.time);
+    if (mu != null && mu > ARRIVAL_WINDOW) {
+      s.status = 'ingym'; save(); renderSchedule();
+      $('arrivalBanner').innerHTML = `<div class="banner soft">${ev.payload.member} checked in at ${ev.payload.time} — session at ${s.time}, ${fmtLead(mu)} away. Arrival alert fires inside the ${ARRIVAL_WINDOW}-min window.</div>`;
+      toast(ev.payload.member + ' is in the gym — session later');
+    } else {
+      s.status = 'arrived'; save(); renderSchedule(); arrivalAlert(s);
     }
   }
-  if (kind === 'event' && ev.type === 'pt-request') { ingestRequest(ev); toast('New booking request — ' + ev.payload.member); }
+  if (kind === 'event' && ev.type === 'pt-request') {
+    if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
+    ingestRequest(ev); toast('New booking request — ' + ev.payload.member);
+  }
   if (kind === 'update' && ev.type === 'pt-request') {
     const last = ev.history[ev.history.length - 1] || {};
     if (ev.status === 'accepted' && last.by !== 'Karim H.') {
-      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Saturday 10:00 AM', member: ev.payload.member, type: 'PT session', status: 'scheduled' });
+      if (GymBus.isProcessed(ev.id + ':accepted', 'trainer')) return; GymBus.markProcessed(ev.id + ':accepted', 'trainer');
+      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Sat · 10:00 AM', member: ev.payload.member, type: 'PT session', status: 'scheduled' });
       save(); renderSchedule(); toast(ev.payload.member + ' accepted the proposed time');
     }
   }
@@ -272,15 +515,18 @@ GymBus.on((kind, ev) => {
     const s = T.sessions.find((x) => x.busId === ev.id); if (!s) return;
     const last = ev.history[ev.history.length - 1] || {};
     if (ev.status === 'confirmed') {
+      if (s.status === 'confirmed' || GymBus.isProcessed(ev.id + ':confirmed', 'trainer')) return;
+      GymBus.markProcessed(ev.id + ':confirmed', 'trainer');
       s.status = 'confirmed'; if (s.pkgLeft != null) s.pkgLeft -= 1;
       delQ('conf-' + s.id); save(); renderSchedule();
-      toast('✓ ' + s.member.split(' ')[0] + ' confirmed — 1 session deducted' + (s.pkgLeft != null ? ' · ' + s.pkgLeft + ' left' : ''));
+      toast('✓ ' + s.member.split(' ')[0] + ' confirmed — 1 session deducted' + (s.pkgLeft != null ? ' · ' + s.pkgLeft + ' remaining' : ''));
       if (s.pkgLeft != null && s.pkgLeft <= 3) {
         addQ({ key: 'reco-' + s.id, member: s.member, t: 'Package nearly finished — ' + s.member,
-          s: s.pkgLeft + ' sessions left · recommend renewal (reception handles payment)', actions: [{ a: 'reco', l: 'Recommend 10-pack' }] });
+          s: s.pkgLeft + ' sessions remaining · recommend the 10-pack ($300, reception takes payment)', actions: [{ a: 'reco', l: 'Recommend 10-pack' }] });
       }
     }
     if (ev.status === 'disputed') {
+      if (GymBus.isProcessed(ev.id + ':disputed', 'trainer')) return; GymBus.markProcessed(ev.id + ':disputed', 'trainer');
       s.status = 'disputed'; delQ('conf-' + s.id); save(); renderSchedule();
       addQ({ key: 'disp-' + s.id, urg: 'urgent', t: 'Session disputed — ' + s.member,
         s: '"' + (last.note || '') + '" · goes to manager review with entry records — the deduction cannot be forced', actions: [] });
@@ -288,11 +534,16 @@ GymBus.on((kind, ev) => {
   }
 });
 
-/* catch-up: requests sent while this dashboard was closed */
-GymBus.all().forEach((ev) => { if (ev.type === 'pt-request' && ev.status === 'open') ingestRequest(ev); });
+/* catch-up: requests sent while this dashboard was closed (idempotency ledger
+   prevents double-ingestion; open-status filter prevents resurrecting handled ones) */
+GymBus.all().forEach((ev) => {
+  if (ev.type === 'pt-request' && ev.status === 'open' && !GymBus.isProcessed(ev.id, 'trainer')) {
+    GymBus.markProcessed(ev.id, 'trainer'); ingestRequest(ev);
+  }
+});
 
 $('statusSel').onchange = () => toast('Status: ' + $('statusSel').value + ' — members only see genuinely bookable slots');
-renderSchedule(); renderQueue();
+renderSchedule(); renderQueue(); renderAvail(); publishAvail();
 </script>
 </body>
 </html>

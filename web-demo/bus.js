@@ -16,14 +16,29 @@ const GymBus = (() => {
   const readLog = () => { try { return JSON.parse(localStorage.getItem(LOG_KEY)) || []; } catch (e) { return []; } };
   const writeLog = (log) => localStorage.setItem(LOG_KEY, JSON.stringify(log.slice(-60)));
 
-  function send(type, payload) {
+  function send(type, payload, src) {
     const ev = {
       id: 'ev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-      type, payload, at: nowT(), status: 'open', history: [],
+      type, payload, at: nowT(), t: Date.now(), src: src || 'unknown',
+      status: 'open', history: [],
     };
     const log = readLog(); log.push(ev); writeLog(log);
     if (chan) chan.postMessage({ kind: 'event', ev });
     return ev.id;
+  }
+
+  /* Idempotency ledger: each screen records the event-state keys it has already
+     applied, so BroadcastChannel delivery + catch-up replay + refresh can never
+     double-apply a mutation (double deduction, duplicate task, …).
+     Key convention for updates: id + ':' + status. */
+  const P_KEY = 'gym_bus_processed';
+  const readP = () => { try { return JSON.parse(localStorage.getItem(P_KEY)) || {}; } catch (e) { return {}; } };
+  function isProcessed(key, screen) { const m = readP(); return !!(m[screen] && m[screen][key]); }
+  function markProcessed(key, screen) {
+    const m = readP(); (m[screen] = m[screen] || {})[key] = Date.now();
+    const keys = Object.keys(m[screen]);
+    if (keys.length > 150) keys.slice(0, keys.length - 150).forEach((k) => delete m[screen][k]);
+    localStorage.setItem(P_KEY, JSON.stringify(m));
   }
 
   /* Only staff dashboards call update — statuses change by human action, never timers. */
@@ -44,5 +59,5 @@ const GymBus = (() => {
   const all = () => readLog();
   const get = (id) => readLog().find((e) => e.id === id);
 
-  return { send, update, on, all, get };
+  return { send, update, on, all, get, isProcessed, markProcessed };
 })();

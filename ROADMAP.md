@@ -24,6 +24,20 @@ A workflow is complete when: **member submits → staff receives → staff resol
 - **Announcement**: staff publishes → every member's home shows it + inbox entry.
 - **Denied entry**: gate denial visible on member phone AND reception feed →
   staff resolves via structured fix → member notified "resolved by X" and can enter.
+- **PT session (the 6:00 PM journey)**: member books from the trainer's genuinely
+  open slots → trainer accepts/proposes/declines → gate check-in raises
+  "in gym — session later" or, inside the 45-min window, an arrival alert →
+  live session with set recording + PR detection → notes REQUIRED → member
+  confirms before any deduction ("8 used · 2 remaining" wording) → dispute goes
+  to manager (deduction cannot be forced) → renewal recommendation reaches
+  reception itemized (plan + price), reception takes payment.
+- **Trainer prepares safely**: client file (goals, history, injury flags) →
+  program edit checked against injury flags → unsafe pick warns with approved
+  alternatives (override is logged) → saved program syncs to the member's app →
+  availability toggles publish instantly and gate what members can book.
+- **Idempotent transport**: every event carries id/type/source/timestamps; each
+  screen keeps a processed ledger — replay, refresh and catch-up can never
+  double-deduct or duplicate tasks.
 
 Demo transport: GymBus (BroadcastChannel + persisted log) — same contract the
 Supabase backend implements for production (realtime channels + tables + RLS).
