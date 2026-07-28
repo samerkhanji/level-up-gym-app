@@ -234,7 +234,7 @@
     <button class="stat" data-open="txlist"><b id="sRev">$0</b><span>revenue today · tap for breakdown</span></button>
     <button class="stat" data-open="guest"><b id="sGuests">0</b><span>guest passes</span></button>
     <button class="stat" data-open="txlist"><b id="sRenew">0</b><span>renewals</span></button>
-    <button class="stat"><b id="sDeny">0</b><span>denials</span></button>
+    <button class="stat" data-open="denials"><b id="sDeny">0</b><span>denials</span></button>
     <button class="stat" data-open="shift"><b id="sDrawer">$0</b><span>cash drawer</span></button>
   </div>
 
@@ -716,6 +716,8 @@ document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',(
   if(k==='pos')openPOS(null); if(k==='guest')openGuest(); if(k==='txlist')openTxList();
   if(k==='bookings')openBookings(); if(k==='incidents')openIncidents(); if(k==='shift')openShift();
   if(k==='occupancy')openOccupancy(); if(k==='system')openSystem();
+  if(k==='denials'){const f=[...$('filters').querySelectorAll('button')].find(x=>x.textContent.trim()==='Denied');
+    if(f)f.click();$('feed').scrollIntoView({behavior:'smooth'});toast('Gate feed filtered to denials');}
 }));
 document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.qa;
