@@ -979,6 +979,17 @@ function renderFood() {
           <button class="accent-btn slim" data-action="sub-accept">Accept ${o.subOffer}</button>
           <button class="book-btn wide warn" data-action="sub-decline" style="margin-top:6px;">No thanks — cancel &amp; refund</button>` : ''}
       </div>` : '';
+    const recoCard = state.cafeReco ? `
+      <div class="card" style="border-left:4px solid var(--deep, #124a38);">
+        ${eyebrow('leaf', 'Suggested by ' + state.cafeReco.by)}
+        <div class="row"><b>${state.cafeReco.item}</b></div>
+        <div class="dim small">${state.cafeReco.note}</div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="book-btn" data-action="reco-add">Add to cart</button>
+          <button class="book-btn warn" data-action="reco-dismiss">Not today</button>
+        </div>
+        <div class="dim small">A suggestion only — nothing is ordered or charged unless you check out.</div>
+      </div>` : '';
     const lastOrder = (state.orderHistory || [])[0];
     const reorderCard = (!o && lastOrder && lastOrder.itemsArr) ? `
       <div class="card">
@@ -1036,7 +1047,7 @@ function renderFood() {
       const ids = Object.keys(cart);
       const count = ids.reduce((s, id) => s + cart[id], 0);
       const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
-      body = statusCard + reorderCard + cats.map((cat) =>
+      body = statusCard + recoCard + reorderCard + cats.map((cat) =>
         `<div class="menu-cat">${cat}</div>` +
         menu.filter((m) => m.cat === cat).map((m) => {
           const av = (state.cafeAv || {})[m.name] || 'ok';
@@ -1065,7 +1076,41 @@ function renderFood() {
   }
 
   if (segFood === 'plan') {
-    body = `
+    const lp = state.mealPlanLive;
+    if (lp) {
+      const log = state.todayLog || {};
+      body = `
+      <div class="card" ${lp.status === 'sent' ? 'style="border:2px solid var(--deep, #124a38);"' : ''}>
+        ${eyebrow('clipboard', `Plan v${lp.v} · ${lp.status === 'sent' ? 'awaiting your OK' : 'active'} · by ${lp.by}`)}
+        <div class="dim small">${lp.goal} · ${lp.kcalT} kcal · ${lp.pT} g protein · review ${lp.review}</div>
+        ${lp.v > 1 && lp.changelog ? `<div class="dim small" style="margin-top:4px;"><b>Changed in v${lp.v}:</b> ${lp.changelog}</div>` : ''}
+        ${lp.status === 'sent' ? `
+          <button class="accent-btn slim" data-action="plan-ack" style="margin-top:9px;">Acknowledge & start v${lp.v}</button>
+          <div class="dim small center">Nothing is active until you confirm — ${lp.by} is told the moment you do.</div>` : `
+          <div class="dim small">Started ${lp.startedAt || 'today'} · v${lp.v > 1 ? (lp.v - 1) + ' stays in your history' : '1'}</div>`}
+      </div>
+      ${lp.meals.map((m) => `
+        <div class="meal">
+          <div class="mn">${m.name} <span class="dim small">· ${m.time}</span></div>
+          <div class="md">${m.items.map((i) => i.n + ' — ' + i.qty).join('<br>')}</div>
+          <div class="dim small">${m.totals.kcal} kcal · ${m.totals.p} g protein</div>
+          ${lp.status === 'active' ? `
+          <div class="btn-row" style="margin-top:6px;">
+            ${[['followed', '✓ Followed'], ['partly', '± Partly'], ['skipped', '✗ Skipped']].map(([k, l]) =>
+              `<button class="book-btn ${log[m.name] === k ? '' : 'warn'}" data-action="nlog-set" data-meal="${m.name}" data-v="${k}">${l}</button>`).join('')}
+          </div>` : ''}
+        </div>`).join('')}
+      ${lp.status === 'active' ? `
+      <div class="card">
+        <div class="row"><b>Today's log</b>
+          <button class="book-btn ${log.water ? '' : 'warn'}" data-action="nlog-set" data-meal="water" data-v="1">💧 Water goal</button></div>
+        <button class="accent-btn slim" data-action="nlog-send">Send today's log to ${lp.by}</button>
+        <button class="book-btn wide warn" data-action="nutri-discomfort" style="margin-top:6px;">Report discomfort with this plan</button>
+        <div class="dim small center">Logs are guidance, not judgment — substitutions from the approved list always count.</div>
+      </div>` : ''}
+      <button class="book-btn wide" data-action="book-nutritionist">Book a follow-up consultation · $${PRICES.nutritionist}</button>`;
+    } else {
+      body = `
       <div class="card">
         ${eyebrow('clipboard', 'Muscle gain · assigned by nutritionist')}
         <div class="dim small">2,850 kcal · 190 g protein · adjusted weekly from your check-ins</div>
@@ -1075,6 +1120,7 @@ function renderFood() {
         <div class="dim small">${m.macros}</div></div>`).join('')}
       <button class="book-btn wide" data-action="book-nutritionist">Book nutritionist consultation · $${PRICES.nutritionist}</button>
       <div class="dim small center">Plans are general guidance unless prepared by a licensed professional.</div>`;
+    }
   }
 
   if (segFood === 'shop') {
@@ -1739,10 +1785,57 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'book-nutritionist') {
     if (!payWallet(PRICES.nutritionist, 'Nutritionist consultation')) return;
-    pushNotif('Consultation booked', 'Nutritionist consultation — Saturday 11:00 AM at the club.');
+    GymBus.send('nutri-consult', { member: state.memberName, slot: 'Sat · 11:00 AM' }, 'member-app');
+    pushNotif('Consultation booked', 'Nutritionist consultation — Saturday 11:00 AM. It is on Rima D.’s schedule.');
     save();
     toast('Nutritionist booked · Sat 11:00 AM');
   }
+  if (a === 'plan-ack') {
+    const lp = state.mealPlanLive; if (!lp || lp.status !== 'sent') return;
+    if (GymBus.isProcessed(lp.busId + ':ack', 'member')) return;
+    GymBus.markProcessed(lp.busId + ':ack', 'member');
+    GymBus.update(lp.busId, 'acknowledged', state.memberName);
+    lp.status = 'active'; lp.startedAt = 'today';
+    state.todayLog = {};
+    save(); renderFood();
+    pushNotif('Plan v' + lp.v + ' active', `${lp.by} is notified — next review ${lp.review}.`);
+    toast('Plan v' + lp.v + ' is now active');
+  }
+  if (a === 'nlog-set') {
+    state.todayLog = state.todayLog || {};
+    if (el.dataset.meal === 'water') state.todayLog.water = !state.todayLog.water;
+    else state.todayLog[el.dataset.meal] = el.dataset.v;
+    save(); renderFood();
+  }
+  if (a === 'nlog-send') {
+    const lp = state.mealPlanLive; if (!lp) return;
+    const log = state.todayLog || {};
+    const total = lp.meals.length;
+    const followed = lp.meals.filter((m) => log[m.name] === 'followed').length + lp.meals.filter((m) => log[m.name] === 'partly').length * 0.5;
+    GymBus.send('nutri-log', { member: state.memberName, followed, total, water: !!log.water }, 'member-app');
+    state.todayLog = {};
+    save(); renderFood();
+    pushNotif('Log sent', `${followed} of ${total} meals followed${log.water ? ' · water goal met' : ''} — ${lp.by} sees it instantly.`);
+    toast('Log sent to ' + lp.by);
+  }
+  if (a === 'nutri-discomfort') {
+    const lp = state.mealPlanLive; if (!lp) return;
+    const text = prompt('What feels wrong? (goes straight to ' + lp.by + '):', '');
+    if (!text) return;
+    GymBus.send('nutri-issue', { member: state.memberName, text }, 'member-app');
+    pushNotif('Report sent', lp.by + ' will review your plan and adjust it as a new version — the current one stays in history.');
+    toast('Sent — expect an adjusted plan');
+  }
+  if (a === 'reco-add') {
+    const rec = state.cafeReco; if (!rec) return;
+    const m = menu.find((x) => x.name === rec.item);
+    if (!m) { toast(rec.item + ' is not on the menu right now'); return; }
+    cart[m.id] = (cart[m.id] || 0) + 1;
+    state.cafeReco = null; save();
+    segFood = 'cafe'; renderFood();
+    toast(rec.item + ' added to your cart — checkout when ready');
+  }
+  if (a === 'reco-dismiss') { state.cafeReco = null; save(); renderFood(); }
 
   if (a === 'topup') {
     const amt = Number(el.dataset.amt);
@@ -1816,7 +1909,11 @@ document.getElementById('loginBtn').onclick = () => {
   }
   const row = memberRows.find((m) => (m.name || '').trim().toLowerCase() === nameIn);
   if (!row) { fail('No member with that name. Check the spelling.'); return; }
-  if ((row.password || '') !== passIn) { fail('Wrong password.'); return; }
+  // Demo auth: if the sheet has a password column it is checked; if the column
+  // is removed (recommended — plaintext credentials don't belong in data sheets)
+  // any non-empty password works. The value is never stored in app state.
+  if (row.password) { if (row.password !== passIn) { fail('Wrong password.'); return; } }
+  else if (!passIn) { fail('Enter any password (demo mode).'); return; }
 
   if (errEl) errEl.hidden = true;
   applyMemberSeed(row);
@@ -2021,6 +2118,31 @@ function handleBus(kind, ev) {
     if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
     return;
   }
+  if (kind === 'event' && ev.type === 'meal-plan' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.mealPlanLive = { busId: ev.id, v: ev.payload.v, by: ev.payload.by, goal: ev.payload.goal, kcalT: ev.payload.kcalT, pT: ev.payload.pT, review: ev.payload.review, changelog: ev.payload.changelog, meals: ev.payload.meals, status: 'sent' };
+    save();
+    pushNotif('Meal plan v' + ev.payload.v + (ev.payload.v > 1 ? ' — updated' : ''), `${ev.payload.by} sent your ${ev.payload.v > 1 ? 'adjusted ' : ''}plan — review and acknowledge it in Food → Meal plan.`);
+    if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'nutri-reco' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.cafeReco = { item: ev.payload.item, note: ev.payload.note, by: ev.payload.by };
+    save();
+    pushNotif('Café suggestion from ' + ev.payload.by, `${ev.payload.item} — ${ev.payload.note}. Ordering is entirely up to you.`);
+    if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'nutri-booked' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    pushNotif('Nutrition appointment', `${ev.payload.by} booked you in — ${ev.payload.slot}.`);
+    save();
+    return;
+  }
   if (kind === 'event' && ev.type === 'pt-booked' && mine) {
     if (GymBus.isProcessed(ev.id, 'member')) return;
     GymBus.markProcessed(ev.id, 'member');
@@ -2195,6 +2317,14 @@ GymBus.on(handleBus);
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
       state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
+    }
+    if (ev.type === 'meal-plan' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.mealPlanLive = { busId: ev.id, v: ev.payload.v, by: ev.payload.by, goal: ev.payload.goal, kcalT: ev.payload.kcalT, pT: ev.payload.pT, review: ev.payload.review, changelog: ev.payload.changelog, meals: ev.payload.meals, status: ev.status === 'acknowledged' ? 'active' : 'sent' };
+    }
+    if (ev.type === 'nutri-reco' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.cafeReco = { item: ev.payload.item, note: ev.payload.note, by: ev.payload.by };
     }
     if (ev.type === 'pt-booked' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
