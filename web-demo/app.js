@@ -942,8 +942,22 @@ function renderFood() {
           <button class="accent-btn slim" data-action="sub-accept">Accept ${o.subOffer}</button>
           <button class="book-btn wide warn" data-action="sub-decline" style="margin-top:6px;">No thanks — cancel &amp; refund</button>` : ''}
       </div>` : '';
+    const lastOrder = (state.orderHistory || [])[0];
+    const reorderCard = (!o && lastOrder && lastOrder.itemsArr) ? `
+      <div class="card">
+        <div class="row"><b>Order again?</b><span class="dim small">${lastOrder.when}</span></div>
+        <div class="dim small">${lastOrder.items} · $${lastOrder.total}</div>
+        <button class="book-btn wide" data-action="reorder" style="margin-top:8px;">Reorder — straight to checkout</button>
+      </div>` : '';
 
-    if (cafeCheckout) {
+    if (state.cafeOpen === false) {
+      body = statusCard + `
+      <div class="card" style="text-align:center;">
+        ${eyebrow('cafe', 'Café paused')}
+        <div style="font-size:14px; font-weight:600;">The café is not taking orders right now.</div>
+        <div class="dim small" style="margin-top:4px;">Your active order (if any) is still being handled. Check back shortly.</div>
+      </div>`;
+    } else if (cafeCheckout) {
       /* ---- checkout: itemized, customized, allergens visible BEFORE paying ---- */
       const ids = Object.keys(cart);
       const hasShake = ids.some((id) => /shake/i.test(menu.find((m) => m.id === id)?.name || ''));
@@ -985,7 +999,7 @@ function renderFood() {
       const ids = Object.keys(cart);
       const count = ids.reduce((s, id) => s + cart[id], 0);
       const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
-      body = statusCard + cats.map((cat) =>
+      body = statusCard + reorderCard + cats.map((cat) =>
         `<div class="menu-cat">${cat}</div>` +
         menu.filter((m) => m.cat === cat).map((m) => {
           const av = (state.cafeAv || {})[m.name] || 'ok';
@@ -1545,6 +1559,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'order') {
     if (!Object.keys(cart).length) return;
+    if (state.cafeOpen === false) { toast('The café is paused — not taking orders right now'); return; }
     if (state.order) { toast('You already have an open order — wait for it or cancel it first'); return; }
     cafeCheckout = { milk: 'Regular milk', banana: false, noHoney: false, pickup: 'Ready after workout', pay: 'wallet' };
     renderFood();
@@ -1554,6 +1569,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'place-order') {
     const ids = Object.keys(cart);
     if (!ids.length) { cafeCheckout = null; renderFood(); return; }
+    if (state.cafeOpen === false) { toast('The café is paused — not taking orders right now'); cafeCheckout = null; renderFood(); return; }
     const co = cafeCheckout;
     const hasShake = ids.some((id) => /shake/i.test(menu.find((m) => m.id === id)?.name || ''));
     let total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
@@ -1569,12 +1585,13 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const allergens = [...new Set(items.map((i) => menu.find((m) => m.name === i.n).allerg).filter(Boolean).join(' · ').split(' · ').filter(Boolean))];
     const busId = GymBus.send('cafe-order', {
       member: state.memberName, code, items, custom, allergens, total,
+      declaredAllergies: state.allergies || [],
       pay: co.pay, pickup: co.pickup,
     }, 'member-app');
     state.order = {
-      busId, code, total, pay: co.pay, custom,
+      busId, code, total, pay: co.pay, custom, itemsArr: items,
       items: items.map((i) => (i.qty > 1 ? i.qty + '× ' : '') + i.n).join(', '),
-      status: co.pay === 'wallet' ? 'Sent to café — waiting for them to accept' : 'Waiting for payment at reception — café starts after you pay',
+      status: co.pay === 'wallet' ? 'Sent to café — waiting for them to start' : 'Waiting for payment at reception — café starts after you pay',
     };
     if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order ' + code, sub: `${state.order.items} · $${total}${co.pay === 'wallet' ? ' wallet' : ' — pay at reception'}` });
     cart = {}; cafeCheckout = null;
@@ -1588,6 +1605,23 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     o.status = 'Substitution accepted — waiting for café';
     save(); renderFood();
     toast('Swapped — the café will confirm shortly');
+  }
+  if (a === 'reorder') {
+    const h = (state.orderHistory || [])[0];
+    if (!h || !h.itemsArr || state.order) return;
+    if (state.cafeOpen === false) { toast('The café is paused right now'); return; }
+    cart = {};
+    let missing = null;
+    h.itemsArr.forEach((i) => {
+      const m = menu.find((x) => x.name === i.n);
+      if (!m) { missing = i.n; return; }
+      if (((state.cafeAv || {})[m.name] || 'ok') === 'out') { missing = i.n; return; }
+      cart[m.id] = i.qty;
+    });
+    if (missing && !Object.keys(cart).length) { toast(missing + ' is unavailable right now'); return; }
+    cafeCheckout = { milk: 'Regular milk', banana: false, noHoney: false, pickup: 'Ready after workout', pay: 'wallet' };
+    renderFood();
+    toast(missing ? missing + ' is unavailable — rest of the order loaded' : 'Loaded — review and pay');
   }
   if (a === 'sub-decline') {
     const o = state.order; if (!o || !o.subOffer) return;
@@ -1860,6 +1894,13 @@ function handleBus(kind, ev) {
     if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
     return;
   }
+  if (kind === 'event' && ev.type === 'cafe-status') {
+    state.cafeOpen = ev.payload.open !== false;
+    save();
+    if (!state.cafeOpen) pushNotif('Café paused', 'The café is not taking orders right now — check back shortly.');
+    if (document.getElementById('view-food')?.classList.contains('active')) renderFood();
+    return;
+  }
   if (kind === 'event' && ev.type === 'trainer-avail') {
     state.trainerSlots = state.trainerSlots || {};
     state.trainerSlots[ev.payload.trainer] = ev.payload.slots;
@@ -1957,7 +1998,23 @@ function handleBus(kind, ev) {
     const o = state.order;
     if (ev.status === 'paid') { o.status = 'Paid at reception ✓ — café can start now'; pushNotif('Café order paid', `${last.by} took $${o.total} at the desk — the café was told to start.`); }
     if (ev.status === 'accepted') { o.status = `Accepted by ${last.by} · ready ~${last.note || 'soon'}`; pushNotif('Order ' + o.code + ' accepted', `${last.by} is on it — ready around ${last.note || 'soon'}.`); }
-    if (ev.status === 'preparing') o.status = 'Being prepared right now';
+    if (ev.status === 'preparing') {
+      const firstTime = !o.prepNotified;
+      o.prepNotified = true;
+      o.status = `Being prepared by ${last.by}${last.note ? ' · ready ~' + last.note : ''}`;
+      if (firstTime) pushNotif('Order ' + o.code + ' in preparation', `${last.by} started — ready around ${last.note || 'soon'}.`);
+      else pushNotif('Order ' + o.code + ' — new time', `Ready around ${last.note} now.`);
+    }
+    if (ev.status === 'price-adjust') {
+      const m = (last.note || '').match(/(Refund|Extra) \$(\d+(?:\.\d+)?)/);
+      if (m) {
+        const amt = Number(m[2]) * (m[1] === 'Refund' ? 1 : -1);
+        state.wallet = Math.round((state.wallet + amt) * 100) / 100;
+        state.walletTx.unshift({ label: 'Café ' + o.code + ' price adjustment', when: 'Today', amount: amt });
+        o.total = Math.round((o.total - amt) * 100) / 100;
+      }
+      pushNotif('Order ' + o.code + ' price adjusted', last.note || 'Substitution price difference settled to your wallet.');
+    }
     if (ev.status === 'ready') {
       o.status = 'READY — show code ' + o.code + ' at the counter';
       pushNotif('Order ' + o.code + ' is ready 🥤', 'Collect at the café counter — they will ask for your code ' + o.code + '.');
@@ -1966,7 +2023,7 @@ function handleBus(kind, ev) {
     if (ev.status === 'collected') {
       earnPoints(POINTS.cafe_order, 'café order');
       state.orderHistory = state.orderHistory || [];
-      state.orderHistory.unshift({ code: o.code, items: o.items, total: o.total, when: 'Today' });
+      state.orderHistory.unshift({ code: o.code, items: o.items, itemsArr: o.itemsArr || null, total: o.total, when: 'Today' });
       if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: 'Café order collected', sub: `${o.items} · $${o.total}` });
       pushNotif('Receipt — ' + o.code, `${o.items} · $${o.total}${o.pay === 'wallet' ? ' paid from wallet' : ' paid at reception'} · +${POINTS.cafe_order} pts. Enjoy!`);
       state.order = null;
@@ -2015,6 +2072,7 @@ GymBus.on(handleBus);
       state.cafeAv = {};
       (ev.payload.items || []).forEach((i) => { state.cafeAv[i.name] = i.av; });
     }
+    if (ev.type === 'cafe-status') state.cafeOpen = ev.payload.open !== false; // latest wins
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
       state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
