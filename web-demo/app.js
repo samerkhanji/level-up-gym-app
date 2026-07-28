@@ -820,7 +820,16 @@ function renderTrain() {
   }
 
   if (segTrain === 'classes') {
-    body = classes.map((c) => {
+    const offerCard = state.classOffer ? `
+      <div class="card" style="border:2px solid var(--deep, #124a38);">
+        ${eyebrow('calendar', 'Waitlist offer — ' + state.classOffer.name)}
+        <div class="dim small">A space opened up. Answer within ${state.classOffer.expires} or it goes to the next person — the space is held for you alone until then.</div>
+        <div class="btn-row" style="margin-top:8px;">
+          <button class="book-btn" data-action="offer-accept">Accept the space</button>
+          <button class="book-btn warn" data-action="offer-decline">Decline</button>
+        </div>
+      </div>` : '';
+    body = offerCard + classes.map((c) => {
       const st = state.classState[c.id];
       const rated = state.classRatings[c.id];
       let btn;
@@ -1598,12 +1607,45 @@ document.getElementById('screen').addEventListener('click', (ev) => {
       const bt = state.booking && state.booking.when && c && c.when && (state.booking.when.match(/\d+:\d+ [AP]M/) || [])[0];
       if (bt && c.when.includes(bt)) { toast(`Clashes with your PT session (${state.booking.when}) — pick another class`); return; }
       state.classState[id] = 'booked'; earnPoints(POINTS.class, 'class reserved');
+      GymBus.send('class-book', { member: state.memberName, name: c.name }, 'member-app');
     }
-    if (act === 'waitlist') { state.classState[id] = 'waitlist'; toast("On the waitlist — we'll notify you"); }
-    if (act === 'cancel') { delete state.classState[id]; toast('Booking cancelled'); }
+    if (act === 'waitlist') {
+      state.classState[id] = 'waitlist';
+      const cw = classes.find((x) => x.id === id);
+      if (cw) GymBus.send('class-waitlist', { member: state.memberName, name: cw.name }, 'member-app');
+      toast("On the waitlist — you'll get the first opened space");
+    }
+    if (act === 'cancel') {
+      const cc = classes.find((x) => x.id === id);
+      delete state.classState[id];
+      if (cc) GymBus.send('class-cancel', { member: state.memberName, name: cc.name }, 'member-app');
+      toast('Booking cancelled — your space goes to the waitlist');
+    }
     save(); renderTrain();
   }
 
+  if (a === 'offer-accept') {
+    const o = state.classOffer; if (!o) return;
+    if (GymBus.isProcessed(o.busId + ':answer', 'member')) { state.classOffer = null; save(); renderTrain(); return; }
+    GymBus.markProcessed(o.busId + ':answer', 'member');
+    GymBus.update(o.busId, 'accepted', state.memberName);
+    const co = classes.find((x) => x.name === o.name);
+    if (co) state.classState[co.id] = 'booked';
+    state.classOffer = null;
+    save(); renderTrain();
+    earnPoints(POINTS.class, 'class reserved');
+    pushNotif("You're in — " + o.name, 'Promoted from the waitlist. Your booking is confirmed.');
+    toast('Space confirmed — see you in ' + o.name);
+  }
+  if (a === 'offer-decline') {
+    const o = state.classOffer; if (!o) return;
+    if (GymBus.isProcessed(o.busId + ':answer', 'member')) { state.classOffer = null; save(); renderTrain(); return; }
+    GymBus.markProcessed(o.busId + ':answer', 'member');
+    GymBus.update(o.busId, 'declined', state.memberName);
+    state.classOffer = null;
+    save(); renderTrain();
+    toast('Declined — the space goes to the next person');
+  }
   if (a === 'toggle-locker') {
     if (!state.locker) return;
     state.locker.locked = !state.locker.locked;
@@ -2135,6 +2177,36 @@ function handleBus(kind, ev) {
     if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
     return;
   }
+  if (kind === 'event' && ev.type === 'class-offer' && mine) {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    state.classOffer = { busId: ev.id, name: ev.payload.name, expires: ev.payload.expires || '30 min' };
+    save();
+    pushNotif('Waitlist offer — ' + ev.payload.name, `A space opened up! Accept within ${ev.payload.expires || '30 min'} in Train → Classes or it goes to the next person.`);
+    toast('Waitlist offer: ' + ev.payload.name);
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
+  if (kind === 'event' && ev.type === 'class-done') {
+    if (GymBus.isProcessed(ev.id, 'member')) return;
+    GymBus.markProcessed(ev.id, 'member');
+    const cd = classes.find((x) => x.name === ev.payload.name);
+    const hadBooking = cd && state.classState[cd.id];
+    const attended = (ev.payload.attendees || []).includes(state.memberName);
+    if (ev.payload.cancelled && hadBooking) {
+      delete state.classState[cd.id];
+      pushNotif(ev.payload.name + ' cancelled', ev.payload.notes || 'The class was cancelled — your credit is not used.');
+    } else if (attended) {
+      if (cd) delete state.classState[cd.id];
+      pushNotif(ev.payload.name + ' — nice work!', `${ev.payload.instructor}: ${ev.payload.notes || 'Thanks for coming.'} Rate the class in Train → Classes.`);
+    } else if (hadBooking) {
+      delete state.classState[cd.id];
+      pushNotif(ev.payload.name + ' — marked absent', 'You were booked but not checked in. Repeated no-shows pause booking for 48 h.');
+    }
+    save();
+    if (document.getElementById('view-train')?.classList.contains('active')) renderTrain();
+    return;
+  }
   if (kind === 'event' && ev.type === 'meal-plan' && mine) {
     if (GymBus.isProcessed(ev.id, 'member')) return;
     GymBus.markProcessed(ev.id, 'member');
@@ -2339,6 +2411,10 @@ GymBus.on(handleBus);
     if (ev.type === 'program-update' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');
       state.customWorkout = { program: ev.payload.title, day: 'Updated today', by: ev.payload.by, exercises: ev.payload.exercises };
+    }
+    if (ev.type === 'class-offer' && ev.payload?.member === state.memberName && ev.status === 'open' && !GymBus.isProcessed(ev.id, 'member')) {
+      GymBus.markProcessed(ev.id, 'member');
+      state.classOffer = { busId: ev.id, name: ev.payload.name, expires: ev.payload.expires || '30 min' };
     }
     if (ev.type === 'meal-plan' && ev.payload?.member === state.memberName && !GymBus.isProcessed(ev.id, 'member')) {
       GymBus.markProcessed(ev.id, 'member');

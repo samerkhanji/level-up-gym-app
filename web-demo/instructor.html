@@ -7,63 +7,496 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; padding:24px 16px 60px; display:flex; flex-direction:column; align-items:center; gap:18px; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
-  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; }
-  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
-  .dept-nav a.here { background:#124a38; color:#fff; }
-  .dept-head { text-align:center; max-width:640px; }
-  .dept-head h1 { font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; margin:0 0 6px; }
-  .dept-head p { color:#6c7a71; font-size:14px; margin:0; }
-  .screen-wrap { max-width:100%; overflow-x:auto; padding:8px; }
+  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
+    padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
+  .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
+  .avatar.sm { width:30px; height:30px; font-size:11px; background:var(--mint); color:var(--deep); }
+  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .t-sub { font-size:12px; color:var(--muted); }
+  .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
+  .qbar { display:flex; gap:7px; flex-wrap:wrap; }
+  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(23,33,28,.05); }
+  .qbar button.dark { background:var(--deep); color:#fff; }
+  .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
+  .cls.live { outline:2.5px solid var(--deep); }
+  .cls-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .cls-n { font-family:var(--display); font-weight:800; font-size:15px; }
+  .cls-meta { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
+  .st-sched { background:#eceee8; color:var(--muted); }
+  .st-prep { background:var(--amber-soft); color:var(--amber); }
+  .st-live { background:var(--deep); color:#fff; animation:pulse 1.6s infinite; }
+  .st-done { background:var(--mint); color:var(--deep); }
+  .st-warn { background:var(--amber-soft); color:var(--amber); }
+  .st-bad { background:var(--red-soft); color:var(--red); }
+  .st-ok { background:var(--mint); color:var(--deep); }
+  .big-act { display:block; width:100%; margin-top:9px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
+  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:9px 7px; min-height:32px; }
+  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--amber-soft); font-size:12.5px; }
+  .task.urgent { background:var(--red-soft); }
+  .task b { display:block; font-size:13px; }
+  .roster { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .roster:last-child { border-bottom:none; }
+  .roster .n { flex:1; min-width:0; font-weight:700; font-size:13px; }
+  .roster .sub { display:block; font-size:11px; color:var(--faint); font-weight:400; }
+  .roster button { font-size:10.5px; font-weight:800; padding:7px 10px; border-radius:9px; background:var(--deep); color:#fff; min-height:30px; }
+  .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 9px; margin-left:4px; }
+  .flag.amber { background:var(--amber-soft); color:var(--amber); }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .hidden { display:none !important; }
+  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:none; place-items:center; z-index:90; padding:16px; }
+  .overlay.show { display:grid; }
+  .modal { background:#fff; border-radius:20px; padding:18px; width:min(430px, 100%); max-height:86vh; overflow:auto; }
+  .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
+  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:13px; border-radius:13px; background:var(--paper); margin-top:7px; cursor:pointer; }
+  .opt.danger { background:var(--red-soft); color:var(--red); }
+  .opt.solid { background:var(--deep); color:#fff; }
+  .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
+  .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
+  .chk-line input { width:17px; height:17px; accent-color:var(--deep); }
+  .chk-line.bad { background:var(--red-soft); color:var(--red); }
 </style>
 </head>
 <body>
-  <nav class="dept-nav">
-    <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html" >Trainer</a><a href="cafe.html" >Café</a><a href="nutritionist.html" >Nutritionist</a><a href="maintenance.html" >Maintenance</a><a href="instructor.html" class="here">Instructor</a><a href="staff.html">All departments</a>
-  </nav>
-  <div class="dept-head"><h1>Instructor</h1><p>Class check-in, waitlist promotion, post-class summary</p></div>
-  <div class="screen-wrap">
-      <div data-screen-label="Instructor" style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); box-sizing:border-box; padding:26px 18px 18px; display:flex; flex-direction:column; gap:14px;">
-        <div style="padding:0 4px;">
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:22px;">HIIT 45</div>
-          <div style="font-size:13px; color:#6c7a71; margin-top:2px;">Today 6:00 PM · Studio 1 · Coach Karim</div>
-        </div>
-        <div style="display:flex; gap:10px;">
-          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#124a38;">18/18</div><div style="font-size:11px; color:#6c7a71;">reserved</div></div>
-          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#1e6b52;">15</div><div style="font-size:11px; color:#6c7a71;">checked in</div></div>
-          <div style="flex:1; background:#ffffff; border-radius:16px; padding:12px; text-align:center; box-shadow:0 5px 14px rgba(23,33,28,.05);"><div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:20px; color:#a86408;">4</div><div style="font-size:11px; color:#6c7a71;">waitlist</div></div>
-        </div>
-        <div style="background:#ffffff; border-radius:24px; padding:6px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); flex:1;">
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
-            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:12px;">M</div><span style="font-weight:600; font-size:14px;">Mohamad</span></div>
-            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ In class</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
-            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#dff0e6; color:#124a38; display:grid; place-items:center; font-weight:700; font-size:12px;">L</div><span style="font-weight:600; font-size:14px;">Lina Saab</span></div>
-            <span style="background:#dff0e6; color:#124a38; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">✓ In class</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid #f2f4ee;">
-            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#f3f4ef; color:#6c7a71; display:grid; place-items:center; font-weight:700; font-size:12px;">O</div><span style="font-weight:600; font-size:14px;">Omar Khal</span></div>
-            <span style="background:#f3f4ef; color:#6c7a71; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">Tap to check in</span>
-          </div>
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:13px 0;">
-            <div style="display:flex; align-items:center; gap:10px;"><div style="width:30px; height:30px; border-radius:50%; background:#fbeaea; color:#a33a3a; display:grid; place-items:center; font-weight:700; font-size:12px;">R</div><span style="font-weight:600; font-size:14px;">Rami Aoun</span></div>
-            <span style="background:#fbeaea; color:#a33a3a; font-size:11px; font-weight:700; padding:4px 10px; border-radius:999px;">No-show</span>
-          </div>
-        </div>
-        <div style="background:#fdf3ec; border-radius:20px; padding:16px 18px;">
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div><div style="font-weight:700; font-size:14px; color:#a86408;">Waitlist auto-promotion</div><div style="font-size:12px; color:#8a6a2a; margin-top:2px;">Rami's spot → promote next in line?</div></div>
-            <div style="background:#a86408; color:#ffffff; border-radius:10px; padding:9px 14px; font-weight:700; font-size:12px;">Promote</div>
-          </div>
-        </div>
-        <div style="background:#ffffff; border-radius:20px; padding:14px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05);">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Post-class summary</div>
-          <div style="display:flex; justify-content:space-between; font-size:13px; margin-top:8px;"><span><b style="color:#124a38;">16</b> attended · <b style="color:#a33a3a;">2</b> no-shows</span><span style="color:#a86408; font-weight:700;">★ 4.8 avg rating</span></div>
-        </div>
-        <div style="background:#124a38; color:#ffffff; border-radius:16px; padding:15px; text-align:center; font-weight:800; font-size:15px;">Start class · 15 in</div>
-      </div>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="maintenance.html">Maintenance</a><a href="index.html">Member app</a></nav>
+
+  <div class="card head">
+    <div class="avatar">TA</div>
+    <div><div class="t-name">Tony A. — Instructor</div><div class="t-sub">Group classes · HIIT · Boxing</div></div>
+    <div class="stats">
+      <div><b id="stClasses">0</b>classes today</div>
+      <div><b id="stBooked">0</b>booked</div>
+      <div><b id="stWait">0</b>waitlist</div>
+    </div>
   </div>
+
+  <div class="qbar">
+    <button class="dark" id="addClass">+ Add class</button>
+    <button id="reqCover">Request cover</button>
+    <button id="repIssue">Report issue</button>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Today — my classes</div>
+    <div id="classList"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Needs attention</div>
+    <div id="attn"></div>
+  </div>
+
+  <div class="card hidden" id="classCard"></div>
+
+  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+      Connected demo: member bookings, cancellations and gate check-ins update the roster live; a cancellation offers
+      the space to the FIRST waitlisted member (never two at once); the preparation checklist gates starting; credits
+      and completion notifications go out exactly once. Cover requests land at reception. Statuses never change by timer.</div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
+
+<script src="bus.js?v=3"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+const ME = 'Tony A.';
+
+/* ---------------- state ---------------- */
+const IKEY = 'gym_instr_state';
+let I = {
+  classes: [
+    { id: 'hiit', name: 'HIIT Burn', time: '7:00 PM', room: 'Functional Zone', cap: 18, status: 'scheduled',
+      policy: 'Instructor approval after warm-up begins', firstTimers: ['Samer Khanji'],
+      roster: [
+        { n: 'Samer Khanji', state: 'booked', warn: 'Right shoulder limitation' },
+        { n: 'Lina Saab', state: 'booked' },
+        { n: 'Jawad', state: 'booked' },
+        { n: 'Omar Khal', state: 'booked' },
+      ],
+      wait: ['Maya Haddad', 'Pamela <3'],
+      prep: null, startedAt: null, endedAt: null, notes: '' },
+    { id: 'spin', name: 'Spin 45', time: '6:00 PM', room: 'Studio B', cap: 20, status: 'scheduled',
+      policy: 'No entry after the safety briefing',
+      roster: [{ n: 'Lina Saab', state: 'booked' }, { n: 'Hassan M.', state: 'booked' }], wait: [],
+      prep: null, startedAt: null, endedAt: null, notes: '' },
+  ],
+  inside: {}, queue: [], offers: {}, // offers: classId → {member, at} — one open offer max
+};
+try { const s = JSON.parse(localStorage.getItem(IKEY)); if (s && s.classes) I = s; } catch (e) {}
+function save() { localStorage.setItem(IKEY, JSON.stringify(I)); }
+const clsByName = (n) => I.classes.find((c) => n && (c.name === n || n.startsWith(c.name)));
+function audit(c, line) { (c.log = c.log || []).unshift(now() + ' · ' + line); }
+
+/* ---------------- chooser ---------------- */
+function choose(title, sub, options, withNote) {
+  return new Promise((resolve) => {
+    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">${sub || ''}</div>
+      ${options.map((o, i) => `<button class="opt ${o.cls || ''}" data-oi="${i}">${o.label}</button>`).join('')}
+      ${withNote ? '<input class="opt" style="background:#fff; border:1.5px solid var(--line); font-weight:400;" id="optNote" placeholder="Note…" />' : ''}
+      <button class="m-cancel" id="optCancel">Cancel</button>`;
+    $('overlay').classList.add('show');
+    const close = (v) => { $('overlay').classList.remove('show'); resolve(v); };
+    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => close({ choice: options[Number(b.dataset.oi)].label, note: withNote ? ($('optNote')?.value || '') : '' }); });
+    $('optCancel').onclick = () => close(null);
+  });
+}
+$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) $('overlay').classList.remove('show'); });
+
+/* ---------------- dashboard ---------------- */
+function primaryFor(c) {
+  if (c.status === 'scheduled') return ['prep', 'Prepare class'];
+  if (c.status === 'ready') return ['start', 'Start class'];
+  if (c.status === 'live') return ['open', 'Open live class'];
+  if (c.status === 'ended') return ['complete', 'Complete report'];
+  return [null, null];
+}
+function render() {
+  $('classList').innerHTML = I.classes.map((c) => {
+    const booked = c.roster.filter((r) => ['booked', 'checkedin', 'participated'].includes(r.state)).length;
+    const insideN = c.roster.filter((r) => I.inside[r.n] && r.state === 'booked').length;
+    const [act, lbl] = primaryFor(c);
+    const stc = c.status === 'live' ? ['LIVE', 'st-live'] : c.status === 'ready' ? ['READY', 'st-ok'] : c.status === 'ended' ? ['REPORT DUE', 'st-warn'] : c.status === 'completed' ? ['COMPLETED', 'st-done'] : c.status === 'cancelled' ? ['CANCELLED', 'st-bad'] : ['SCHEDULED', 'st-sched'];
+    return `<div class="cls ${c.status === 'live' ? 'live' : ''}">
+      <div class="cls-top"><span class="cls-n">${c.time} · ${c.name}</span><span class="st ${stc[1]}">${stc[0]}</span></div>
+      <div class="cls-meta">${c.room} · ${booked} booked${c.cap - booked > 0 ? ' · ' + (c.cap - booked) + ' spaces left' : ' · FULL'}${c.wait.length ? ' · ' + c.wait.length + ' on waitlist' : ''}${insideN ? ' · ' + insideN + ' already inside' : ''}</div>
+      ${c.prep && c.prep.fail ? `<div class="cls-meta" style="color:var(--amber); font-weight:800;">⚠ ${c.prep.fail}</div>` : ''}
+      ${act ? `<button class="big-act" data-c="${c.id}" data-a="${act}">${lbl}</button>` : ''}
+      ${!['completed', 'cancelled'].includes(c.status) ? `<button class="more-btn" data-c="${c.id}" data-a="more">More…</button>` : `<div class="cls-meta">${(c.log || [])[0] || ''}</div>`}
+    </div>`;
+  }).join('') || '<div style="color:var(--faint); font-size:13px;">No classes today — use <b>+ Add class</b>; member bookings fill the roster live.</div>';
+  const booked = I.classes.reduce((s, c) => s + c.roster.filter((r) => r.state === 'booked').length, 0);
+  $('stClasses').textContent = I.classes.filter((c) => !['completed', 'cancelled'].includes(c.status)).length;
+  $('stBooked').textContent = booked;
+  $('stWait').textContent = I.classes.reduce((s, c) => s + c.wait.length, 0);
+  renderAttn();
+  document.querySelectorAll('[data-c]').forEach((b) => { b.onclick = () => act(b.dataset.c, b.dataset.a); });
+}
+function renderAttn() {
+  const items = [...I.queue];
+  I.classes.forEach((c) => {
+    if (c.status === 'ended') items.push({ t: c.name + ' — report incomplete', s: 'Attendance, incidents and notes are still open' });
+    if (c.prep && c.prep.fail && c.status !== 'completed') items.push({ t: c.name + ' — equipment shortage', s: c.prep.fail, urgent: true });
+    if (I.offers[c.id]) items.push({ t: c.name + ' — waitlist offer pending', s: I.offers[c.id].member + ' has the space on hold; next person is contacted only if they decline' });
+  });
+  $('attn').innerHTML = items.map((i) => `<div class="task ${i.urgent ? 'urgent' : ''}"><b>${i.t}</b>${i.s}</div>`).join('')
+    || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All caught up — cover requests, equipment problems, pending offers and unfinished reports land here.</div>';
+}
+
+/* ---------------- class actions ---------------- */
+async function act(id, action) {
+  const c = I.classes.find((x) => x.id === id); if (!c) return;
+
+  if (action === 'prep') {
+    if (c.status !== 'scheduled') return;
+    const items = ['Studio available & floor inspected', 'Emergency exit clear', 'Music + attendance device ready', 'Equipment counted (' + c.cap + ' stations)', 'First-aid location confirmed'];
+    const done = await new Promise((resolve) => {
+      $('modalBox').innerHTML = `<h3>Prepare — ${c.name}</h3><div class="sub">A failed safety item blocks a normal start.</div>
+        ${items.map((t, i) => `<label class="chk-line"><input type="checkbox" data-ck="${i}" ${i === 3 && c.id === 'hiit' ? '' : 'checked'} /> ${t}</label>`).join('')}
+        <button class="opt danger" id="ckFail">Equipment problem — report &amp; reduce capacity</button>
+        <button class="opt solid" id="ckOK">Confirm studio ready</button>
+        <button class="m-cancel" id="ckCancel">Cancel</button>`;
+      $('overlay').classList.add('show');
+      $('ckOK').onclick = () => {
+        const all = [...document.querySelectorAll('[data-ck]')].every((x) => x.checked);
+        if (!all) { toast('A checklist item is unchecked — resolve it or use the equipment-problem path'); return; }
+        $('overlay').classList.remove('show'); resolve('ok');
+      };
+      $('ckFail').onclick = () => { $('overlay').classList.remove('show'); resolve('fail'); };
+      $('ckCancel').onclick = () => { $('overlay').classList.remove('show'); resolve(null); };
+    });
+    if (!done) return;
+    if (done === 'fail') {
+      const r = await choose('Equipment problem — ' + c.name, 'Maintenance is notified; capacity drops so no one books a missing station.',
+        [{ label: '2 resistance bands missing — capacity −2' }, { label: 'Sound system fault — report only' }], true);
+      if (!r) return;
+      if (r.choice.includes('capacity')) { c.cap = Math.max(c.roster.length, c.cap - 2); }
+      c.prep = { ok: false, fail: r.choice + (r.note ? ' — ' + r.note : '') };
+      GymBus.send('report', { ref: 'CLS-' + Date.now().toString().slice(-4), machine: c.room + ' equipment', issue: r.choice, member: ME + ' (instructor)' }, 'instructor');
+      audit(c, 'Equipment issue reported — ' + r.choice + ' (' + ME + ')');
+      c.status = 'ready';
+      save(); render(); toast('Reported to maintenance — capacity now ' + c.cap);
+      return;
+    }
+    c.prep = { ok: true }; c.status = 'ready';
+    audit(c, 'Preparation confirmed by ' + ME);
+    save(); render(); toast(c.name + ' ready — start when participants are in');
+  }
+
+  if (action === 'start') {
+    if (c.status !== 'ready') return; // double-click guard
+    c.status = 'live'; c.startedAt = now();
+    audit(c, 'Class started ' + c.startedAt);
+    save(); render(); openLive(c);
+  }
+  if (action === 'open') openLive(c);
+
+  if (action === 'complete') {
+    if (c.status !== 'ended') return;
+    const notes = prompt('Class notes (required — performance, incidents, follow-ups):', '');
+    if (notes == null) return;
+    if (notes.trim().length < 5) { toast('Real class notes are required to complete'); return; }
+    if (GymBus.isProcessed('done-' + c.id + '-' + (c.startedAt || ''), 'instructor')) { toast('Already completed'); return; }
+    GymBus.markProcessed('done-' + c.id + '-' + (c.startedAt || ''), 'instructor');
+    c.notes = notes; c.status = 'completed';
+    const attendees = c.roster.filter((r) => r.state === 'participated').map((r) => r.n);
+    c.roster.forEach((r) => { if (r.state === 'booked') r.state = 'noshow'; });
+    GymBus.send('class-done', { name: c.name, instructor: ME, attendees, notes: 'Thanks for coming — see you next time!' }, 'instructor');
+    audit(c, 'Completed by ' + ME + ' — ' + attendees.length + ' attended, credits processed once');
+    save(); render();
+    toast(c.name + ' completed — ' + attendees.length + ' participants notified, credits processed exactly once');
+  }
+
+  if (action === 'more') {
+    const r = await choose(c.name + ' — more actions', c.time + ' · ' + c.room, [
+      { label: 'Open roster & check-in' },
+      { label: 'Request cover for this class' },
+      { label: 'Propose room change' },
+      { label: 'Cancel class with reason', cls: 'danger' },
+    ], true);
+    if (!r) return;
+    if (r.choice.startsWith('Open roster')) openRoster(c);
+    if (r.choice.startsWith('Request cover')) requestCover(c, r.note);
+    if (r.choice.startsWith('Propose room')) {
+      GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'Room change request — ' + c.name + ' (' + c.time + ') · needs supervisor approval' }, 'instructor');
+      audit(c, 'Room change proposed — awaiting approval');
+      save(); render(); toast('Sent for supervisor approval — nothing changes until confirmed');
+    }
+    if (r.choice.startsWith('Cancel class')) {
+      if (!r.note) { toast('A reason is required to cancel'); return; }
+      c.status = 'cancelled';
+      GymBus.send('class-done', { name: c.name, instructor: ME, cancelled: true, attendees: [], notes: 'Cancelled — ' + r.note + '. Your credit is not used.' }, 'instructor');
+      audit(c, 'Cancelled by ' + ME + ' — ' + r.note);
+      save(); render(); toast('Cancelled — every booked member is notified, no credits used');
+    }
+  }
+}
+
+/* ---------------- roster & check-in ---------------- */
+let rosterOpen = null;
+function openRoster(c) {
+  rosterOpen = c.id;
+  $('classCard').classList.remove('hidden');
+  const stLbl = { booked: 'Booked', checkedin: 'Checked in', participated: 'Participated', noshow: 'No-show', cancelled: 'Cancelled', late: 'Late entry' };
+  $('classCard').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="eyebrow" style="margin:0;">${c.name} — roster (${c.roster.length}/${c.cap})</div>
+      <button class="more-btn" style="width:auto; margin:0;" id="rcClose">✕</button></div>
+    ${c.roster.map((r, i) => `
+      <div class="roster">
+        <div class="avatar sm">${r.n[0]}</div>
+        <div class="n">${r.n}
+          ${r.warn ? `<span class="flag">⚠ ${r.warn}</span>` : ''}
+          ${(c.firstTimers || []).includes(r.n) ? '<span class="flag amber">First class</span>' : ''}
+          <span class="sub">${stLbl[r.state] || r.state}${I.inside[r.n] ? ' · inside gym since ' + I.inside[r.n] : ''}</span></div>
+        ${['booked'].includes(r.state) && c.status !== 'completed' ? `<button data-ri="${i}" data-ra="checkin">Check in</button>` : ''}
+        ${r.state === 'checkedin' && c.status === 'live' ? `<button data-ri="${i}" data-ra="part">Participated</button>` : ''}
+      </div>`).join('')}
+    ${c.wait.length ? `<div class="eyebrow" style="margin-top:10px;">Waitlist (${c.wait.length})</div>
+      ${c.wait.map((w) => `<div class="roster"><div class="avatar sm">${w[0]}</div><div class="n">${w}<span class="sub">${I.offers[c.id]?.member === w ? 'Offer sent — waiting for answer' : 'Waiting'}</span></div></div>`).join('')}` : ''}
+    <div style="font-size:11px; color:var(--faint); margin-top:8px;">Contact goes through the gym — participant phone numbers are not shown here. Attendance locks when the report is completed.</div>`;
+  $('rcClose').onclick = () => { $('classCard').classList.add('hidden'); rosterOpen = null; };
+  document.querySelectorAll('[data-ri]').forEach((b) => { b.onclick = () => {
+    const r = c.roster[Number(b.dataset.ri)];
+    if (b.dataset.ra === 'checkin') { r.state = 'checkedin'; audit(c, r.n + ' checked in'); }
+    if (b.dataset.ra === 'part') { r.state = 'participated'; }
+    save(); openRoster(c); render();
+  }; });
+  $('classCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ---------------- live mode ---------------- */
+function openLive(c) {
+  rosterOpen = c.id;
+  $('classCard').classList.remove('hidden');
+  const present = c.roster.filter((r) => ['checkedin', 'participated'].includes(r.state)).length;
+  $('classCard').innerHTML = `
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="eyebrow" style="margin:0;">${c.name} · LIVE — started ${c.startedAt}</div>
+      <button class="more-btn" style="width:auto; margin:0;" id="lvClose">✕</button></div>
+    <div style="font-size:13.5px; margin-top:6px;"><b>${present}</b> participants present · policy: ${c.policy}</div>
+    <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
+      <button class="big-act" style="flex:1; margin:0;" id="lvEnd">End class</button>
+      <button class="more-btn" style="width:auto;" id="lvLate">Late arrival…</button>
+      <button class="more-btn" style="width:auto; color:var(--red);" id="lvIncident">Report incident</button>
+    </div>
+    <div class="eyebrow" style="margin-top:12px;">Roster</div>
+    <div id="lvRoster"></div>`;
+  const rerenderMini = () => {
+    $('lvRoster').innerHTML = c.roster.map((r, i) => `
+      <div class="roster"><div class="avatar sm">${r.n[0]}</div>
+        <div class="n">${r.n}<span class="sub">${r.state}${r.warn ? ' · ⚠ ' + r.warn : ''}</span></div>
+        ${r.state === 'booked' ? `<button data-lvi="${i}">Check in</button>` : r.state === 'checkedin' ? `<button data-lvi="${i}">Participated</button>` : ''}
+      </div>`).join('');
+    document.querySelectorAll('[data-lvi]').forEach((b) => { b.onclick = () => {
+      const r = c.roster[Number(b.dataset.lvi)];
+      r.state = r.state === 'booked' ? 'checkedin' : 'participated';
+      save(); rerenderMini(); render();
+    }; });
+  };
+  rerenderMini();
+  $('lvClose').onclick = () => { $('classCard').classList.add('hidden'); rosterOpen = null; };
+  $('lvEnd').onclick = () => {
+    if (c.status !== 'live') return;
+    c.status = 'ended'; c.endedAt = now();
+    audit(c, 'Class ended ' + c.endedAt + ' — complete the report');
+    save(); render(); $('classCard').classList.add('hidden');
+    toast('Ended — attendance and notes are required before completion');
+  };
+  $('lvLate').onclick = async () => {
+    const r = await choose('Late arrival — ' + c.name, 'Policy: ' + c.policy, [
+      { label: 'Allow late entry (logged)', cls: 'solid' },
+      { label: 'Deny — offer the next suitable class', cls: 'danger' },
+    ], true);
+    if (!r) return;
+    if (r.choice.startsWith('Allow')) {
+      c.roster.push({ n: r.note || 'Walk-in member', state: 'late' });
+      audit(c, 'Late entry allowed — ' + (r.note || 'walk-in') + ' (' + ME + ')');
+      save(); openLive(c); render(); toast('Late entry allowed — logged');
+    } else {
+      GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: r.note || 'Member at studio door', subject: 'Late entry denied for ' + c.name + ' per class policy — please offer the next suitable class' }, 'instructor');
+      audit(c, 'Late entry denied per policy — reception notified');
+      save(); toast('Denied per policy — reception offers the next class');
+    }
+  };
+  $('lvIncident').onclick = () => {
+    const t = prompt('What happened? (goes to reception as an incident — stays open until THEY close it):', '');
+    if (!t) return;
+    GymBus.send('sos', { member: ME + ' (instructor)', sosType: 'Class incident — ' + c.name, zone: c.room + ': ' + t }, 'instructor');
+    audit(c, 'Incident reported — ' + t);
+    save(); toast('Incident sent — reception acknowledges and closes it');
+  };
+  $('classCard').scrollIntoView({ behavior: 'smooth' });
+}
+
+/* ---------------- scheduling, cover, issues ---------------- */
+$('addClass').onclick = async () => {
+  const name = prompt('Class name:', 'Mobility Basics'); if (!name) return;
+  const time = prompt('Time today (e.g. 8:00 PM):', '8:00 PM'); if (!time) return;
+  const room = prompt('Room:', 'Studio B'); if (room == null) return;
+  const clash = I.classes.find((c) => !['completed', 'cancelled'].includes(c.status) && (c.time === time || (c.room === room && c.time === time)));
+  if (clash) { toast('Not created — clashes with ' + clash.name + ' at ' + clash.time + (clash.room === room ? ' in the same room' : ' (you are double-booked)')); return; }
+  I.classes.push({ id: 'c' + Date.now(), name, time, room, cap: 15, status: 'scheduled', policy: 'Late entry allowed for 10 minutes', roster: [], wait: [], prep: null, startedAt: null, endedAt: null, notes: '', draft: true });
+  GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'New class draft — ' + name + ' ' + time + ' (' + room + ') · supervisor approval before publishing' }, 'instructor');
+  save(); render();
+  toast(name + ' drafted — supervisor approval requested before members see it');
+};
+$('reqCover').onclick = () => requestCover(I.classes[0], null);
+function requestCover(c, note) {
+  GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'Cover request — ' + c.name + ' ' + c.time + (note ? ' · ' + note : '') + ' · qualified HIIT instructor needed · I remain responsible until confirmed' }, 'instructor');
+  I.queue.unshift({ t: 'Cover requested — ' + c.name, s: 'Awaiting a qualified volunteer + supervisor approval · you stay responsible until confirmed' });
+  audit(c, 'Cover requested by ' + ME);
+  save(); render(); toast('Cover request sent — you remain responsible until a replacement is confirmed');
+}
+$('repIssue').onclick = async () => {
+  const r = await choose('Report issue', 'Goes straight to maintenance.', [
+    { label: 'Sound system — Studio B' }, { label: 'Spin bike — Studio B' }, { label: 'Flooring — Functional Zone' }, { label: 'Other' },
+  ], true);
+  if (!r) return;
+  GymBus.send('report', { ref: 'CLS-' + Date.now().toString().slice(-4), machine: r.choice, issue: 'Reported by instructor' + (r.note ? ' — ' + r.note : ''), member: ME + ' (instructor)' }, 'instructor');
+  toast('Reported to maintenance');
+};
+
+/* ---------------- waitlist lifecycle ---------------- */
+function processCancellation(c, member) {
+  const r = c.roster.find((x) => x.n === member && ['booked', 'checkedin'].includes(x.state));
+  if (r) { r.state = 'cancelled'; audit(c, member + ' cancelled'); }
+  if (c.wait.length && !I.offers[c.id]) { // never two open offers for one space
+    const next = c.wait[0];
+    I.offers[c.id] = { member: next, at: now() };
+    GymBus.send('class-offer', { name: c.name, member: next, expires: '30 min' }, 'instructor');
+    audit(c, 'Space offered to ' + next + ' (first on waitlist)');
+    toast('Space offered to ' + next + ' — 30 min to answer');
+  }
+  save(); render(); if (rosterOpen === c.id) openRoster(c);
+}
+
+/* ---------------- bus ---------------- */
+GymBus.on((kind, ev) => {
+  if (kind === 'event' && ev.type === 'gate-entry') {
+    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
+    I.inside[ev.payload.member] = ev.payload.time; save(); render();
+    if (I.classes.some((c) => c.roster.some((r) => r.n === ev.payload.member && r.state === 'booked'))) toast(ev.payload.member + ' is in the gym');
+  }
+  if (kind === 'event' && ev.type === 'class-book') {
+    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
+    const c = clsByName(ev.payload.name); if (!c) return;
+    const booked = c.roster.filter((r) => ['booked', 'checkedin', 'participated'].includes(r.state)).length;
+    if (booked >= c.cap) { c.wait.push(ev.payload.member); audit(c, ev.payload.member + ' → waitlist (class full — stale tab protected)'); }
+    else if (!c.roster.some((r) => r.n === ev.payload.member && r.state !== 'cancelled')) {
+      c.roster.push({ n: ev.payload.member, state: 'booked' });
+      audit(c, ev.payload.member + ' booked via app');
+    }
+    save(); render(); if (rosterOpen === c.id) openRoster(c);
+    toast(ev.payload.member + ' → ' + c.name);
+  }
+  if (kind === 'event' && ev.type === 'class-waitlist') {
+    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
+    const c = clsByName(ev.payload.name); if (!c) return;
+    if (!c.wait.includes(ev.payload.member)) c.wait.push(ev.payload.member);
+    save(); render();
+  }
+  if (kind === 'event' && ev.type === 'class-cancel') {
+    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
+    const c = clsByName(ev.payload.name); if (!c) return;
+    processCancellation(c, ev.payload.member);
+  }
+  if (kind === 'update' && ev.type === 'class-offer') {
+    const c = clsByName(ev.payload.name); if (!c) return;
+    const key = ev.id + ':' + ev.status;
+    if (GymBus.isProcessed(key, 'instructor')) return; GymBus.markProcessed(key, 'instructor');
+    if (ev.status === 'accepted') {
+      c.wait = c.wait.filter((w) => w !== ev.payload.member);
+      c.roster.push({ n: ev.payload.member, state: 'booked' });
+      delete I.offers[c.id];
+      audit(c, ev.payload.member + ' accepted the waitlist offer — booked');
+      save(); render(); if (rosterOpen === c.id) openRoster(c);
+      toast(ev.payload.member + ' promoted from the waitlist ✓');
+    }
+    if (ev.status === 'declined') {
+      c.wait = c.wait.filter((w) => w !== ev.payload.member);
+      delete I.offers[c.id];
+      audit(c, ev.payload.member + ' declined the offer');
+      save(); render();
+      if (c.wait.length) processCancellation(c, '—'); // offer the next person
+    }
+  }
+});
+/* catch-up */
+GymBus.all().forEach((ev) => {
+  if (['class-book', 'class-waitlist', 'class-cancel'].includes(ev.type) && !GymBus.isProcessed(ev.id, 'instructor')) {
+    GymBus.markProcessed(ev.id, 'instructor');
+    const c = clsByName(ev.payload.name); if (!c) return;
+    if (ev.type === 'class-book' && !c.roster.some((r) => r.n === ev.payload.member && r.state !== 'cancelled')) c.roster.push({ n: ev.payload.member, state: 'booked' });
+    if (ev.type === 'class-waitlist' && !c.wait.includes(ev.payload.member)) c.wait.push(ev.payload.member);
+    if (ev.type === 'class-cancel') processCancellation(c, ev.payload.member);
+  }
+});
+save();
+render();
+</script>
 </body>
 </html>
