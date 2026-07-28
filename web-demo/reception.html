@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — Reception</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6; --mint-ink:#9ec7b3;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-ink:#a33a3a;
+    --red-soft:#fbeaea; --red-line:#e5b8b2;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:22px 24px; }
+  button { font-family:var(--body); cursor:pointer; border:none; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+
+  .topbar { display:flex; align-items:center; gap:14px; margin-bottom:18px; flex-wrap:wrap; }
+  .logo { width:36px; height:36px; border-radius:10px; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; }
+  .title { font-family:var(--display); font-weight:800; font-size:20px; }
+  .pill { display:flex; align-items:center; gap:7px; background:var(--mint); color:var(--deep);
+    font-size:12px; font-weight:700; padding:5px 12px; border-radius:999px; }
+  .pill .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.6s ease-in-out infinite; }
+  .spacer { flex:1; }
+  .search { background:var(--card); border-radius:12px; padding:10px 16px; font-size:13px;
+    width:260px; box-shadow:0 4px 12px rgba(23,33,28,.05); border:none; font-family:var(--body); color:var(--ink); }
+  .search::placeholder { color:var(--faint); }
+  .primary-btn { background:var(--deep); color:#fff; border-radius:12px; padding:10px 16px; font-weight:700; font-size:13px; }
+  .staff { font-size:13px; color:var(--muted); }
+
+  .grid { display:grid; grid-template-columns:1.1fr 1fr 1fr; gap:16px; align-items:start; }
+  @media (max-width:1000px) { .grid { grid-template-columns:1fr; } }
+
+  .card { background:var(--card); border-radius:20px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
+
+  .feed-row { display:flex; justify-content:space-between; align-items:center; padding:12px 2px;
+    border-bottom:1px solid var(--line); animation:rise .35s ease both; }
+  .feed-row:last-child { border-bottom:none; }
+  .feed-left { display:flex; align-items:center; gap:10px; }
+  .avatar { width:30px; height:30px; border-radius:50%; display:grid; place-items:center; font-weight:700; font-size:12px; flex-shrink:0; }
+  .av-in { background:var(--mint); color:var(--deep); }
+  .av-out { background:var(--paper); color:var(--muted); }
+  .av-deny { background:var(--red); color:#fff; }
+  .f-name { font-weight:600; font-size:14px; }
+  .f-sub { font-size:12px; color:var(--muted); }
+  .tag-in { color:var(--green); font-weight:700; font-size:12px; }
+  .tag-out { color:var(--faint); font-weight:700; font-size:12px; }
+
+  .deny-card { background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:14px;
+    padding:12px 14px; margin-top:8px; animation:rise .35s ease both; }
+  .deny-card .f-name { font-weight:700; }
+  .deny-card .f-sub { color:var(--red-ink); }
+  .assist-btn { background:var(--red); color:#fff; border-radius:9px; padding:7px 12px; font-weight:700; font-size:12px; }
+
+  .note { background:var(--paper); border-radius:12px; padding:11px 14px; margin-top:10px; font-size:12px; color:var(--muted); }
+
+  .member-file { background:var(--paper); border-radius:14px; padding:14px; margin-top:12px; }
+  .mf-head { display:flex; align-items:center; gap:10px; }
+  .mf-avatar { width:34px; height:34px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-weight:700; font-size:13px; }
+  .mf-name { font-weight:700; font-size:14px; }
+  .mf-sub { font-size:12px; font-weight:600; }
+  .mf-sub.ok { color:var(--green); } .mf-sub.bad { color:var(--red-ink); } .mf-sub.warn { color:var(--amber); }
+  .mf-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:12px; }
+  .mf-actions button { border-radius:10px; padding:9px; text-align:center; font-weight:600; font-size:12px; background:#fff; color:var(--ink); }
+  .mf-actions button.main { background:var(--deep); color:#fff; font-weight:700; }
+  .mf-actions button.second { color:var(--deep); font-weight:700; }
+  .mf-empty { color:var(--faint); font-size:13px; padding:22px 0; text-align:center; }
+
+  .desk-row { display:flex; justify-content:space-between; padding:11px 2px; border-bottom:1px solid var(--line); font-size:13px; animation:rise .3s ease both; }
+  .desk-row:last-child { border-bottom:none; }
+  .money { color:var(--deep); font-weight:700; }
+  .done { color:var(--green); font-weight:700; }
+
+  .col3 { display:flex; flex-direction:column; gap:16px; }
+  .today { background:var(--deep); border-radius:20px; padding:18px; color:var(--mint); }
+  .today .eyebrow { color:var(--mint-ink); }
+  .today-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:12px; }
+  .t-num { font-family:var(--display); font-weight:800; font-size:26px; color:#fff; }
+  .t-num.g { color:#7ee2b1; }
+  .t-lbl { font-size:11px; color:var(--mint-ink); }
+
+  .attn-row { display:flex; justify-content:space-between; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .attn-row:last-child { border-bottom:none; }
+  .badge { font-size:11px; font-weight:700; padding:3px 9px; border-radius:999px; }
+  .b-amber { background:var(--amber-soft); color:var(--amber); }
+  .b-red { background:var(--red-soft); color:var(--red-ink); }
+  .b-grey { background:var(--paper); color:var(--muted); }
+
+  .results { position:absolute; top:46px; left:0; right:0; background:#fff; border-radius:12px;
+    box-shadow:0 12px 32px rgba(23,33,28,.14); z-index:30; overflow:hidden; }
+  .result { padding:10px 14px; font-size:13px; cursor:pointer; display:flex; justify-content:space-between; }
+  .result:hover { background:var(--paper); }
+  .search-wrap { position:relative; }
+
+  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.4); display:none; place-items:center; z-index:50; }
+  .overlay.show { display:grid; }
+  .modal { background:#fff; border-radius:20px; padding:22px; width:min(420px, 92vw); box-shadow:0 24px 60px rgba(23,33,28,.3); }
+  .modal h3 { font-family:var(--display); font-weight:800; font-size:18px; margin-bottom:6px; }
+  .modal p { font-size:13px; color:var(--muted); margin-bottom:12px; }
+  .modal input { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px 14px; font-size:14px; font-family:var(--body); }
+  .modal .row { display:flex; gap:10px; margin-top:14px; }
+  .modal .row button { flex:1; border-radius:12px; padding:12px; font-weight:700; font-size:14px; }
+  .m-cancel { background:var(--paper); color:var(--ink); }
+  .m-confirm { background:var(--deep); color:#fff; }
+  .m-err { color:var(--red-ink); font-size:12px; margin-top:8px; display:none; }
+
+  .toast { position:fixed; top:18px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:70;
+    animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(23,33,28,.3); }
+  @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 12%,82%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
+</style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="logo">G</div>
+    <div class="title">Reception</div>
+    <div class="pill"><span class="dot"></span><span id="insidePill">— inside</span></div>
+    <div class="spacer"></div>
+    <div class="search-wrap">
+      <input class="search" id="searchBox" placeholder="⌕  Find a member…" autocomplete="off" />
+      <div class="results" id="searchResults" hidden></div>
+    </div>
+    <button class="primary-btn" id="guestBtn">Sell guest pass</button>
+    <div class="staff"><b>Lara</b> · front desk · <span id="clock"></span></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="eyebrow">At the gate — live feed</div>
+      <div id="feed" style="margin-top:6px;"></div>
+      <div class="note">Overrides require a typed reason and are logged with your name.</div>
+    </div>
+
+    <div class="card">
+      <div class="eyebrow">At the desk</div>
+      <div id="memberFile"><div class="mf-empty">Search a member, or tap Assist on a denied entry.</div></div>
+      <div id="deskLog" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="col3">
+      <div class="today">
+        <div class="eyebrow">Today</div>
+        <div class="today-grid">
+          <div><div class="t-num" id="tEntries">0</div><div class="t-lbl">entries</div></div>
+          <div><div class="t-num" id="tRevenue">$0</div><div class="t-lbl">revenue</div></div>
+          <div><div class="t-num" id="tDenials">0</div><div class="t-lbl">denials</div></div>
+          <div><div class="t-num g" id="tGuests">0</div><div class="t-lbl">guest passes</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="eyebrow">Needs attention</div>
+        <div id="attention" style="margin-top:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <h3 id="mTitle">Confirm</h3>
+      <p id="mBody">This action is logged with your name.</p>
+      <input id="mReason" placeholder="Reason (required)" />
+      <div class="m-err" id="mErr">A reason is required.</div>
+      <div class="row">
+        <button class="m-cancel" id="mCancel">Cancel</button>
+        <button class="m-confirm" id="mConfirm">Confirm</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* GYM Reception — live data from the GYM-APP Data sheet. */
+const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
+
+function parseCSV(text) {
+  const rows = []; let row = [], cell = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (q) { if (ch === '"' && text[i+1] === '"') { cell += '"'; i++; } else if (ch === '"') q = false; else cell += ch; }
+    else if (ch === '"') q = true;
+    else if (ch === ',') { row.push(cell); cell = ''; }
+    else if (ch === '\n' || ch === '\r') { if (cell !== '' || row.length) { row.push(cell); rows.push(row); row = []; cell = ''; } if (ch === '\r' && text[i+1] === '\n') i++; }
+    else cell += ch;
+  }
+  if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+  const [h, ...b] = rows;
+  return b.filter(r => r.some(c => c.trim() !== ''))
+    .map(r => Object.fromEntries(h.map((k, i) => [k.trim().toLowerCase(), (r[i] ?? '').trim()])));
+}
+async function tab(name) {
+  const r = await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`);
+  if (!r.ok) throw new Error(name);
+  return parseCSV(await r.text());
+}
+
+/* ---------- state ---------- */
+let users = [], insideNames = [], lockers = [], machines = [], classes = [];
+let entries = 141, revenue = 742, denials = 0, guests = 4;
+let selected = null;
+const usedLockers = {};
+
+const $ = (id) => document.getElementById(id);
+const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+function toast(msg) { const el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2700); }
+function initial(n) { return (n || '?').trim()[0].toUpperCase(); }
+
+function freeLocker() {
+  const free = lockers.filter(l => l.status === 'free' && !usedLockers[l.number]);
+  if (!free.length) return null;
+  const pick = free[Math.floor(Math.random() * free.length)];
+  usedLockers[pick.number] = true;
+  return pick.number;
+}
+
+/* ---------- today ---------- */
+function renderToday() {
+  $('tEntries').textContent = entries;
+  $('tRevenue').textContent = '$' + revenue;
+  $('tDenials').textContent = denials;
+  $('tGuests').textContent = guests;
+  $('insidePill').textContent = insideNames.length + ' inside';
+}
+
+/* ---------- gate feed ---------- */
+function feedRow({ name, sub, dir }) {
+  const div = document.createElement('div');
+  if (dir === 'deny') {
+    div.className = 'deny-card';
+    div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="feed-left"><div class="avatar av-deny">${initial(name)}</div>
+        <div><div class="f-name">${name} — DENIED</div><div class="f-sub">${sub}</div></div></div>
+      <button class="assist-btn" data-name="${name}">Assist →</button></div>`;
+    div.querySelector('.assist-btn').onclick = () => { selectMemberByName(name); };
+  } else {
+    div.className = 'feed-row';
+    div.innerHTML = `<div class="feed-left"><div class="avatar ${dir === 'in' ? 'av-in' : 'av-out'}">${initial(name)}</div>
+      <div><div class="f-name">${name} · ${dir === 'in' ? 'entered' : 'exited'}</div><div class="f-sub">${sub}</div></div></div>
+      <span class="${dir === 'in' ? 'tag-in' : 'tag-out'}">${dir === 'in' ? 'IN' : 'OUT'}</span>`;
+  }
+  const feed = $('feed');
+  feed.insertBefore(div, feed.firstChild);
+  while (feed.children.length > 7) feed.removeChild(feed.lastChild);
+}
+
+function simulateGate() {
+  const active = users.filter(u => (u.status || '') === 'active');
+  const blocked = users.filter(u => u.status === 'frozen' || u.status === 'expired');
+  const roll = Math.random();
+  if (roll < 0.18 && blocked.length) {
+    const u = blocked[Math.floor(Math.random() * blocked.length)];
+    denials++;
+    feedRow({ name: u.name, sub: `Membership ${u.status} · ${now()}`, dir: 'deny' });
+  } else if (roll < 0.62 && active.length) {
+    const u = active[Math.floor(Math.random() * active.length)];
+    if (!insideNames.includes(u.name)) {
+      insideNames.push(u.name);
+      entries++;
+      const lk = freeLocker();
+      feedRow({ name: u.name, sub: `${now()}${lk ? ' · locker ' + lk + ' assigned' : ''}`, dir: 'in' });
+    }
+  } else if (insideNames.length > 3) {
+    const name = insideNames.splice(Math.floor(Math.random() * insideNames.length), 1)[0];
+    feedRow({ name, sub: `${now()} · locker released`, dir: 'out' });
+  }
+  renderToday();
+}
+
+/* ---------- member file ---------- */
+function selectMemberByName(name) {
+  const u = users.find(x => x.name === name);
+  if (u) selectMember(u);
+}
+function selectMember(u) {
+  selected = u;
+  const inside = insideNames.includes(u.name);
+  const st = u.status || 'active';
+  const stLine = st === 'frozen' ? `<div class="mf-sub bad">Frozen · ${u.plan || ''} plan</div>`
+    : st === 'expired' ? `<div class="mf-sub warn">Expired · ${u.plan || ''} plan</div>`
+    : `<div class="mf-sub ok">Active · ${u.plan || ''} · ${inside ? 'INSIDE' : 'outside'}</div>`;
+  const actions = [];
+  if (st === 'frozen') actions.push(`<button class="main" data-act="unfreeze">Unfreeze now</button>`);
+  if (st === 'expired') actions.push(`<button class="main" data-act="renew">Take payment · renew</button>`);
+  if (st === 'active') actions.push(inside
+    ? `<button class="main" data-act="mexit">Manual exit</button>`
+    : `<button class="main" data-act="mentry">Manual entry</button>`);
+  actions.push(`<button class="second" data-act="payment">Take payment</button>`);
+  actions.push(`<button data-act="history">Entry history</button>`);
+  actions.push(`<button data-act="device">Replace device</button>`);
+  $('memberFile').innerHTML = `<div class="member-file">
+    <div class="mf-head"><div class="mf-avatar">${initial(u.name)}</div>
+      <div style="flex:1;"><div class="mf-name">${u.name}</div>${stLine}
+      <div style="font-size:12px; color:var(--muted);">${u.tier || ''} · ${u.phone || 'no phone'} · joined ${u.joined || '—'}</div></div></div>
+    <div class="mf-actions">${actions.join('')}</div></div>`;
+  $('memberFile').querySelectorAll('[data-act]').forEach(b => b.onclick = () => act(b.dataset.act));
+}
+
+function deskLog(text, right, cls) {
+  const div = document.createElement('div');
+  div.className = 'desk-row';
+  div.innerHTML = `<span>${text}</span><b class="${cls || 'money'}">${right}</b>`;
+  const log = $('deskLog');
+  log.insertBefore(div, log.firstChild);
+  while (log.children.length > 5) log.removeChild(log.lastChild);
+}
+
+/* ---------- actions with reason modal ---------- */
+let pendingAction = null;
+function askReason(title, body, cb) {
+  $('mTitle').textContent = title;
+  $('mBody').textContent = body;
+  $('mReason').value = '';
+  $('mErr').style.display = 'none';
+  $('overlay').classList.add('show');
+  pendingAction = cb;
+  setTimeout(() => $('mReason').focus(), 50);
+}
+$('mCancel').onclick = () => { $('overlay').classList.remove('show'); pendingAction = null; };
+$('mConfirm').onclick = () => {
+  const reason = $('mReason').value.trim();
+  if (reason.length < 3) { $('mErr').style.display = 'block'; return; }
+  $('overlay').classList.remove('show');
+  if (pendingAction) pendingAction(reason);
+  pendingAction = null;
+};
+
+function act(kind) {
+  if (!selected) return;
+  const u = selected;
+  if (kind === 'mentry') askReason('Manual entry — ' + u.name, 'Logged as: Lara · front desk. This opens the gate without a scan.', (r) => {
+    insideNames.push(u.name); entries++;
+    const lk = freeLocker();
+    feedRow({ name: u.name, sub: `${now()} · manual entry — ${r}${lk ? ' · locker ' + lk : ''}`, dir: 'in' });
+    deskLog(`<b>Manual entry</b> · ${u.name} · ${r}`, 'Logged', 'done');
+    renderToday(); selectMember(u); toast('Manual entry logged · ' + u.name);
+  });
+  if (kind === 'mexit') askReason('Manual exit — ' + u.name, 'Logged as: Lara · front desk.', (r) => {
+    insideNames = insideNames.filter(n => n !== u.name);
+    feedRow({ name: u.name, sub: `${now()} · manual exit — ${r}`, dir: 'out' });
+    deskLog(`<b>Manual exit</b> · ${u.name} · ${r}`, 'Logged', 'done');
+    renderToday(); selectMember(u); toast('Manual exit logged · ' + u.name);
+  });
+  if (kind === 'unfreeze') askReason('Unfreeze — ' + u.name, 'Membership resumes immediately. Logged with your name.', (r) => {
+    u.status = 'active';
+    deskLog(`<b>Unfrozen</b> · ${u.name} · ${r}`, 'Done', 'done');
+    selectMember(u); toast(u.name + ' unfrozen — can enter now');
+  });
+  if (kind === 'renew' || kind === 'payment') askReason(
+    (kind === 'renew' ? 'Renewal payment — ' : 'Payment — ') + u.name,
+    'Enter what this payment is for (cash at desk).', (r) => {
+    const amt = kind === 'renew' ? 95 : 25;
+    if (kind === 'renew') u.status = 'active';
+    revenue += amt;
+    deskLog(`<b>Cash payment</b> · ${u.name} · ${r}`, '$' + amt);
+    renderToday(); selectMember(u); toast('Payment recorded · $' + amt);
+  });
+  if (kind === 'device') askReason('Replace device — ' + u.name, 'Old phone is deactivated as the member\'s key.', (r) => {
+    deskLog(`<b>Device replaced</b> · ${u.name} · ${r}`, 'Logged', 'done');
+    toast('Device replaced · old key deactivated');
+  });
+  if (kind === 'history') {
+    deskLog(`<b>Entry history</b> · ${u.name} · viewed`, now(), 'done');
+    toast('Full history lives in the member app · Visits');
+  }
+}
+
+/* ---------- guest pass ---------- */
+$('guestBtn').onclick = () => askReason('Sell guest pass · $10', 'Guest name or inviting member (logged).', (r) => {
+  guests++; revenue += 10;
+  const code = 'GST-' + String(Date.now()).slice(-6);
+  deskLog(`<b>Guest pass sold</b> · ${r}`, '$10');
+  feedRow({ name: 'Guest ' + code, sub: `${now()} · sold at desk · ${r}`, dir: 'in' });
+  renderToday(); toast('Guest pass ' + code + ' · $10');
+});
+
+/* ---------- search ---------- */
+$('searchBox').addEventListener('input', () => {
+  const q = $('searchBox').value.trim().toLowerCase();
+  const box = $('searchResults');
+  if (!q) { box.hidden = true; return; }
+  const hits = users.filter(u => (u.name || '').toLowerCase().includes(q) || (u.phone || '').includes(q)).slice(0, 6);
+  box.innerHTML = hits.length
+    ? hits.map((u, i) => `<div class="result" data-i="${i}"><span>${u.name}</span><span style="color:var(--faint);">${u.status}</span></div>`).join('')
+    : '<div class="result"><span style="color:var(--faint);">No members found</span></div>';
+  box.hidden = false;
+  box.querySelectorAll('[data-i]').forEach(el => el.onclick = () => {
+    selectMember(hits[Number(el.dataset.i)]);
+    box.hidden = true; $('searchBox').value = '';
+  });
+});
+document.addEventListener('click', (e) => { if (!e.target.closest('.search-wrap')) $('searchResults').hidden = true; });
+
+/* ---------- needs attention ---------- */
+function renderAttention() {
+  const items = [];
+  machines.filter(m => (m.status || 'ok') !== 'ok').forEach(m =>
+    items.push({ text: `${m.name} (${m.zone}) out of service`, badge: 'Urgent', cls: 'b-red' }));
+  const openLocker = lockers.find(l => l.status === 'taken');
+  if (openLocker) items.push({ text: `Locker ${openLocker.number} left open 12 min`, badge: 'Check', cls: 'b-amber' });
+  const expired = users.filter(u => u.status === 'expired');
+  if (expired.length) items.push({ text: `${expired.length} membership${expired.length > 1 ? 's' : ''} expired — call`, badge: 'Call', cls: 'b-grey' });
+  const full = classes.filter(c => Number(c.spots) === 0);
+  if (full.length) items.push({ text: `${full[0].name} full — waitlist running`, badge: 'Info', cls: 'b-grey' });
+  $('attention').innerHTML = items.map(i =>
+    `<div class="attn-row"><span>${i.text}</span><span class="badge ${i.cls}">${i.badge}</span></div>`).join('')
+    || '<div class="attn-row"><span style="color:var(--faint);">All clear.</span></div>';
+}
+
+/* ---------- boot ---------- */
+(async () => {
+  setInterval(() => { $('clock').textContent = now(); }, 1000);
+  $('clock').textContent = now();
+  try {
+    const [u, inside, lk, mc, cl] = await Promise.all([tab('Users'), tab('InsideNow'), tab('Lockers'), tab('Machines'), tab('Classes')]);
+    users = u; lockers = lk; machines = mc; classes = cl;
+    insideNames = inside.map(r => r.name);
+    inside.slice(-3).forEach(r => feedRow({ name: r.name, sub: `${r.entered || ''} · scanned in`, dir: 'in' }));
+    // seed a denial so the assist flow is immediately demonstrable
+    const blocked = users.find(x => x.status === 'frozen') || users.find(x => x.status === 'expired');
+    if (blocked) { denials++; feedRow({ name: blocked.name, sub: `Membership ${blocked.status} · ${now()}`, dir: 'deny' }); }
+    deskLog('<b>Cash payment</b> · Jawad · renewal', '$95');
+    deskLog('<b>Guest pass sold</b> · walk-in', '$10');
+    renderToday(); renderAttention();
+    setInterval(simulateGate, 9000);
+  } catch (e) {
+    $('feed').innerHTML = '<div class="f-sub">Could not reach the data sheet — check connection.</div>';
+  }
+})();
+</script>
+</body>
+</html>
