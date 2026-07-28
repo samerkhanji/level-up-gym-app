@@ -1,7 +1,33 @@
 # GYM-APP — Product Roadmap
 
-Governing principle (from product review, Jul 28 2026): **the app must be organized
-around five complete member journeys, not feature categories.**
+Governing principle (condensed from the Jul 28 2026 product review — summarized,
+not verbatim): **the app must be organized around five complete member journeys,
+not feature categories.** A journey counts as done only when its acceptance
+criteria pass end-to-end across member, reception and admin — not when its
+screens exist.
+
+## Acceptance criteria — connected workflows
+
+A workflow is complete when: **member submits → staff receives → staff resolves
+(human action, never a timer) → member is notified with who/what → action is audited.**
+
+- **SOS**: member holds SOS → picks type → countdown/cancel → alert appears in
+  reception's queue with zone → staff Acknowledge (member sees "acknowledged by X")
+  → staff Close with note → incident recorded on both sides.
+- **Support ticket**: request → ticket number → appears at reception with subject →
+  staff Respond with note → member sees "resolved by X: note" in inbox → logged.
+- **Equipment report**: select/scan machine → reference number → appears at
+  reception/maintenance → staff moves Submitted → Under review → Repaired (each
+  transition notifies the member; no automatic transitions) → machine restored.
+- **Renewal at desk**: member requests → task at reception → staff takes payment →
+  member's expiry updates + invoice appears → revenue and drawer reflect it.
+- **Announcement**: staff publishes → every member's home shows it + inbox entry.
+- **Denied entry**: gate denial visible on member phone AND reception feed →
+  staff resolves via structured fix → member notified "resolved by X" and can enter.
+
+Demo transport: GymBus (BroadcastChannel + persisted log) — same contract the
+Supabase backend implements for production (realtime channels + tables + RLS).
+Timers may only exist where clearly labeled as gate-traffic simulation.
 
 1. **Join and pay** — invitation → onboarding (verify, photo, rules, waiver, health
    questionnaire, emergency contact, preferences) → plan purchase → active member

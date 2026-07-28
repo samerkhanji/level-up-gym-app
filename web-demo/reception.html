@@ -184,6 +184,7 @@
     <button data-qa="mexit">Manual exit</button>
     <button data-qa="book">Book a class</button>
     <button class="warn" data-qa="mgr">Contact manager</button>
+    <button data-qa="announce">Announce</button>
   </div>
 
   <div class="offline-banner" id="offlineBanner">
@@ -245,6 +246,7 @@
   <!-- generic modal -->
   <div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
+<script src="bus.js?v=1"></script>
 <script>
 const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
 function parseCSV(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];
@@ -388,13 +390,32 @@ function renderTasks(){
     return `<div class="task ${t.urg==='urgent'?'urgent':t.urg==='warn'?'warn':''}">
       <span class="badge ${t.urg==='urgent'?'b-red':t.urg==='warn'?'b-amber':'b-grey'}">${t.urg==='urgent'?'NOW':t.urg==='warn'?'SOON':'TODAY'}</span>
       <div class="task-body"><div class="task-t">${t.t}</div><div class="task-s">${t.s}${wait?' · waiting '+wait+' min':''} · assigned: Lara</div></div>
-      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':'Resolve'}</button></div>`;}).join('')
+      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':t.kind==='sos'?(t.stage?'Close':'Acknowledge'):t.kind==='reportbus'?(t.stage?'Mark repaired':'Start review'):t.kind==='ticketbus'?'Respond':t.kind==='renewalbus'?'Take $95':'Resolve'}</button></div>`;}).join('')
     ||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">Queue clear. 🎉</div>';
   $('tasks').querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
-    const t=tasks[Number(b.dataset.task)];
+    const i=Number(b.dataset.task), t=tasks[i];
     if(t.kind==='deny'&&t.name){openDrawer(t.name,true,t.dtype);}
-    else if(t.kind==='mgr'){tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Manager approved — one-time access granted');}
-    else{tasks.splice(Number(b.dataset.task),1);renderTasks();toast('Task resolved · logged');}});
+    else if(t.kind==='mgr'){tasks.splice(i,1);renderTasks();toast('Manager approved — one-time access granted');}
+    else if(t.kind==='sos'){
+      if(!t.stage){t.stage=1;t.t=t.t.replace('SOS','SOS (acknowledged)');GymBus.update(t.busId,'acknowledged','Lara');
+        deskLog('<b>SOS acknowledged</b> · '+t.member,'Sent','done');renderTasks();toast('Member notified — help is coming');}
+      else{reasonModal('Close incident — '+t.member,'What happened and how it ended',(r,n)=>{
+        GymBus.update(t.busId,'closed','Lara',n||r);tasks.splice(i,1);renderTasks();
+        deskLog('<b>Incident closed</b> · '+t.member+' · '+r,'Logged','done');},true);}}
+    else if(t.kind==='reportbus'){
+      if(!t.stage){t.stage=1;GymBus.update(t.busId,'Under review','Maintenance');
+        t.s=t.s+' · under review';renderTasks();toast('Member sees: under review');}
+      else{reasonModal('Mark repaired — '+t.s.split(' ·')[0],'What was done',(r,n)=>{
+        GymBus.update(t.busId,'Repaired','Maintenance',n||r);tasks.splice(i,1);renderTasks();
+        deskLog('<b>Repair closed</b> · '+r,'Done','done');},true);}}
+    else if(t.kind==='ticketbus'){reasonModal('Resolve '+(t.tkt||'ticket')+' — '+t.member,'Your reply reaches the member app',(r,n)=>{
+      GymBus.update(t.busId,'resolved','Lara',n||r);tasks.splice(i,1);renderTasks();
+      deskLog('<b>Ticket resolved</b> · '+t.member,'Sent','done');},true);}
+    else if(t.kind==='renewalbus'){reasonModal('Renewal payment — '+t.member,'Cash/card at desk · $95',(r,n)=>{
+      txs.unshift({t:now(),what:'Membership renewal · '+t.member,amt:95,how:'cash'});renewalsToday++;
+      GymBus.update(t.busId,'done','Lara','Aug 28, 2026');tasks.splice(i,1);renderTasks();renderStats();
+      deskLog('<b>Renewal</b> · '+t.member,'$95');toast('Member notified — renewed to Aug 28');});}
+    else{tasks.splice(i,1);renderTasks();toast('Task resolved · logged');}});
 }
 function resolveTasksFor(name){ tasks=tasks.filter(t=>t.name!==name); renderTasks(); }
 
@@ -511,10 +532,12 @@ function resolveAction(kind){
     ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{m.notes=$('mNote').value.trim();closeModal();openDrawer(m.name,false);toast('Note saved');};});
   else if(kind==='pos')openPOS(m);
 }
+function notifyMemberResolved(m,note){const id=GymBus.send('gate-resolved',{member:m.name});GymBus.update(id,'resolved','Lara',note);}
 function grantEntry(m,how){inside[m.name]=Date.now();entriesToday++;
   pushEvent({name:m.name,kind:'warn',reason:'Override — '+how});resolveTasksFor(m.name);renderOcc();renderStats();
+  notifyMemberResolved(m,how);
   openDrawer(m.name,false);toast(m.name+' admitted — '+how);}
-function afterFix(m,msg){resolveTasksFor(m.name);renderStats();openDrawer(m.name,false);toast(msg);}
+function afterFix(m,msg){resolveTasksFor(m.name);renderStats();notifyMemberResolved(m,msg);openDrawer(m.name,false);toast(msg);}
 
 /* ---------- modals ---------- */
 function modal(html,after){$('modalBox').innerHTML=html;$('overlay').classList.add('show');if(after)after();}
@@ -709,7 +732,28 @@ document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=
     memberPicker('Manual exit',ins,n=>{openDrawer(n,false);resolveAction('mexit');});}
   if(k==='book')openBookings();
   if(k==='mgr'){toast('Manager paged to reception');addTask({t:'Manager requested at desk',s:'Paged '+now(),urg:'warn',kind:'mgr'});}
+  if(k==='announce')modal(`<h3>Gym announcement</h3><div class="sub">Delivered to every member's app home screen</div>
+    <textarea id="annText" rows="2" placeholder="e.g. Pool closed 3–5 PM for maintenance"></textarea>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Publish</button></div>`,
+    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{const t=$('annText').value.trim();
+      if(t.length<3){toast('Write the announcement');return;}
+      GymBus.send('announcement',{text:t});closeModal();
+      deskLog('<b>Announcement</b> · '+t.slice(0,40),'Published','done');toast('Published to member apps');};});
 }));
+
+/* ---------- cross-dashboard receiver: member events arrive as tasks ---------- */
+function busTask(ev){
+  if(ev.type==='sos'){
+    addTask({t:'🆘 SOS — '+ev.payload.member,s:ev.payload.sosType+' · '+ev.payload.zone+' · '+ev.at,urg:'urgent',kind:'sos',busId:ev.id,member:ev.payload.member,stage:ev.status==='acknowledged'?1:0});
+    pushEvent({name:ev.payload.member,kind:'warn',reason:'SOS — '+ev.payload.sosType+' ('+ev.payload.zone+')'});}
+  if(ev.type==='report')addTask({t:'Equipment report '+ev.payload.ref,s:ev.payload.machine+' — '+ev.payload.issue+' · by '+ev.payload.member,urg:'warn',kind:'reportbus',busId:ev.id,stage:ev.status==='Under review'?1:0});
+  if(ev.type==='ticket')addTask({t:'Ticket '+ev.payload.tkt+' — '+ev.payload.member,s:'"'+ev.payload.subject+'" · '+ev.at,urg:'warn',kind:'ticketbus',busId:ev.id,member:ev.payload.member,tkt:ev.payload.tkt});
+  if(ev.type==='renewal')addTask({t:'Renewal request — '+ev.payload.member,s:(ev.payload.plan||'')+' · pay at desk',urg:'ok',kind:'renewalbus',busId:ev.id,member:ev.payload.member});
+}
+GymBus.on((kind,ev)=>{ if(kind==='event'&&['sos','report','ticket','renewal'].includes(ev.type)){busTask(ev);
+  if(ev.type==='sos')toast('🆘 SOS from '+ev.payload.member+' — '+ev.payload.sosType);} });
+/* catch-up: open member events from before this dashboard was opened */
+GymBus.all().filter(ev=>['sos','report','ticket','renewal'].includes(ev.type)&&!['closed','resolved','done','Repaired'].includes(ev.status)).forEach(busTask);
 document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
   document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
   if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}

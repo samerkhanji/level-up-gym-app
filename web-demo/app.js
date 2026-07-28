@@ -1018,6 +1018,7 @@ function renderAccount() {
         <button class="book-btn" data-action="renew-sub">Renew +6 months</button>
         <button class="book-btn ${state.frozen ? '' : 'warn'}" data-action="freeze">${state.frozen ? 'Unfreeze now' : 'Freeze 7 days'}</button>
       </div>
+      <button class="book-btn wide" data-action="renew-request">Request renewal at reception (pay at desk)</button>
     </div>
 
     ${plansCatalog.length ? `
@@ -1383,16 +1384,11 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const machine = document.getElementById('repMachine').value;
     const issue = document.getElementById('repIssue').value;
     const ref = 'REP-' + String(Date.now()).slice(-4);
-    state.reports.unshift({ machine, issue, when: 'Just now', status: 'Submitted', ref });
+    const busId = GymBus.send('report', { member: state.memberName, machine, issue, ref });
+    state.reports.unshift({ machine, issue, when: 'Just now', status: 'Submitted', ref, busId });
     save(); renderGym();
-    pushNotif('Report ' + ref + ' received', `${machine} — "${issue}". Track its status in the Gym tab.`);
-    toast('Report ' + ref + ' sent');
-    // lifecycle: Submitted → Under review → Repaired (with member notifications)
-    setTimeout(() => { const r = state.reports.find((x) => x.ref === ref); if (r) { r.status = 'Under review'; save();
-      if (document.getElementById('view-gym').classList.contains('active')) renderGym(); } }, 8000);
-    setTimeout(() => { const r = state.reports.find((x) => x.ref === ref); if (r) { r.status = 'Repaired'; save();
-      pushNotif(ref + ' repaired', machine + ' is back in service — thanks for reporting it.');
-      if (document.getElementById('view-gym').classList.contains('active')) renderGym(); } }, 22000);
+    pushNotif('Report ' + ref + ' received', `${machine} — "${issue}". Status changes when staff act on it.`);
+    toast('Report ' + ref + ' sent to maintenance');
   }
   if (a === 'sos') startSOS();
   if (a === 'support') openSupport();
@@ -1482,6 +1478,11 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const t = applyTheme(state.theme);
     renderAccount();
     toast(`Theme: ${t.name}`);
+  }
+  if (a === 'renew-request') {
+    GymBus.send('renewal', { member: state.memberName, plan: state.subPlan });
+    pushNotif('Renewal requested', 'Reception will prepare your renewal — pay at the desk on your next visit.');
+    toast('Request sent to reception');
   }
   if (a === 'copy-ref') toast('Referral link shared');
   if (a === 'export-data') toast('Data export requested — link arrives by email');
@@ -1609,8 +1610,9 @@ function openSupport() {
   document.querySelectorAll('[data-sup]').forEach((b) => b.onclick = () => {
     const tkt = 'TKT-' + String(Date.now()).slice(-5);
     closeAppOverlay();
+    GymBus.send('ticket', { member: state.memberName, subject: b.dataset.sup, tkt });
     pushNotif('Request received · ' + tkt, `"${b.dataset.sup}" — status: Open. Reception replies here.`);
-    toast(`Ticket ${tkt} created — track it in your inbox`);
+    toast(`Ticket ${tkt} sent to reception`);
   });
 }
 
@@ -1635,11 +1637,11 @@ function startSOS() {
       clearInterval(sosTimer);
       closeAppOverlay();
       const zone = state.checkedIn ? 'inside the gym' : 'at the gym entrance';
-      pushNotif('SOS sent', `${type} — staff alerted, you are ${zone}. Incident recorded.`);
+      GymBus.send('sos', { member: state.memberName, sosType: type, zone });
+      pushNotif('SOS sent', `${type} — you are ${zone}. Waiting for staff acknowledgment…`);
       state.problems.push(`SOS — ${type} · ${todayLabel()}`);
       save();
-      toast('SOS sent — alerting staff…');
-      setTimeout(() => { pushNotif('Staff acknowledged', 'Reception confirmed your alert — help is on the way.'); toast('✓ Staff acknowledged — help is coming'); }, 2500);
+      toast('SOS sent — waiting for staff…');
     }
   }, 1000);
   document.getElementById('sosCancel').onclick = () => { clearInterval(sosTimer); closeAppOverlay(); toast('SOS cancelled — nothing sent'); };
@@ -1659,6 +1661,66 @@ setInterval(() => {
     if (active === 'gym') renderGym();
   }
 }, 30000);
+
+/* ---------- cross-dashboard receiver: staff actions reach the member ---------- */
+function rerenderActive() {
+  const active = views.find((v) => document.getElementById('view-' + v)?.classList.contains('active'));
+  if (active === 'home') renderHome();
+  if (active === 'gym') renderGym();
+  if (active === 'account') renderAccount();
+}
+function handleBus(kind, ev) {
+  const mine = ev.payload && ev.payload.member === state.memberName;
+  const last = ev.history[ev.history.length - 1] || {};
+  if (kind === 'event' && ev.type === 'announcement') {
+    CONFIG.announcement = ev.payload.text;
+    pushNotif('Gym announcement', ev.payload.text);
+    rerenderActive();
+    return;
+  }
+  if (kind !== 'update' || !mine) return;
+  if (ev.type === 'sos') {
+    if (ev.status === 'acknowledged') { pushNotif('Staff acknowledged', `${last.by} confirmed your alert — help is on the way.`); toast('✓ ' + last.by + ' acknowledged — help is coming'); }
+    if (ev.status === 'closed') pushNotif('Incident closed', `Closed by ${last.by}${last.note ? ' — ' + last.note : ''}.`);
+  }
+  if (ev.type === 'report') {
+    const r = state.reports.find((x) => x.busId === ev.id);
+    if (r) { r.status = ev.status; save(); }
+    if (ev.status === 'Under review') pushNotif(ev.payload.ref + ' under review', `${last.by} is looking at ${ev.payload.machine}.`);
+    if (ev.status === 'Repaired') pushNotif(ev.payload.ref + ' repaired', `${ev.payload.machine} back in service — fixed by ${last.by}${last.note ? ': ' + last.note : ''}.`);
+    rerenderActive();
+  }
+  if (ev.type === 'ticket' && ev.status === 'resolved') {
+    pushNotif(ev.payload.tkt + ' resolved', `By ${last.by}${last.note ? ' — "' + last.note + '"' : ''}.`);
+    toast('Ticket resolved by ' + last.by);
+  }
+  if (ev.type === 'renewal' && ev.status === 'done') {
+    state.subEnds = last.note || state.subEnds;
+    state.userStatus = 'active'; state.frozen = false;
+    state.invoices.unshift({ label: 'Renewal (paid at desk)', date: 'Today', amount: 95 });
+    save();
+    pushNotif('Membership renewed', `Processed by ${last.by} — valid until ${state.subEnds}.`);
+    rerenderActive();
+  }
+  if (ev.type === 'gate-resolved') {
+    state.userStatus = 'active'; state.frozen = false; save();
+    pushNotif('Entry resolved', `${last.by} sorted it at the desk — ${last.note || 'you can enter now'}.`);
+    rerenderActive();
+  }
+}
+GymBus.on(handleBus);
+/* catch-up: apply staff resolutions that happened while this app was closed */
+(function busCatchUp() {
+  state.busSeen = state.busSeen || {};
+  GymBus.all().forEach((ev) => {
+    const key = ev.id + ':' + ev.history.length;
+    if (ev.history.length && ev.payload?.member === state.memberName && state.busSeen[ev.id] !== ev.history.length) {
+      handleBus('update', ev);
+    }
+    state.busSeen[ev.id] = ev.history.length;
+  });
+  save();
+})();
 
 applyTheme(state.theme || 'Club Green');
 show(state.loggedIn ? 'home' : 'login');
