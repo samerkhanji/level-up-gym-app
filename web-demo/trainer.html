@@ -99,7 +99,7 @@
   .cl-n { font-weight:800; font-size:14.5px; font-family:var(--display); }
   .cl-s { font-size:12px; color:var(--muted); margin-top:1px; }
   .cl-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
-  .cl-acts button { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); }
+  .cl-acts button, .cl-acts a { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); text-decoration:none; display:inline-block; cursor:pointer; }
   .cl-acts button.solid { background:var(--deep); color:#fff; }
   .badge { display:inline-block; min-width:18px; text-align:center; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 6px; }
   /* messages */
@@ -130,7 +130,6 @@
   <div class="seg" id="mainSeg">
     <button class="on" data-sec="dash">Dashboard</button>
     <button data-sec="clients">Clients</button>
-    <button data-sec="msgs">Messages<span class="dot hidden" id="msgDot"></span></button>
   </div>
 
   <div id="arrivalBanner"></div>
@@ -150,11 +149,6 @@
     <div class="card" style="margin-top:13px;">
       <div class="eyebrow">Needs attention</div>
       <div id="queue"></div>
-    </div>
-
-    <div class="card" style="margin-top:13px;">
-      <div class="eyebrow">Messages</div>
-      <div id="msgSummary" style="font-size:13.5px; font-weight:600;"></div>
     </div>
 
     <div class="card" style="margin-top:13px;">
@@ -178,18 +172,9 @@
       <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
       <div id="clientList"></div>
       <div style="font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5;">
-        Phone numbers are visible only to assigned trainers, access is audit-logged, and lists cannot be
-        exported. "Call through gym" connects without exposing personal numbers on either side.</div>
+        Client phone numbers are saved on the client file, visible only to their assigned trainer.
+        Access is audit-logged and lists cannot be exported.</div>
     </div>
-  </div>
-
-  <!-- ============ MESSAGES ============ -->
-  <div id="secMsgs" class="hidden">
-    <div class="card">
-      <div class="eyebrow">Conversations</div>
-      <div id="threadList"></div>
-    </div>
-    <div class="card hidden" id="convoCard" style="margin-top:13px;"></div>
   </div>
 
   <div class="card hidden" id="clientCard"></div>
@@ -256,9 +241,8 @@ let T = {
     { t: 'Prepare assessment sheet for the 10 AM consult', done: false },
     { t: "Review Jad's progress charts", done: false },
   ],
-  threads: {}, // member → [{id, from:'member'|'trainer', text, at, t, status, proposal?}] + {resolved}
 };
-try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.tasks = T.tasks || []; T.threads = T.threads || {}; T.avail = T.avail || []; } } catch (e) {}
+try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.tasks = T.tasks || []; T.avail = T.avail || []; } } catch (e) {}
 function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
 
 /* ---------------- clients ---------------- */
@@ -300,9 +284,7 @@ document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => 
   document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
   $('secDash').classList.toggle('hidden', b.dataset.sec !== 'dash');
   $('secClients').classList.toggle('hidden', b.dataset.sec !== 'clients');
-  $('secMsgs').classList.toggle('hidden', b.dataset.sec !== 'msgs');
   if (b.dataset.sec === 'clients') renderClients();
-  if (b.dataset.sec === 'msgs') renderThreads();
 }; });
 
 /* ---------------- schedule ---------------- */
@@ -421,7 +403,6 @@ function queueAction(key, act) {
     delQ(key); toast('Recommendation sent to reception — itemized, they take payment');
   }
   if (act === 'open') openLive(q.sid);
-  if (act === 'msg') { openThread(q.member || q.t.split('— ')[1]); delQ(key); }
 }
 
 /* ---------------- tasks ---------------- */
@@ -436,7 +417,8 @@ function renderTasks() {
 $('addTask').onclick = () => { const t = prompt('Task:', ''); if (!t) return; T.tasks.push({ t, done: false }); save(); renderTasks(); };
 
 /* ---------------- clients directory ---------------- */
-function unreadFrom(member) { return (T.threads[member]?.msgs || []).filter((m) => m.from === 'member' && m.status !== 'read').length; }
+const telHref = (phone) => 'tel:' + phone.replace(/[^\d+]/g, '');
+const waHref = (phone) => 'https://wa.me/' + phone.replace(/[^\d]/g, '');
 
 function renderClients() {
   const q = ($('clientSearch').value || '').toLowerCase();
@@ -445,27 +427,26 @@ function renderClients() {
     return !q || n.toLowerCase().includes(q) || c.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')) || (c.goalShort || '').toLowerCase().includes(q) || (c.pkg || '').toLowerCase().includes(q);
   });
   $('clientList').innerHTML = rows.map((n) => {
-    const c = CLIENTS[n]; const un = unreadFrom(n); const next = nextSessionOf(n);
+    const c = CLIENTS[n]; const next = nextSessionOf(n);
     return `<div class="client">
       <div class="avatar sm">${n[0]}</div>
       <div class="cl-b">
-        <div class="cl-n">${n} ${un ? `<span class="badge">${un}</span>` : ''}</div>
-        <div class="cl-s">${c.phone} · ${c.status}</div>
+        <div class="cl-n">${n}</div>
+        <div class="cl-s"><b>${c.phone}</b> · ${c.status}</div>
         <div class="cl-s">${c.pkg} · ${pkgInfo(n)}${next ? ' · next: ' + next : ' · no upcoming session'}</div>
         <div class="cl-s">Goal: ${c.goalShort}</div>
         ${c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span>`).join('')}
         <div class="cl-acts">
           <button class="solid" data-copen="${n}">Open client</button>
-          <button data-ccall="${n}">Call through gym</button>
-          <button data-cmsg="${n}">Message</button>
+          <a href="${telHref(c.phone)}" data-clog="${n}">Call</a>
+          <a href="${waHref(c.phone)}" target="_blank" rel="noopener" data-clog="${n}">WhatsApp</a>
           <button data-cbook="${n}">Book session</button>
         </div>
       </div>
     </div>`;
   }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No matches.</div>';
   document.querySelectorAll('[data-copen]').forEach((b) => { b.onclick = () => openFile(b.dataset.copen); });
-  document.querySelectorAll('[data-ccall]').forEach((b) => { b.onclick = () => { logTimeline(b.dataset.ccall, 'Call placed through gym line by ' + ME); toast('Connecting through the gym line — personal numbers stay hidden'); }; });
-  document.querySelectorAll('[data-cmsg]').forEach((b) => { b.onclick = () => { openThread(b.dataset.cmsg); }; });
+  document.querySelectorAll('[data-clog]').forEach((b) => { b.addEventListener('click', () => logTimeline(b.dataset.clog, 'Contacted by ' + ME + ' (' + b.textContent + ')')); });
   document.querySelectorAll('[data-cbook]').forEach((b) => { b.onclick = () => addSessionFlow(b.dataset.cbook); });
 }
 $('clientSearch').oninput = () => renderClients();
@@ -501,8 +482,11 @@ function renderFile(c, hasProgram) {
       <button class="mini-btn" id="fileClose">Close ✕</button>
     </div>
     <div style="margin-top:10px;"><div class="eyebrow">Contact <span style="text-transform:none; letter-spacing:0;">(access audit-logged)</span></div>
-      <div style="font-size:13px;">${c.phone || '—'} · ${c.email || ''}<br>Emergency: ${c.emerg || '—'} · Prefers: ${c.pref || '—'}</div>
-      <div class="cl-acts"><button data-ccall="${m}">Call through gym</button><button data-cmsg="${m}">Message</button></div>
+      <div style="font-size:13px;"><b>${c.phone || '—'}</b> · ${c.email || ''}<br>Emergency: ${c.emerg || '—'} · Prefers: ${c.pref || '—'}</div>
+      <div class="cl-acts">
+        <a href="${telHref(c.phone || '')}" data-clog="${m}">Call ${m.split(' ')[0]}</a>
+        <a href="${waHref(c.phone || '')}" target="_blank" rel="noopener" data-clog="${m}">WhatsApp</a>
+      </div>
     </div>
     <div style="margin-top:10px;"><div class="eyebrow">Package</div>
       <div style="font-size:13px;">${c.pkg || '—'} · ${pkgInfo(m)}${nextSessionOf(m) ? ' · next: ' + nextSessionOf(m) : ''}</div></div>
@@ -521,8 +505,7 @@ function renderFile(c, hasProgram) {
       <button class="primary" id="progSave" style="margin-top:8px;">Save &amp; sync to ${m.split(' ')[0]}'s app</button>
     </div>` : ''}`;
   $('fileClose').onclick = () => { $('clientCard').classList.add('hidden'); fileMember = null; };
-  document.querySelectorAll('#clientCard [data-ccall]').forEach((b) => { b.onclick = () => { logTimeline(m, 'Call placed through gym line by ' + ME); toast('Connecting through the gym line'); }; });
-  document.querySelectorAll('#clientCard [data-cmsg]').forEach((b) => { b.onclick = () => openThread(m); });
+  document.querySelectorAll('#clientCard [data-clog]').forEach((b) => { b.addEventListener('click', () => logTimeline(m, 'Contacted by ' + ME + ' (' + b.textContent.trim() + ')')); });
   if (hasProgram) { renderProg(); $('progAdd').onclick = () => { draft.push({ n: 'Machine chest press', sets: 3, reps: 10, w: 30, prevW: 30, prev: '—' }); renderProg(); }; $('progSave').onclick = saveProgram; }
 }
 function renderProg() {
@@ -588,101 +571,6 @@ function publishAvail() {
   GymBus.send('trainer-avail', { trainer: ME, slots: T.avail.filter((a) => a.on).map((a) => a.s) }, 'trainer');
 }
 
-/* ---------------- messaging ---------------- */
-let openThreadMember = null;
-function threadOf(member) { return T.threads[member] = T.threads[member] || { msgs: [], resolved: false }; }
-
-function msgCounts() {
-  let unread = 0, awaiting = 0;
-  Object.keys(T.threads).forEach((m) => {
-    const th = T.threads[m];
-    unread += th.msgs.filter((x) => x.from === 'member' && x.status !== 'read').length;
-    if (th.msgs.length && th.msgs[th.msgs.length - 1].from === 'member' && !th.resolved) awaiting++;
-  });
-  return { unread, awaiting };
-}
-function renderMsgSummary() {
-  const { unread, awaiting } = msgCounts();
-  $('msgSummary').innerHTML = unread + ' unread · ' + awaiting + ' awaiting your reply' +
-    (unread ? ' — <a style="color:var(--green); cursor:pointer;" id="goMsgs">open</a>' : '');
-  $('msgDot').classList.toggle('hidden', !unread);
-  const go = $('goMsgs'); if (go) go.onclick = () => document.querySelector('[data-sec="msgs"]').click();
-}
-function renderThreads() {
-  const members = Object.keys(T.threads).filter((m) => T.threads[m].msgs.length);
-  $('threadList').innerHTML = members.map((m) => {
-    const th = T.threads[m]; const lastM = th.msgs[th.msgs.length - 1];
-    const un = unreadFrom(m);
-    const inj = (CLIENTS[m]?.injuries || [])[0];
-    return `<div class="thread" data-th="${m}">
-      <div class="avatar sm">${m[0]}</div>
-      <div class="cl-b">
-        <div class="cl-n">${m} ${un ? `<span class="badge">${un}</span>` : ''} ${th.resolved ? '<span class="st st-ok">Resolved</span>' : ''}</div>
-        <div class="cl-s">${lastM.text.slice(0, 60)}</div>
-        <div class="cl-s">${lastM.at}${inj ? ' · ⚠ ' + inj.label : ''}</div>
-      </div></div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No conversations yet.</div>';
-  document.querySelectorAll('[data-th]').forEach((t) => { t.onclick = () => openThread(t.dataset.th); });
-}
-const QUICK = ["I'll review this before your session.", 'Please avoid that exercise today.', "I've updated your program.", 'Please speak to reception.', 'Running ~10 minutes late — sorry!'];
-
-function openThread(member) {
-  document.querySelector('[data-sec="msgs"]').click();
-  openThreadMember = member;
-  const th = threadOf(member);
-  /* opening = reading: mark member messages read (member sees the receipt) */
-  th.msgs.forEach((m) => { if (m.from === 'member' && m.status !== 'read') { m.status = 'read'; GymBus.update(m.id, 'read', ME); } });
-  save(); renderThreads(); renderMsgSummary();
-  const c = CLIENTS[member] || { injuries: [] };
-  const next = nextSessionOf(member);
-  $('convoCard').classList.remove('hidden');
-  $('convoCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">${member}</div>
-      <div><button class="mini-btn" id="thResolve">${th.resolved ? 'Reopen' : 'Mark resolved'}</button>
-      <button class="mini-btn" id="thClose">✕</button></div>
-    </div>
-    <div style="font-size:12px; color:var(--muted); margin-top:4px;">
-      ${next ? 'Next session: ' + next + ' · ' : ''}${T.program && T.program.member === member ? T.program.title + ' program · ' : ''}${c.injuries.map((i) => '⚠ ' + i.label).join(' · ') || 'no injury flags'}</div>
-    <div id="msgList">${th.msgs.map(renderMsg).join('')}</div>
-    <div class="quick">${QUICK.map((q, i) => `<button data-qr="${i}">${q}</button>`).join('')}</div>
-    ${T.program && T.program.member === member ? `<button class="ghosty" id="proposeBtn" style="margin-top:8px;">Propose an exercise change…</button>` : ''}
-    <input class="txt" id="msgInput" placeholder="Type a message…" autocomplete="off" />
-    <button class="primary" id="msgSend" style="margin-top:8px;">Send</button>`;
-  $('thClose').onclick = () => { $('convoCard').classList.add('hidden'); openThreadMember = null; };
-  $('thResolve').onclick = () => {
-    th.resolved = !th.resolved; save();
-    if (th.resolved) GymBus.send('pt-msg-resolved', { member, by: ME }, 'trainer');
-    openThread(member);
-  };
-  document.querySelectorAll('[data-qr]').forEach((b) => { b.onclick = () => sendMsg(member, QUICK[Number(b.dataset.qr)]); });
-  const pb = $('proposeBtn');
-  if (pb) pb.onclick = () => {
-    const from = prompt('Replace which exercise?\n' + T.program.ex.map((e) => e.n).join('\n'), T.program.ex[2]?.n || '');
-    if (!from) return;
-    const flag = (c.injuries[0] || {}).flag;
-    const to = prompt('Replace with:', (flag ? altsFor(flag)[0] : 'Machine chest press') || 'Machine chest press');
-    if (!to) return;
-    sendMsg(member, `Let's swap ${from} → ${to} for your next session. OK?`, { from, to });
-  };
-  $('msgSend').onclick = () => { const v = $('msgInput').value.trim(); if (v) sendMsg(member, v); };
-  $('convoCard').scrollIntoView({ behavior: 'smooth' });
-}
-function renderMsg(m) {
-  if (m.sys) return `<div class="msg sys">${m.text} · ${m.at}</div>`;
-  const mine = m.from === 'trainer';
-  return `<div class="msg ${mine ? 'me' : 'them'}">${m.text}
-    ${m.proposal && !m.proposalDone ? `<div class="meta">waiting for member to accept</div>` : ''}
-    <div class="meta">${m.at} · ${mine ? (m.status === 'read' ? 'Read' : 'Sent') : (m.ctx ? m.ctx : '')}</div></div>`;
-}
-function sendMsg(member, text, proposal) {
-  const th = threadOf(member);
-  const id = GymBus.send('pt-msg', { member, from: 'trainer', by: ME, text, proposal: proposal || null }, 'trainer');
-  th.msgs.push({ id, from: 'trainer', text, at: now(), t: Date.now(), status: 'sent', proposal: proposal || null });
-  th.resolved = false;
-  save(); openThread(member);
-}
-
 /* ---------------- live session ---------------- */
 let liveEx = [], liveStart = null;
 function exListFor(member) {
@@ -738,19 +626,6 @@ function ingestRequest(ev) {
   addQ({ key: 'req-' + ev.id, busId: ev.id, member: ev.payload.member, slot: ev.payload.slot,
     t: 'Booking request — ' + ev.payload.member, s: ev.payload.slot + ' · PT package eligible', urg: 'warn', actions: reqActions() });
 }
-function ingestMsg(ev) {
-  if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
-  const p = ev.payload;
-  const th = threadOf(p.member);
-  th.msgs.push({ id: ev.id, from: 'member', text: p.text, at: ev.at, t: ev.t || Date.now(), status: 'delivered', ctx: p.ctx || '' });
-  th.resolved = false;
-  save(); renderMsgSummary(); renderThreads();
-  addQ({ key: 'msg-' + ev.id, member: p.member, urg: 'warn', t: 'New message — ' + p.member,
-    s: '"' + p.text.slice(0, 50) + '"' + (p.ctx ? ' · ' + p.ctx : ''), actions: [{ a: 'msg', l: 'Open' }] });
-  toast('Message from ' + p.member);
-  if (openThreadMember === p.member) openThread(p.member);
-}
-
 GymBus.on((kind, ev) => {
   if (kind === 'event' && ev.type === 'gate-entry') {
     if (GymBus.isProcessed(ev.id, 'trainer')) return;
@@ -768,32 +643,6 @@ GymBus.on((kind, ev) => {
   if (kind === 'event' && ev.type === 'pt-request') {
     if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
     ingestRequest(ev); toast('New booking request — ' + ev.payload.member);
-  }
-  if (kind === 'event' && ev.type === 'pt-msg' && ev.payload.from === 'member') ingestMsg(ev);
-  if (kind === 'update' && ev.type === 'pt-msg') {
-    const last = ev.history[ev.history.length - 1] || {};
-    /* member read my message */
-    if (ev.status === 'read' && last.by !== ME) {
-      Object.values(T.threads).forEach((th) => { const m = th.msgs.find((x) => x.id === ev.id); if (m) m.status = 'read'; });
-      save(); if (openThreadMember) openThread(openThreadMember);
-    }
-    /* member accepted a proposed exercise change → apply + sync + audit */
-    if (ev.status === 'accepted' && ev.payload.proposal) {
-      if (GymBus.isProcessed(ev.id + ':accepted', 'trainer')) return; GymBus.markProcessed(ev.id + ':accepted', 'trainer');
-      const { from, to } = ev.payload.proposal;
-      const member = ev.payload.member;
-      const th = threadOf(member);
-      const m = th.msgs.find((x) => x.id === ev.id); if (m) m.proposalDone = true;
-      if (T.program && T.program.member === member) {
-        const e = T.program.ex.find((x) => x.n === from);
-        if (e) { e.n = to; e.prev = '—'; }
-        fileMember = member; draft = JSON.parse(JSON.stringify(T.program.ex));
-        saveProgram('accepted in chat by ' + member);
-      }
-      th.msgs.push({ id: 'sys' + Date.now(), sys: true, from: 'trainer', text: `Program updated: ${from} → ${to} · changed by ${ME}, accepted by ${member}`, at: now(), t: Date.now(), status: 'read' });
-      save(); if (openThreadMember === member) openThread(member); renderThreads();
-      toast(member.split(' ')[0] + ' accepted — program updated on both sides');
-    }
   }
   if (kind === 'update' && ev.type === 'pt-request') {
     const last = ev.history[ev.history.length - 1] || {};
@@ -831,11 +680,10 @@ GymBus.all().forEach((ev) => {
   if (ev.type === 'pt-request' && ev.status === 'open' && !GymBus.isProcessed(ev.id, 'trainer')) {
     GymBus.markProcessed(ev.id, 'trainer'); ingestRequest(ev);
   }
-  if (ev.type === 'pt-msg' && ev.payload?.from === 'member') ingestMsg(ev); // ingestMsg is ledger-guarded
 });
 
 $('statusSel').onchange = () => toast('Status: ' + $('statusSel').value + ' — members only see genuinely bookable slots');
-renderSchedule(); renderQueue(); renderTasks(); renderAvail(); renderMsgSummary(); publishAvail();
+renderSchedule(); renderQueue(); renderTasks(); renderAvail(); publishAvail();
 </script>
 </body>
 </html>
