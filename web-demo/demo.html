@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>GYM — Demo Control Center</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f; --line:#f2f4ee;
+    --green:#1e6b52; --deep:#124a38; --mint:#dff0e6; --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px; }
+  .wrap { max-width:940px; margin:0 auto; display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  button:focus-visible { outline:3px solid var(--green); outline-offset:2px; }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:9px 14px; min-height:32px; display:inline-flex; align-items:center; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .banner { background:var(--amber-soft); color:var(--amber); border-radius:14px; padding:12px 16px; font-weight:700; font-size:13px; text-align:center; }
+  h1 { font-family:var(--display); font-weight:800; font-size:26px; text-align:center; }
+  .sub { text-align:center; color:var(--muted); font-size:13.5px; }
+  .card { background:var(--card); border-radius:20px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:9px; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(210px, 1fr)); gap:9px; }
+  .btn { background:var(--paper); color:var(--deep); font-weight:700; font-size:12.5px; padding:12px 14px; border-radius:12px; text-align:left; min-height:44px; }
+  .btn.dark { background:var(--deep); color:#fff; }
+  .btn.warn { background:var(--amber-soft); color:var(--amber); }
+  .btn.danger { background:var(--red-soft); color:var(--red); }
+  .btn small { display:block; font-weight:400; font-size:11px; opacity:.75; margin-top:2px; }
+  .stat { display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--muted); }
+  .stat b { display:block; font-family:var(--display); font-size:19px; color:var(--ink); }
+  .ev { font-size:12px; padding:7px 0; border-bottom:1px solid var(--line); display:flex; gap:9px; }
+  .ev:last-child { border-bottom:none; }
+  .ev code { font-family:ui-monospace, monospace; font-size:11px; background:var(--paper); border-radius:6px; padding:2px 7px; white-space:nowrap; }
+  .ev .t { color:var(--faint); white-space:nowrap; }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px;
+    font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; max-width:92vw; }
+  select, input { font-family:var(--body); font-size:13px; padding:10px 12px; border:1.5px solid var(--line); border-radius:11px; background:#fff; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="maintenance.html">Maintenance</a></nav>
+  <div class="banner">DEMO MODE — fictional data only. Nothing here touches a real customer, payment or device.</div>
+  <h1>Demo Control Center</h1>
+  <div class="sub">Put the whole platform into a known state before a demo, then trigger the moments you want to show.</div>
+
+  <div class="card">
+    <div class="eyebrow">Current state</div>
+    <div class="stat" id="stats"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Prepared scenarios — each is a full reset into a known situation</div>
+    <div class="grid" id="scenarios"></div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Trigger a moment (keeps current state)</div>
+    <div class="grid">
+      <button class="btn warn" data-t="sos">🆘 Trigger SOS<small>Samer, free-weights area</small></button>
+      <button class="btn warn" data-t="denied">⛔ Denied entry<small>expired member at the gate</small></button>
+      <button class="btn warn" data-t="breakdown">🔧 Equipment failure<small>safety report → auto-isolate</small></button>
+      <button class="btn" data-t="restore">✅ Repair &amp; restore<small>verified back into service</small></button>
+      <button class="btn" data-t="admit">🚪 Admit a member<small>validated check-in</small></button>
+      <button class="btn" data-t="payment">💳 Take a payment<small>renewal at the desk</small></button>
+      <button class="btn warn" data-t="freeze">❄ Freeze a membership<small>Samer → frozen</small></button>
+      <button class="btn" data-t="unfreeze">☀ Unfreeze<small>Samer → active</small></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Simulated clock</div>
+    <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      <select id="clock" aria-label="Simulated time offset">
+        <option value="0">Real time</option>
+        <option value="3600000">+1 hour</option>
+        <option value="10800000">+3 hours</option>
+        <option value="-3600000">−1 hour</option>
+        <option value="86400000">+1 day</option>
+      </select>
+      <span style="font-size:12px; color:var(--muted);" id="clockNow"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Event log — every service call is recorded here</div>
+    <div id="events"></div>
+  </div>
+
+  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+      Scenarios reset the shared demo database (<code>gym_demo_db_v1</code>) and replay a known sequence through the
+      service layer, so every dashboard sees the same records. Open a dashboard in another tab to watch changes arrive.</div>
+  </div>
+</div>
+
+<script src="bus.js?v=3"></script>
+<script src="data.js?v=1"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+function toast(m) { document.querySelectorAll('.toast').forEach((t) => t.remove()); const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
+
+const LABELS = {
+  'normal-day': ['Normal operating day', 'a few members inside, nothing on fire'],
+  'morning-rush': ['Morning rush', 'six members check in back-to-back'],
+  'full-capacity': ['Full-capacity gym', 'capacity reached — next entry is denied'],
+  'medical-emergency': ['Medical emergency', 'active SOS waiting for reception'],
+  'equipment-breakdown': ['Equipment breakdown', 'safety report auto-isolates a treadmill'],
+  'payment-failure': ['Membership payment failure', 'expired member denied at the gate'],
+  'class-cancellation': ['Class cancellation', 'HIIT Burn cancelled by the instructor'],
+  'end-of-day': ['End-of-day reconciliation', 'visits closed, payments on the drawer'],
+};
+
+function renderStats() {
+  const d = DemoData.load();
+  const inside = DemoData.AccessService.insideNow().length;
+  const openWO = d.workOrders.filter((w) => !['verified', 'closed', 'cancelled'].includes(w.status)).length;
+  const openInc = d.incidents.filter((i) => i.status !== 'closed').length;
+  $('stats').innerHTML = [
+    ['Scenario', d.scenario], ['Members', d.members.length], ['Inside now', inside],
+    ['Revenue today', '$' + DemoData.PaymentService.todayTotal()], ['Open work orders', openWO],
+    ['Open incidents', openInc], ['Events', d.events.length],
+  ].map(([k, v]) => `<div><b>${v}</b>${k}</div>`).join('');
+  $('clockNow').textContent = 'Demo clock: ' + new Date(DemoData.now()).toLocaleString();
+}
+function renderEvents() {
+  const evs = DemoData.events().slice(0, 25);
+  $('events').innerHTML = evs.map((e) => `<div class="ev"><code>${e.type}</code>
+    <span>${e.subjectId ? e.subjectId + ' ' : ''}${e.payload && e.payload.reason ? '· ' + e.payload.reason : ''}</span>
+    <span style="flex:1"></span><span class="t">${new Date(e.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span></div>`).join('')
+    || '<div style="font-size:12.5px; color:var(--faint);">No events yet — run a scenario or trigger a moment.</div>';
+}
+function refresh() { renderStats(); renderEvents(); }
+
+$('scenarios').innerHTML = DemoData.scenarios().map((s) => {
+  const [t, sub] = LABELS[s] || [s, ''];
+  return `<button class="btn ${s === 'normal-day' ? 'dark' : ''}" data-s="${s}">${t}<small>${sub}</small></button>`;
+}).join('');
+document.querySelectorAll('[data-s]').forEach((b) => { b.onclick = () => {
+  DemoData.runScenario(b.dataset.s);
+  refresh();
+  toast('Reset into: ' + (LABELS[b.dataset.s] || [b.dataset.s])[0]);
+}; });
+
+document.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => {
+  const t = b.dataset.t;
+  const M = DemoData.MemberService, A = DemoData.AccessService, MT = DemoData.MaintenanceService;
+  if (t === 'sos') { DemoData.IncidentService.raiseSOS({ memberId: 'mbr_0001', type: 'Injury — needs first aid', zone: 'Free-weights area' }); toast('SOS raised — check Reception'); }
+  if (t === 'denied') { const r = A.checkIn('mbr_0003', 'stf_0001'); toast(r.ok ? 'Admitted (unexpected)' : 'Denied: ' + r.reason); }
+  if (t === 'breakdown') { MT.createWorkOrder({ assetId: 'ast_0001', problem: 'Belt slipping under load', severity: 'safety', reporterId: 'mbr_0001' }); toast('Safety work order — treadmill isolated everywhere'); }
+  if (t === 'restore') { MT.returnToService('ast_0001', 'stf_0005', 'Suhail M.'); toast('Treadmill verified and back in service'); }
+  if (t === 'admit') { const r = A.checkIn('mbr_0005', 'stf_0001'); toast(r.ok ? 'Lina admitted' : 'Denied: ' + r.reason); }
+  if (t === 'payment') { DemoData.PaymentService.take({ memberId: 'mbr_0002', amount: 95, method: 'cash', what: 'Monthly renewal', staffId: 'stf_0001' }); toast('$95 taken at the desk'); }
+  if (t === 'freeze') { M.setStatus('mbr_0001', 'frozen', 'stf_0001', 'member request'); toast('Samer frozen — entry now denied'); }
+  if (t === 'unfreeze') { M.setStatus('mbr_0001', 'active', 'stf_0001', 'unfrozen at desk'); toast('Samer active again'); }
+  refresh();
+}; });
+
+$('clock').onchange = () => { DemoData.setClockOffset(Number($('clock').value)); refresh(); toast('Demo clock shifted'); };
+$('clock').value = String(DemoData.clockOffset());
+
+refresh();
+</script>
+</body>
+</html>

@@ -22,6 +22,27 @@ const read = (f) => fs.readFileSync(path.join(WEB, f), 'utf8');
 const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
 const STATE_KEY = 'gym_demo_state_v3';
 
+/* State is namespaced per member id via a session pointer, so the audit must
+   resolve the ACTIVE bucket rather than reaching past the app into the base key
+   (doing so silently no-ops, which masked a fix in an earlier run). */
+const activeKey = (page) => page.evaluate((base) => {
+  try { const id = JSON.parse(localStorage.getItem('gym_session') || 'null')?.memberId; return id ? base + '::' + id : base; }
+  catch (e) { return base; }
+}, STATE_KEY);
+const readState = async (page) => page.evaluate((k) => JSON.parse(localStorage.getItem(k) || '{}'), await activeKey(page));
+/* merge a plain data patch — no code strings are ever evaluated */
+const writeState = async (page, patch) => page.evaluate(({ k, p }) => {
+  const s = JSON.parse(localStorage.getItem(k) || '{}');
+  localStorage.setItem(k, JSON.stringify({ ...s, ...p }));
+}, { k: await activeKey(page), p: patch });
+/* sign out the way a user does, so the session pointer is really dropped */
+async function uiSignOut(page) {
+  await page.evaluate(() => document.querySelector('.tab[data-view="account"]')?.click());
+  await page.waitForTimeout(250);
+  await page.evaluate(() => document.querySelector('[data-action="signout"]')?.click());
+  await page.waitForTimeout(400);
+}
+
 const controls = [];          // {id, verdict, expected, actual, evidence}
 const findings = [];          // {id, severity, area, summary, detail}
 function control(id, verdict, expected, actual, evidence) { controls.push({ id, verdict, expected, actual, evidence: evidence || null }); }
@@ -142,11 +163,14 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(400);
   const runId = 'r' + Math.floor(performance.now());
   const attrProbe = async (label, memberField) => {
-    /* reset ledger + log so a prior run cannot colour the result; deliver a
-       distinct-marker announcement targeted at memberField, logged in as Samer */
-    await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k) || '{}'); s.loggedIn = true; s.memberName = 'Samer Khanji'; s.busSeen = {}; localStorage.setItem(k, JSON.stringify(s)); localStorage.removeItem('gym_bus_processed'); localStorage.removeItem('gym_bus_log'); }, STATE_KEY);
-    await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(400);
-    const before = await page.evaluate((k) => (JSON.parse(localStorage.getItem(k)).notifications || []).length, STATE_KEY);
+    /* log in as Samer through the UI (sets the real session pointer), then reset
+       the ledger + log so a prior run cannot colour the result */
+    await page.evaluate(() => localStorage.clear());
+    await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(400);
+    await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'demo');
+    await page.click('#loginBtn'); await page.waitForTimeout(400);
+    await page.evaluate(() => { localStorage.removeItem('gym_bus_processed'); localStorage.removeItem('gym_bus_log'); });
+    const before = ((await readState(page)).notifications || []).length;
     /* write straight to the bus log: `const GymBus` is a top-level binding, NOT
        a window property, so window.GymBus is undefined from page.evaluate */
     await page.evaluate(({ marker, mf, rid, lbl }) => {
@@ -156,7 +180,7 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
       localStorage.setItem('gym_bus_log', JSON.stringify(log));
     }, { marker: label, mf: memberField, rid: runId, lbl: label });
     await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600);
-    const st = await page.evaluate((k) => JSON.parse(localStorage.getItem(k)), STATE_KEY);
+    const st = await readState(page);
     /* delivery = the member app consumed the event for THIS identity: either a
        notification was added or the café-recommendation slot carries our marker */
     return Boolean((st.notifications || []).length > before || (st.cafeReco && st.cafeReco.item === label));
@@ -176,27 +200,26 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
 
   /* ============ 2 + 5. cross-account isolation — real UI activity + DOM assertions ============ */
   report.isolationModel = { singleSharedStateKey: /const KEY = 'gym_demo_state_v3'/.test(app), perMemberNamespacing: /KEY \+ .*member|state_' \+ .*member/.test(app) };
-  /* (a) generate REAL activity through the UI as Samer: place a café order that
-     writes an order + notification via the normal flow */
-  await page.evaluate((k) => { localStorage.clear(); localStorage.setItem(k, JSON.stringify({ loggedIn: true, memberName: 'Samer Khanji' })); }, STATE_KEY);
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600);
-  await page.evaluate((k) => {
-    /* mark a unique DOM-visible marker into notifications + an order via real state the UI renders */
-    const s = JSON.parse(localStorage.getItem(k));
-    s.wallet = 80; s.notifications = [{ title: 'ISOLATION-MARKER-SAMER', body: 'private-samer-data', when: 'now', unread: true }];
-    s.order = { code: 'C-SAMERONLY', total: 6, pay: 'wallet', items: 'Whey Protein Shake', status: 'SAMER-ORDER-VISIBLE' };
-    s.poolLane = { lane: 3, when: 'SAMER-LANE-MARK' };
-    localStorage.setItem(k, JSON.stringify(s));
-  }, STATE_KEY);
+  /* (a) log in as Samer THROUGH THE UI so the real session pointer is set, then
+     seed markers into whichever bucket the app is actually using */
+  await page.evaluate(() => localStorage.clear());
+  await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(600);
+  await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'demo');
+  await page.click('#loginBtn'); await page.waitForTimeout(500);
+  await writeState(page, {
+    wallet: 80,
+    notifications: [{ title: 'ISOLATION-MARKER-SAMER', body: 'private-samer-data', when: 'now', unread: true }],
+    order: { code: 'C-SAMERONLY', total: 6, pay: 'wallet', items: 'Whey Protein Shake', status: 'SAMER-ORDER-VISIBLE' },
+    poolLane: { lane: 3, when: 'SAMER-LANE-MARK' },
+  });
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
   /* confirm Samer actually sees his markers (control is meaningful) */
   await page.evaluate(() => document.querySelector('.tab[data-view="home"]')?.click());
   await page.waitForTimeout(300);
   const samerSeesOwn = await page.evaluate(() => document.body.innerText.includes('SAMER-ORDER-VISIBLE') || document.body.innerText.includes('C-SAMERONLY'));
 
-  /* (b) switch to Jawad and inspect BOTH storage AND rendered DOM across surfaces */
-  await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); s.loggedIn = false; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(400);
+  /* (b) sign out AS A USER WOULD, then log in as Jawad; inspect storage + DOM */
+  await uiSignOut(page);
   await page.fill('#loginName', 'Jawad'); await page.fill('#loginPassword', 'demo');
   await page.click('#loginBtn'); await page.waitForTimeout(500);
   const domMarkersAcrossSurfaces = async () => {
@@ -212,15 +235,13 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
     }
     return seen;
   };
-  const jawadState = await page.evaluate((k) => {
-    const s = JSON.parse(localStorage.getItem(k));
-    return {
-      name: s.memberName,
-      stateHasSamerOrder: !!(s.order && (s.order.code === 'C-SAMERONLY' || String(s.order.status).includes('SAMER'))),
-      stateHasSamerNotif: (s.notifications || []).some((n) => n.title === 'ISOLATION-MARKER-SAMER'),
-      stateHasSamerLane: !!(s.poolLane && s.poolLane.when === 'SAMER-LANE-MARK'),
-    };
-  }, STATE_KEY);
+  const js = await readState(page);
+  const jawadState = {
+    name: js.memberName,
+    stateHasSamerOrder: !!(js.order && (js.order.code === 'C-SAMERONLY' || String(js.order.status).includes('SAMER'))),
+    stateHasSamerNotif: (js.notifications || []).some((n) => n.title === 'ISOLATION-MARKER-SAMER'),
+    stateHasSamerLane: !!(js.poolLane && js.poolLane.when === 'SAMER-LANE-MARK'),
+  };
   const jawadDomLeak = await domMarkersAcrossSurfaces();
   report.crossAccount = { samerSawOwnMarkers: samerSeesOwn, asJawad: { ...jawadState, domLeakBySurface: jawadDomLeak } };
   const anyStateLeak = jawadState.stateHasSamerOrder || jawadState.stateHasSamerNotif || jawadState.stateHasSamerLane;

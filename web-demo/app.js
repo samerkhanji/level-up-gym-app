@@ -494,14 +494,38 @@ async function loadSheetData() {
   }
 }
 
+/* ---- per-member state isolation (audit F-ISO-1 / F-ID-1) ----------------
+   One shared key meant member B inherited member A's wallet history, orders and
+   notifications on a shared device — and could see them on screen. State is now
+   namespaced by an IMMUTABLE member id held in a small session pointer, never by
+   display name. Signing out drops the pointer, so the next login reads that
+   member's own bucket (or a clean default) instead of the previous member's. */
+const SESSION_KEY = 'gym_session';
+function sessionMemberId() { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null')?.memberId || null; } catch (_) { return null; } }
+function setSessionMember(id) {
+  if (id) localStorage.setItem(SESSION_KEY, JSON.stringify({ memberId: id, at: Date.now() }));
+  else localStorage.removeItem(SESSION_KEY);
+}
+function stateKey() { const id = sessionMemberId(); return id ? KEY + '::' + id : KEY; }
+/* resolve a member row to a stable id: DemoData first, then a deterministic
+   fallback so the demo still isolates correctly without the data engine */
+function memberIdFor(name) {
+  const n = String(name || '').trim();
+  if (!n) return null;
+  if (typeof DemoData !== 'undefined') {
+    const m = DemoData.MemberService.byName(n);
+    if (m) return m.id;
+  }
+  return 'mbr_' + n.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 16);
+}
 function load() {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(stateKey());
     if (raw) return { ...structuredClone(defaultState), ...JSON.parse(raw) };
   } catch (_) { /* default */ }
   return structuredClone(defaultState);
 }
-function save() { localStorage.setItem(KEY, JSON.stringify(state)); }
+function save() { localStorage.setItem(stateKey(), JSON.stringify(state)); }
 
 /* ================= helpers ================= */
 
@@ -1984,7 +2008,13 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'copy-ref') toast('Referral link shared');
   if (a === 'export-data') toast('Data export requested — link arrives by email');
   if (a === 'delete-data') toast('Deletion request logged — reception will confirm identity');
-  if (a === 'signout') { state.loggedIn = false; save(); show('login'); }
+  if (a === 'signout') {
+    state.loggedIn = false; save();
+    setSessionMember(null);          // drop the session pointer
+    state = load();                  // fall back to a clean default bucket
+    ['home', 'train', 'gym', 'food', 'account'].forEach((v) => { const el = document.getElementById('c-' + v); if (el) el.innerHTML = ''; });
+    show('login');                   // and scrub rendered content from the DOM
+  }
 });
 
 /* ================= auth & boot ================= */
@@ -1995,13 +2025,17 @@ document.getElementById('loginBtn').onclick = () => {
   const errEl = document.getElementById('loginError');
   const fail = (msg) => { if (errEl) { errEl.textContent = msg; errEl.hidden = false; } };
 
-  if (!memberRows.length) {
-    // sheet not loaded (offline / still fetching) — allow the default demo identity
-    if (!nameIn || nameIn === 'samer khanji') { state.loggedIn = true; save(); show('home'); return; }
-    fail('Member data is still loading — try again in a moment.');
-    return;
+  // Offline / sheet-unavailable: fall back to the shared demo-data engine so
+  // EVERY demo member can still sign in (and gets their own state bucket),
+  // instead of only one hardcoded identity.
+  let rows = memberRows;
+  if (!rows.length && typeof DemoData !== 'undefined') {
+    rows = DemoData.MemberService.list().map((m) => ({
+      name: m.name, tier: m.tier, wallet: m.wallet, points: m.points, sub_ends: m.subEnds, member_since: m.memberSince,
+    }));
   }
-  const row = memberRows.find((m) => (m.name || '').trim().toLowerCase() === nameIn);
+  if (!rows.length) { fail('Member data is still loading — try again in a moment.'); return; }
+  const row = rows.find((m) => (m.name || '').trim().toLowerCase() === nameIn);
   if (!row) { fail('No member with that name. Check the spelling.'); return; }
   // DEMO AUTH — deliberately does NOT read any password column.
   // Plaintext credentials must not live in a data sheet (they were publicly
@@ -2012,10 +2046,14 @@ document.getElementById('loginBtn').onclick = () => {
   if (!passIn) { fail('Enter any password — this demo does not use real credentials.'); return; }
 
   if (errEl) errEl.hidden = true;
+  /* switch to THIS member's own state bucket before writing anything */
+  setSessionMember(memberIdFor(row.name));
+  state = load();
   applyMemberSeed(row);
   state.loggedIn = true;
   save();
   show('home');
+  rerenderActive();
   toast(`Welcome, ${(row.name || '').split(' ')[0]}`);
 };
 /* ---------- onboarding wizard (join journey) ---------- */
@@ -2151,7 +2189,9 @@ function startSOS() {
 }
 
 document.getElementById('resetDemo').onclick = () => {
-  localStorage.removeItem(KEY);
+  /* clear every per-member bucket, not only the current one */
+  Object.keys(localStorage).filter((k) => k === KEY || k.startsWith(KEY + '::')).forEach((k) => localStorage.removeItem(k));
+  setSessionMember(null);
   state = load(); cart = {};
   show('login');
   loadSheetData(); // re-seed the fresh state from the sheet
