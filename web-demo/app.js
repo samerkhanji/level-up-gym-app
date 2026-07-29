@@ -57,6 +57,7 @@ const classes = [
   { id: 'pilates', name: 'Reformer Pilates', when: 'Tomorrow · 9:00 AM', instructor: 'Rita S.', spots: 0 },
   { id: 'boxing', name: 'Boxing Fundamentals', when: 'Tomorrow · 6:30 PM', instructor: 'Tony A.', spots: 9 },
   { id: 'yoga', name: 'Yoga Flow', when: 'Wed · 8:00 AM', instructor: 'Maya R.', spots: 7 },
+  { id: 'aqua', name: 'Aqua Fit', when: 'Today · 5:30 PM', instructor: 'Rita S.', spots: 6 },
 ];
 
 const menu = [
@@ -182,6 +183,7 @@ const defaultState = {
   locker: null,
   lastLocker: 47,
   guestPass: null,
+  poolLane: null,
   parking: { plate: 'B 123456', spot: 'P-12 (premium)', carWash: false },
   recoveryBookings: [],
   reports: [],
@@ -339,6 +341,10 @@ async function loadSheetData() {
         id: 'c' + i, name: r.name || '—', when: r.when || '',
         instructor: r.instructor || '', spots: Number(r.spots) || 0,
       }));
+      // pool programming ships with the app until the sheet's Classes tab carries it
+      if (!classes.some((c) => /aqua/i.test(c.name))) {
+        classes.push({ id: 'aqua', name: 'Aqua Fit', when: 'Today · 5:30 PM', instructor: 'Rita S.', spots: 6 });
+      }
     }
     if (sRows.length) {
       shop.length = 0;
@@ -590,6 +596,7 @@ function renderHome() {
   classes.filter((c) => state.classState[c.id] === 'booked').forEach((c) => upcoming.push({ ic: 'calendar', t: c.name, s: `Class · ${c.instructor}`, w: c.when }));
   classes.filter((c) => state.classState[c.id] === 'waitlist').forEach((c) => upcoming.push({ ic: 'clock', t: c.name, s: "Waitlist — we'll notify you", w: c.when }));
   state.recoveryBookings.forEach((r) => upcoming.push({ ic: 'leaf', t: r.name, s: `Recovery · $${r.price} wallet`, w: r.when }));
+  if (state.poolLane) upcoming.push({ ic: 'leaf', t: `Pool — lane ${state.poolLane.lane}`, s: '45 min · included', w: state.poolLane.when });
   if (state.assessment.next) upcoming.push({ ic: 'clipboard', t: 'Fitness assessment', s: 'InBody + movement screen', w: state.assessment.next });
 
   /* prioritized home: one Next item, everything urgent in one Attention card */
@@ -898,6 +905,29 @@ function renderGym() {
         <div class="dim small">Invite a friend for one visit. Reception is told who to expect; your guest signs the waiver at the desk. The pass works once and expires in 48 h.</div>
         <button class="book-btn wide" data-action="create-guest">Create guest pass · $${PRICES.guest_pass} wallet</button>`}
     </div>
+
+    ${(() => {
+      const poolDown = (state.assetStatus || {})['Pool'];
+      if (poolDown) return `
+      <div class="card" style="border-left:4px solid var(--amber);">
+        ${eyebrow('leaf', 'Pool')}
+        <div class="row"><b>Pool area</b><span class="chip chip-warn">${poolDown.status}</span></div>
+        <div class="dim small">Maintenance is on it — you'll be notified the moment it reopens.${poolDown.alt ? ' Meanwhile: ' + poolDown.alt + '.' : ''}</div>
+      </div>`;
+      return `
+      <div class="card">
+        ${eyebrow('leaf', 'Pool')}
+        <div class="row"><b>Pool area</b><span class="chip chip-ok">Open · lifeguard on duty</span></div>
+        <div class="dim small">26°C · 8 swimming now · 25 m, 6 lanes</div>
+        ${state.poolLane ? `
+          <div class="done-line">${icon('check', 17)} Lane ${state.poolLane.lane} reserved · ${state.poolLane.when} · 45 min</div>
+          <button class="book-btn wide warn" data-action="pool-cancel">Cancel lane</button>` : `
+          <div class="btn-row" style="margin-top:6px;">
+            ${['Now', '6:00 PM', '7:00 PM'].map((t) => `<button class="book-btn" data-action="pool-lane" data-t="${t}">${t}</button>`).join('')}
+          </div>
+          <div class="dim small">Lane reservation is included in every plan — 45 minutes, shower before entering, no diving in shallow lanes.</div>`}
+      </div>`;
+    })()}
 
     <div class="card">
       ${eyebrow('car', 'Parking')}
@@ -1669,6 +1699,19 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const wasUsed = state.guestPass && state.guestPass.status === 'used';
     state.guestPass = null; save(); renderGym();
     toast(wasUsed ? 'Pass archived' : 'Invitation cancelled — reception notified');
+  }
+  if (a === 'pool-lane') {
+    if (state.poolLane) return;
+    const lane = 1 + Math.floor(Math.random() * 6);
+    state.poolLane = { lane, when: el.dataset.t === 'Now' ? 'Now · until ' + fmtTime(Date.now() + 45 * 60000) : 'Today · ' + el.dataset.t };
+    if (state.checkedIn) state.sessionEvents.push({ time: fmtTime(Date.now()), title: `Pool lane ${lane} reserved`, sub: state.poolLane.when + ' · 45 min' });
+    save(); renderGym();
+    pushNotif('Lane ' + lane + ' reserved', state.poolLane.when + ' · 45 minutes. Shower before entering; the lifeguard has your name.');
+    toast('Lane ' + lane + ' is yours · ' + state.poolLane.when);
+  }
+  if (a === 'pool-cancel') {
+    state.poolLane = null; save(); renderGym();
+    toast('Lane released — it opens up for the next swimmer');
   }
   if (a === 'locker-help') {
     if (!state.locker) return;

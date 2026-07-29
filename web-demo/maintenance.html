@@ -152,6 +152,8 @@ let M = {
     { id: 'AST-06', name: 'Main gate scanner', cat: 'Access', loc: 'Entrance', status: 'Limited use', alt: 'Reception manual entry', history: [{ at: 'Today', line: 'Slow reads reported by reception' }] },
     { id: 'AST-07', name: 'Sauna heater', cat: 'Recovery', loc: 'Recovery suite', status: 'Available', alt: null, history: [] },
     { id: 'AST-08', name: 'Café blender', cat: 'Café', loc: 'Café counter', status: 'Available', alt: null, history: [] },
+    { id: 'AST-09', name: 'Pool', cat: 'Aquatics', loc: 'Pool area · lower level', status: 'Available', alt: 'Sauna & recovery suite stay open', history: [{ at: 'Jul 26', line: 'Water quality check passed — chlorine & pH in range (Suhail M.)' }] },
+    { id: 'AST-10', name: 'Pool filtration pump', cat: 'Aquatics', loc: 'Pool plant room', status: 'Available', alt: null, history: [] },
   ],
   wos: [
     { id: 'WO-1041', asset: 'Rowing machine #1', priority: 'normal', status: 'Waiting for parts', assignee: ME, problem: 'Chain worn and skipping', reporter: 'Karim H. (trainer)', at: 'Jul 27', part: 'Drive chain', log: [{ at: 'Jul 27 · 9:10 AM', line: 'Reported by Karim H.' }, { at: 'Jul 27 · 9:40 AM', line: 'Assessed by Suhail M. — chain replacement needed, part reserved' }] },
@@ -428,7 +430,7 @@ $('scanAsset').onclick = async () => {
 };
 $('inspection').onclick = async () => {
   const area = await choose('Start inspection', 'Failed items create work orders automatically.', [
-    { label: 'Gym floor' }, { label: 'Locker rooms' }, { label: 'Recovery suite' }, { label: 'Café' },
+    { label: 'Gym floor' }, { label: 'Locker rooms' }, { label: 'Recovery suite' }, { label: 'Café' }, { label: 'Pool area (water quality + safety)' },
   ]);
   if (!area) return;
   const fail = await choose(area.choice + ' — result', 'Pass closes the inspection; a failed item names the asset.', [
