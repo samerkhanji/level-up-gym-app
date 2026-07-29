@@ -20,7 +20,7 @@ const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
-const OUT = path.join(__dirname, 'test-results', 'phase-1-2-2b');
+const OUT = path.join(__dirname, 'audit-reports', 'phase-1-2-2b');
 const WEB = path.join(__dirname, 'web-demo');
 const read = (f) => fs.readFileSync(path.join(WEB, f), 'utf8');
 

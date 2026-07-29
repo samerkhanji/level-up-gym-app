@@ -4,8 +4,9 @@ Executed 2026-07-29 against `http://localhost:5500` (byte-identical to the Verce
 deploy). Chromium only in this staged run — WebKit/Firefox, Axe, performance and
 the previously-audited staff suites are **deferred to later phases as instructed**.
 
-Evidence: `test-results/phase-1-2-2b/` — `staff-hub-report.json`,
+Evidence: `audit-reports/phase-1-2-2b/` — `staff-hub-report.json`,
 `member-report.json`, `members-clients-report.json`, plus screenshots.
+(Moved out of `test-results/`, which Playwright wipes on every run.)
 
 ---
 
