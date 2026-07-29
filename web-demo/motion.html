@@ -3,115 +3,344 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GYM — Motion</title>
+<title>GYM — Motion System</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing:border-box; }
-  body { margin:0; background:#e7e9e2; font-family:'Instrument Sans',sans-serif; color:#17211c; }
-  a { color:#1e6b52; } a:hover { color:#124a38; }
-  @keyframes pulse { 0%,100%{opacity:1; transform:scale(1)} 50%{opacity:.35; transform:scale(.8)} }
-  @keyframes growBar { from { transform:scaleY(0); } to { transform:scaleY(1); } }
-  @keyframes fillBar { from { transform:scaleX(0); } to { transform:scaleX(1); } }
-  @keyframes cardIn { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-  @keyframes qrTick { from { transform:scaleX(1); } to { transform:scaleX(0); } }
-  .dept-nav { display:flex; flex-wrap:wrap; gap:8px; justify-content:center; font-size:13px; padding:20px 16px 0; }
-  .dept-nav a { color:#1e6b52; font-weight:600; text-decoration:none; background:#fff; border-radius:999px; padding:7px 14px; box-shadow:0 3px 10px rgba(23,33,28,.06); }
-  @media (prefers-reduced-motion: reduce) { * { animation-duration:.01s !important; } }
+  /* ============ central motion tokens — the ONE system every dashboard uses ============ */
+  :root {
+    --motion-instant: 80ms;
+    --motion-fast: 140ms;
+    --motion-standard: 220ms;
+    --motion-slow: 320ms;
+    --ease-standard: cubic-bezier(.2, .8, .2, 1);
+    --ease-enter: cubic-bezier(.2, .9, .2, 1);
+    --ease-exit: cubic-bezier(.4, 0, 1, 1);
+    --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
+    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px; }
+  .wrap { max-width:860px; margin:0 auto; display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  button:focus-visible, a:focus-visible { outline:3px solid var(--green); outline-offset:2px; }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:9px 14px; min-height:32px; display:inline-flex; align-items:center; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  h1 { font-family:var(--display); font-weight:800; font-size:24px; text-align:center; }
+  .sub { text-align:center; color:var(--muted); font-size:13.5px; max-width:560px; margin:0 auto; }
+  .card { background:var(--card); border-radius:20px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .rule { font-size:13px; color:var(--muted); line-height:1.55; }
+  .rule b { color:var(--ink); }
+  code, pre { font-family:ui-monospace, monospace; font-size:12px; background:var(--paper); border-radius:8px; }
+  code { padding:2px 6px; }
+  pre { padding:12px; overflow-x:auto; line-height:1.6; margin-top:8px; }
+  table { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:8px; }
+  th, td { text-align:left; padding:7px 6px; border-bottom:1px solid var(--line); }
+  th { font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); }
+
+  /* ---- demo: button lifecycle (transform+opacity only; action fires immediately) ---- */
+  .demo-btn { background:var(--deep); color:#fff; font-weight:800; font-size:14px; padding:13px 20px; border-radius:13px;
+    transition:transform var(--motion-instant) var(--ease-standard), opacity var(--motion-fast) var(--ease-standard);
+    min-height:44px; min-width:180px; position:relative; }
+  .demo-btn:active { transform:scale(.97); }
+  .demo-btn[disabled] { opacity:.6; cursor:default; }
+  .spinner { display:inline-block; width:14px; height:14px; border:2.5px solid rgba(255,255,255,.35); border-top-color:#fff;
+    border-radius:50%; animation:spin .7s linear infinite; vertical-align:-2px; margin-right:7px; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .check-pop { display:inline-block; animation:pop var(--motion-standard) var(--ease-enter) both; }
+  @keyframes pop { from { transform:scale(.4); opacity:0; } to { transform:scale(1); opacity:1; } }
+
+  /* ---- demo: modal / drawer (single elements toggled — stacking is impossible) ---- */
+  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:grid; place-items:center; z-index:90; padding:16px;
+    opacity:0; visibility:hidden; transition:opacity var(--motion-standard) var(--ease-standard), visibility 0s linear var(--motion-standard); }
+  .overlay.show { opacity:1; visibility:visible; transition:opacity var(--motion-standard) var(--ease-standard); }
+  .modal { background:#fff; border-radius:20px; padding:20px; width:min(400px,100%);
+    transform:translateY(10px) scale(.98); transition:transform var(--motion-standard) var(--ease-enter); }
+  .overlay.show .modal { transform:none; }
+  .drawer-wrap { position:fixed; inset:0; background:rgba(23,33,28,.45); z-index:90;
+    opacity:0; visibility:hidden; transition:opacity var(--motion-standard) var(--ease-standard), visibility 0s linear var(--motion-standard); }
+  .drawer-wrap.show { opacity:1; visibility:visible; transition:opacity var(--motion-standard) var(--ease-standard); }
+  .drawer { position:absolute; top:0; right:0; bottom:0; width:min(340px,90vw); background:#fff; padding:20px;
+    transform:translateX(100%); transition:transform var(--motion-standard) var(--ease-enter); }
+  .drawer-wrap.show .drawer { transform:none; }
+  .m-h { font-family:var(--display); font-weight:800; font-size:17px; margin-bottom:6px; }
+  .m-p { font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:12px; }
+  .m-close { background:var(--deep); color:#fff; font-weight:800; font-size:13px; padding:11px 16px; border-radius:11px; min-height:40px; }
+
+  /* ---- demo: status change with aria-live ---- */
+  .status-card { border-radius:14px; background:var(--paper); padding:13px; display:flex; align-items:center; gap:10px; }
+  .st-chip { font-size:10.5px; font-weight:800; padding:5px 11px; border-radius:999px;
+    transition:opacity var(--motion-fast) var(--ease-standard), transform var(--motion-fast) var(--ease-standard); }
+  .st-prep { background:var(--amber-soft); color:var(--amber); }
+  .st-ready { background:var(--mint); color:var(--deep); }
+  .st-chip.swap { animation:chipIn var(--motion-standard) var(--ease-enter) both; }
+  @keyframes chipIn { from { transform:translateY(4px); opacity:0; } to { transform:none; opacity:1; } }
+
+  /* ---- demo: toast (queue-controlled: one instance, updated in place) ---- */
+  .toast { position:fixed; top:16px; left:50%; background:var(--ink); color:#fff; font-size:13px; font-weight:600;
+    border-radius:999px; padding:11px 18px; z-index:95; max-width:92vw;
+    transform:translate(-50%, -8px); opacity:0;
+    transition:transform var(--motion-fast) var(--ease-enter), opacity var(--motion-fast) var(--ease-standard); }
+  .toast.show { transform:translate(-50%, 0); opacity:1; }
+
+  /* ---- demo: skeleton (infinite ONLY while loading, stopped on load) ---- */
+  .skel { height:14px; border-radius:7px; background:linear-gradient(90deg, #eceee8 25%, #f6f7f3 50%, #eceee8 75%); background-size:200% 100%; margin-top:8px; }
+  .skel.animating { animation:shimmer 1.1s linear infinite; }
+  @keyframes shimmer { from { background-position:200% 0; } to { background-position:-200% 0; } }
+
+  .demo-row { display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:10px; }
+  .ghost { background:var(--paper); color:var(--deep); font-weight:700; font-size:12.5px; padding:11px 15px; border-radius:11px; min-height:40px; }
+  .live-region { font-size:12px; color:var(--muted); margin-top:8px; min-height:18px; }
+  .good { color:var(--green); font-weight:700; } .bad { color:var(--red); font-weight:700; }
+
+  /* ============ reduced motion — real support, not decoration ============ */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration:.01ms !important;
+      animation-iteration-count:1 !important;
+      transition-duration:.01ms !important;
+      scroll-behavior:auto !important;
+    }
+  }
+  html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after {
+    animation-duration:.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:.01ms !important;
+  }
 </style>
 </head>
 <body>
-<nav class="dept-nav">
-  <a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="nutritionist.html">Nutritionist</a><a href="maintenance.html">Maintenance</a><a href="instructor.html">Instructor</a><a href="staff.html">All departments</a>
-</nav>
-<section style="padding:36px 56px 80px; display:flex; gap:48px; align-items:flex-start; flex-wrap:wrap; justify-content:center;">
-  <div style="max-width:340px;">
-    <div style="font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#1e6b52;">GYM · Motion language</div>
-    <h1 style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:30px; margin:8px 0 12px;">A touch of animation</h1>
-    <p style="color:#6c7a71; font-size:15px; line-height:1.55;">Everything animates once, on load, then settles — numbers count up, bars grow, cards rise in staggered. Only the live dot and the QR timer keep moving. Press replay to watch it again.</p>
-    <button id="replayBtn" style="margin-top:16px; background:#1e6b52; color:#ffffff; border:none; border-radius:14px; padding:13px 26px; font-family:'Instrument Sans',sans-serif; font-weight:700; font-size:14px; cursor:pointer;">↻ Replay</button>
+<div class="wrap">
+  <nav class="navrow"><a href="index.html">← Member app</a><a href="staff.html">All departments</a><a href="features.html">Features</a></nav>
+  <h1>Motion system</h1>
+  <div class="sub">The one set of durations, easings and patterns every dashboard uses. Motion here communicates state and
+    direction — it never delays an action, traps focus, or survives a reduced-motion preference.</div>
+
+  <div class="card">
+    <div class="eyebrow">Tokens — defined once, used everywhere</div>
+    <pre>:root {
+  --motion-instant: 80ms;    /* button press */
+  --motion-fast: 140ms;      /* hover, focus, chips */
+  --motion-standard: 220ms;  /* cards, drawers, modals */
+  --motion-slow: 320ms;      /* page transitions (max) */
+  --ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --ease-enter:    cubic-bezier(.2, .9, .2, 1);
+  --ease-exit:     cubic-bezier(.4, 0, 1, 1);
+}</pre>
+    <table>
+      <tr><th>Interaction</th><th>Duration</th><th>Properties</th></tr>
+      <tr><td>Button press</td><td>80–120 ms</td><td>transform</td></tr>
+      <tr><td>Hover / focus</td><td>120–160 ms</td><td>transform, opacity</td></tr>
+      <tr><td>Card expansion</td><td>180–240 ms</td><td>transform, opacity</td></tr>
+      <tr><td>Drawer / modal</td><td>220–300 ms</td><td>transform, opacity</td></tr>
+      <tr><td>Success check</td><td>&lt; 500 ms</td><td>transform, opacity</td></tr>
+    </table>
+    <div class="rule" style="margin-top:10px;"><b>Never</b> <code>transition: all</code> — it animates layout properties you didn't intend.
+      Animate <code>transform</code> and <code>opacity</code> only; width/height/margin changes are instant.</div>
   </div>
-  <div style="width:375px; background:#f3f4ef; border-radius:40px; box-shadow:0 20px 60px rgba(18,74,56,.14); padding:26px 18px 18px;">
-    <div id="motionRoot"></div>
+
+  <div class="card">
+    <div class="eyebrow">Button lifecycle — the action fires immediately, motion only reports it</div>
+    <div class="demo-row">
+      <button class="demo-btn" id="btnDemo">Save changes</button>
+      <span class="live-region" id="btnState" aria-live="polite">Rest state</span>
+    </div>
+    <div class="rule" style="margin-top:8px;">Rest → pressed (80 ms scale) → loading (spinner, the only infinite animation and it stops) →
+      success check (&lt; 500 ms) → enabled again. Double-clicks during loading are ignored by state, not by animation.</div>
   </div>
-</section>
+
+  <div class="card">
+    <div class="eyebrow">Modal &amp; drawer — focus managed, stacking impossible</div>
+    <div class="demo-row">
+      <button class="ghost" id="openModal">Open modal</button>
+      <button class="ghost" id="openDrawer">Open drawer</button>
+      <button class="ghost" id="hammer">Rapid open/close ×6</button>
+      <span class="live-region" id="overlayState" aria-live="polite"></span>
+    </div>
+    <div class="rule" style="margin-top:8px;">Focus moves into the dialog on open and returns to the trigger on close; <b>Esc</b> and the backdrop
+      close it; background scroll locks while open and always unlocks. One overlay element is toggled — rapid clicking can never
+      stack backdrops, trap focus or leave invisible layers.</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Status change — readable first, announced to screen readers</div>
+    <div class="status-card">
+      <span style="font-weight:700; font-size:13.5px; flex:1;">Order #C-1042 · Whey Protein Shake</span>
+      <span class="st-chip st-prep" id="statusChip">PREPARING</span>
+    </div>
+    <div class="demo-row">
+      <button class="ghost" id="statusBtn">Mark ready</button>
+      <span class="live-region" id="statusLive" role="status" aria-live="polite"></span>
+    </div>
+    <div class="rule" style="margin-top:8px;">The new label is readable immediately; the card never disappears before the employee
+      understands the result; double-click protection lives in state logic, independent of the animation.</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Toast queue — one action, one toast</div>
+    <div class="demo-row">
+      <button class="ghost" id="toastBtn">Fire toast ×5 fast</button>
+    </div>
+    <div class="rule" style="margin-top:8px;">Repeated triggers update the single toast in place instead of stacking five.
+      Notifications never cover primary actions (top-center, auto-dismiss).</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Loading — skeletons that actually stop</div>
+    <div class="demo-row"><button class="ghost" id="skelBtn">Load content</button></div>
+    <div id="skelZone">
+      <div class="skel" style="width:70%;"></div>
+      <div class="skel" style="width:45%;"></div>
+    </div>
+    <div class="rule" style="margin-top:8px;">Shimmer runs only while genuinely loading and is removed on completion — no permanent
+      GPU work, no stuck loading states (a timeout fallback always resolves the UI).</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Reduced motion — a preference, not a suggestion</div>
+    <div class="demo-row">
+      <button class="ghost" id="rmToggle" aria-pressed="false">Preview reduced motion</button>
+      <span class="live-region" id="rmState" aria-live="polite">Following your system preference</span>
+    </div>
+    <pre>@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</pre>
+    <div class="rule" style="margin-top:8px;">With motion reduced, every state above still communicates through <b>text, icons and
+      colour-independent labels</b> — success, failure, loading and status changes never rely on movement alone. No parallax,
+      floating, spinning backgrounds or ambient pulsing anywhere in the system.</div>
+  </div>
+
+  <div class="card">
+    <div class="eyebrow">Do / don't</div>
+    <div class="rule">
+      <span class="good">Do</span> — <code>transition: transform 220ms var(--ease-standard), opacity 180ms var(--ease-standard);</code><br>
+      <span class="bad">Don't</span> — <code>transition: all 500ms;</code> · multi-second interface animation · hover-only feedback ·
+      motion that moves keyboard focus · continuous animation outside genuine loading/recording states.</div>
+  </div>
+</div>
+
+<!-- single overlay + drawer elements — toggled, never duplicated -->
+<div class="overlay" id="ovl" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="modal">
+    <div class="m-h" id="mTitle">Confirm renewal</div>
+    <div class="m-p">This is the standard dialog pattern: focus is inside, Esc or the backdrop closes it, and focus returns to the button that opened it.</div>
+    <button class="m-close" id="mClose" aria-label="Close dialog">Close</button>
+  </div>
+</div>
+<div class="drawer-wrap" id="drw" role="dialog" aria-modal="true" aria-label="Member details drawer">
+  <div class="drawer">
+    <div class="m-h">Samer Khanji</div>
+    <div class="m-p">Drawers carry member profiles, order details, rosters and work orders. Same rules as modals: focus in, Esc closes, focus restored.</div>
+    <button class="m-close" id="dClose" aria-label="Close drawer">Close</button>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
 <script>
-const heights = [24,42,36,26,44,38,52,88,100,70,34];
-let counter = null, qrTimer = null, qrSeconds = 25;
+const $ = (id) => document.getElementById(id);
 
-function template() {
-  const bars = heights.map((h, i) =>
-    `<div style="flex:1; height:${h}%; background:${i === 6 ? '#1e6b52' : '#e3e6de'}; border-radius:3px 3px 0 0; transform-origin:bottom; animation:growBar .6s ${(i * 0.05).toFixed(2)}s cubic-bezier(.2,.8,.2,1) both;"></div>`).join('');
-  return `
-    <div style="display:flex; flex-direction:column; gap:14px;">
-      <div style="background:#dff0e6; border-radius:24px; padding:20px; animation:cardIn .5s ease-out both;">
-        <div style="display:flex; align-items:center; gap:9px;">
-          <span style="width:10px; height:10px; border-radius:50%; background:#1e6b52; animation:pulse 1.6s ease-in-out infinite;"></span>
-          <span style="font-weight:800; color:#124a38; font-size:16px; font-family:'Bricolage Grotesque';">Inside the gym</span>
-        </div>
-        <div style="color:#2f5d4b; font-size:14px; margin-top:8px;">Since 6:15 PM · <span data-bind="minutes">0</span> min · locker #47</div>
-      </div>
-      <div style="display:flex; gap:12px;">
-        <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .08s ease-out both;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Wallet</div>
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;">$<span data-bind="wallet">0</span></div>
-        </div>
-        <div style="flex:1; background:#ffffff; border-radius:24px; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .14s ease-out both;">
-          <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Points</div>
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:26px; color:#124a38; margin-top:6px;"><span data-bind="points">0</span></div>
-        </div>
-      </div>
-      <div style="background:#ffffff; border-radius:24px; padding:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .2s ease-out both;">
-        <div style="font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6c7a71;">Gym right now</div>
-        <div style="display:flex; align-items:baseline; gap:10px; margin-top:8px;">
-          <div style="font-family:'Bricolage Grotesque'; font-weight:800; font-size:34px; color:#124a38;"><span data-bind="occupancy">0</span></div>
-          <div style="font-weight:700; color:#1e6b52; font-size:15px;">Moderate</div>
-        </div>
-        <div style="display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:12px;">${bars}</div>
-        <div style="font-size:12px; color:#6c7a71; margin-top:8px;">Usually busiest 6–8 PM</div>
-      </div>
-      <div style="background:#ffffff; border-radius:24px; border-left:5px solid #1e6b52; padding:16px 18px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:cardIn .5s .28s ease-out both;">
-        <div style="display:flex; justify-content:space-between; font-size:14px;"><span style="font-weight:700;">30-Day Consistency</span><span style="font-weight:700; color:#124a38;"><span data-bind="challenge">0</span>/20</span></div>
-        <div style="height:8px; background:#eef0ea; border-radius:4px; margin-top:10px; overflow:hidden;"><div style="width:65%; height:100%; background:#1e6b52; border-radius:4px; transform-origin:left; animation:fillBar .9s .5s cubic-bezier(.2,.8,.2,1) both;"></div></div>
-        <div style="font-size:12px; color:#1e6b52; font-weight:600; margin-top:8px;">Today counted. 7 visits to +500 pts.</div>
-      </div>
-      <div style="background:#124a38; border-radius:24px; padding:18px 20px; color:#dff0e6; animation:cardIn .5s .36s ease-out both;">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <span style="letter-spacing:.22em; font-weight:800; font-size:12px; color:#7ee2b1;">SCAN TO ENTER</span>
-          <span style="font-size:12px; color:#9ec7b3;">refreshes in <span data-bind="qr">25</span>s</span>
-        </div>
-        <div style="height:4px; background:rgba(255,255,255,.15); border-radius:2px; margin-top:12px; overflow:hidden;">
-          <div style="height:100%; background:#7ee2b1; border-radius:2px; transform-origin:left; animation:qrTick 25s linear infinite;"></div>
-        </div>
-      </div>
-    </div>`;
+/* ---- button lifecycle: state machine, motion reports it ---- */
+let btnBusy = false;
+$('btnDemo').addEventListener('click', () => {
+  if (btnBusy) return;                       // double-click protection: state, not animation
+  btnBusy = true;
+  const b = $('btnDemo');
+  $('btnState').textContent = 'Saving…';
+  b.disabled = true;
+  b.innerHTML = '<span class="spinner" aria-hidden="true"></span>Saving…';
+  setTimeout(() => {                          // the "work" — starts immediately on click
+    b.innerHTML = '<span class="check-pop" aria-hidden="true">✓</span> Saved';
+    $('btnState').textContent = 'Saved successfully';
+    setTimeout(() => { b.disabled = false; b.textContent = 'Save changes'; $('btnState').textContent = 'Rest state'; btnBusy = false; }, 700);
+  }, 900);
+});
+
+/* ---- modal & drawer: one element each, focus managed, scroll locked ---- */
+let lastTrigger = null;
+function openOverlay(el, trigger, closeBtn) {
+  lastTrigger = trigger;
+  el.classList.add('show');
+  document.body.style.overflow = 'hidden';
+  closeBtn.focus();
+  $('overlayState').textContent = 'Dialog open — Esc closes';
 }
-
-function bind(name, value) {
-  document.querySelectorAll(`[data-bind="${name}"]`).forEach((el) => { el.textContent = value; });
+function closeOverlay(el) {
+  el.classList.remove('show');
+  document.body.style.overflow = '';
+  if (lastTrigger) { lastTrigger.focus(); lastTrigger = null; }
+  $('overlayState').textContent = 'Closed — focus returned to the trigger';
 }
+$('openModal').onclick = () => openOverlay($('ovl'), $('openModal'), $('mClose'));
+$('mClose').onclick = () => closeOverlay($('ovl'));
+$('ovl').addEventListener('click', (e) => { if (e.target === $('ovl')) closeOverlay($('ovl')); });
+$('openDrawer').onclick = () => openOverlay($('drw'), $('openDrawer'), $('dClose'));
+$('dClose').onclick = () => closeOverlay($('drw'));
+$('drw').addEventListener('click', (e) => { if (e.target === $('drw')) closeOverlay($('drw')); });
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  if ($('ovl').classList.contains('show')) closeOverlay($('ovl'));
+  if ($('drw').classList.contains('show')) closeOverlay($('drw'));
+});
+$('hammer').onclick = () => {
+  for (let i = 0; i < 6; i++) setTimeout(() => { $('ovl').classList.toggle('show'); }, i * 60);
+  setTimeout(() => {
+    $('ovl').classList.remove('show');
+    document.body.style.overflow = '';
+    $('overlayState').textContent = 'Hammered ×6 — overlays: ' + document.querySelectorAll('.overlay').length + ', scroll unlocked, no stacking possible';
+  }, 500);
+};
 
-function run() {
-  clearInterval(counter);
-  document.getElementById('motionRoot').innerHTML = template(); // remount restarts CSS animations
-  const t0 = performance.now(), dur = 1100;
-  const ease = (t) => 1 - Math.pow(1 - t, 3);
-  counter = setInterval(() => {
-    const t = Math.min(1, (performance.now() - t0) / dur), e = ease(t);
-    bind('wallet', Math.round(58 * e));
-    bind('points', Math.round(355 * e));
-    bind('occupancy', Math.round(23 * e));
-    bind('minutes', Math.round(47 * e));
-    bind('challenge', Math.round(13 * e));
-    if (t >= 1) clearInterval(counter);
-  }, 16);
-  qrSeconds = 25;
-  clearInterval(qrTimer);
-  qrTimer = setInterval(() => { qrSeconds = qrSeconds <= 1 ? 25 : qrSeconds - 1; bind('qr', qrSeconds); }, 1000);
+/* ---- status change: label first, announced, idempotent ---- */
+let orderReady = false;
+$('statusBtn').onclick = () => {
+  if (orderReady) { $('statusLive').textContent = 'Already ready — duplicate click ignored'; return; }
+  orderReady = true;
+  const c = $('statusChip');
+  c.textContent = 'READY';
+  c.classList.remove('st-prep'); c.classList.add('st-ready', 'swap');
+  $('statusLive').textContent = 'Order C-1042 is now ready for pickup';
+  $('statusBtn').textContent = 'Reset demo';
+  $('statusBtn').onclick = () => location.reload();
+};
+
+/* ---- toast queue: one instance updated in place ---- */
+let toastTimer = null, toastN = 0;
+function showToast(msg) {
+  const t = $('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
 }
+$('toastBtn').onclick = () => {
+  for (let i = 1; i <= 5; i++) setTimeout(() => showToast('Saved · event ' + (++toastN) + ' — one toast, updated in place'), i * 90);
+};
 
-document.getElementById('replayBtn').onclick = run;
-run();
+/* ---- skeleton: shimmer only while loading, always resolves ---- */
+$('skelBtn').onclick = () => {
+  const z = $('skelZone');
+  /* loading is stated in text too — never communicated by animation alone */
+  z.innerHTML = '<div role="status" style="font-size:12px; color:var(--muted); margin-top:8px;">Loading workout…</div>'
+    + '<div class="skel animating" style="width:70%;"></div><div class="skel animating" style="width:45%;"></div>';
+  const done = () => { z.innerHTML = '<div style="font-size:13.5px; margin-top:8px;"><b>Push day — 4 exercises</b><br><span style="color:var(--muted); font-size:12.5px;">Loaded · shimmer stopped, zero running animations</span></div>'; };
+  setTimeout(done, 1100);                      // resolves; a real app also resolves on timeout/error
+};
+
+/* ---- reduced-motion preview ---- */
+$('rmToggle').onclick = () => {
+  const on = document.documentElement.classList.toggle('reduce-motion');
+  $('rmToggle').setAttribute('aria-pressed', String(on));
+  $('rmToggle').textContent = on ? 'Exit reduced-motion preview' : 'Preview reduced motion';
+  $('rmState').textContent = on ? 'Reduced motion active — all states still readable' : 'Following your system preference';
+};
 </script>
 </body>
 </html>
