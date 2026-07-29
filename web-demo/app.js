@@ -2,6 +2,12 @@
    v4: crafted UI — icon system, sectioned cards, motion. Logic identical to v3. */
 
 const KEY = 'gym_demo_state_v3';
+/* declared here, not beside the other session helpers below, because the
+   top-level `state = load()` runs before that point and load() -> stateKey()
+   reads this. As a `const` further down it sat in the temporal dead zone, so
+   every boot threw, hit load()'s catch, and silently returned defaultState —
+   discarding the signed-in member's persisted bucket on refresh. */
+const SESSION_KEY = 'gym_session';
 
 /* ================= icons ================= */
 
@@ -237,6 +243,28 @@ const defaultState = {
 };
 
 let state = load();
+/* boot diagnostic — lets the audit prove which bucket was actually read at
+   first paint instead of inferring it from rendered UI. Read-only, no values
+   from the credential column are ever touched. */
+try {
+  const bucketKey = stateKey();
+  const raw = localStorage.getItem(bucketKey);
+  window.__GYM_BOOT = {
+    sessionPointer: localStorage.getItem(SESSION_KEY),
+    resolvedMemberId: sessionMemberId(),
+    stateKey: bucketKey,
+    bucketPresent: raw !== null,
+    seededVisits: raw ? (JSON.parse(raw).visits ?? null) : null,
+    seededFrozen: raw ? (JSON.parse(raw).frozen ?? null) : null,
+    loadedVisits: state.visits ?? null,
+    loadedFrozen: state.frozen ?? null,
+    /* compare by value — visits is an array, so === would always be false
+       between the parsed copy and the loaded one and report a false negative */
+    loadedFromBucket: raw !== null
+      && JSON.stringify(state.visits ?? null) === JSON.stringify(JSON.parse(raw).visits ?? null),
+    localStorageKeys: Object.keys(localStorage),
+  };
+} catch (e) { window.__GYM_BOOT = { error: String(e) }; }
 let cart = {};
 let cafeCheckout = null; // in-flight checkout options (not persisted)
 
@@ -499,8 +527,8 @@ async function loadSheetData() {
    notifications on a shared device — and could see them on screen. State is now
    namespaced by an IMMUTABLE member id held in a small session pointer, never by
    display name. Signing out drops the pointer, so the next login reads that
-   member's own bucket (or a clean default) instead of the previous member's. */
-const SESSION_KEY = 'gym_session';
+   member's own bucket (or a clean default) instead of the previous member's.
+   SESSION_KEY itself is declared at the top of this file — see the note there. */
 function sessionMemberId() { try { return JSON.parse(localStorage.getItem(SESSION_KEY) || 'null')?.memberId || null; } catch (_) { return null; } }
 function setSessionMember(id) {
   if (id) localStorage.setItem(SESSION_KEY, JSON.stringify({ memberId: id, at: Date.now() }));

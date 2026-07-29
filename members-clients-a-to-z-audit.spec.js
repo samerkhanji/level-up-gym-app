@@ -36,6 +36,23 @@ const writeState = async (page, patch) => page.evaluate(({ k, p }) => {
   localStorage.setItem(k, JSON.stringify({ ...s, ...p }));
 }, { k: await activeKey(page), p: patch });
 /* sign out the way a user does, so the session pointer is really dropped */
+/* Return the app to the login screen regardless of which bucket is active.
+   Writing loggedIn=false to the base key alone is not enough once a session
+   pointer exists — the app reads the namespaced bucket and stays signed in. */
+async function forceLoggedOut(page) {
+  await page.evaluate(() => {
+    localStorage.removeItem('gym_session');
+    Object.keys(localStorage)
+      .filter((k) => k.startsWith('gym_demo_state_v3'))
+      .forEach((k) => {
+        try {
+          const s = JSON.parse(localStorage.getItem(k) || '{}');
+          s.loggedIn = false;
+          localStorage.setItem(k, JSON.stringify(s));
+        } catch (_) { /* leave malformed buckets alone */ }
+      });
+  });
+}
 async function uiSignOut(page) {
   await page.evaluate(() => document.querySelector('.tab[data-view="account"]')?.click());
   await page.waitForTimeout(250);
@@ -137,13 +154,13 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   });
   await page.goto('/index.html', { waitUntil: 'domcontentloaded' });
   await page.waitForTimeout(1500); // allow sheet hydration
-  await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k) || '{}'); s.loggedIn = false; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
+  await forceLoggedOut(page);
   await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForTimeout(1500);
   await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'anything-goes');
   await page.click('#loginBtn'); await page.waitForTimeout(500);
   const noColLoginWorked = await page.evaluate(() => document.getElementById('view-home')?.classList.contains('active'));
   /* and empty password must be refused even in demo mode */
-  await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); s.loggedIn = false; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
+  await forceLoggedOut(page);
   await page.reload({ waitUntil: 'domcontentloaded' }); await page.waitForTimeout(1200);
   await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', '');
   await page.click('#loginBtn'); await page.waitForTimeout(400);
@@ -414,6 +431,7 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
      pointer AND that member's bucket in one init script, then navigate fresh.
      Writing after load races the app's own save(), which rewrites the bucket
      from in-memory state — that is what defeated the earlier attempt. */
+  frozenSection: {
   await page.evaluate(() => localStorage.clear());
   const FROZEN_ID = 'mbr_0001';
   await page.addInitScript(({ base, id }) => {
@@ -427,7 +445,40 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   }, { base: STATE_KEY, id: FROZEN_ID });
   await page.goto('/index.html', { waitUntil: 'networkidle' });
   await page.waitForTimeout(700);
-  const visitsBefore = ((await readState(page)).visits || []).length;
+
+  /* ---- PRECONDITION GATE -------------------------------------------------
+     Nothing below may run unless the frozen precondition is DEMONSTRATED, not
+     assumed. The boot diagnostic reports which bucket app.js actually read at
+     first paint, so a key mismatch is visible rather than inferred. */
+  const boot = await page.evaluate(() => window.__GYM_BOOT || { error: 'no boot diagnostic' });
+  const preState = await readState(page);
+  const preHomeSaysFrozen = await page.evaluate(() => {
+    const el = document.getElementById('c-home');
+    return !!el && !el.hidden && /frozen/i.test(el.innerText || '');
+  });
+  const visitsBefore = (preState.visits || []).length;
+  const pre = {
+    boot,
+    sessionMatchesSeededBucket: boot.resolvedMemberId === FROZEN_ID && boot.stateKey === STATE_KEY + '::' + FROZEN_ID,
+    bucketActuallyLoaded: boot.loadedFromBucket === true,
+    stateReportsFrozen: preState.frozen === true,
+    homeSaysFrozen: preHomeSaysFrozen,
+    visitsBeforeKnown: Number.isInteger(visitsBefore),
+    visitsBefore,
+  };
+  pre.established = pre.sessionMatchesSeededBucket && pre.bucketActuallyLoaded
+    && pre.stateReportsFrozen && pre.homeSaysFrozen && pre.visitsBeforeKnown;
+  report.frozenPrecondition = pre;
+  if (!pre.established) {
+    const missing = Object.entries(pre)
+      .filter(([k, v]) => v === false).map(([k]) => k).join(', ');
+    control('FROZEN-ENTRY', 'NOT_TESTABLE', 'Frozen member cannot check in',
+      `precondition not demonstrated (${missing}); boot=${JSON.stringify(boot)} — no verdict rendered`);
+    control('FROZEN-HANDLER-GUARD', 'NOT_TESTABLE', 'Gate handler rejects a frozen member',
+      'same precondition failure; the F-STATE-2 handler guard in app.js remains UNVERIFIED, not proven');
+    report.frozenEnforcement = { skipped: 'precondition not established', precondition: pre };
+    break frozenSection;   /* skip only this section — totals below must still run */
+  }
   /* open the pass and attempt a gate scan */
   await page.evaluate(() => document.querySelector('[data-action="open-pass"]')?.click());
   await page.waitForTimeout(400);
@@ -464,29 +515,21 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
     directHandler: { checkedIn: afterDirect.checkedIn, visits: afterDirect.visits, guarded: !afterDirect.checkedIn },
     visitsBefore,
   };
-  /* A control cannot render a verdict if its PRECONDITION never held. Verify the
-     app is actually frozen; if the harness could not establish it, report
-     NOT_TESTABLE with evidence rather than a misleading PASS or FAIL. */
-  const frozenActuallySet = (await readState(page)).frozen === true;
-  report.frozenEnforcement.preconditionEstablished = frozenActuallySet;
-  if (!frozenActuallySet) {
-    control('FROZEN-ENTRY', 'NOT_TESTABLE', 'Frozen member cannot check in',
-      'harness could not establish state.frozen before the attempt (app save() rewrites the bucket after load) — no verdict rendered');
-    control('FROZEN-HANDLER-GUARD', 'NOT_TESTABLE', 'Gate handler rejects a frozen member',
-      'same precondition failure; the earlier CONFIRMED F-STATE-2 defect is addressed in app.js by a handler-level guard but remains unverified by this harness');
-  } else {
+  /* Reaching here means the precondition gate above passed, so both controls
+     render a real verdict against a member proven frozen at first paint. */
+  report.frozenEnforcement.preconditionEstablished = true;
   control('FROZEN-ENTRY', (userBlocked && (passState.deniedVisible || homeSaysFrozen)) ? 'PASS' : 'FAIL',
     'Frozen member cannot check in via the UI; denial shown; no visit created',
     `gateVisibleToUser=${gateUserVisible}, checkedIn=${afterUser.checkedIn}, visits=${afterUser.visits}, denialShown=${passState.deniedVisible}`);
   control('FROZEN-HANDLER-GUARD', afterDirect.checkedIn ? 'FAIL' : 'PASS',
     'Gate handler itself rejects a frozen member (not only a hidden button)',
     `directInvokeCheckedIn=${afterDirect.checkedIn}, visits=${afterDirect.visits}`);
-  }
-  if (frozenActuallySet && afterDirect.checkedIn) {
+  if (afterDirect.checkedIn) {
     finding('F-STATE-2', 'MEDIUM', 'account-states',
       'Frozen-entry enforcement is presentational: the gate handler has no frozen guard.',
       `The UI correctly denies a frozen member (denial banner shown, gate button unreachable, no visit recorded — user path blocked). But invoking the handler directly (stale DOM, replayed event, console) sets checkedIn=true because gateBtn.onclick never re-checks state.frozen. Consistent with the standing principle that hiding a control is not enforcement — the check must live in the handler now and at the data layer in production. No visit record was created (visits=${afterDirect.visits}), so impact is limited to client state today.`);
   }
+  } /* end frozenSection */
   /* account-state coverage */
   report.accountStates = { active: true, frozen: /state\.frozen/.test(app), expired: /subEnds|expired/.test(app), pending: /activate|invitation/.test(app), locked: /locked|suspend/.test(app), deleted: /delete-data/.test(app) };
   if (!report.accountStates.locked) finding('F-STATE-1', 'LOW', 'account-states', 'No locked/suspended account state.', 'Add a locked state (e.g. post payment-failure).');

@@ -5,8 +5,8 @@ const { defineConfig } = require('@playwright/test');
 
 module.exports = defineConfig({
   testDir: '.',
-  testMatch: /.*button-audit\.spec\.js/,
-  timeout: 300000,
+  testMatch: /.*audit\.spec\.js/,
+  timeout: 600000,
   retries: 0,
   workers: 1,
   use: {
