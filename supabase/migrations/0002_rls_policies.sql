@@ -20,9 +20,12 @@ returns boolean language sql stable as $$
   select current_staff_role() is not null
 $$;
 
+-- coalesce matters: for a non-staff caller `current_staff_role() = any(...)`
+-- is NULL, which fails closed inside RLS but fails OPEN in any negated
+-- procedural check (`if not has_role(...)`). This must be a true predicate.
 create or replace function has_role(roles staff_role[])
 returns boolean language sql stable as $$
-  select current_staff_role() = any (roles)
+  select coalesce(current_staff_role() = any (roles), false)
 $$;
 
 -- ---------- enable RLS everywhere ----------
@@ -192,7 +195,12 @@ create policy "member creates booking request"
   with check (member_id = current_member_id() and status = 'requested');
 create policy "member updates own booking"
   on trainer_bookings for update to authenticated
-  using (member_id = current_member_id());
+  using (member_id = current_member_id())
+  with check (member_id = current_member_id());
+-- NOTE: trainer_notes is declared private to trainer+management; RLS cannot
+-- scope columns, so the member client must never write it and a belt-and-
+-- braces column guard belongs in a trigger when member self-service update
+-- goes live.
 create policy "trainer updates own bookings"
   on trainer_bookings for update to authenticated
   using (exists (select 1 from trainers t join staff s on s.id = t.staff_id

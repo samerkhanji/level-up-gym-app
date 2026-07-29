@@ -54,7 +54,8 @@ Deno.serve(async (req) => {
     .is("deleted_at", null)
     .single();
   if (!member) return deny("no_member", "No member profile found for this account.");
-  if (member.status === "blocked") return deny("account_blocked", "Your account is blocked. Please see reception.");
+  // allow-list: 'suspended' (or any future non-active status) is denied too
+  if (member.status !== "active") return deny("account_blocked", "Your account is not active. Please see reception.");
   if (Number(member.balance_due_usd) > 0) {
     return deny("unpaid_balance", "You have an unpaid balance. Please settle it at reception.");
   }

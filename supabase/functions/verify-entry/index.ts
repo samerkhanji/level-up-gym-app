@@ -98,7 +98,9 @@ Deno.serve(async (req) => {
     .select("id, full_name, photo_url, status, balance_due_usd")
     .eq("id", token.member_id)
     .single();
-  if (!member || member.status === "blocked") {
+  // Allow-list, not block-list: any non-active status (blocked, suspended,
+  // and whatever member_status grows next) is denied by default.
+  if (!member || member.status !== "active") {
     await logEvent({ ...eventBase, event_type: "entry_denied", deny_reason: "account_blocked" });
     return closed("account_blocked");
   }
@@ -154,6 +156,13 @@ Deno.serve(async (req) => {
       return closed("already_inside", { member: memberPayload });
     }
     await logEvent({ ...eventBase, event_type: "entry_granted" });
+    // realtime feed for the reception dashboard (app_events = server GymBus)
+    await supabase.from("app_events").insert({
+      type: "gate-entry",
+      actor_kind: "system",
+      subject_member_id: member.id,
+      payload: { member: member.full_name, gateId: gate.id },
+    });
     return Response.json({ open: true, direction: "entry", member: memberPayload });
   }
 
@@ -178,5 +187,11 @@ Deno.serve(async (req) => {
     .eq("id", open.id);
 
   await logEvent({ ...eventBase, event_type: "exit_granted" });
+  await supabase.from("app_events").insert({
+    type: "gate-exit",
+    actor_kind: "system",
+    subject_member_id: member.id,
+    payload: { member: member.full_name, gateId: gate.id },
+  });
   return Response.json({ open: true, direction: "exit", member: memberPayload });
 });
