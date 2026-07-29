@@ -2019,8 +2019,52 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     toast('Request sent to reception');
   }
   if (a === 'copy-ref') toast('Referral link shared');
-  if (a === 'export-data') toast('Data export requested — link arrives by email');
-  if (a === 'delete-data') toast('Deletion request logged — reception will confirm identity');
+  if (a === 'export-data') {
+    /* real export: build the member's own record and hand them the file.
+       Everything the app holds about them, nothing about anyone else. */
+    const mid = sessionMemberId();
+    const pkg = {
+      exportedAt: new Date().toISOString(), memberId: mid, memberName: state.memberName,
+      membership: { plan: state.subPlan, tier: state.tier, status: state.frozen ? 'frozen' : state.userStatus || 'active', since: state.memberSince, expires: state.subEnds, freezeDaysUsed: state.freezeDaysUsed },
+      wallet: { balance: state.wallet, transactions: state.walletTx || [] },
+      loyalty: { points: state.points },
+      visits: state.visits || [], invoices: state.invoices || [],
+      bookings: { trainer: state.booking || null, classes: state.classState || {}, recovery: state.recoveryBookings || [], poolLane: state.poolLane || null },
+      orders: state.orderHistory || [], mealPlan: state.mealPlanLive || null,
+      health: { declaredAllergies: state.allergies || [] },
+      supportAndReports: state.reports || [], notifications: state.notifications || [],
+      note: 'Demo export. Health facts recorded by staff live in the gym health record; request those through reception.',
+    };
+    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url; link.download = 'gym-data-export-' + (mid || 'member') + '.json';
+    document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    pushNotif('Data export ready', 'Your export downloaded as a JSON file. It contains only your own records.');
+    save(); renderAccount();
+    toast('Export downloaded — your data only');
+  }
+  if (a === 'delete-data') {
+    if (!confirm('Delete your account data?\n\nThis erases your app data on this device immediately and files a deletion request with reception for the records they hold (billing records are retained where the law requires).\n\nThis cannot be undone.')) {
+      toast('Deletion cancelled — nothing was removed'); return;
+    }
+    const mid = sessionMemberId();
+    /* staff-side record so the request is actioned, not just felt */
+    GymBus.send('ticket', { tkt: 'DEL-' + String(Date.now()).slice(-5), member: state.memberName,
+      subject: 'DATA DELETION REQUEST — verify identity, erase member records, confirm retention exceptions (billing)' }, 'member-app');
+    /* erase locally across every storage layer this app owns */
+    try {
+      localStorage.removeItem(stateKey());
+      Object.keys(localStorage).filter((k) => k.startsWith('gym_') && k.includes(mid || '~none~')).forEach((k) => localStorage.removeItem(k));
+      sessionStorage.clear();
+    } catch (_) {}
+    setSessionMember(null);
+    state = load(); cart = {};
+    ['home', 'train', 'gym', 'food', 'account'].forEach((v) => { const el = document.getElementById('c-' + v); if (el) el.innerHTML = ''; });
+    show('login');
+    toast('Your data was erased here — reception will confirm the rest');
+  }
   if (a === 'signout') {
     state.loggedIn = false; save();
     setSessionMember(null);          // drop the session pointer

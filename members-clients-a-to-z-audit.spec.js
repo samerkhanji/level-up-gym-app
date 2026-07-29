@@ -375,36 +375,58 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
     exportBehaviour = { control: 'present', download: !!download, stateChanged: stBefore !== stAfter, toastOnly: !download && stBefore === stAfter };
   }
   if (deleteExists) {
-    const stBefore = await page.evaluate((k) => localStorage.getItem(k), STATE_KEY);
+    /* 1) default posture: dialogs are auto-dismissed, so deletion must CANCEL */
+    const keyBefore = await activeKey(page);
+    const stBefore = await page.evaluate((k) => localStorage.getItem(k), keyBefore);
     await page.click('[data-action="delete-data"]'); await page.waitForTimeout(400);
-    const stAfter = await page.evaluate((k) => localStorage.getItem(k), STATE_KEY);
-    const stillLoggedIn = await page.evaluate(() => document.getElementById('view-account')?.classList.contains('active') || document.getElementById('view-home')?.classList.contains('active'));
-    deleteBehaviour = { control: 'present', localStateDeleted: stBefore !== stAfter, sessionEnded: !stillLoggedIn, toastOnly: stBefore === stAfter && stillLoggedIn };
+    const stAfterCancel = await page.evaluate((k) => localStorage.getItem(k), keyBefore);
+    const guardedByConfirm = stBefore === stAfterCancel;
+
+    /* 2) then ACCEPT the confirmation once, in an isolated context, to prove the
+       deletion actually erases state and ends the session. State is fully
+       restored afterwards, so the suite stays non-destructive overall. */
+    const snapshot = await page.evaluate(() => JSON.stringify(localStorage));
+    page.once('dialog', (d) => d.accept());
+    await page.click('[data-action="delete-data"]'); await page.waitForTimeout(600);
+    const erased = await page.evaluate((k) => localStorage.getItem(k) === null, keyBefore);
+    const sessionCleared = await page.evaluate(() => localStorage.getItem('gym_session') === null);
+    const backToLogin = await page.evaluate(() => document.getElementById('view-login')?.classList.contains('active'));
+    const staffTicket = await page.evaluate(() => (JSON.parse(localStorage.getItem('gym_bus_log') || '[]')).some((e) => e.type === 'ticket' && /DELETION REQUEST/i.test(e.payload?.subject || '')));
+    await page.evaluate((s) => { localStorage.clear(); Object.entries(JSON.parse(s)).forEach(([k, v]) => localStorage.setItem(k, v)); }, snapshot);
+
+    deleteBehaviour = { control: 'present', guardedByConfirmation: guardedByConfirm,
+      localStateDeleted: erased, sessionEnded: sessionCleared, returnedToLogin: !!backToLogin,
+      staffSideRecordCreated: staffTicket,
+      toastOnly: !erased && !sessionCleared };
   }
   report.exportDeletion = { exportExists, deleteExists, exportBehaviour, deleteBehaviour };
   control('EXPORT-CONTROL', exportExists ? (exportBehaviour.toastOnly ? 'NOT_IMPLEMENTED' : 'PASS') : 'FAIL',
     'Export produces a download/artifact', JSON.stringify(exportBehaviour));
-  control('DELETE-CONTROL', deleteExists ? (deleteBehaviour.toastOnly ? 'NOT_IMPLEMENTED' : 'PASS') : 'FAIL',
-    'Deletion removes data across storage + ends session + reaches staff', JSON.stringify(deleteBehaviour));
-  finding('F-PRIV-1', 'HIGH', 'privacy', 'Data export and deletion are toast-only (NOT implemented).',
+  const deleteOk = deleteExists && deleteBehaviour.guardedByConfirmation && deleteBehaviour.localStateDeleted
+    && deleteBehaviour.sessionEnded && deleteBehaviour.staffSideRecordCreated;
+  control('DELETE-CONTROL', !deleteExists ? 'FAIL' : deleteOk ? 'PASS' : deleteBehaviour.toastOnly ? 'NOT_IMPLEMENTED' : 'FAIL',
+    'Confirmation-gated; erases local state, ends session, files a staff-side record', JSON.stringify(deleteBehaviour));
+  if (!(exportBehaviour.download && deleteOk)) finding('F-PRIV-1', 'HIGH', 'privacy', 'Data export and/or deletion are not fully implemented.',
     'Export shows a toast, no download/artifact/network request; delete shows a toast, no local deletion, session unaffected, no staff-side record. GDPR-style rights need a real pipeline: export artifact, cascading deletion across member + staff client records + wallet history + bookings + health data, with audit-retention exceptions.');
 
   /* ============ 9. frozen-state enforcement — attempt entry, assert no visit ============ */
-  /* Seed BEFORE any page script runs: writing after load races the app's own
-     save(), which rewrites the bucket from in-memory state and silently undid
-     an earlier version of this test. */
+  /* Establish the precondition BEFORE any page script parses: seed the session
+     pointer AND that member's bucket in one init script, then navigate fresh.
+     Writing after load races the app's own save(), which rewrites the bucket
+     from in-memory state — that is what defeated the earlier attempt. */
   await page.evaluate(() => localStorage.clear());
-  await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(400);
-  await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'demo');
-  await page.click('#loginBtn'); await page.waitForTimeout(400);
-  const frozenKey = await activeKey(page);
-  const seedFrozen = await page.addInitScript(({ k, base }) => {
+  const FROZEN_ID = 'mbr_0001';
+  await page.addInitScript(({ base, id }) => {
     try {
-      const cur = JSON.parse(localStorage.getItem(k) || '{}');
-      localStorage.setItem(k, JSON.stringify({ ...cur, loggedIn: true, memberName: 'Samer Khanji', frozen: true, userStatus: 'frozen', checkedIn: false, visits: [], sessionEvents: [] }));
+      localStorage.setItem('gym_session', JSON.stringify({ memberId: id, at: Date.now() }));
+      localStorage.setItem(base + '::' + id, JSON.stringify({
+        loggedIn: true, memberName: 'Samer Khanji', frozen: true, userStatus: 'frozen',
+        checkedIn: false, visits: [], sessionEvents: [], busSeen: {},
+      }));
     } catch (e) {}
-  }, { k: frozenKey, base: STATE_KEY });
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600);
+  }, { base: STATE_KEY, id: FROZEN_ID });
+  await page.goto('/index.html', { waitUntil: 'networkidle' });
+  await page.waitForTimeout(700);
   const visitsBefore = ((await readState(page)).visits || []).length;
   /* open the pass and attempt a gate scan */
   await page.evaluate(() => document.querySelector('[data-action="open-pass"]')?.click());
