@@ -158,7 +158,7 @@ const branchInfo = { name: 'City Center', capacity: 120 };
 let lockersPool = null;   // [{number, zone, status}] — free lockers assigned at check-in
 let parkingSpots = null;  // [{spot, type, status}]
 let usersRoster = [];     // full member roster (backs the system; manager view reads it)
-let memberRows = [];      // Member tab rows — the login accounts (name + password)
+let memberRows = [];      // Member tab rows — the demo login identities (name only; no credential is read)
 
 /* ================= state ================= */
 
@@ -2003,11 +2003,13 @@ document.getElementById('loginBtn').onclick = () => {
   }
   const row = memberRows.find((m) => (m.name || '').trim().toLowerCase() === nameIn);
   if (!row) { fail('No member with that name. Check the spelling.'); return; }
-  // Demo auth: if the sheet has a password column it is checked; if the column
-  // is removed (recommended — plaintext credentials don't belong in data sheets)
-  // any non-empty password works. The value is never stored in app state.
-  if (row.password) { if (row.password !== passIn) { fail('Wrong password.'); return; } }
-  else if (!passIn) { fail('Enter any password (demo mode).'); return; }
+  // DEMO AUTH — deliberately does NOT read any password column.
+  // Plaintext credentials must not live in a data sheet (they were publicly
+  // readable through the sheet's anonymous CSV endpoint), so the app no longer
+  // depends on that column at all: the column can be deleted with no effect
+  // here. Real authentication is Supabase Auth — hashed credentials, verified
+  // email/phone identity, reset tokens, session expiry, rate limiting.
+  if (!passIn) { fail('Enter any password — this demo does not use real credentials.'); return; }
 
   if (errEl) errEl.hidden = true;
   applyMemberSeed(row);

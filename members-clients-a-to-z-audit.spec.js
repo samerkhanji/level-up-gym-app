@@ -91,10 +91,17 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   } else {
     control('SHEET-ANON-PASSWORD', sheetProbe.authRequired ? 'PASS' : 'NOT_IMPLEMENTED', 'Auth required or no exposure', 'status ' + sheetProbe.httpStatus, sheetProbe);
   }
-  /* app also validates against a sheet password column — presence only */
-  report.passwordFinding = { appReadsSheetPasswordColumn: /row\.password/.test(app), columnDeletionTolerated: /demo mode/.test(app), valuesInThisReport: 'REDACTED — presence only, never a value or length.' };
-  finding('F-SEC-1', 'CRITICAL', 'security', 'App login validates against a plaintext sheet password column (presence confirmed; values redacted).',
-    'Managed auth (Supabase) with hashed credentials, email/phone identity, reset tokens, session expiry and rate limiting. App already tolerates deleting the column.');
+  /* does the APP still depend on a sheet password column? (presence only) */
+  const appReadsPw = /row\.password/.test(app);
+  const frontendHardcodedPw = /id="loginPassword"[^>]*value="[^"]+"/.test(read('index.html'));
+  report.passwordFinding = { appReadsSheetPasswordColumn: appReadsPw, frontendShipsACredential: frontendHardcodedPw, valuesInThisReport: 'REDACTED — presence only, never a value or length.' };
+  control('APP-PW-DEPENDENCY', (!appReadsPw && !frontendHardcodedPw) ? 'PASS' : 'FAIL',
+    'App reads no password column and ships no credential in the frontend',
+    `appReadsSheetColumn=${appReadsPw}, frontendHardcodedValue=${frontendHardcodedPw}`);
+  if (appReadsPw || frontendHardcodedPw) {
+    finding('F-SEC-1', 'CRITICAL', 'security', 'App depends on a plaintext sheet password column and/or ships a credential in the frontend.',
+      'Managed auth (Supabase) with hashed credentials, email/phone identity, reset tokens, session expiry and rate limiting.');
+  }
 
   /* ============ 4. missing-password-column demo mode (route-intercepted) ============ */
   /* Serve a Member CSV WITHOUT a password column and confirm login still works
@@ -190,7 +197,7 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   /* (b) switch to Jawad and inspect BOTH storage AND rendered DOM across surfaces */
   await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); s.loggedIn = false; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(400);
-  await page.fill('#loginName', 'Jawad'); await page.fill('#loginPassword', 'jawad123');
+  await page.fill('#loginName', 'Jawad'); await page.fill('#loginPassword', 'demo');
   await page.click('#loginBtn'); await page.waitForTimeout(500);
   const domMarkersAcrossSurfaces = async () => {
     const surfaces = { home: '[data-view="home"]', food: '[data-view="food"]', account: '[data-view="account"]', gym: '[data-view="gym"]', notifications: null };
