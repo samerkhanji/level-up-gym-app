@@ -183,9 +183,6 @@
       <input class="search" id="searchBox" placeholder="⌕  Search member, phone, ID…  ( / )" autocomplete="off" />
       <div class="search-drop" id="searchDrop"></div>
     </div>
-    <button class="tb-btn tb-light" id="scanBtn">Scan ID</button>
-    <button class="tb-btn tb-light" data-open="pos">Take payment</button>
-    <button class="tb-btn tb-dark" data-open="guest">Sell guest pass</button>
     <div class="staff" style="font-size:12.5px; color:var(--muted);"><b>Lara</b> · <span id="clock"></span></div>
   </div>
 
@@ -783,7 +780,8 @@ document.addEventListener('keydown',e=>{
   if(e.ctrlKey&&e.key.toLowerCase()==='p'){e.preventDefault();openPOS(null);}
   if(e.ctrlKey&&e.key.toLowerCase()==='g'){e.preventDefault();openGuest();}
 });
-$('scanBtn').onclick=()=>{const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');};
+const scanBtn=$('scanBtn');
+if(scanBtn)scanBtn.onclick=()=>{const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');};
 
 document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{
   const k=b.dataset.open;

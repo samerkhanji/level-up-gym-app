@@ -178,9 +178,9 @@
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      Connected demo: order from the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> Food tab.
-      One obvious next step per card — uncommon actions under More. Reception collects pay-at-desk amounts but
-      cannot change preparation. Points are issued only at verified pickup. All events are idempotent.</div>
+      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
+      <span>Order from the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> Food tab —
+      orders, availability and pickup sync live. Reception collects pay-at-desk amounts; preparation stays here.</span></details></div>
   </div>
 </div>
 
@@ -299,9 +299,12 @@ function render() {
   const news = C.orders.filter((o) => ['awaiting-payment', 'new', 'sub-waiting'].includes(o.status));
   const preps = C.orders.filter((o) => o.status === 'preparing');
   const readys = C.orders.filter((o) => o.status === 'ready');
-  $('colNew').innerHTML = news.map(orderCard).join('') || '<div class="empty">No new orders.</div>';
-  $('colPrep').innerHTML = preps.map(orderCard).join('') || '<div class="empty">Nothing on the bar.</div>';
-  $('colReady').innerHTML = readys.map(orderCard).join('') || '<div class="empty">Nothing waiting.</div>';
+  $('colNew').innerHTML = news.map(orderCard).join('') || '<div class="empty">No new orders — member orders land here instantly, or start a <b>＋ New counter order</b> above.</div>';
+  $('colPrep').innerHTML = preps.map(orderCard).join('');
+  $('colReady').innerHTML = readys.map(orderCard).join('');
+  /* empty lanes collapse — never a row of "nothing here" sections */
+  $('colPrep').parentElement.style.display = preps.length ? '' : 'none';
+  $('colReady').parentElement.style.display = readys.length ? '' : 'none';
   $('stNew').textContent = news.length;
   const lateCount = C.orders.filter((o) => o.estAt && Date.now() > o.estAt && o.status === 'preparing').length;
   $('stLate').textContent = lateCount;
@@ -339,7 +342,8 @@ function renderAttn() {
     else if (s.av === 'low' || s.stock <= 2) items.push({ t: s.name + ' low stock', s: s.stock + ' left' }); });
   C.equipment.filter((e) => !e.ok).forEach((e) => items.push({ urgent: true, t: e.name + ' offline', s: e.affects.length ? 'Affects: ' + e.affects.join(', ') : 'Maintenance notified' }));
   $('attn').innerHTML = items.map((i) => `<div class="task ${i.urgent ? 'urgent' : ''}"><b>${i.t}</b>${i.s}
-    ${i.a ? `<br><button data-o="${i.code}" data-a="${i.a}">${i.l}</button>` : ''}</div>`).join('') || '<div class="empty">All clear.</div>';
+    ${i.a ? `<br><button data-o="${i.code}" data-a="${i.a}">${i.l}</button>` : ''}</div>`).join('');
+  $('attn').parentElement.style.display = items.length ? '' : 'none';
   document.querySelectorAll('#attn [data-o]').forEach((b) => { b.onclick = () => act(b.dataset.o, b.dataset.a); });
 }
 

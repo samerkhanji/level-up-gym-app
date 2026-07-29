@@ -128,7 +128,8 @@
   </div>
 
   <div class="seg" id="mainSeg">
-    <button class="on" data-sec="dash">Dashboard</button>
+    <button class="on" data-sec="dash">Today</button>
+    <button data-sec="cal">Calendar</button>
     <button data-sec="clients">Clients</button>
   </div>
 
@@ -159,11 +160,15 @@
       <button class="ghosty" id="addTask" style="margin-top:8px;">+ Add task</button>
     </div>
 
-    <div class="card" style="margin-top:13px;">
+  </div>
+
+  <!-- ============ CALENDAR ============ -->
+  <div id="secCal" class="hidden">
+    <div class="card">
       <div class="eyebrow">My availability — this week</div>
       <div id="availChips"></div>
       <div style="font-size:11.5px; color:var(--faint); margin-top:8px;">
-        Tap a slot to open or close it. Published instantly — members can only book slots that are on.</div>
+        Tap a slot to open or close it — members can only book slots that are on.</div>
     </div>
   </div>
 
@@ -173,9 +178,7 @@
       <div class="eyebrow">My clients</div>
       <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
       <div id="clientList"></div>
-      <div style="font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5;">
-        Client phone numbers are saved on the client file, visible only to their assigned trainer.
-        Access is audit-logged and lists cannot be exported.</div>
+      <div style="font-size:11px; color:var(--faint); margin-top:10px;" title="Phone numbers are visible only to the assigned trainer; access is logged and lists cannot be exported.">🔒 Assigned-trainer access only</div>
     </div>
   </div>
 
@@ -186,12 +189,12 @@
     <div id="liveBody"></div>
   </div>
 
-  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
-    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      Connected demo: open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab.
-      Requests, arrivals, messages, program edits and confirmations travel over GymBus with idempotent per-screen
-      processing. Statuses change only by human action; the arrival watcher only surfaces time context.</div>
-  </div>
+  <details style="background:transparent; padding:4px 8px;">
+    <summary style="font-size:11.5px; font-weight:700; color:var(--faint); cursor:pointer;">? How this works</summary>
+    <div style="font-size:11.5px; color:var(--faint); line-height:1.5; margin-top:6px;">
+      Open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab —
+      bookings, arrivals, program edits and confirmations sync live. Statuses change only by human action.</div>
+  </details>
 </div>
 
 <script src="bus.js?v=3"></script>
@@ -285,8 +288,10 @@ function nextSessionOf(member) {
 document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
   document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
   $('secDash').classList.toggle('hidden', b.dataset.sec !== 'dash');
+  $('secCal').classList.toggle('hidden', b.dataset.sec !== 'cal');
   $('secClients').classList.toggle('hidden', b.dataset.sec !== 'clients');
   if (b.dataset.sec === 'clients') renderClients();
+  if (b.dataset.sec === 'cal') renderAvail();
 }; });
 
 /* ---------------- schedule ---------------- */

@@ -90,15 +90,14 @@
     </div>
   </div>
 
-  <div class="qbar">
-    <button class="dark" id="addClass">+ Add class</button>
-    <button id="reqCover">Request cover</button>
-    <button id="repIssue">Report issue</button>
-  </div>
-
   <div class="card">
     <div class="eyebrow">Today — my classes</div>
     <div id="classList"></div>
+    <div class="qbar" style="margin-top:10px;">
+      <button id="addClass">+ Add class</button>
+      <button id="reqCover">Request cover</button>
+      <button id="repIssue">Report issue</button>
+    </div>
   </div>
 
   <div class="card">
@@ -110,9 +109,9 @@
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      Connected demo: member bookings, cancellations and gate check-ins update the roster live; a cancellation offers
-      the space to the FIRST waitlisted member (never two at once); the preparation checklist gates starting; credits
-      and completion notifications go out exactly once. Cover requests land at reception. Statuses never change by timer.</div>
+      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
+      <span>Member bookings and check-ins update the roster live; cancellations offer the space to the first waitlisted
+      member; the prep checklist gates starting. Cover requests go to reception.</span></details></div>
   </div>
 </div>
 
@@ -175,7 +174,12 @@ function primaryFor(c) {
   return [null, null];
 }
 function render() {
-  $('classList').innerHTML = I.classes.map((c) => {
+  const ordered = [...I.classes].sort((a, b) => {
+    const done = (x) => ['completed', 'cancelled'].includes(x.status) ? 1 : 0;
+    if (done(a) !== done(b)) return done(a) - done(b); // next class first, finished last
+    return a.time.localeCompare(b.time);
+  });
+  $('classList').innerHTML = ordered.map((c) => {
     const booked = c.roster.filter((r) => ['booked', 'checkedin', 'participated'].includes(r.state)).length;
     const insideN = c.roster.filter((r) => I.inside[r.n] && r.state === 'booked').length;
     const [act, lbl] = primaryFor(c);

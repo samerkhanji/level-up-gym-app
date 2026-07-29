@@ -123,9 +123,7 @@
       <div class="eyebrow">My clients</div>
       <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
       <div id="clientList"></div>
-      <div style="font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5;">
-        Phone numbers are visible only for clients assigned or referred to you; access is audit-logged.
-        Health details stay inside the nutrition service — trainers and reception see only what their role needs.</div>
+      <div style="font-size:11px; color:var(--faint); margin-top:10px;" title="Phones visible for assigned/referred clients only; access logged. Health details stay inside the nutrition service.">🔒 Assigned-client access only</div>
     </div>
   </div>
 
@@ -134,9 +132,10 @@
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      Connected demo: plans travel to the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> for
-      acknowledgment, meals are logged back, discomfort reports arrive here, and café recommendations never place an
-      order — the member decides. Versions are never overwritten. Not medical care: anything clinical is referred out.</div>
+      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
+      <span>Plans go to the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> for
+      acknowledgment; logs and discomfort reports come back live. Plan versions are never overwritten.</span></details>
+      <div style="margin-top:4px;">Gym nutrition guidance — not medical care. <a href="#" style="color:var(--green);" onclick="return false;">Policy</a></div></div>
   </div>
 </div>
 
