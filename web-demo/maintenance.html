@@ -134,6 +134,7 @@
 <div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
 <script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -143,18 +144,15 @@ const ME = 'Suhail M.';
 /* ---------------- state ---------------- */
 const MKEY = 'gym_maint_state';
 let M = {
-  assets: [
-    { id: 'AST-01', name: 'Treadmill #3', cat: 'Cardio', loc: 'Gym floor · row 1', status: 'Available', alt: 'Treadmill #1', history: [{ at: 'Jul 20', line: 'Preventive: belt alignment checked (Suhail M.)' }] },
-    { id: 'AST-02', name: 'Leg press', cat: 'Strength', loc: 'Gym floor · strength zone', status: 'Available', alt: 'Hack squat', history: [] },
-    { id: 'AST-03', name: 'Cable station A', cat: 'Strength', loc: 'Gym floor · centre', status: 'Available', alt: 'Cable station B', history: [] },
-    { id: 'AST-04', name: 'Bench #2', cat: 'Strength', loc: 'Free-weights area', status: 'Available', alt: 'Bench #4', history: [] },
-    { id: 'AST-05', name: 'Rowing machine #1', cat: 'Cardio', loc: 'Cardio mezzanine', status: 'Waiting for parts', alt: 'Rowing machine #2', history: [{ at: 'Jul 27', line: 'Chain worn — part ordered (Suhail M.)' }] },
-    { id: 'AST-06', name: 'Main gate scanner', cat: 'Access', loc: 'Entrance', status: 'Limited use', alt: 'Reception manual entry', history: [{ at: 'Today', line: 'Slow reads reported by reception' }] },
-    { id: 'AST-07', name: 'Sauna heater', cat: 'Recovery', loc: 'Recovery suite', status: 'Available', alt: null, history: [] },
-    { id: 'AST-08', name: 'Café blender', cat: 'Café', loc: 'Café counter', status: 'Available', alt: null, history: [] },
-    { id: 'AST-09', name: 'Pool', cat: 'Aquatics', loc: 'Pool area · lower level', status: 'Available', alt: 'Sauna & recovery suite stay open', history: [{ at: 'Jul 26', line: 'Water quality check passed — chlorine & pH in range (Suhail M.)' }] },
-    { id: 'AST-10', name: 'Pool filtration pump', cat: 'Aquatics', loc: 'Pool plant room', status: 'Available', alt: null, history: [] },
-  ],
+  /* Assets are DERIVED from the shared demo-data engine — the registry lives in
+     one place, so an isolation here is the same record reception, trainers and
+     members see. Local-only fields (repair history) stay keyed by asset id. */
+  assets: (typeof DemoData !== 'undefined' ? DemoData.MaintenanceService.assets() : []).map((a) => ({
+    id: a.id, name: a.name, cat: a.category, loc: a.zone,
+    status: ({ available: 'Available', out_of_service: 'Out of service', waiting_parts: 'Waiting for parts', limited: 'Limited use', testing: 'Testing' })[a.status] || 'Available',
+    alt: a.altAssetId && typeof DemoData !== 'undefined' ? (DemoData.MaintenanceService.assetById(a.altAssetId) || {}).name || null : null,
+    history: a.lastInspection ? [{ at: a.lastInspection, line: 'Last inspection recorded' }] : [],
+  })),
   wos: [
     { id: 'WO-1041', asset: 'Rowing machine #1', priority: 'normal', status: 'Waiting for parts', assignee: ME, problem: 'Chain worn and skipping', reporter: 'Karim H. (trainer)', at: 'Jul 27', part: 'Drive chain', log: [{ at: 'Jul 27 · 9:10 AM', line: 'Reported by Karim H.' }, { at: 'Jul 27 · 9:40 AM', line: 'Assessed by Suhail M. — chain replacement needed, part reserved' }] },
     { id: 'WO-1042', asset: 'Main gate scanner', priority: 'urgent', status: 'In progress', assignee: ME, problem: 'Intermittent slow reads', reporter: 'Lara (reception)', at: 'Today', log: [{ at: '8:15 AM', line: 'Reported by reception' }, { at: '8:30 AM', line: 'Accepted by Suhail M. — reader lens cleaning + firmware check' }] },

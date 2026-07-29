@@ -198,6 +198,7 @@
 </div>
 
 <script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const GYM_TZ = 'Asia/Beirut'; // demo runs in gym-local time; production stores UTC epochs + this zone
@@ -251,22 +252,41 @@ try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T
 function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
 
 /* ---------------- clients ---------------- */
-const CLIENTS = {
-  'Samer Khanji': {
-    phone: '+961 70 123 456', email: 'samer@example.com', emerg: 'Lara K. · +961 3 555 111', pref: 'In-app messages',
-    status: 'Active membership', pkg: 'Strength package',
-    goals: 'Build pressing strength · 78 kg → 80 kg lean · bench 80 kg by October',
-    goalShort: 'Bench press 80 kg',
-    injuries: [{ flag: 'shoulder', label: 'Right shoulder impingement', note: 'Avoid overhead / behind-neck pressing at end range; stop on any pinch.' }],
-    history: [
-      { when: 'Jul 25', what: 'Push day — session 7', note: 'Bench 4×8 @ 67.5, solid, no pain' },
+/* Clients are DERIVED from the shared demo-data engine — no local roster copy.
+   Members, phones and safety facts all come from one source, so a person cannot
+   exist here but be missing from reception, and an injury cannot say one thing
+   here and another in the nutritionist's file. (audit F-DQ-2 / F-SAFE-1)
+   Safety facts arrive through HealthService.visibleTo(id, 'trainer') — a trainer
+   sees injuries and allergies, not unrelated medical conditions. */
+const CLIENT_EXTRAS = {   // trainer-owned coaching context, keyed by member id
+  mbr_0001: { goals: 'Build pressing strength · 78 kg → 80 kg lean · bench 80 kg by October', goalShort: 'Bench press 80 kg', pkg: 'Strength package',
+    history: [{ when: 'Jul 25', what: 'Push day — session 7', note: 'Bench 4×8 @ 67.5, solid, no pain' },
       { when: 'Jul 19', what: 'Push day — session 6', note: 'Shoulder tight on OHP warm-up — kept it light' },
-      { when: 'Jul 12', what: 'Assessment retest', note: 'Body fat 18.2% · added 1.1 kg lean since June' },
-    ],
-  },
-  'Lina Saab': { phone: '+961 71 222 333', email: 'lina@example.com', emerg: '—', pref: 'Phone call', status: 'Active membership', pkg: 'Starter pack', goals: 'General strength · 2×/week', goalShort: 'Squat form', injuries: [], history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
-  'Omar Khal': { phone: '+961 76 444 555', email: 'omar@example.com', emerg: '—', pref: 'In-app messages', status: 'Active membership', pkg: 'Rehab pack', goals: 'Return from knee rehab', goalShort: 'Pain-free squat', injuries: [{ flag: 'knee', label: 'ACL reconstruction (2025)', note: 'No deep jumps; leg extensions cleared by physio.' }], history: [] },
+      { when: 'Jul 12', what: 'Assessment retest', note: 'Body fat 18.2% · added 1.1 kg lean since June' }] },
+  mbr_0005: { goals: 'General strength · 2×/week', goalShort: 'Squat form', pkg: 'Starter pack',
+    history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
+  mbr_0006: { goals: 'Return from knee rehab', goalShort: 'Pain-free squat', pkg: 'Rehab pack', history: [] },
 };
+const FLAG_OF = (label) => /shoulder/i.test(label) ? 'shoulder' : /acl|knee/i.test(label) ? 'knee' : 'general';
+const CLIENTS = (() => {
+  const out = {};
+  if (typeof DemoData === 'undefined') return out;
+  DemoData.MemberService.list()
+    .filter((m) => m.trainerId === 'stf_0002')            // assigned clients only
+    .forEach((m) => {
+      const extra = CLIENT_EXTRAS[m.id] || { goals: '—', goalShort: '—', pkg: '—', history: [] };
+      const facts = DemoData.HealthService.visibleTo(m.id, 'trainer');
+      out[m.name] = {
+        id: m.id, phone: m.phone, email: m.email, emerg: '—', pref: 'Phone',
+        status: m.status === 'active' ? 'Active membership' : m.status,
+        pkg: extra.pkg, goals: extra.goals, goalShort: extra.goalShort,
+        injuries: facts.filter((f) => f.kind === 'injury').map((f) => ({ flag: FLAG_OF(f.label), label: f.label, note: f.note, source: f.source, recordedAt: f.recordedAt })),
+        allergies: facts.filter((f) => f.kind === 'allergy').map((f) => f.label),
+        history: extra.history.slice(),
+      };
+    });
+  return out;
+})();
 const CATALOG = [
   { n: 'Bench press' }, { n: 'Incline dumbbell press' }, { n: 'Machine chest press' },
   { n: 'Overhead press' }, { n: 'Cable fly' }, { n: 'Dumbbell pullover' }, { n: 'Triceps pushdown' },

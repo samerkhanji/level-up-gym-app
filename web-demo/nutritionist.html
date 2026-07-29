@@ -140,6 +140,7 @@
 </div>
 
 <script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
@@ -168,34 +169,42 @@ try { const s = JSON.parse(localStorage.getItem(NKEY)); if (s && s.appts) { N = 
 function save() { localStorage.setItem(NKEY, JSON.stringify(N)); }
 
 /* clients — nutrition profiles (Samer's declared allergy matches his member app profile) */
-const CLIENTS = {
-  'Samer Khanji': {
-    phone: '+961 70 123 456', email: 'samer@example.com', emerg: 'Lara K. · +961 3 555 111', pref: 'Phone',
-    trainer: 'Karim H.', goal: 'Fat loss with strength maintenance', target: '80 kg lean by October',
-    pattern: 'High-protein · 3 meals + post-training shake', dislikes: 'Mushrooms', budget: 'Normal',
-    allergies: ['peanuts'], intolerances: [], medical: 'None disclosed', clearance: 'Not required',
-    trainingDays: 'Mon / Wed / Fri · 6:00 PM (from Karim, member-consented)',
-    assessed: true,
-    history: [
-      { when: 'Jul 21', what: 'Follow-up consultation', note: 'Down 0.8 kg · adherence good · keep protein at 190 g' },
-      { when: 'Jul 12', what: 'Assessment', note: 'Body fat 18.2% · 78.4 kg' },
-    ],
-  },
-  'Maya Haddad': {
-    phone: '+961 71 555 777', email: 'maya@example.com', emerg: '—', pref: 'Phone', trainer: '—',
-    goal: 'General wellness', target: '—', pattern: 'Vegetarian', dislikes: '—', budget: 'Tight',
-    allergies: ['milk'], intolerances: ['gluten (mild)'], medical: 'Pregnancy — 2nd trimester (disclosed)', clearance: 'OB guidance on file',
-    trainingDays: '—', assessed: false,
-    history: [{ when: 'Today', what: 'Initial assessment started', note: 'Allergy details incomplete — finish before planning' }],
-  },
-  'Jad Rahal': {
-    phone: '+961 76 888 999', email: 'jad@example.com', emerg: '—', pref: 'Phone', trainer: '—',
-    goal: 'Weight loss', target: '-6 kg by September', pattern: 'No restrictions', dislikes: 'Fish', budget: 'Normal',
-    allergies: [], intolerances: [], medical: 'None disclosed', clearance: 'Not required',
-    trainingDays: 'Tue / Thu', assessed: true,
-    history: [{ when: 'Jul 20', what: 'Plan v1 sent', note: 'No food log for 7 days — follow up' }],
-  },
+/* Clients are DERIVED from the shared demo-data engine — one member table, one
+   health record. The nutritionist sees the FULL safety record (allergies,
+   intolerances and conditions) via HealthService.visibleTo(id, 'nutritionist');
+   every fact carries its source and recorded date, and conflicts resolve by
+   precedence rather than by whichever page was opened. (audit F-DQ-2 / F-SAFE-1) */
+const NUTRI_EXTRAS = {   // nutrition-owned context, keyed by member id
+  mbr_0001: { goal: 'Fat loss with strength maintenance', target: '80 kg lean by October', pattern: 'High-protein · 3 meals + post-training shake', dislikes: 'Mushrooms', budget: 'Normal', assessed: true,
+    history: [{ when: 'Jul 21', what: 'Follow-up consultation', note: 'Down 0.8 kg · adherence good · keep protein at 190 g' }, { when: 'Jul 12', what: 'Assessment', note: 'Body fat 18.2% · 78.4 kg' }] },
+  mbr_0007: { goal: 'General wellness', target: '—', pattern: 'Vegetarian', dislikes: '—', budget: 'Tight', assessed: false, intolerances: ['gluten (mild)'],
+    history: [{ when: 'Today', what: 'Initial assessment started', note: 'Allergy details incomplete — finish before planning' }] },
+  mbr_0008: { goal: 'Weight loss', target: '-6 kg by September', pattern: 'No restrictions', dislikes: 'Fish', budget: 'Normal', assessed: true,
+    history: [{ when: 'Jul 20', what: 'Plan v1 sent', note: 'No food log for 7 days — follow up' }] },
 };
+const CLIENTS = (() => {
+  const out = {};
+  if (typeof DemoData === 'undefined') return out;
+  const staffName = (id) => (DemoData.load().staff.find((s) => s.id === id) || {}).name || '—';
+  Object.keys(NUTRI_EXTRAS).forEach((id) => {
+    const m = DemoData.MemberService.byId(id); if (!m) return;
+    const x = NUTRI_EXTRAS[id];
+    const facts = DemoData.HealthService.visibleTo(id, 'nutritionist');
+    const conditions = facts.filter((f) => f.kind === 'condition');
+    out[m.name] = {
+      id, phone: m.phone, email: m.email, emerg: '—', pref: 'Phone', trainer: staffName(m.trainerId),
+      goal: x.goal, target: x.target, pattern: x.pattern, dislikes: x.dislikes, budget: x.budget,
+      allergies: facts.filter((f) => f.kind === 'allergy').map((f) => f.label),
+      intolerances: x.intolerances || [],
+      medical: conditions.length ? conditions.map((c) => c.label + ' (' + c.source.replace(/_/g, ' ') + ')').join(', ') : 'None disclosed',
+      clearance: conditions.length ? 'Professional guidance on file' : 'Not required',
+      safetyFacts: facts,
+      trainingDays: m.trainerId ? 'Shared by ' + staffName(m.trainerId) + ' (member-consented)' : '—',
+      assessed: x.assessed, history: x.history.slice(),
+    };
+  });
+  return out;
+})();
 
 /* food catalog with per-portion macros, allergens and approved alternatives */
 const FOODS = [

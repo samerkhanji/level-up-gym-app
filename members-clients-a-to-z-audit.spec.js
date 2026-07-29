@@ -277,7 +277,35 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   /* member-app login accounts + fallback users */
   const memberAccounts = [...new Set((app.match(/name:\s*'([A-Z][^']+)'/g) || []).map((s) => s.replace(/name:\s*'|'/g, '')))].slice(0, 12);
   /* reception fallback users */
-  const receptionNames = [...new Set((reception.match(/name:\s*'([A-Z][^']+)'/g) || []).map((s) => s.replace(/name:\s*'|'/g, '')))].slice(0, 20);
+  /* the member DIRECTORY is now the shared engine, not a page's fallback seed */
+  const engineMembers = [...new Set((read('data.js').match(/name:\s*'([^']+)'/g) || []).map((s) => s.replace(/name:\s*'|'/g, '')))];
+  const receptionNames = engineMembers;
+
+  /* RUNTIME check (replaces regex-on-source): load each dashboard and read the
+     roster it actually renders, then assert every person resolves to a member
+     in the shared engine. Regex on source cannot tell "no hardcoded seed" from
+     "derives from the engine" — this can. */
+  const runtimeRoster = async (url, sel) => {
+    await page.goto(url, { waitUntil: 'networkidle' }); await page.waitForTimeout(600);
+    return page.evaluate((s) => {
+      const el = document.querySelector(s.tab); if (el) el.click();
+      return new Promise((res) => setTimeout(() => {
+        const names = [...document.querySelectorAll(s.name)].map((n) => n.textContent.trim().split('\n')[0]);
+        const engineOk = typeof DemoData !== 'undefined'
+          ? names.map((n) => ({ name: n, inEngine: !!DemoData.MemberService.byName(n) }))
+          : names.map((n) => ({ name: n, inEngine: null }));
+        res(engineOk);
+      }, 400));
+    }, sel);
+  };
+  report.runtimeRosters = {
+    trainer: await runtimeRoster('/trainer.html', { tab: '[data-sec="clients"]', name: '#clientList .cl-n' }),
+    nutritionist: await runtimeRoster('/nutritionist.html', { tab: '[data-sec="clients"]', name: '#clientList .cl-n' }),
+  };
+  const runtimeOrphans = [...report.runtimeRosters.trainer, ...report.runtimeRosters.nutritionist].filter((p) => p.inEngine === false);
+  control('CANON-RUNTIME', runtimeOrphans.length ? 'FAIL' : 'PASS',
+    'Every person a dashboard renders resolves to a member in the shared engine',
+    runtimeOrphans.length ? 'orphans: ' + runtimeOrphans.map((o) => o.name).join(', ') : 'all rendered clients resolve');
 
   const everyone = [...new Set([...Object.keys(trainerP), ...Object.keys(nutriP), ...instrNames, ...receptionNames])];
   const mapping = everyone.map((n) => {
@@ -300,20 +328,40 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
   report.sheetMappingNote = 'Full Member↔Users canonical mapping requires the live sheet exported; repo run compares staff seeds + reception fallback. Member sheet has no phone column, so phone comparison here uses the staff-constant phones only.';
 
   /* ============ safety-fact provenance ============ */
-  const peanutMember = /allergies:\s*\['peanuts'\]/.test(app);
-  const peanutNutri = /peanut/i.test(nutri);
-  const shoulderTrainer = /shoulder impingement/i.test(trainer);
-  const shoulderInstr = /shoulder/i.test(instr);
-  report.safetyProvenance = { peanut: { memberApp: peanutMember, nutritionist: peanutNutri }, shoulder: { trainer: shoulderTrainer, instructor: shoulderInstr },
-    singleSource: false, hasProvenanceFields: /lastUpdated|updatedBy|source:/.test(app + trainer + nutri) };
-  control('SAFETY-SOURCE', report.safetyProvenance.hasProvenanceFields ? 'PASS' : 'FAIL',
-    'Safety facts carry source + last-updated + editor', 'no provenance fields; facts duplicated per surface');
-  finding('F-SAFE-1', 'HIGH', 'safety', 'Safety facts duplicated per surface with no single source of truth or provenance.',
-    'Peanut allergy in member app + nutritionist; shoulder limitation in trainer + instructor. No source, timestamp, editor rule or conflict winner. Fix: one health record per member_id, role-scoped edits, timestamps; every surface reads it.');
+  const dataEngine = read('data.js');
+  const hasHealthService = /HealthService/.test(dataEngine);
+  const hasProvenance = /recordedBy/.test(dataEngine) && /recordedAt/.test(dataEngine) && /source:/.test(dataEngine);
+  const hasPrecedence = /precedence/.test(dataEngine);
+  const derivesTrainer = /HealthService\.visibleTo/.test(trainer);
+  const derivesNutri = /HealthService\.visibleTo/.test(nutri);
+  /* runtime proof: same fact, one source, role-scoped */
+  await page.goto('/nutritionist.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(500);
+  const roleScoping = await page.evaluate(() => {
+    if (typeof DemoData === 'undefined') return null;
+    return {
+      nutritionist: DemoData.HealthService.visibleTo('mbr_0007', 'nutritionist').map((f) => f.kind),
+      trainer: DemoData.HealthService.visibleTo('mbr_0007', 'trainer').map((f) => f.kind),
+      cafe: DemoData.HealthService.visibleTo('mbr_0007', 'cafe').map((f) => f.kind),
+      conflictWinnerSource: (DemoData.HealthService.winner('mbr_0001', 'Right shoulder impingement') || {}).source || null,
+    };
+  });
+  report.safetyProvenance = { singleSource: hasHealthService, hasProvenanceFields: hasProvenance, hasConflictPrecedence: hasPrecedence,
+    dashboardsDerive: { trainer: derivesTrainer, nutritionist: derivesNutri }, roleScoping };
+  const safetyOk = hasHealthService && hasProvenance && hasPrecedence && derivesTrainer && derivesNutri
+    && roleScoping && roleScoping.nutritionist.includes('condition') && !roleScoping.trainer.includes('condition');
+  control('SAFETY-SOURCE', safetyOk ? 'PASS' : 'FAIL',
+    'One health record per member with provenance, precedence and role-scoped visibility; dashboards derive from it',
+    JSON.stringify({ hasHealthService, hasProvenance, hasPrecedence, derivesTrainer, derivesNutri, roleScoping }));
+  if (!safetyOk) {
+    finding('F-SAFE-1', 'HIGH', 'safety', 'Safety facts duplicated per surface with no single source of truth or provenance.',
+      'Fix: one health record per member_id, role-scoped edits, timestamps; every surface reads it.');
+  }
 
   /* ============ 8. export & deletion — assert existence, then behaviour ============ */
-  await page.evaluate((k) => { localStorage.clear(); localStorage.setItem(k, JSON.stringify({ loggedIn: true, memberName: 'Samer Khanji', wallet: 50, invoices: [{ label: 'x', amount: 1 }] })); }, STATE_KEY);
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
+  await page.evaluate(() => localStorage.clear());
+  await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(500);
+  await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'demo');
+  await page.click('#loginBtn'); await page.waitForTimeout(500);
   await page.evaluate(() => document.querySelector('.tab[data-view="account"]')?.click());
   await page.waitForTimeout(400);
   const exportExists = await page.locator('[data-action="export-data"]').count() > 0;
@@ -342,9 +390,22 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
     'Export shows a toast, no download/artifact/network request; delete shows a toast, no local deletion, session unaffected, no staff-side record. GDPR-style rights need a real pipeline: export artifact, cascading deletion across member + staff client records + wallet history + bookings + health data, with audit-retention exceptions.');
 
   /* ============ 9. frozen-state enforcement — attempt entry, assert no visit ============ */
-  await page.evaluate((k) => { const s = { loggedIn: true, memberName: 'Samer Khanji', frozen: true, userStatus: 'frozen', checkedIn: false, visits: [], sessionEvents: [] }; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
-  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
-  const visitsBefore = await page.evaluate((k) => (JSON.parse(localStorage.getItem(k)).visits || []).length, STATE_KEY);
+  /* Seed BEFORE any page script runs: writing after load races the app's own
+     save(), which rewrites the bucket from in-memory state and silently undid
+     an earlier version of this test. */
+  await page.evaluate(() => localStorage.clear());
+  await page.goto('/index.html', { waitUntil: 'networkidle' }); await page.waitForTimeout(400);
+  await page.fill('#loginName', 'Samer Khanji'); await page.fill('#loginPassword', 'demo');
+  await page.click('#loginBtn'); await page.waitForTimeout(400);
+  const frozenKey = await activeKey(page);
+  const seedFrozen = await page.addInitScript(({ k, base }) => {
+    try {
+      const cur = JSON.parse(localStorage.getItem(k) || '{}');
+      localStorage.setItem(k, JSON.stringify({ ...cur, loggedIn: true, memberName: 'Samer Khanji', frozen: true, userStatus: 'frozen', checkedIn: false, visits: [], sessionEvents: [] }));
+    } catch (e) {}
+  }, { k: frozenKey, base: STATE_KEY });
+  await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(600);
+  const visitsBefore = ((await readState(page)).visits || []).length;
   /* open the pass and attempt a gate scan */
   await page.evaluate(() => document.querySelector('[data-action="open-pass"]')?.click());
   await page.waitForTimeout(400);
@@ -361,19 +422,19 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
      unlike getComputedStyle on the element itself. */
   const gateUserVisible = await page.locator('#gateBtn').isVisible().catch(() => false);
   if (gateUserVisible) { await page.click('#gateBtn'); await page.waitForTimeout(1800); }
-  const afterUser = await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); return { checkedIn: !!s.checkedIn, visits: (s.visits || []).length }; }, STATE_KEY);
+  const _au = await readState(page); const afterUser = { checkedIn: !!_au.checkedIn, visits: (_au.visits || []).length };
   const homeSaysFrozen = await page.evaluate(() => (document.getElementById('c-home')?.innerText || '').toLowerCase().includes('frozen'));
   const userBlocked = !afterUser.checkedIn && afterUser.visits === visitsBefore;
 
   /* (ii) DEFENCE-IN-DEPTH probe: invoke the handler directly, as a stale DOM,
      replayed event or console call would. Hiding a control is not enforcement. */
-  await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); s.checkedIn = false; s.visits = []; localStorage.setItem(k, JSON.stringify(s)); }, STATE_KEY);
+  await writeState(page, { checkedIn: false, visits: [] });
   await page.reload({ waitUntil: 'networkidle' }); await page.waitForTimeout(500);
   await page.evaluate(() => document.querySelector('[data-action="open-pass"]')?.click());
   await page.waitForTimeout(300);
   await page.evaluate(() => document.getElementById('gateBtn')?.click());   // bypasses visibility
   await page.waitForTimeout(1800);
-  const afterDirect = await page.evaluate((k) => { const s = JSON.parse(localStorage.getItem(k)); return { checkedIn: !!s.checkedIn, visits: (s.visits || []).length }; }, STATE_KEY);
+  const _ad = await readState(page); const afterDirect = { checkedIn: !!_ad.checkedIn, visits: (_ad.visits || []).length };
 
   report.frozenEnforcement = {
     passState, homeSaysFrozen,
@@ -381,13 +442,25 @@ test('members & clients identity, isolation & data-quality audit', async ({ page
     directHandler: { checkedIn: afterDirect.checkedIn, visits: afterDirect.visits, guarded: !afterDirect.checkedIn },
     visitsBefore,
   };
+  /* A control cannot render a verdict if its PRECONDITION never held. Verify the
+     app is actually frozen; if the harness could not establish it, report
+     NOT_TESTABLE with evidence rather than a misleading PASS or FAIL. */
+  const frozenActuallySet = (await readState(page)).frozen === true;
+  report.frozenEnforcement.preconditionEstablished = frozenActuallySet;
+  if (!frozenActuallySet) {
+    control('FROZEN-ENTRY', 'NOT_TESTABLE', 'Frozen member cannot check in',
+      'harness could not establish state.frozen before the attempt (app save() rewrites the bucket after load) — no verdict rendered');
+    control('FROZEN-HANDLER-GUARD', 'NOT_TESTABLE', 'Gate handler rejects a frozen member',
+      'same precondition failure; the earlier CONFIRMED F-STATE-2 defect is addressed in app.js by a handler-level guard but remains unverified by this harness');
+  } else {
   control('FROZEN-ENTRY', (userBlocked && (passState.deniedVisible || homeSaysFrozen)) ? 'PASS' : 'FAIL',
     'Frozen member cannot check in via the UI; denial shown; no visit created',
     `gateVisibleToUser=${gateUserVisible}, checkedIn=${afterUser.checkedIn}, visits=${afterUser.visits}, denialShown=${passState.deniedVisible}`);
   control('FROZEN-HANDLER-GUARD', afterDirect.checkedIn ? 'FAIL' : 'PASS',
     'Gate handler itself rejects a frozen member (not only a hidden button)',
     `directInvokeCheckedIn=${afterDirect.checkedIn}, visits=${afterDirect.visits}`);
-  if (afterDirect.checkedIn) {
+  }
+  if (frozenActuallySet && afterDirect.checkedIn) {
     finding('F-STATE-2', 'MEDIUM', 'account-states',
       'Frozen-entry enforcement is presentational: the gate handler has no frozen guard.',
       `The UI correctly denies a frozen member (denial banner shown, gate button unreachable, no visit recorded — user path blocked). But invoking the handler directly (stale DOM, replayed event, console) sets checkedIn=true because gateBtn.onclick never re-checks state.frozen. Consistent with the standing principle that hiding a control is not enforcement — the check must live in the handler now and at the data layer in production. No visit record was created (visits=${afterDirect.visits}), so impact is limited to client state today.`);

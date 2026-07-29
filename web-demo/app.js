@@ -1518,6 +1518,19 @@ function doCheckout() {
 
 document.getElementById('gateBtn').onclick = () => {
   const result = document.getElementById('gateResult');
+  /* Enforcement lives in the handler, not in a hidden button (audit F-STATE-2).
+     A stale DOM, replayed event or console call must hit the same rule. In
+     production this check is the server's; here it mirrors AccessService. */
+  if (!state.checkedIn) {
+    const blocked = state.frozen ? 'frozen' : state.userStatus === 'expired' ? 'expired' : state.userStatus === 'suspended' ? 'suspended' : null;
+    if (blocked) {
+      result.hidden = false;
+      result.innerHTML = `<div class="big">⛔</div><div>Entry denied — membership ${blocked}</div>
+        <div class="sub">Reception can resolve this at the desk.</div>`;
+      setTimeout(() => { result.hidden = true; }, 2200);
+      return;
+    }
+  }
   const entering = !state.checkedIn;
 
   result.hidden = false;

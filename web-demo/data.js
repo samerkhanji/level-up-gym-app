@@ -33,6 +33,7 @@ const DemoData = (() => {
       { id: 'mbr_0005', name: 'Lina Saab', phone: '+961 71 222 333', email: 'lina@example.com', tier: 'Access', planId: 'pln_1mo', status: 'active', subEnds: '2026-11-02', wallet: 15, points: 60, trainerId: 'stf_0002', allergies: [], injuries: [], memberSince: '2026-06-01' },
       { id: 'mbr_0006', name: 'Omar Khal', phone: '+961 76 444 555', email: 'omar@example.com', tier: 'Access', planId: 'pln_1mo', status: 'active', subEnds: '2026-10-20', wallet: 30, points: 75, trainerId: 'stf_0002', allergies: [], injuries: ['ACL reconstruction (2025)'], memberSince: '2026-04-18' },
       { id: 'mbr_0007', name: 'Maya Haddad', phone: '+961 71 555 777', email: 'maya@example.com', tier: 'Performance', planId: 'pln_6mo', status: 'active', subEnds: '2027-02-01', wallet: 55, points: 130, trainerId: null, allergies: ['milk'], injuries: [], memberSince: '2026-06-22' },
+      { id: 'mbr_0009', name: 'Hassan M.', phone: '+961 3 777 111', email: 'hassan@example.com', tier: 'Access', planId: 'pln_1mo', status: 'active', subEnds: '2026-10-05', wallet: 18, points: 55, trainerId: null, allergies: [], injuries: [], memberSince: '2026-05-30' },
       { id: 'mbr_0008', name: 'Jad Rahal', phone: '+961 76 888 999', email: 'jad@example.com', tier: 'Access', planId: 'pln_1mo', status: 'active', subEnds: '2026-09-30', wallet: 12, points: 25, trainerId: null, allergies: [], injuries: [], memberSince: '2026-07-02' },
     ];
     const staff = [
@@ -69,8 +70,26 @@ const DemoData = (() => {
       { id: 'bkg_0003', type: 'pt', trainerId: 'stf_0002', memberId: 'mbr_0001', startsAt: at(18, 0), state: 'scheduled', packageId: 'pkg_0001' },
     ];
     const packages = [{ id: 'pkg_0001', memberId: 'mbr_0001', trainerId: 'stf_0002', total: 10, used: 7, price: 300 }];
+    /* ONE health record per member — the single source of truth for safety
+       facts. Every surface reads these; nothing keeps its own copy. Each fact
+       carries provenance (who recorded it, when, from where) and a precedence
+       rank so a conflict has a defined winner instead of "whichever page you
+       happened to open". (audit F-SAFE-1) */
+    const healthRecords = [
+      { memberId: 'mbr_0001', facts: [
+        { id: 'hf_0001', kind: 'allergy', label: 'peanuts', severity: 'high', source: 'member_declared', recordedBy: 'mbr_0001', recordedAt: '2026-03-01', precedence: 2, note: 'Declared in the onboarding health questionnaire.' },
+        { id: 'hf_0002', kind: 'injury', label: 'Right shoulder impingement', severity: 'medium', source: 'trainer_assessment', recordedBy: 'stf_0002', recordedAt: '2026-07-19', precedence: 3, note: 'Avoid overhead / behind-neck pressing at end range; stop on any pinch.' },
+      ] },
+      { memberId: 'mbr_0006', facts: [
+        { id: 'hf_0003', kind: 'injury', label: 'ACL reconstruction (2025)', severity: 'high', source: 'physio_clearance', recordedBy: 'stf_0004', recordedAt: '2026-04-18', precedence: 4, note: 'No deep jumps; leg extensions cleared by physio.' },
+      ] },
+      { memberId: 'mbr_0007', facts: [
+        { id: 'hf_0004', kind: 'allergy', label: 'milk', severity: 'high', source: 'member_declared', recordedBy: 'mbr_0007', recordedAt: '2026-06-22', precedence: 2, note: 'Declared at intake.' },
+        { id: 'hf_0005', kind: 'condition', label: 'Pregnancy — 2nd trimester', severity: 'review', source: 'member_declared', recordedBy: 'mbr_0007', recordedAt: '2026-07-01', precedence: 4, note: 'OB guidance on file; conservative targets, refer anything clinical.' },
+      ] },
+    ];
     return {
-      version: 1, createdAt: iso(now()), scenario: 'normal-day',
+      version: 1, createdAt: iso(now()), scenario: 'normal-day', healthRecords,
       organizations: [{ id: 'org_01', name: 'GYM' }],
       locations: [{ id: 'loc_01', orgId: 'org_01', name: 'City Center', capacity: 120, opens: '06:00', closes: '23:00' }],
       rooms: [{ id: 'rm_01', name: 'Studio B', capacity: 20 }, { id: 'rm_02', name: 'Functional Zone', capacity: 18 }, { id: 'rm_pool', name: 'Pool', capacity: 12 }],
@@ -85,9 +104,29 @@ const DemoData = (() => {
 
   /* ---------- persistence ---------- */
   let db = null;
+  /* Forward-migrate a persisted DB written by an older build: any collection
+     added since is filled from the current seed instead of arriving undefined.
+     (A stored DB without `healthRecords` used to crash HealthService.) */
+  function migrate(stored) {
+    const fresh = seed();
+    let changed = false;
+    Object.keys(fresh).forEach((k) => {
+      if (stored[k] === undefined) { stored[k] = fresh[k]; changed = true; }
+    });
+    if (changed) { stored.version = fresh.version; }
+    return { stored, changed };
+  }
   function load() {
     if (db) return db;
-    try { const raw = localStorage.getItem(DB_KEY); if (raw) { db = JSON.parse(raw); return db; } } catch (e) {}
+    try {
+      const raw = localStorage.getItem(DB_KEY);
+      if (raw) {
+        const { stored, changed } = migrate(JSON.parse(raw));
+        db = stored;
+        if (changed) persist();
+        return db;
+      }
+    } catch (e) {}
     db = seed(); persist(); return db;
   }
   function persist() { try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {} }
@@ -156,6 +195,34 @@ const DemoData = (() => {
       open.exitedAt = iso(now()); persist();
       emit('member.exited', { visitId: open.id }, null, memberId);
       return { ok: true, visit: open };
+    },
+  };
+
+  /* single source of truth for safety facts, with role-scoped visibility */
+  const HealthService = {
+    forMember(memberId) { return (load().healthRecords.find((r) => r.memberId === memberId) || { facts: [] }).facts.slice(); },
+    /* each role sees only what it needs to keep the member safe */
+    visibleTo(memberId, role) {
+      const facts = HealthService.forMember(memberId);
+      if (role === 'nutritionist') return facts;                                   // full record
+      if (role === 'trainer') return facts.filter((f) => f.kind !== 'condition');    // injuries + allergies
+      if (role === 'instructor') return facts.filter((f) => f.kind === 'injury');    // movement limits only
+      if (role === 'cafe') return facts.filter((f) => f.kind === 'allergy');         // allergens only
+      if (role === 'reception') return facts.filter((f) => f.severity === 'high').map((f) => ({ ...f, note: '' })); // flag, no detail
+      return [];
+    },
+    /* conflicts resolve by precedence (clinical > trainer > member-declared) */
+    winner(memberId, label) {
+      return HealthService.forMember(memberId).filter((f) => f.label === label).sort((a, b) => b.precedence - a.precedence)[0] || null;
+    },
+    record(memberId, fact, actorId) {
+      const d = load();
+      let rec = d.healthRecords.find((r) => r.memberId === memberId);
+      if (!rec) { rec = { memberId, facts: [] }; d.healthRecords.push(rec); }
+      const f = { id: nextId('hf', 'healthRecords'), recordedBy: actorId, recordedAt: iso(now()).slice(0, 10), precedence: 2, ...fact };
+      rec.facts.push(f); persist();
+      emit('health.fact_recorded', { kind: f.kind, label: f.label }, actorId, memberId);
+      return f;
     },
   };
 
@@ -284,7 +351,7 @@ const DemoData = (() => {
     /* data */ load, persist, reset, seed,
     /* time  */ now, fmtTime, setClockOffset: (ms) => localStorage.setItem(CLOCK_KEY, String(ms)), clockOffset: offset,
     /* log   */ emit, events: () => load().events.slice(),
-    /* svc   */ MemberService, AccessService, MaintenanceService, IncidentService, PaymentService, BookingService, NotificationService,
+    /* svc   */ MemberService, AccessService, MaintenanceService, IncidentService, PaymentService, BookingService, NotificationService, HealthService,
     /* demo  */ scenarios: () => Object.keys(SCENARIOS), runScenario: (n) => reset(n),
   };
 })();
