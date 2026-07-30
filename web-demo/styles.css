@@ -163,6 +163,45 @@ button { font-family: var(--body); color: inherit; }
 .mtile .tm { font-size: 11px; color: var(--muted); }
 .mtile .stepper { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 4px; }
 .mtile .qty-btn { width: 30px; height: 30px; border-radius: 10px; font-size: 16px; }
+.mtile .art {
+  height: 72px; border-radius: 11px; display: grid; place-items: center;
+  font-size: 34px; background: var(--tint); cursor: pointer; user-select: none;
+  transition: transform 0.18s ease;
+}
+.mtile .art:active { transform: scale(0.97); }
+
+/* ---------- product detail sheet ---------- */
+.sheet-back {
+  position: absolute; inset: 0; z-index: 40;
+  background: rgba(18, 42, 34, 0.38);
+  opacity: 0; transition: opacity 0.28s ease;
+}
+.sheet-back.in { opacity: 1; }
+.food-sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 41;
+  background: var(--card); border-radius: 26px 26px 0 0;
+  padding: 10px 18px 24px; box-shadow: var(--shadow-float);
+  transform: translateY(103%); transition: transform 0.34s cubic-bezier(0.2, 0.7, 0.3, 1);
+  display: flex; flex-direction: column; gap: 12px;
+}
+.food-sheet.in { transform: none; }
+.food-sheet .grab { width: 40px; height: 4px; border-radius: 2px; background: var(--line); margin: 0 auto; flex-shrink: 0; }
+.food-sheet .art-big {
+  height: 148px; border-radius: 18px; display: grid; place-items: center;
+  font-size: 64px; background: var(--tint);
+}
+.food-sheet .fs-name { font-family: var(--display); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+.food-sheet .fs-price { font-size: 19px; font-weight: 800; color: var(--green); }
+.food-sheet .fs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.food-sheet .fs-warn {
+  background: var(--amber-soft); color: var(--amber); border-radius: 12px;
+  padding: 9px 12px; font-size: 13px; font-weight: 600;
+}
+.food-sheet .fs-foot { display: flex; align-items: center; gap: 12px; }
+.food-sheet .fs-foot .stepper { display: flex; align-items: center; gap: 10px; }
+@media (prefers-reduced-motion: reduce) {
+  .sheet-back, .food-sheet { transition: none; }
+}
 
 /* a label that sits on the paper BETWEEN groups — gives the page rhythm */
 .sect-label {

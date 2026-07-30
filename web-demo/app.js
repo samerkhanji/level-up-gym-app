@@ -619,6 +619,7 @@ function animateCounts(root) {
 }
 
 function show(view) {
+  if (typeof closeFoodSheet === 'function') closeFoodSheet(true);
   views.forEach((v) => document.getElementById('view-' + v).classList.toggle('active', v === view));
   tabbar.classList.toggle('hidden', !tabViews.includes(view));
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === view));
@@ -1101,6 +1102,83 @@ function renderGym() {
 
 /* ================= FOOD ================= */
 
+/* product art without an asset pipeline: keyword → food glyph on the tint
+   panel. The sheet-hydrated menu has no image column, so art must derive
+   from the name deterministically. */
+/* sheet-sourced strings land in innerHTML templates — escape them */
+function esc(s) {
+  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function foodArt(name) {
+  const n = String(name).toLowerCase();
+  const map = [
+    [/shake|smoothie|protein drink/, '🥤'], [/matcha|tea/, '🍵'],
+    [/coffee|espresso|latte|brew/, '☕'], [/juice|orange|citrus/, '🍊'],
+    [/water/, '💧'], [/salmon|tuna|fish/, '🐟'], [/chicken/, '🍗'],
+    [/beef|steak/, '🥩'], [/falafel|hummus/, '🧆'], [/egg/, '🍳'],
+    [/salad|bowl|quinoa|veg/, '🥗'], [/wrap|sandwich|toast/, '🥪'],
+    [/rice/, '🍚'], [/pasta/, '🍝'], [/bar|chocolate|snack/, '🍫'],
+    [/banana/, '🍌'], [/yogurt|granola/, '🥣'], [/soup/, '🍲'],
+    [/pancake|waffle/, '🥞'], [/nuts|almond/, '🥜'],
+  ];
+  return (map.find(([re]) => re.test(n)) || [null, '🍽'])[1];
+}
+
+/* slide-up product detail sheet — lives inside #screen so the delegated
+   click handler reaches its buttons; removed from the DOM after closing */
+function openFoodSheet(id) {
+  closeFoodSheet(true);
+  const m = menu.find((x) => x.id === id);
+  if (!m) return;
+  const screen = document.getElementById('screen');
+  const back = document.createElement('div');
+  back.className = 'sheet-back'; back.dataset.action = 'sheet-close'; back.id = 'sheetBack';
+  const sh = document.createElement('div');
+  sh.className = 'food-sheet'; sh.id = 'foodSheet'; sh.dataset.m = id;
+  screen.appendChild(back); screen.appendChild(sh);
+  fillFoodSheet(m);
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    back.classList.add('in'); sh.classList.add('in');
+  }));
+}
+function fillFoodSheet(m) {
+  const sh = document.getElementById('foodSheet');
+  if (!sh) return;
+  const av = (state.cafeAv || {})[m.name] || 'ok';
+  const off = av === 'out';
+  const q = cart[m.id] || 0;
+  sh.innerHTML = `
+    <div class="grab"></div>
+    <div class="art-big">${foodArt(m.name)}</div>
+    <div class="row"><span class="fs-name">${esc(m.name)}</span><span class="fs-price">$${m.price}</span></div>
+    <div class="fs-chips">
+      <span class="macro">${m.cal} kcal</span><span class="macro">${m.p}g protein</span>
+      <span class="macro">${m.c}g carbs</span><span class="macro">${m.f}g fat</span>
+      ${off ? '<span class="macro warn">SOLD OUT</span>' : av === 'low' ? '<span class="macro warn">low stock</span>' : ''}
+    </div>
+    ${m.allerg ? `<div class="fs-warn">⚠ Contains ${esc(m.allerg)} — prepared with shared equipment.</div>` : ''}
+    <div class="dim small">Shakes are customizable at checkout — milk, banana, honey. Ready in about 5 minutes; you'll get a pickup ping.</div>
+    <div class="fs-foot">
+      <div class="stepper">
+        <button class="qty-btn" data-action="sheet-qty" data-m="${m.id}" data-d="-1" ${off ? 'disabled' : ''}>−</button>
+        <span class="qty">${q}</span>
+        <button class="qty-btn" data-action="sheet-qty" data-m="${m.id}" data-d="1" ${off ? 'disabled' : ''}>+</button>
+      </div>
+      <button class="accent-btn slim" data-action="sheet-add" data-m="${m.id}" style="flex:1;" ${off ? 'disabled' : ''}>
+        ${q > 0 ? `In cart · ${q} — done` : `Add to cart · $${m.price}`}
+      </button>
+    </div>`;
+}
+function closeFoodSheet(instant) {
+  const back = document.getElementById('sheetBack');
+  const sh = document.getElementById('foodSheet');
+  if (!back && !sh) return;
+  if (instant) { back?.remove(); sh?.remove(); return; }
+  back?.classList.remove('in'); sh?.classList.remove('in');
+  setTimeout(() => { back?.remove(); sh?.remove(); }, 360);
+}
+
 function renderFood() {
   let body = '';
 
@@ -1193,7 +1271,8 @@ function renderFood() {
           const off = av === 'out';
           return `
           <div class="mtile ${off ? 'off' : ''}">
-            <div class="tn">${m.name}</div>
+            <div class="art" data-action="food-detail" data-m="${m.id}" role="button" aria-label="View ${esc(m.name)}">${foodArt(m.name)}</div>
+            <div class="tn" data-action="food-detail" data-m="${m.id}" style="cursor:pointer;">${esc(m.name)}</div>
             <div class="row" style="font-size:inherit;">
               <span class="tp">$${m.price}</span>
               ${off ? '<span class="macro warn" style="margin:0;">SOLD OUT</span>' : av === 'low' ? '<span class="macro warn" style="margin:0;">low stock</span>' : ''}
@@ -1686,7 +1765,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'banner-dismiss') { state.leftGymPrompt = false; save(); renderHome(); }
 
   if (a === 'seg-train') { segTrain = el.dataset.s; renderTrain(); }
-  if (a === 'seg-food') { segFood = el.dataset.s; renderFood(); }
+  if (a === 'seg-food') { segFood = el.dataset.s; closeFoodSheet(true); renderFood(); }
 
   if (a === 'log-workout') {
     state.workoutLogged = true;
@@ -1920,6 +1999,25 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     cart[id] = Math.max(0, (cart[id] || 0) + Number(el.dataset.d));
     if (cart[id] === 0) delete cart[id];
     renderFood();
+  }
+  if (a === 'food-detail') openFoodSheet(el.dataset.m);
+  if (a === 'sheet-close') closeFoodSheet();
+  if (a === 'sheet-qty') {
+    const id = el.dataset.m;
+    cart[id] = Math.max(0, (cart[id] || 0) + Number(el.dataset.d));
+    if (cart[id] === 0) delete cart[id];
+    renderFood();                                   // cart bar updates behind the sheet
+    fillFoodSheet(menu.find((x) => x.id === id));   // sheet stays open, numbers refresh
+  }
+  if (a === 'sheet-add') {
+    const id = el.dataset.m;
+    if (!cart[id]) {
+      cart[id] = 1;
+      renderFood();
+      fillFoodSheet(menu.find((x) => x.id === id)); // button flips to "In cart · 1 — done"
+    } else {
+      closeFoodSheet();                             // second tap confirms and dismisses
+    }
   }
   if (a === 'order') {
     if (!Object.keys(cart).length) return;
