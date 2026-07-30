@@ -1,0 +1,145 @@
+<!-- @dsCard group="Components" name="Heritage components" subtitle="Buttons, cards, rows, tags, inputs, tab bar" width="920" height="1240" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GYM · Heritage components</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F3EC; --card:#FFFDF8; --ink:#17251D; --muted:#5D6B60;
+    --line:#E3DFD2; --line-strong:#CFC9B8;
+    --green:#17493A; --green-press:#0F382C; --mint:#E4EEE4;
+    --brass:#A3814F; --amber:#9A6212; --amber-soft:#FBF1DE;
+    --red:#A93B2B; --red-soft:#F8E9E4;
+    --serif:'Fraunces', Georgia, serif; --sans:'Instrument Sans', -apple-system, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;padding:48px}
+  .label{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted);display:block;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  section{margin-bottom:44px}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+
+  /* buttons */
+  .btn{font-family:var(--sans);font-size:15px;font-weight:600;border:none;cursor:pointer;padding:14px 26px;border-radius:10px;transition:transform .18s ease, background .18s ease, box-shadow .18s ease}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--green);color:#F5F3EC}
+  .btn-primary:hover{background:var(--green-press)}
+  .btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--line-strong)}
+  .btn-secondary:hover{border-color:var(--ink)}
+  .btn-danger{background:transparent;color:var(--red);border:1px solid var(--red)}
+  .link{font-weight:600;color:var(--green);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;background:none;border:none;font-size:15px;cursor:pointer}
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .card h3{font-family:var(--serif);font-size:21px;font-weight:500;margin-bottom:4px}
+  .card p{font-size:13.5px;color:var(--muted)}
+  .card .stat{font-family:var(--serif);font-size:46px;font-weight:400;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
+  .card .cap{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted);margin-bottom:10px;display:block}
+  .card.feature{background:var(--green);border-color:var(--green);color:#F5F3EC}
+  .card.feature p{color:#C9D8CE}
+  .card.feature .arrow{float:right;font-family:var(--serif);font-size:22px}
+
+  /* list rows */
+  .list{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .list .li{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:15px 20px;border-bottom:1px solid var(--line)}
+  .list .li:last-child{border-bottom:none}
+  .li b{font-weight:600;font-size:14.5px}
+  .li span{font-size:13px;color:var(--muted)}
+  .li .amt{font-variant-numeric:tabular-nums;font-weight:600;font-size:14.5px}
+
+  /* tags — square, printed, no pills */
+  .tag{display:inline-block;font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 9px;border-radius:6px;border:1px solid}
+  .tag.ok{color:var(--green);border-color:#BFD4C4;background:var(--mint)}
+  .tag.warn{color:var(--amber);border-color:#E8D3AC;background:var(--amber-soft)}
+  .tag.stop{color:var(--red);border-color:#E5C0B6;background:var(--red-soft)}
+  .tag.plain{color:var(--muted);border-color:var(--line-strong);background:transparent}
+  .tier{font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--brass)}
+
+  /* inputs */
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .field input{width:320px;font-family:var(--sans);font-size:15px;padding:13px 15px;border:1px solid var(--line-strong);border-radius:10px;background:var(--card);color:var(--ink)}
+  .field input:focus{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+  .field .err{margin-top:6px;font-size:12.5px;color:var(--red)}
+
+  /* tab bar */
+  .tabbar{display:flex;background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;max-width:430px}
+  .tabbar button{flex:1;background:none;border:none;font-family:var(--sans);font-size:11.5px;font-weight:600;letter-spacing:.06em;color:var(--muted);padding:13px 0 11px;cursor:pointer;border-top:2px solid transparent;transition:color .18s}
+  .tabbar button.on{color:var(--green);border-top-color:var(--green)}
+  .note{font-size:13px;color:var(--muted);font-style:italic;font-family:var(--serif);margin-top:12px}
+</style></head><body>
+
+<section>
+  <span class="label">Buttons — one filled voice, quiet companions</span>
+  <div class="row">
+    <button class="btn btn-primary">Open my pass</button>
+    <button class="btn btn-secondary">Client file</button>
+    <button class="link">Forgot password?</button>
+    <button class="btn btn-danger">Report a problem</button>
+  </div>
+  <p class="note">Hover deepens the green; press scales to .98. Never two filled buttons side by side.</p>
+</section>
+
+<section>
+  <span class="label">Cards — hairline borders, serif titles</span>
+  <div class="cards">
+    <div class="card feature">
+      <span class="arrow">→</span>
+      <h3>Enter the club</h3>
+      <p>Open your pass for the gate</p>
+    </div>
+    <div class="card">
+      <span class="cap">Gym right now</span>
+      <div class="stat">37</div>
+      <p>members inside · quiet · capacity 120</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="label">List rows — ledgers, not chat bubbles</span>
+  <div class="list" style="max-width:520px">
+    <div class="li"><div><b>Wallet top-up</b><br><span>Tuesday · at the desk</span></div><span class="amt">+$40.00</span></div>
+    <div class="li"><div><b>Café — whey shake, cold brew</b><br><span>Tuesday · order 2214</span></div><span class="amt">−$10.50</span></div>
+    <div class="li"><div><b>PT session · Karim H.</b><br><span>Monday · package 7 of 10</span></div><span class="amt">—</span></div>
+  </div>
+</section>
+
+<section>
+  <span class="label">Status — printed tags, tier in brass</span>
+  <div class="row">
+    <span class="tag ok">Active</span>
+    <span class="tag warn">Waiting confirm</span>
+    <span class="tag stop">Frozen</span>
+    <span class="tag plain">Scheduled</span>
+    <span class="tier">Performance</span>
+  </div>
+</section>
+
+<section>
+  <span class="label">Inputs</span>
+  <div class="row" style="align-items:flex-start;gap:28px">
+    <div class="field">
+      <label for="n1">Member name</label>
+      <input id="n1" value="Samer Khanji">
+    </div>
+    <div class="field">
+      <label for="n2">Password</label>
+      <input id="n2" type="password" value="">
+      <div class="err">Enter your password to continue.</div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <span class="label">Tab bar — underline, not filled pills</span>
+  <div class="tabbar">
+    <button class="on">Home</button>
+    <button>Train</button>
+    <button>Gym</button>
+    <button>Food</button>
+    <button>Account</button>
+  </div>
+</section>
+
+</body></html>

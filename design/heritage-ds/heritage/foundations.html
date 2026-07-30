@@ -1,0 +1,111 @@
+<!-- @dsCard group="Foundations" name="Heritage foundations" subtitle="Crest, palette, type ramp, hairlines" width="920" height="1180" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GYM · Heritage foundations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F3EC; --card:#FFFDF8; --ink:#17251D; --muted:#5D6B60;
+    --line:#E3DFD2; --line-strong:#CFC9B8;
+    --green:#17493A; --green-press:#0F382C; --mint:#E4EEE4;
+    --brass:#A3814F; --amber:#9A6212; --amber-soft:#FBF1DE;
+    --red:#A93B2B; --red-soft:#F8E9E4;
+    --serif:'Fraunces', Georgia, serif; --sans:'Instrument Sans', -apple-system, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.55;padding:56px 48px 64px}
+  .label{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+  section{margin-bottom:52px}
+  section>.label{display:block;padding-bottom:10px;border-bottom:1px solid var(--line);margin-bottom:22px}
+
+  /* crest */
+  .crest{text-align:center;padding:38px 0 34px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);position:relative;margin-bottom:56px}
+  .crest::before,.crest::after{content:'';position:absolute;left:0;right:0;height:1px;background:var(--ink)}
+  .crest::before{top:4px}.crest::after{bottom:4px}
+  .crest h1{font-family:var(--serif);font-weight:500;font-size:44px;letter-spacing:.38em;text-indent:.38em;line-height:1}
+  .crest p{margin-top:10px;font-size:11px;letter-spacing:.3em;text-indent:.3em;text-transform:uppercase;color:var(--brass);font-weight:600}
+
+  /* palette */
+  .swatches{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .sw{border:1px solid var(--line);background:var(--card)}
+  .sw .chip{height:74px;border-bottom:1px solid var(--line)}
+  .sw dl{padding:10px 12px}
+  .sw dt{font-weight:600;font-size:13.5px}
+  .sw dd{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+
+  /* type ramp */
+  .ramp>div{display:grid;grid-template-columns:190px 1fr;align-items:baseline;gap:20px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .ramp .d1{font-family:var(--serif);font-size:52px;font-weight:500;letter-spacing:-0.015em;line-height:1.04}
+  .ramp .d2{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-0.01em}
+  .ramp .h3{font-family:var(--sans);font-size:17px;font-weight:600}
+  .ramp .body{font-size:15px;max-width:62ch}
+  .ramp .small{font-size:13px;color:var(--muted)}
+  .ramp .num{font-family:var(--serif);font-size:58px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:-0.02em}
+  .ramp .lbl2{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+
+  /* rules + radii */
+  .rules{display:grid;grid-template-columns:1fr 1fr;gap:28px}
+  .rule-demo{background:var(--card);border:1px solid var(--line);padding:22px}
+  .rule-demo h4{font-weight:600;font-size:13.5px;margin-bottom:12px}
+  .hairline{height:1px;background:var(--line);margin:12px 0}
+  .hairline.strong{background:var(--line-strong)}
+  .radii{display:flex;gap:14px;align-items:flex-end}
+  .radii div{background:var(--mint);border:1px solid var(--line-strong);display:grid;place-items:center;font-size:11px;color:var(--muted)}
+  .note{font-size:13px;color:var(--muted);max-width:64ch;margin-top:14px;font-style:italic;font-family:var(--serif)}
+</style></head><body>
+
+<div class="crest">
+  <h1>G Y M</h1>
+  <p>Members · City Center</p>
+</div>
+
+<section>
+  <span class="label">Palette — warm paper, racing green, one brass note</span>
+  <div class="swatches">
+    <div class="sw"><div class="chip" style="background:#F5F3EC"></div><dl><dt>Paper</dt><dd>#F5F3EC · app ground</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#FFFDF8"></div><dl><dt>Card</dt><dd>#FFFDF8 · surfaces</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#17251D"></div><dl><dt>Ink</dt><dd>#17251D · text</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#5D6B60"></div><dl><dt>Muted</dt><dd>#5D6B60 · secondary</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#17493A"></div><dl><dt>Racing green</dt><dd>#17493A · the accent</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#E4EEE4"></div><dl><dt>Mint</dt><dd>#E4EEE4 · positive fill</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#A3814F"></div><dl><dt>Brass</dt><dd>#A3814F · fine details only</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#E3DFD2"></div><dl><dt>Hairline</dt><dd>#E3DFD2 · borders</dd></dl></div>
+  </div>
+  <p class="note">One accent. Green does the work; brass appears only where foil would — the tier mark, the crest line, a membership number. Status amber and red stay muted and never share a screen with brass.</p>
+</section>
+
+<section>
+  <span class="label">Type — Fraunces display over Instrument Sans</span>
+  <div class="ramp">
+    <div><span class="lbl2">Display / 52</span><span class="d1">Good morning, Samer</span></div>
+    <div><span class="lbl2">Title / 30</span><span class="d2">The 6:00 PM session</span></div>
+    <div><span class="lbl2">Heading / 17</span><span class="h3">Today at the club</span></div>
+    <div><span class="lbl2">Body / 15</span><span class="body">A free locker is assigned when you check in — the number appears here and on your home screen, and it releases the moment you exit.</span></div>
+    <div><span class="lbl2">Small / 13</span><span class="small">Last visit Tuesday · 74 minutes · locker 47</span></div>
+    <div><span class="lbl2">Stat numeral</span><span class="num">37</span></div>
+  </div>
+  <p class="note">Numerals in data rows use tabular figures; hero numerals are set in the serif at 400 so they read engraved, not bold.</p>
+</section>
+
+<section>
+  <span class="label">Rules, hairlines &amp; radii</span>
+  <div class="rules">
+    <div class="rule-demo">
+      <h4>Hairlines instead of shadows</h4>
+      <div class="hairline"></div>
+      <div class="hairline strong"></div>
+      <p class="small" style="font-size:13px;color:var(--muted)">Cards sit on 1px warm hairlines. Elevation is reserved for things that truly float: the entry pass sheet, dialogs.</p>
+    </div>
+    <div class="rule-demo">
+      <h4>Radius scale — squarer, varied</h4>
+      <div class="radii">
+        <div style="width:84px;height:64px;border-radius:14px">14 card</div>
+        <div style="width:84px;height:52px;border-radius:10px">10 control</div>
+        <div style="width:84px;height:40px;border-radius:6px">6 tag</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body></html>

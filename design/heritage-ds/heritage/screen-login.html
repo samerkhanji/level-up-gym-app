@@ -1,0 +1,81 @@
+<!-- @dsCard group="Screens" name="Login" subtitle="Crest, member entry, quiet luxury" width="460" height="940" -->
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GYM · Login — Heritage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F3EC; --card:#FFFDF8; --ink:#17251D; --muted:#5D6B60;
+    --line:#E3DFD2; --line-strong:#CFC9B8; --green:#17493A; --green-press:#0F382C;
+    --mint:#E4EEE4; --brass:#A3814F;
+    --serif:'Fraunces', Georgia, serif; --sans:'Instrument Sans', -apple-system, 'Segoe UI', sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--paper);display:grid;place-items:center;min-height:100dvh;font-family:var(--sans);color:var(--ink);padding:24px}
+  .phone{width:400px;background:var(--paper);border:1px solid var(--line-strong);border-radius:44px;padding:18px 22px 26px;box-shadow:0 24px 70px rgba(23,37,29,.14)}
+  .screen{padding:66px 8px 30px;display:flex;flex-direction:column;min-height:820px}
+
+  .crest{text-align:center;padding:26px 0 22px;border-top:2px solid var(--ink);border-bottom:2px solid var(--ink);position:relative;margin-bottom:8px}
+  .crest::before,.crest::after{content:'';position:absolute;left:0;right:0;height:1px;background:var(--ink)}
+  .crest::before{top:3px}.crest::after{bottom:3px}
+  .crest h1{font-family:var(--serif);font-weight:500;font-size:34px;letter-spacing:.4em;text-indent:.4em;line-height:1}
+  .crest p{margin-top:8px;font-size:10px;letter-spacing:.32em;text-indent:.32em;text-transform:uppercase;color:var(--brass);font-weight:600}
+
+  .welcome{text-align:center;margin:34px 0 30px}
+  .welcome h2{font-family:var(--serif);font-size:27px;font-weight:500;letter-spacing:-.01em}
+  .welcome p{font-size:13.5px;color:var(--muted);margin-top:4px}
+
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:6px}
+  .field input{width:100%;font-family:var(--sans);font-size:15px;padding:14px 16px;border:1px solid var(--line-strong);border-radius:10px;background:var(--card);color:var(--ink)}
+  .field input::placeholder{color:#9AA69D}
+  .field input:focus{outline:2px solid var(--green);outline-offset:1px;border-color:var(--green)}
+
+  .btn{width:100%;font-family:var(--sans);font-size:15px;font-weight:600;border:none;cursor:pointer;padding:15px;border-radius:10px;transition:transform .18s ease, background .18s ease}
+  .btn:active{transform:scale(.98)}
+  .btn-primary{background:var(--green);color:#F5F3EC;margin-top:6px}
+  .btn-primary:hover{background:var(--green-press)}
+  .btn-secondary{background:transparent;color:var(--ink);border:1px solid var(--line-strong);margin-top:10px}
+
+  .aux{text-align:center;margin-top:18px}
+  .aux a{font-size:13.5px;font-weight:600;color:var(--green);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px}
+
+  footer{margin-top:auto;text-align:center;padding-top:26px}
+  footer .rule{height:1px;background:var(--line);margin-bottom:14px}
+  footer p{font-size:11px;color:var(--muted);letter-spacing:.05em}
+  footer b{color:var(--brass);letter-spacing:.2em;font-size:10px;text-transform:uppercase}
+</style></head><body>
+
+<div class="phone"><div class="screen">
+  <div class="crest">
+    <h1>G Y M</h1>
+    <p>Members · City Center</p>
+  </div>
+
+  <div class="welcome">
+    <h2>Welcome back</h2>
+    <p>Your membership lives on your phone.</p>
+  </div>
+
+  <div class="field">
+    <label for="name">Member name</label>
+    <input id="name" value="Samer Khanji" autocomplete="username">
+  </div>
+  <div class="field">
+    <label for="pw">Password</label>
+    <input id="pw" type="password" placeholder="••••••••" autocomplete="current-password">
+  </div>
+
+  <button class="btn btn-primary">Sign in</button>
+  <button class="btn btn-secondary">Activate membership from invitation</button>
+
+  <div class="aux"><a href="#reset">Forgot password?</a></div>
+
+  <footer>
+    <div class="rule"></div>
+    <p><b>Est. MMXXVI</b><br>Open 6:00 – 23:00 · Beirut</p>
+  </footer>
+</div></div>
+
+</body></html>
