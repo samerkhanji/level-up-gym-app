@@ -26,8 +26,10 @@
   .section { margin:26px 0 12px; font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#6f6656; }
   .note { font-size:11.5px; color:#a89b83; margin-top:6px; }
   details { margin-top:28px; background:#fff; border-radius:16px; padding:14px 18px; box-shadow:0 6px 18px rgba(24,20,15,.05); }
-  summary { font-size:13px; font-weight:700; color:#1a1613; cursor:pointer; }
-  details p { font-size:12.5px; color:#6f6656; line-height:1.55; margin-top:8px; }
+  summary { font-size:13px; font-weight:700; color:#1a1613; cursor:pointer; padding:6px 0; margin:-6px 0; }
+  details[open] summary { margin-bottom:2px; }
+  @keyframes detailsReveal { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
+  details p { font-size:12.5px; color:#6f6656; line-height:1.55; margin-top:8px; animation:detailsReveal .3s ease both; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 </style>
 </head>

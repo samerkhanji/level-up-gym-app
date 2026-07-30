@@ -67,6 +67,8 @@
   .c-grey { background:#e9e2d2; color:var(--muted); }
   /* cart */
   .cartcard { position:sticky; top:12px; }
+  .cartcard.sale-done { animation:saleGlow 1s ease-out 1; }
+  @keyframes saleGlow { 0%{box-shadow:0 0 0 0 rgba(24,20,15,.22)} 70%{box-shadow:0 0 0 18px rgba(24,20,15,0)} 100%{box-shadow:0 6px 18px rgba(24,20,15,.05)} }
   .cust { border-radius:14px; background:var(--paper); padding:11px 12px; font-size:13px; }
   .cust b { font-size:14px; }
   .cust .sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
@@ -74,7 +76,7 @@
   .walkbtn { display:block; width:100%; text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:9px; }
   .cline { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
   .cline .n { flex:1; font-weight:700; }
-  .qbtn { width:28px; height:28px; border-radius:9px; background:var(--paper); font-weight:800; font-size:14px; color:var(--ink); }
+  .qbtn { width:40px; height:40px; border-radius:12px; background:var(--paper); font-weight:800; font-size:14px; color:var(--ink); }
   .cline .amt { font-weight:800; width:48px; text-align:right; font-family:var(--display); }
   .paymethods { display:flex; gap:6px; margin-top:10px; }
   .paymethods button { flex:1; font-size:12.5px; font-weight:700; padding:10px; border-radius:11px; background:var(--paper); color:var(--muted); }
@@ -83,7 +85,7 @@
   .big-act:disabled { opacity:.45; cursor:default; }
   .empty { color:var(--faint); font-size:12.5px; padding:8px 0; }
   /* inventory */
-  .invrow { display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid var(--line); font-size:13.5px; flex-wrap:wrap; border-radius:10px; }
+  .invrow { display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid var(--line); font-size:13px; flex-wrap:wrap; border-radius:10px; }
   .invrow:last-child { border-bottom:none; }
   .invrow.lowrow { background:var(--amber-soft); }
   .invrow img { width:34px; height:34px; object-fit:contain; background:#fff; border-radius:8px; }
@@ -139,7 +141,7 @@
   .wrap > *:nth-child(3) { animation-delay:.1s; }
   .wrap > *:nth-child(4) { animation-delay:.15s; }
   .wrap > *:last-child { animation-delay:.2s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .prod { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .prod, .cartcard.sale-done { animation:none; } }
 </style>
 </head>
 <body>
@@ -484,7 +486,11 @@ async function charge() {
     if (left <= item.lowAt) toast('Low stock — ' + item.name + ': ' + left + ' left at ' + branchName(branchId));
   }
   cart = remaining;
-  if (sold) toast('Charged ' + money(total) + ' (' + method + ') — ' + (customer ? customer.name : 'walk-in') + ' · ' + sold + ' item(s)');
+  if (sold) {
+    toast('✓ Charged ' + money(total) + ' (' + method + ') — ' + (customer ? customer.name : 'walk-in') + ' · ' + sold + ' item(s)');
+    const cc = $('chargeBtn') && $('chargeBtn').closest('.cartcard');
+    if (cc) { cc.classList.remove('sale-done'); void cc.offsetWidth; cc.classList.add('sale-done'); }
+  }
   if (customer) { customer = null; method = 'cash'; }
   render();
 }
@@ -534,7 +540,7 @@ function renderInventory() {
     const best = others.slice(0, 2).map((o) => branchName(o.b) + ' has ' + o.n);
     return `<div class="glance"><b>${esc(i.name)}</b> — ${RetailService.stockAt(i.id, branchId)} left here.
       ${best.join(', ')} — transfer?</div>`;
-  }).join('') : '<div class="empty">Nothing low at ' + esc(branchName(branchId)) + ' — no transfers needed.</div>';
+  }).join('') : '<div class="empty">✓ Nothing low at ' + esc(branchName(branchId)) + ' — no transfers needed.</div>';
 
   /* pending restock approvals for this branch */
   const pend = ApprovalService.list('pending').filter((a) => a.type === 'stock_purchase' && a.branchId === branchId);
@@ -556,7 +562,7 @@ function renderSales() {
   $('orderList').innerHTML = orders.map((o) => {
     const m = o.memberId ? MemberService.byId(o.memberId) : null;
     const t = new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    return `<div class="hist-line"><b>${esc(o.name)}</b>${o.qty > 1 ? ' ×' + o.qty : ''} · ${money(o.total)} —
+    return `<div class="hist-line">${esc(o.name)}${o.qty > 1 ? ' ×' + o.qty : ''} · <b>${money(o.total)}</b> —
       ${m ? esc(m.name) : 'walk-in'} · by ${esc(staffName(o.staffId))} · ${t}</div>`;
   }).join('') || '<div class="empty">No sales yet today at ' + esc(branchName(branchId)) + '.</div>';
 

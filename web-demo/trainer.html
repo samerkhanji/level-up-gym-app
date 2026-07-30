@@ -17,7 +17,13 @@
   .wrap { width:min(520px, 100%); display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  @keyframes liveEnter { 0%{opacity:0; transform:translateY(10px) scale(.97)} 60%{opacity:1; transform:translateY(-1px) scale(1.008)} 100%{opacity:1; transform:none} }
+  @keyframes pbPop { 0%{opacity:0; transform:scale(.82)} 60%{opacity:1; transform:scale(1.08)} 100%{opacity:1; transform:scale(1)} }
+  @keyframes okPop { 0%{opacity:0; transform:scale(.94)} 55%{opacity:1; transform:scale(1.02)} 100%{opacity:1; transform:scale(1)} }
   .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
+  #liveCard { animation:liveEnter .5s cubic-bezier(.25,.8,.35,1) both; }
+  .pb-pop { display:inline-block; animation:pbPop .5s cubic-bezier(.34,1.4,.64,1) both; }
+  .okbox.pop { animation:okPop .4s cubic-bezier(.3,1.3,.4,1) both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; }
   .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
@@ -38,7 +44,7 @@
   .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; padding-top:2px; }
   .sess-body { flex:1; min-width:0; }
   .sess-n { font-weight:700; font-size:14px; }
-  .sess-s { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .sess-s { font-size:12px; color:var(--muted); margin-top:2px; }
   .sess-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
   .sess-acts button { font-size:11px; font-weight:700; padding:7px 12px; border-radius:9px; background:var(--deep); color:#fff; }
   .sess-acts button.ghost { background:var(--paper); color:var(--ink); }
@@ -116,7 +122,7 @@
   .exname { border:1.5px solid var(--line); border-radius:9px; padding:7px 10px; font-size:13.5px; font-family:var(--body); font-weight:700; width:100%; background:#fff; }
   .setrow { display:flex; gap:6px; align-items:center; margin-top:6px; font-size:12px; color:var(--muted); }
   .setrow input { width:60px; border:1.5px solid var(--line); border-radius:9px; padding:7px 6px; font-size:12.5px; font-family:var(--body); text-align:center; background:#fff; }
-  .setrow .del { color:var(--red); font-weight:800; font-size:14px; padding:2px 7px; }
+  .setrow .del, .exdel { color:var(--red); font-weight:800; font-size:14px; padding:5px 9px; border-radius:7px; flex-shrink:0; }
   .mini { font-size:11px; font-weight:800; color:var(--deep); background:var(--paper); border-radius:999px; padding:6px 11px; margin-top:6px; }
   .qadd { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
   .qadd input { border:1.5px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13px; font-family:var(--body); background:#fff; }
@@ -124,7 +130,7 @@
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:8px 2px -6px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
   #secToday, #secClients, #secAvail, #secPerf { display:flex; flex-direction:column; gap:13px; }
-  @media (prefers-reduced-motion: reduce) { .card, .banner, .warnbox, .okbox, .detail { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .card, .banner, .warnbox, .okbox, .detail, #liveCard, .pb-pop, .okbox.pop { animation:none; } }
 </style>
 </head>
 <body>
@@ -401,7 +407,7 @@ function renderLive() {
     card.innerHTML =
       '<div class="eyebrow">Session complete — ' + esc(mName(s.memberId)) + '</div>' +
       '<div style="font-size:13px;">1 credit consumed automatically' + (p ? ' — package now ' + p.used + '/' + p.total + ' used (' + (p.total - p.used) + ' left)' : '') + '.' +
-      (s.pb ? '<br>PB recorded: <b>' + esc(s.pb) + '</b>' : '') +
+      (s.pb ? '<br>PB recorded: <b class="pb-pop">🏆 ' + esc(s.pb) + '</b>' : '') +
       (s.flag ? '<br><span class="flag">⚠ Safety flag written to the member\'s health record: ' + esc(s.flag) + '</span>' : '') + '</div>' +
       '<div style="margin-top:10px;"><span class="st ' + (s.memberConfirmed ? 'st-ok">Member confirmed ✓' : 'st-wait">Awaiting member confirmation') + '</span></div>' +
       '<div style="font-size:12px; color:var(--muted); margin-top:8px;">' +
@@ -419,7 +425,7 @@ function renderLive() {
     '<div class="ex">' +
       '<div style="display:flex; gap:6px; align-items:center;">' +
         '<input class="exname" data-exn="' + ei + '" value="' + esc(e.name) + '" />' +
-        '<button class="setrow del" data-exdel="' + ei + '" title="Remove exercise">✕</button></div>' +
+        '<button class="exdel" data-exdel="' + ei + '" title="Remove exercise">✕</button></div>' +
       (e.sets || []).map((st, si) =>
         '<div class="setrow">Set ' + (si + 1) +
         ' <input type="number" data-ex="' + ei + '" data-set="' + si + '" data-f="reps" value="' + esc(st.reps) + '" /> reps' +
@@ -587,7 +593,7 @@ function renderAvail() {
     html += '<div class="win"><b>' + esc(bName(w.branchId)) + '</b><span style="color:var(--muted);">' + w.fromH + ':00 – ' + w.toH + ':00</span>' +
       '<span class="chip dim" style="margin-left:auto;">' + esc(ptZoneName(w.branchId)) + '</span></div>';
   });
-  $('availWins').innerHTML = html || '<div style="color:var(--faint); font-size:13px;">No availability windows on file.</div>';
+  $('availWins').innerHTML = html || '<div style="color:var(--faint); font-size:13px;">No availability windows on file — ask your branch manager to set your hours so slots can open here.</div>';
 
   const roster = TS.clientRoster(TID);
   const keep = $('bkMember').value;
@@ -634,7 +640,7 @@ $('bkCheck').onclick = () => {
   const v = TS.validateSlot(TID, branchId, startsAt, dur);
   if (v.ok) {
     const wn = windowNote(branchId, startsAt, dur);
-    $('bkResult').innerHTML = '<div class="okbox">✓ Bookable — no clashes; cross-branch travel time respected.</div>' + (wn ? '<div class="notebox">' + wn + '</div>' : '');
+    $('bkResult').innerHTML = '<div class="okbox pop">✓ Bookable — no clashes; cross-branch travel time respected.</div>' + (wn ? '<div class="notebox">' + wn + '</div>' : '');
   } else {
     $('bkResult').innerHTML = '<div class="warnbox"><b>Not bookable</b>' + refusalText(v, branchId, startsAt) + '</div>';
   }

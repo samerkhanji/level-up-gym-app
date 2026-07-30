@@ -90,24 +90,27 @@
   .d-avatar { width:52px; height:52px; border-radius:50%; background:var(--deep); color:var(--mint); display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:20px; }
   .d-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .d-sub { font-size:12px; color:var(--muted); }
-  .d-close { margin-left:auto; font-size:22px; color:var(--muted); }
+  .d-close { margin-left:auto; font-size:20px; color:var(--muted); width:40px; height:40px; border-radius:50%; display:grid; place-items:center; flex-shrink:0; }
+  .d-close:hover { background:var(--paper); color:var(--ink); }
   .d-chips { display:flex; gap:6px; flex-wrap:wrap; margin:12px 0; }
   .chip { font-size:11px; font-weight:700; padding:5px 10px; border-radius:999px; }
   .c-ok { background:var(--mint); color:var(--deep); } .c-bad { background:var(--red-soft); color:var(--red-ink); }
   .c-warn { background:var(--amber-soft); color:var(--amber); } .c-grey { background:var(--paper); color:var(--muted); }
   .d-sec { border-top:1px solid var(--line); padding:12px 0; }
   .d-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; gap:10px; }
+  .d-row span { color:var(--muted); font-weight:500; }
+  .d-row b { color:var(--ink); font-weight:700; }
   .d-note { background:var(--amber-soft); border-radius:10px; padding:9px 12px; font-size:12px; color:#7a5a1e; margin-top:6px; }
   .resolve { background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:14px; padding:12px; margin:12px 0; }
   .resolve h4 { font-size:13px; color:var(--red-ink); margin-bottom:8px; }
   .resolve.okbox { background:#f7faf6; border-color:#e2ede5; }
   .resolve.okbox h4 { color:var(--green); }
-  .r-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
-  .r-grid button { font-size:11.5px; font-weight:700; padding:8px; border-radius:9px; background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(24,20,15,.06); }
+  .r-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .r-grid button { font-size:12px; font-weight:700; padding:8px; border-radius:9px; background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(24,20,15,.06); }
   .r-grid button.main { background:var(--deep); color:#fff; }
   .r-grid button.hot { background:var(--red); color:#fff; }
-  .d-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:8px; }
-  .d-actions button { font-size:12px; font-weight:700; padding:9px; border-radius:10px; background:var(--paper); color:var(--ink); }
+  .d-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+  .d-actions button { font-size:12px; font-weight:700; padding:8px; border-radius:10px; background:var(--paper); color:var(--ink); }
   .d-actions button.main { background:var(--deep); color:#fff; }
 
   /* modals */
@@ -131,6 +134,9 @@
 
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 3.2s ease forwards; box-shadow:0 10px 30px rgba(24,20,15,.3); max-width:92vw; }
   @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 10%,85%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
+  /* success flourish — reserved for the desk's peak moment: a member being checked in */
+  .toast.pop { animation:toastAnim 3.2s ease forwards, toastGlow .7s ease-out; }
+  @keyframes toastGlow { 0%{box-shadow:0 10px 30px rgba(24,20,15,.3), 0 0 0 0 rgba(239,230,210,.8)} 60%{box-shadow:0 10px 30px rgba(24,20,15,.3), 0 0 0 9px rgba(239,230,210,0)} 100%{box-shadow:0 10px 30px rgba(24,20,15,.3), 0 0 0 0 rgba(239,230,210,0)} }
 
   /* layout rhythm */
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px 10px; }
@@ -141,7 +147,7 @@
   @keyframes sectRise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
   .topbar, .nav, .qa, .view { animation:sectRise .38s cubic-bezier(.2,.7,.3,1) both; }
   .nav { animation-delay:.05s } .qa { animation-delay:.1s } .view { animation-delay:.14s }
-  @media (prefers-reduced-motion: reduce) { .topbar, .nav, .qa, .view { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 </style>
 <style>
   /* search results */
@@ -363,7 +369,7 @@ function guard() {
   toast('Regional view is read-only — switch to a branch to act.');
   return true;
 }
-function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 3300); }
+function toast(m, kind) { const e = document.createElement('div'); e.className = 'toast' + (kind ? ' ' + kind : ''); e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 3300); }
 
 /* ---------- words for engine reason codes ---------- */
 const REASON_WORDS = {
@@ -835,7 +841,7 @@ function renderLedger() {
   $('ledger').innerHTML = rows.slice(0, 40).map((p) => `
     <div class="tx-row"><span>${t(new Date(p.at).getTime())} · ${p.what}${p.memberId ? ' · ' + memberName(p.memberId) : ''} ${bchip(p.locationId)} <span style="color:var(--faint);">(${p.method})</span></span>
       <span><b>$${p.amount}</b>${isAll() ? '' : ` <button data-refund="${p.id}" style="font-size:11px; font-weight:700; color:var(--red-ink); margin-left:6px; cursor:pointer;">refund</button>`}</span></div>`).join('')
-    || '<div class="empty">No payments recorded yet at this branch.</div>';
+    || '<div class="empty">No payments recorded yet at this branch — take one from the quick actions above to start the ledger.</div>';
   $('ledger').querySelectorAll('[data-refund]').forEach((b) => b.onclick = () => openRefundModal(b.dataset.refund));
 }
 function openRefundModal(paymentId) {
@@ -956,7 +962,7 @@ $('drawerWrap').addEventListener('click', (e) => { if (e.target === $('drawerWra
 function doCheckIn(memberId) {
   if (guard()) return;
   const r = D.AccessService.checkIn(memberId, staffId(), S.branch);
-  if (r.ok) { toast(memberName(memberId) + ' checked in to ' + branchName(S.branch) + '.'); }
+  if (r.ok) { toast(memberName(memberId) + ' checked in to ' + branchName(S.branch) + '.', 'pop'); }
   else { toast('Denied: ' + rWord(r.reason) + ' — resolve from the member card.'); }
   rerender(); openDrawer(memberId);
 }

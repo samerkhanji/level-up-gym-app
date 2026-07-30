@@ -18,6 +18,10 @@
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+  @keyframes tickSettle { 0%{transform:scale(.55); box-shadow:0 0 0 0 rgba(24,20,15,.15)} 60%{transform:scale(1.18); box-shadow:0 0 0 6px rgba(239,230,210,.85)} 100%{transform:scale(1); box-shadow:0 0 0 0 rgba(239,230,210,0)} }
+  @keyframes reportSettle { 0%{opacity:0; transform:scale(.96)} 60%{opacity:1; transform:scale(1.015)} 100%{opacity:1; transform:scale(1)} }
+  .chain-settle .chain-step:last-child .tick { animation:tickSettle .6s cubic-bezier(.3,1.4,.4,1) both; }
+  .report-settle { animation:reportSettle .5s cubic-bezier(.3,1.2,.4,1) both; }
   .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
@@ -51,17 +55,17 @@
   .chip.red { background:var(--red-soft); color:var(--red); }
   .chip.mint { background:var(--mint); color:var(--deep); }
   .lockbox { margin-top:9px; background:#fff; border-radius:13px; padding:11px 12px; font-size:12.5px; }
-  .lockbox b { font-size:13px; }
+  .lockbox b { font-size:14px; }
   .lockbox .by { font-size:11px; color:var(--faint); margin-top:4px; }
   .big-act { display:block; width:100%; margin-top:10px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
   .act { display:inline-block; background:var(--deep); color:#fff; font-size:12.5px; font-weight:800; padding:10px 15px; border-radius:11px; margin-top:9px; }
   .act.ghost { background:var(--mint); color:var(--deep); }
-  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:8px 7px; min-height:30px; }
+  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:8px 7px; min-height:36px; }
   .roster { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); }
   .roster:last-child { border-bottom:none; }
   .roster .n { flex:1; min-width:0; font-weight:700; font-size:13px; }
   .roster .sub { display:block; font-size:11px; color:var(--faint); font-weight:400; }
-  .roster button { font-size:10.5px; font-weight:800; padding:7px 10px; border-radius:9px; background:var(--deep); color:#fff; min-height:30px; }
+  .roster button { font-size:10.5px; font-weight:800; padding:8px 12px; border-radius:9px; background:var(--deep); color:#fff; min-height:36px; }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 9px; margin-left:4px; }
   .flag.amber { background:var(--amber-soft); color:var(--amber); }
   .flag.mint { background:var(--mint); color:var(--deep); }
@@ -98,7 +102,7 @@
     place-items:center; font-size:11px; font-weight:800; flex-shrink:0; position:relative; z-index:1; }
   .chain-step .txt { font-size:12.5px; font-weight:600; line-height:1.45; padding-top:1px; }
   .chain-step .txt small { display:block; font-weight:400; color:var(--faint); font-size:11px; }
-  .evt { display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:7px 0; border-bottom:1px solid var(--line); }
+  .evt { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
   .evt:last-child { border-bottom:none; }
   .evt .t { color:var(--faint); white-space:nowrap; }
   .note { font-size:11px; color:var(--faint); line-height:1.55; margin-top:8px; }
@@ -116,7 +120,7 @@
   .wrap > *:nth-child(3) { animation-delay:.1s; }
   .wrap > *:nth-child(4) { animation-delay:.15s; }
   .wrap > *:nth-child(5) { animation-delay:.2s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .cls { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .cls, .chain-settle .chain-step:last-child .tick, .report-settle { animation:none; } }
 </style>
 </head>
 <body>
@@ -175,6 +179,8 @@ const initials = (n) => n.split(/[\s.]+/).filter(Boolean).slice(0, 2).map((w) =>
 /* ---------------- page-local UI state ---------------- */
 let selId = null;                 // selected class
 let safetyFormOpen = false;       // re-run an already-logged safety check
+let justChained = null;           // classId whose chain just resolved — one-shot settle flourish
+let justReported = null;          // classId whose report was just filed — one-shot settle flourish
 /* chain results persist across refresh so the showcase stays visible */
 const CHAIN_KEY = 'lu_instructor_chain';
 const LATE_KEY = 'lu_instructor_late';
@@ -253,7 +259,7 @@ function renderClassList() {
       ${c.report ? `<div class="lockbox"><b>Post-class report — locked 🔒</b><br>${c.report.attended} attended · “${esc(c.report.notes)}”
         <div class="by">Filed by ${esc(staffName(c.report.by))} at ${new Date(c.report.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} — attendance can no longer change.</div></div>` : ''}
     </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px;">No classes on today’s program for this instructor.</div>';
+  }).join('') || '<div style="color:var(--faint); font-size:13px;">No classes on today’s program for this instructor — switch persona above to see another instructor’s day.</div>';
   document.querySelectorAll('[data-sel]').forEach((el) => { el.onclick = () => { selId = el.dataset.sel; safetyFormOpen = false; render(); }; });
 }
 
@@ -262,7 +268,12 @@ function renderWorkspace() {
   const c = myClasses().find((x) => x.id === selId);
   const w = $('workspace');
   if (!c) { w.innerHTML = ''; return; }
-  if (c.status !== 'scheduled') { w.innerHTML = completedView(c); return; }
+  if (c.status !== 'scheduled') {
+    const isNewReport = justReported === c.id;
+    if (isNewReport) justReported = null;
+    w.innerHTML = completedView(c, isNewReport);
+    return;
+  }
   w.innerHTML = `
     <div class="eyebrow sect-label">Pre-class flow — ${esc(c.name)}</div>
     <div class="stack">
@@ -326,6 +337,8 @@ function stepEquipment(c) {
 function stepReport(c) {
   const assets = zoneAssets(c);
   const chain = chains[c.id];
+  const isNewChain = !!chain && justChained === c.id;
+  if (isNewChain) justChained = null;
   const usable = assets.filter((a) => a.status === 'available' || a.status === 'limited');
   return `<div class="step-h"><div class="stepno ${chain ? 'done' : ''}">3</div>
     <div><b>Report unusable equipment</b><div class="t-sub">Creates work orders, isolates the stations, drops capacity, recalculates the waitlist.</div></div>
@@ -339,10 +352,10 @@ function stepReport(c) {
       <div class="t-sub" style="margin-top:7px;">places to drop from capacity (currently ${c.capacity})</div>
     </div>
     <button class="big-act" id="eqReport">Report unusable — run the chain</button>
-    ${chain ? chainView(chain) : ''}`;
+    ${chain ? chainView(chain, isNewChain) : ''}`;
 }
-function chainView(chain) {
-  return `<div class="chain"><div class="chain-title">What the engine just did — ${esc(chain.at)}</div>
+function chainView(chain, isNew) {
+  return `<div class="chain${isNew ? ' chain-settle' : ''}"><div class="chain-title">What the engine just did — ${esc(chain.at)}</div>
     ${chain.steps.map((s) => `<div class="chain-step"><span class="tick">✓</span>
       <div class="txt">${esc(s.t)}${s.d ? `<small>${esc(s.d)}</small>` : ''}</div></div>`).join('')}</div>`;
 }
@@ -436,11 +449,11 @@ function reportFormView(c) {
 }
 
 /* -- completed class: locked view -- */
-function completedView(c) {
+function completedView(c, isNew) {
   const s = c.safetyCheck;
   return `<div class="eyebrow sect-label">${esc(c.name)} — completed &amp; locked</div>
     <div class="card">
-      <div class="lockbox" style="margin-top:0;"><b>Post-class report 🔒</b><br>
+      <div class="lockbox${isNew ? ' report-settle' : ''}" style="margin-top:0;"><b>Post-class report 🔒</b><br>
         ${c.report ? `${c.report.attended} attended · “${esc(c.report.notes)}”
         <div class="by">Filed by ${esc(staffName(c.report.by))} at ${new Date(c.report.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Attendance is locked — check-ins are rejected (attendance_locked).</div>` : 'No report on file.'}</div>
       ${s ? `<div class="lockbox">Safety check — room ${s.roomOk ? 'OK ✓' : 'NOT OK'}, equipment ${s.equipmentOk ? 'OK ✓' : 'flagged'}
@@ -496,6 +509,7 @@ function bindWorkspace(c) {
     steps.push({ t: 'waitlist recalculated', d: `${after.waitlist.length} member${after.waitlist.length === 1 ? '' : 's'} waiting` });
     chains[c.id] = { at: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), steps };
     saveChains();
+    justChained = c.id;
     toast(`Chain complete — ${res.workOrders.length} work orders, capacity ${before} → ${after.capacity}`);
     render();
   });
@@ -543,6 +557,7 @@ function bindWorkspace(c) {
     const attended = Math.max(0, Number($('rpAttended').value) || 0);
     const r = D.InstructorService.postClassReport(c.id, personaId(), { attended, notes });
     if (r.error) return errToast(r);
+    justReported = c.id;
     toast(`${c.name} completed — ${attended} attended · attendance locked`);
     render();
   });

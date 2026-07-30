@@ -34,31 +34,38 @@
   .ev:last-child { border-bottom:none; }
   .ev code { font-family:ui-monospace, monospace; font-size:11px; background:var(--paper); border-radius:6px; padding:2px 7px; white-space:nowrap; }
   .ev .t { color:var(--faint); white-space:nowrap; }
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px;
-    font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; max-width:92vw; }
+  .toast { position:fixed; top:64px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px;
+    font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; max-width:92vw; box-shadow:0 12px 28px rgba(24,20,15,.22); }
   select, input { font-family:var(--body); font-size:13px; padding:10px 12px; border:1.5px solid var(--line); border-radius:11px; background:#fff; }
   /* --- the hero: sales-demo story --- */
   .hero { background:var(--deep); color:var(--mint); }
   .hero .eyebrow { color:var(--mint); opacity:.75; }
   .hero-btn { display:block; width:100%; background:var(--mint); color:var(--deep); font-family:var(--display); font-weight:800;
-    font-size:16.5px; padding:15px; border-radius:14px; text-align:center; }
-  .hero-btn:hover { transform:translateY(-1px); }
+    font-size:16.5px; padding:16px; border-radius:14px; text-align:center; transition:transform .15s ease, box-shadow .15s ease; }
+  .hero-btn:hover { transform:translateY(-1px); box-shadow:0 8px 20px rgba(24,20,15,.18); }
+  .hero-btn:active { transform:translateY(0) scale(.98); }
   .hero-sub { font-size:12px; opacity:.75; line-height:1.5; margin-top:9px; }
   .hero-sub a { color:var(--mint); font-weight:700; }
   .steps { list-style:none; margin-top:12px; counter-reset: step; }
-  .steps li { counter-increment: step; display:flex; gap:10px; align-items:baseline; font-size:12.5px; padding:6px 0;
-    border-bottom:1px solid rgba(239,230,210,.12); }
+  .steps li { counter-increment: step; display:flex; gap:10px; align-items:baseline; font-size:12.5px; padding:6px 4px;
+    border-bottom:1px solid rgba(239,230,210,.12); border-radius:8px; transition:background .3s ease; }
   .steps li:last-child { border-bottom:none; }
+  .steps li.ok { background:rgba(239,230,210,.05); }
   .steps li::before { content: counter(step); font-family:var(--display); font-weight:800; font-size:11px; opacity:.5; min-width:16px; }
   .steps .tick { min-width:20px; height:20px; border-radius:50%; display:inline-grid; place-items:center; font-size:11px; font-weight:800;
     background:rgba(239,230,210,.14); color:var(--mint); align-self:center; }
-  .steps li.ok .tick { background:var(--mint); color:var(--deep); }
-  .steps li.fail .tick { background:var(--red); color:#fff; }
+  .steps li.ok .tick { background:var(--mint); color:var(--deep); animation:tickPop .32s cubic-bezier(.34,1.56,.64,1); }
+  .steps li.fail .tick { background:var(--red); color:#fff; animation:tickPop .32s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes tickPop { 0%{transform:scale(.4); opacity:.5;} 65%{transform:scale(1.2);} 100%{transform:scale(1); opacity:1;} }
   .steps .lbl { flex:1; min-width:0; }
-  .steps .evd { display:block; font-size:11px; opacity:.6; margin-top:1px; }
-  .steps li.ok .evd { opacity:.75; }
+  .steps .evd { display:block; font-family:ui-monospace, monospace; font-size:11px; opacity:.6; margin-top:1px; }
+  .steps li.ok .evd { opacity:.82; }
   .story-sum { margin-top:11px; font-size:12.5px; font-weight:700; text-align:center; background:rgba(239,230,210,.12); border-radius:11px; padding:9px; }
-  .story-sum.allok { background:var(--mint); color:var(--deep); }
+  .story-sum:not([hidden]) { animation:sumPop .45s cubic-bezier(.34,1.56,.64,1) both; }
+  @keyframes sumPop { 0%{opacity:0; transform:scale(.94) translateY(3px);} 100%{opacity:1; transform:none;} }
+  .story-sum.allok { background:var(--mint); color:var(--deep); font-size:13.5px; padding:12px; box-shadow:0 0 0 1px rgba(239,230,210,.4) inset; }
+  .hero.win { animation:heroWin .9s ease-out; }
+  @keyframes heroWin { 0%{box-shadow:0 0 0 0 rgba(239,230,210,0);} 35%{box-shadow:0 0 0 14px rgba(239,230,210,.22);} 100%{box-shadow:0 0 0 0 rgba(239,230,210,0);} }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 </style>
 </head>
@@ -258,6 +265,11 @@ $('heroBtn').onclick = () => {
       ? '✓ All ' + results.length + ' steps verified against the live engine — open any workspace to see them.'
       : passed + '/' + results.length + ' steps verified — inspect the ✗ steps above.';
     toast('Sales-demo story replayed — ' + passed + '/' + results.length + ' steps verified');
+    if (passed === results.length) {
+      const hero = document.querySelector('.hero');
+      hero.classList.add('win');
+      setTimeout(() => hero.classList.remove('win'), 950);
+    }
   };
   step();
 };

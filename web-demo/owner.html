@@ -38,27 +38,27 @@
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:10px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
   .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
-  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:8px 4px; border-radius:11px; color:var(--muted); }
+  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:8px 4px; min-height:44px; border-radius:11px; color:var(--muted); }
   .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
   /* --- network overview --- */
-  .ov-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:9px; }
-  .ov { background:var(--paper); border-radius:14px; padding:11px 13px; }
-  .ov b { display:block; font-family:var(--display); font-weight:800; font-size:19px; }
+  .ov-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:8px; }
+  .ov { background:var(--paper); border-radius:14px; padding:12px 12px; }
+  .ov b { display:block; font-family:var(--display); font-weight:800; font-size:22px; line-height:1.1; margin-bottom:4px; }
   .ov b.warn { color:var(--amber); }
   .ov b.bad { color:var(--red); }
-  .ov span { font-size:11px; color:var(--muted); font-weight:600; }
+  .ov span { font-size:11px; color:var(--muted); font-weight:500; line-height:1.25; }
   .chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
   .chip { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; background:var(--mint); color:var(--deep); border-radius:999px; padding:5px 11px; }
   .chip b { font-family:var(--display); }
   .chip-un { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--amber-soft); color:var(--amber); border-radius:999px; padding:2px 7px; }
   /* --- comparison table --- */
   .tblwrap { overflow-x:auto; }
-  table { border-collapse:collapse; width:100%; min-width:780px; font-size:12.5px; }
+  table { border-collapse:collapse; width:100%; min-width:780px; font-size:12.5px; font-variant-numeric:tabular-nums; }
   th { text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:7px 9px; border-bottom:1.5px solid var(--line); white-space:nowrap; }
   td { padding:9px; border-bottom:1px solid var(--line); white-space:nowrap; }
   tr:last-child td { border-bottom:none; }
   td.b-name { font-weight:800; font-family:var(--display); }
-  td.td-best { background:var(--mint); }
+  td.td-best { background:var(--mint); font-weight:800; }
   td.td-worst { color:var(--faint); }
   .occ { display:flex; align-items:center; gap:7px; min-width:120px; }
   .occ-bar { flex:1; height:6px; background:#e9e2d2; border-radius:99px; overflow:hidden; min-width:56px; }
@@ -76,8 +76,9 @@
   .apr-reason { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.45; }
   .apr-req { font-size:11.5px; color:var(--faint); margin-top:5px; }
   .apr-note { width:100%; font-family:var(--body); font-size:12.5px; padding:9px 11px; border:1.5px solid var(--line); border-radius:11px; background:#fff; margin-top:9px; }
-  .apr-actions { display:flex; gap:7px; margin-top:8px; }
-  .apr-actions button { flex:1; font-size:12.5px; font-weight:800; padding:10px; border-radius:11px; }
+  .apr-actions { display:flex; gap:8px; margin-top:8px; }
+  .apr-actions button { flex:1; font-size:12.5px; font-weight:800; padding:10px; min-height:44px; border-radius:11px; transition:transform .15s ease; }
+  .apr-actions button:active { transform:scale(.97); }
   .apr-yes { background:var(--deep); color:#fff; }
   .apr-no { background:#fff; color:var(--red); box-shadow:inset 0 0 0 1.5px var(--red-soft); }
   .hist { font-size:12.5px; padding:8px 0; border-bottom:1px solid var(--line); color:var(--muted); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
@@ -109,10 +110,15 @@
   .ev .br { font-size:10px; font-weight:800; background:var(--mint); color:var(--deep); border-radius:999px; padding:2px 8px; white-space:nowrap; }
   .ev .t { color:var(--faint); white-space:nowrap; margin-left:auto; }
   .ev .d { color:var(--muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  .toast { position:fixed; top:64px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw;
+    box-shadow:0 12px 28px rgba(24,20,15,.22); }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
   .empty { color:var(--faint); font-size:12.5px; }
+  .empty-ok { color:var(--muted); font-size:12.5px; text-align:center; padding:16px 12px; background:var(--paper); border-radius:12px; line-height:1.5; }
+  .empty-ok b { color:var(--ink); font-weight:800; }
+  .empty-ok.win { background:var(--mint); color:var(--deep); }
+  .empty-ok.win b { color:var(--deep); }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 </style>
 </head>
@@ -295,12 +301,12 @@ function renderApprovals() {
         <button class="apr-no" data-decide="no" data-id="${a.id}">Reject</button>
       </div>
     </div>`).join('')
-    || '<div class="empty">Nothing waiting on you — requests from every branch land here the moment staff raise them.</div>';
+    || '<div class="empty-ok win">✓ <b>All caught up</b> — nothing waiting on you. Requests from every branch land here the moment staff raise them.</div>';
   $('aprHistory').innerHTML = decided.map((a) => `
     <div class="hist"><span class="st ${a.status === 'approved' ? 'st-ok' : 'st-bad'}">${a.status.toUpperCase()}</span>
       <b>${APR_TYPES[a.type] || a.type}</b> · ${a.subject}${a.amount ? ' · ' + money(a.amount) : ''}
       <span>— decided by ${staffName(a.decidedBy)}${a.note ? ' · “' + a.note + '”' : ''}</span></div>`).join('')
-    || '<div class="empty">No decisions recorded yet.</div>';
+    || '<div class="empty-ok">Nothing decided yet — approve or reject a request above and it lands here.</div>';
 }
 function decide(id, approve) {
   const card = document.querySelector(`[data-apr="${id}"]`);
