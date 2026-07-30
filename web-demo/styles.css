@@ -1,34 +1,44 @@
-/* Level Up OS demo — "athletic club" v4.
-   Crafted pass: icon-led card anatomy, floating pill tab bar, entrance motion,
-   consistent type scale. One accent family (club green); amber/red = real states. */
+/* Level Up Beirut OS — "bold energetic" v5.
+   Warm-charcoal dark base + one punchy energetic-orange accent.
+   Heritage cream now lives as text/ink. Glassy elevated cards, big display type,
+   tasteful motion (reduced-motion aware). amber/red = real states. */
 
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Instrument+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  --paper: #f2ece0;
-  --card: #ffffff;
-  --ink: #18140f;
-  --muted: #6f6656;
-  --line: #e6ddc9;
-  --tint: #ece4d2;
+  /* warm-charcoal neutral ramp (dark base) */
+  --paper: #14110c;      /* app background */
+  --card: #201c15;       /* elevated surface */
+  --card-2: #2a251b;     /* higher elevation */
+  --ink: #f4eedd;        /* primary text (heritage cream) */
+  --muted: #a99c82;      /* secondary text */
+  --faint: #7c715c;      /* tertiary text */
+  --line: #322c22;       /* hairline / borders */
+  --tint: #262117;       /* subtle fill */
 
-  --green: #1a1613;
-  --green-deep: #000000;
-  --green-bright: #33302a;
-  --mint: #efe6d2;
+  /* energetic Level Up accent (orange) — primary action + highlight.
+     Named --green* for backwards-compat with existing markup. */
+  --green: #ff6a2b;
+  --green-deep: #ff7e45;
+  --green-bright: #ff8f5c;
+  --accent: #ff6a2b;
+  --accent-deep: #e5581c;
+  --mint: rgba(255, 106, 43, 0.14);   /* soft accent fill */
+  --mint-ink: #ff8f5c;
 
-  --amber: #a86408;
-  --amber-soft: #fdf0dc;
-  --red: #bb3a2a;
-  --red-soft: #fae7e3;
+  --amber: #f0b24a;
+  --amber-soft: rgba(240, 178, 74, 0.15);
+  --red: #f26155;
+  --red-soft: rgba(242, 97, 85, 0.16);
 
   --display: 'Bricolage Grotesque', 'Segoe UI', sans-serif;
   --body: 'Instrument Sans', -apple-system, 'Segoe UI', sans-serif;
 
   --r-lg: 24px;
   --r-md: 17px;
-  --shadow: 0 1px 2px rgba(24, 20, 15, 0.04), 0 8px 24px rgba(24, 20, 15, 0.07);
-  --shadow-float: 0 6px 16px rgba(24, 20, 15, 0.10), 0 24px 60px rgba(24, 20, 15, 0.16);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 26px rgba(0, 0, 0, 0.34);
+  --shadow-float: 0 8px 20px rgba(0, 0, 0, 0.4), 0 28px 64px rgba(0, 0, 0, 0.5);
+  --glow: 0 8px 26px rgba(255, 106, 43, 0.32);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,18 +46,24 @@
 
 body {
   background:
-    radial-gradient(1000px 700px at 78% -8%, #e2ebdc 0%, transparent 58%),
-    radial-gradient(700px 500px at 8% 100%, #e9ede4 0%, transparent 55%),
+    radial-gradient(1100px 720px at 82% -10%, rgba(255, 106, 43, 0.16) 0%, transparent 56%),
+    radial-gradient(760px 560px at 4% 104%, rgba(255, 142, 92, 0.08) 0%, transparent 55%),
     var(--paper);
   color: var(--ink);
   font-family: var(--body);
   font-size: 16px;
   line-height: 1.5;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
 }
 
 button { font-family: var(--body); color: inherit; }
-:focus-visible { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 8px; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+
+/* elevated surfaces get a subtle top-light border for depth on dark */
+.card, .stack, .trainer, .klass, .menu-item, .notif, .meal, .mtile, .mini-card, .quick, .cart-bar {
+  border: 1px solid var(--line);
+}
 
 .ic { flex-shrink: 0; }
 
@@ -631,8 +647,9 @@ select.input { appearance: auto; }
 .lock-toggle {
   border: none; border-radius: 13px; padding: 11px 16px; cursor: pointer;
   font-weight: 700; font-size: 14px;
-  background: var(--ink); color: #fff;
+  background: var(--accent); color: #fff;
   display: flex; align-items: center; gap: 7px;
+  box-shadow: var(--glow);
   transition: transform 0.15s ease;
 }
 .lock-toggle:active { transform: scale(0.95); }
@@ -658,10 +675,11 @@ select.input { appearance: auto; }
 .switch.on span { left: 22px; }
 
 .tier {
-  background: linear-gradient(140deg, #2a3a32, var(--ink)); color: #fff;
+  background: linear-gradient(140deg, var(--accent), var(--accent-deep)); color: #fff;
   font-size: 12px; font-weight: 700; border-radius: 999px; padding: 6px 13px;
+  box-shadow: var(--glow);
 }
-.member-card { background: linear-gradient(160deg, #ffffff 60%, var(--mint)); }
+.member-card { background: linear-gradient(160deg, var(--card-2) 55%, rgba(255,106,43,0.14)); }
 .member-sub { color: var(--muted); font-size: 12.5px; }
 
 .fam { display: flex; gap: 10px; align-items: center; }
@@ -688,10 +706,12 @@ select.input { appearance: auto; }
 .tabbar {
   position: absolute; bottom: 16px; left: 14px; right: 14px; z-index: 20;
   display: flex;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(32, 28, 21, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 26px;
   padding: 8px;
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
   box-shadow: var(--shadow-float);
 }
 .tabbar.hidden { display: none; }
@@ -708,12 +728,13 @@ select.input { appearance: auto; }
 /* toast */
 .toast {
   position: absolute; top: 54px; left: 50%; transform: translateX(-50%);
-  background: var(--ink); color: #fff;
+  background: var(--card-2); color: var(--ink);
+  border: 1px solid var(--line);
   font-size: 13.5px; font-weight: 600;
   border-radius: 999px; padding: 11px 18px; z-index: 70;
   animation: toast 2.6s ease forwards; white-space: nowrap; max-width: 92%;
   overflow: hidden; text-overflow: ellipsis;
-  box-shadow: 0 10px 30px rgba(24, 20, 15, 0.3);
+  box-shadow: var(--shadow-float);
 }
 @keyframes toast {
   0% { opacity: 0; transform: translate(-50%, -8px); }
