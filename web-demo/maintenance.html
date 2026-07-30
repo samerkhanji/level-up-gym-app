@@ -77,27 +77,58 @@
   .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
   .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
   .chk-line input { width:17px; height:17px; accent-color:var(--deep); }
+  /* ---- layout rhythm: background labels, grouped surfaces, tighter lists ---- */
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
+  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); animation:none; }
+  .stack > .card:last-child { border-bottom:none; }
+  .stack .qbar button:not(.dark) { background:var(--paper); box-shadow:none; }
+  .qhold { padding-top:4px; }
+  #secWork { display:flex; flex-direction:column; gap:13px; }
+  #assetList { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
+  #assetList .asset { flex-wrap:wrap; row-gap:3px; padding:8px 0; }
+  #assetList .asset .n { flex:1 1 100%; }
+  #assetList .asset:nth-last-child(-n+2) { border-bottom:none; }
+  #partList .partrow { padding:6px 0; }
+  .flat-note { font-size:11.5px; color:var(--faint); line-height:1.5; padding:2px 10px; }
+  .navrow, .seg, .sect-label, .flat-note { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .wrap > :nth-child(2) { animation-delay:.05s; }
+  .wrap > :nth-child(3) { animation-delay:.1s; }
+  #secWork > .card { animation-delay:.15s; }
+  #secWork > .sect-label, #secWork > .stack { animation-delay:.2s; }
+  .flat-note { animation-delay:.25s; }
+  @media (max-width:480px) {
+    #assetList { grid-template-columns:1fr; }
+    #assetList .asset:nth-last-child(2) { border-bottom:1px solid var(--line); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .wo, .stack, .navrow, .seg, .sect-label, .flat-note { animation:none !important; }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
   <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
 
-  <div class="card head">
-    <div class="avatar">SM</div>
-    <div><div class="t-name">Suhail M. — Maintenance</div><div class="t-sub" id="shiftLabel">Shift open · since 8:02 AM</div></div>
-    <div class="stats">
-      <div><b id="stCrit" class="bad">0</b>safety-critical</div>
-      <div><b id="stOut">0</b>out of service</div>
-      <div><b id="stMine">0</b>my jobs</div>
-      <div><b id="stParts">0</b>waiting parts</div>
+  <div class="stack">
+    <div class="card head">
+      <div class="avatar">SM</div>
+      <div><div class="t-name">Suhail M. — Maintenance</div><div class="t-sub" id="shiftLabel">Shift open · since 8:02 AM</div></div>
+      <div class="stats">
+        <div><b id="stCrit" class="bad">0</b>safety-critical</div>
+        <div><b id="stOut">0</b>out of service</div>
+        <div><b id="stMine">0</b>my jobs</div>
+        <div><b id="stParts">0</b>waiting parts</div>
+      </div>
     </div>
-  </div>
-
-  <div class="qbar">
-    <button class="dark" id="scanAsset">Scan asset</button>
-    <button id="newReport">Report issue</button>
-    <button id="inspection">Start inspection</button>
+    <div class="card qhold">
+      <div class="qbar">
+        <button class="dark" id="scanAsset">Scan asset</button>
+        <button id="newReport">Report issue</button>
+        <button id="inspection">Start inspection</button>
+      </div>
+    </div>
   </div>
 
   <div class="seg" id="mainSeg">
@@ -108,9 +139,12 @@
 
   <div id="secWork">
     <div class="card"><div class="eyebrow">Safety &amp; urgent</div><div id="colSafety"></div></div>
-    <div class="card" style="margin-top:13px;"><div class="eyebrow">My assigned jobs</div><div id="colMine"></div></div>
-    <div class="card" style="margin-top:13px;"><div class="eyebrow">Needs attention</div><div id="colAttn"></div></div>
-    <div class="card" style="margin-top:13px;"><div class="eyebrow">Recently repaired</div><div id="colDone"></div></div>
+    <div class="sect-label">Work queue</div>
+    <div class="stack">
+      <div class="card"><div class="eyebrow">My assigned jobs</div><div id="colMine"></div></div>
+      <div class="card"><div class="eyebrow">Needs attention</div><div id="colAttn"></div></div>
+      <div class="card"><div class="eyebrow">Recently repaired</div><div id="colDone"></div></div>
+    </div>
   </div>
 
   <div id="secAssets" class="hidden">
@@ -123,11 +157,10 @@
 
   <div class="card hidden" id="assetCard"></div>
 
-  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
-    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-      <span>Member reports arrive as work orders; isolating an asset hides it from member menus with an alternative;
-      verification is required before anything returns to service.</span></details></div>
+  <div class="flat-note">
+    <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
+    <span>Member reports arrive as work orders; isolating an asset hides it from member menus with an alternative;
+    verification is required before anything returns to service.</span></details>
   </div>
 </div>
 

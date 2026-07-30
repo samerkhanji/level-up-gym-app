@@ -844,18 +844,20 @@ function renderTrain() {
           : '<button class="accent-btn slim" data-action="log-workout">Log today\'s workout</button>'}
       </div>
 
-      <div class="card">
-        ${eyebrow('star', 'Personal records')}
-        ${state.prs.map((p) => `<div class="row"><b>${p.name}</b><span><b class="accent">${p.value}</b> <span class="dim small">${p.when}</span></span></div>`).join('')}
-      </div>
-
-      <div class="card">
-        ${eyebrow('clipboard', 'Fitness assessment')}
-        <div class="dim small">Last: ${state.assessment.last}</div>
-        ${state.assessment.next
-          ? `<div class="done-line">${icon('check', 17)} Booked — ${state.assessment.next}</div>`
-          : `<button class="book-btn wide" data-action="book-assessment">Book assessment · $${PRICES.assessment}</button>`}
-        <div class="dim small">Body composition, posture, mobility and strength — repeated every 3 months.</div>
+      <div class="sect-label">Progress</div>
+      <div class="stack">
+        <div class="card">
+          ${eyebrow('star', 'Personal records')}
+          ${state.prs.map((p) => `<div class="row"><b>${p.name}</b><span><b class="accent">${p.value}</b> <span class="dim small">${p.when}</span></span></div>`).join('')}
+        </div>
+        <div class="card">
+          ${eyebrow('clipboard', 'Fitness assessment')}
+          <div class="dim small">Last: ${state.assessment.last}</div>
+          ${state.assessment.next
+            ? `<div class="done-line">${icon('check', 17)} Booked — ${state.assessment.next}</div>`
+            : `<button class="book-btn wide" data-action="book-assessment">Book assessment · $${PRICES.assessment}</button>`}
+          <div class="dim small">Body composition, posture, mobility and strength — repeated every 3 months.</div>
+        </div>
       </div>`;
   }
 
@@ -893,6 +895,8 @@ function renderTrain() {
         <button class="book-btn wide warn" data-action="book-cancel" style="margin-top:8px;">Cancel</button>
         <div class="dim small">Only genuinely open slots are shown — ${state.pickSlot.trainer.split(' ')[0]}'s live availability controls this list.</div>
       </div>` : ''}
+      <div class="sect-label">Our trainers</div>
+      <div class="stack">
       ${trainers.map((t, i) => `
         <div class="trainer">
           <div class="avatar tone-${i % 4}">${t.initial}</div>
@@ -904,7 +908,8 @@ function renderTrain() {
           <button class="book-btn" data-action="book-trainer" data-i="${i}" ${t.cls === 'off' ? 'disabled' : ''}>
             ${state.booking && state.booking.trainer === t.name ? 'Booked ✓' : 'Book'}
           </button>
-        </div>`).join('')}`;
+        </div>`).join('')}
+      </div>`;
   }
 
   if (segTrain === 'classes') {
@@ -917,7 +922,7 @@ function renderTrain() {
           <button class="book-btn warn" data-action="offer-decline">Decline</button>
         </div>
       </div>` : '';
-    body = offerCard + classes.map((c) => {
+    body = offerCard + `<div class="sect-label">This week</div><div class="stack">` + classes.map((c) => {
       const st = state.classState[c.id];
       const rated = state.classRatings[c.id];
       let btn;
@@ -932,7 +937,7 @@ function renderTrain() {
           <div class="meta">${c.when} · ${c.instructor} · ${c.spots === 0 ? 'Full' : c.spots + ' spots left'}</div>
           ${rated ? `<div class="status now">You rated ★${rated}</div>` : ''}
         </div>${btn}</div>`;
-    }).join('') + `<div class="dim small center">Free cancellation up to 3 hours before class. Repeated no-shows pause booking for 48 h.</div>`;
+    }).join('') + `</div><div class="dim small center">Free cancellation up to 3 hours before class. Repeated no-shows pause booking for 48 h.</div>`;
   }
 
   document.getElementById('c-train').innerHTML = `
@@ -973,6 +978,8 @@ function renderGym() {
       ${state.lastLocker ? `<div class="dim small">Last visit: locker #${state.lastLocker}</div>` : ''}
     </div>`}
 
+    <div class="sect-label">Amenities</div>
+    <div class="stack">
     <div class="card">
       ${eyebrow('guest', 'Guest pass')}
       ${g ? `
@@ -1032,7 +1039,9 @@ function renderGym() {
           </button>
         </div>`).join('')}
     </div>
+    </div>
 
+    <div class="sect-label">Equipment</div>
     ${Object.keys(state.assetStatus || {}).length ? `
     <div class="card" style="border-left:4px solid var(--amber);">
       ${eyebrow('tool', 'Equipment out of service')}
@@ -1177,29 +1186,29 @@ function renderFood() {
       const count = ids.reduce((s, id) => s + cart[id], 0);
       const total = ids.reduce((s, id) => s + cart[id] * menu.find((m) => m.id === id).price, 0);
       body = statusCard + recoCard + reorderCard + cats.map((cat) =>
-        `<div class="menu-cat">${cat}</div>` +
+        `<div class="sect-label">${cat}</div>
+        <div class="menu-grid">` +
         menu.filter((m) => m.cat === cat).map((m) => {
           const av = (state.cafeAv || {})[m.name] || 'ok';
           const off = av === 'out';
           return `
-          <div class="menu-item" ${off ? 'style="opacity:.45;"' : ''}>
-            <div class="info">
-              <div class="n">${m.name} <span class="accent">$${m.price}</span>
-                ${off ? '<span class="macro warn">SOLD OUT</span>' : av === 'low' ? '<span class="macro warn">low stock</span>' : ''}</div>
-              <div>
-                <span class="macro">${m.cal} kcal</span><span class="macro">${m.p}P</span>
-                <span class="macro">${m.c}C</span><span class="macro">${m.f}F</span>
-                ${m.allerg ? `<span class="macro warn">⚠ ${m.allerg}</span>` : ''}
-              </div>
+          <div class="mtile ${off ? 'off' : ''}">
+            <div class="tn">${m.name}</div>
+            <div class="row" style="font-size:inherit;">
+              <span class="tp">$${m.price}</span>
+              ${off ? '<span class="macro warn" style="margin:0;">SOLD OUT</span>' : av === 'low' ? '<span class="macro warn" style="margin:0;">low stock</span>' : ''}
             </div>
-            <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="-1" ${off ? 'disabled' : ''}>−</button>
-            <span class="qty">${cart[m.id] || 0}</span>
-            <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="1" ${off ? 'disabled' : ''}>+</button>
-          </div>`; }).join('')).join('') +
+            <div class="tm">${m.cal} kcal · ${m.p}P ${m.c}C ${m.f}F${m.allerg ? ` · ⚠ ${m.allerg}` : ''}</div>
+            <div class="stepper">
+              <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="-1" ${off ? 'disabled' : ''}>−</button>
+              <span class="qty">${cart[m.id] || 0}</span>
+              <button class="qty-btn" data-action="qty" data-m="${m.id}" data-d="1" ${off ? 'disabled' : ''}>+</button>
+            </div>
+          </div>`; }).join('') + `</div>`).join('') +
         (count ? `
-          <div class="cart-bar">
-            <div class="row"><b>${count} item${count > 1 ? 's' : ''} · $${total}</b><span class="dim small">customize at checkout</span></div>
-            <button class="accent-btn slim" data-action="order">Review &amp; checkout</button>
+          <div class="cart-bar" style="flex-direction:row; align-items:center; justify-content:space-between;">
+            <b>${count} item${count > 1 ? 's' : ''} · $${total}</b>
+            <button class="accent-btn slim" data-action="order" style="width:auto; padding:11px 18px;">Review &amp; checkout</button>
           </div>` : '');
     }
   }
@@ -1218,6 +1227,8 @@ function renderFood() {
           <div class="dim small center">Nothing is active until you confirm — ${lp.by} is told the moment you do.</div>` : `
           <div class="dim small">Started ${lp.startedAt || 'today'} · v${lp.v > 1 ? (lp.v - 1) + ' stays in your history' : '1'}</div>`}
       </div>
+      <div class="sect-label">Your meals</div>
+      <div class="stack">
       ${lp.meals.map((m) => `
         <div class="meal">
           <div class="mn">${m.name} <span class="dim small">· ${m.time}</span></div>
@@ -1229,6 +1240,7 @@ function renderFood() {
               `<button class="book-btn ${log[m.name] === k ? '' : 'warn'}" data-action="nlog-set" data-meal="${m.name}" data-v="${k}">${l}</button>`).join('')}
           </div>` : ''}
         </div>`).join('')}
+      </div>
       ${lp.status === 'active' ? `
       <div class="card">
         <div class="row"><b>Today's log</b>
@@ -1244,9 +1256,12 @@ function renderFood() {
         ${eyebrow('clipboard', 'Muscle gain · assigned by nutritionist')}
         <div class="dim small">2,850 kcal · 190 g protein · adjusted weekly from your check-ins</div>
       </div>
+      <div class="sect-label">Your meals</div>
+      <div class="stack">
       ${mealPlan.map((m) => `
         <div class="meal"><div class="mn">${m.meal}</div><div class="md">${m.desc}</div>
         <div class="dim small">${m.macros}</div></div>`).join('')}
+      </div>
       <button class="book-btn wide" data-action="book-nutritionist">Book nutritionist consultation · $${PRICES.nutritionist}</button>
       <div class="dim small center">Plans are general guidance unless prepared by a licensed professional.</div>`;
     }
@@ -1255,15 +1270,15 @@ function renderFood() {
   if (segFood === 'shop') {
     const cats = [...new Set(shop.map((s) => s.cat))];
     body = cats.map((cat) =>
-      `<div class="menu-cat">${cat}</div>` +
+      `<div class="sect-label">${cat}</div>
+      <div class="menu-grid">` +
       shop.filter((s) => s.cat === cat).map((s) => `
-        <div class="menu-item">
-          <div class="info">
-            <div class="n">${s.name} <span class="accent">$${s.price}</span></div>
-            <div class="meta">${s.note}</div>
-          </div>
-          <button class="book-btn" data-action="buy" data-s="${s.id}">Buy</button>
-        </div>`).join('')).join('') +
+        <div class="mtile">
+          <div class="tn">${s.name}</div>
+          <div class="tp">$${s.price}</div>
+          <div class="tm">${s.note}</div>
+          <button class="book-btn wide" data-action="buy" data-s="${s.id}" style="margin-top:auto;">Buy</button>
+        </div>`).join('') + `</div>`).join('') +
       `<div class="dim small center">Click &amp; collect at reception · paid from wallet · member prices</div>`;
   }
 
@@ -1292,6 +1307,8 @@ function renderAccount() {
       </div>
     </div>
 
+    <div class="sect-label">Money &amp; rewards</div>
+    <div class="stack">
     <div class="card">
       ${eyebrow('wallet', 'Wallet & credits')}
       <div class="row"><span class="dim">Balance</span><b class="big-number accent">$${state.wallet}</b></div>
@@ -1317,7 +1334,10 @@ function renderAccount() {
         <div class="row"><div><b>${r.name}</b><div class="dim small">${r.pts} pts</div></div>
         <button class="book-btn" data-action="redeem" data-r="${r.id}" ${state.points < r.pts ? 'disabled' : ''}>Redeem</button></div>`).join('')}
     </div>
+    </div>
 
+    <div class="sect-label">Membership</div>
+    <div class="stack">
     <div class="card">
       ${eyebrow('receipt', 'Subscription')}
       <div class="row"><span class="dim">Plan</span><b>${state.subPlan}</b></div>
@@ -1352,7 +1372,10 @@ function renderAccount() {
         </div>`).join('')}
       <div class="dim small">Upgrades and downgrades are handled at reception — changes start from your next cycle.</div>
     </div>` : ''}
+    </div>
 
+    <div class="sect-label">People</div>
+    <div class="stack">
     <div class="card">
       ${eyebrow('users', 'Family')}
       ${state.family.map((f, i) => `
@@ -1368,7 +1391,10 @@ function renderAccount() {
         <button class="book-btn" data-action="copy-ref">Share</button></div>
       <div class="dim small">They get one free week — you get 300 points when they join.</div>
     </div>
+    </div>
 
+    <div class="sect-label">Records</div>
+    <div class="stack">
     <div class="card">
       ${eyebrow('receipt', 'Invoices')}
       ${state.invoices.slice(0, 5).map((i) => `<div class="inv"><span>${i.label}</span><span class="dim">${i.date} · $${i.amount}</span></div>`).join('')}
@@ -1386,7 +1412,9 @@ function renderAccount() {
         ? state.problems.map((p) => `<div class="problem">⚠ ${p}</div>`).join('')
         : '<div class="dim small">No failed attempts recorded.</div>'}
     </div>
+    </div>
 
+    <div class="sect-label">Preferences</div>
     <div class="card">
       ${eyebrow('star', 'Appearance')}
       <div class="dim small">Pick the club's palette — the whole app recolors instantly.</div>

@@ -97,6 +97,25 @@
   .opt.solid { background:var(--deep); color:#fff; }
   .modal input, .modal select { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px; font-size:14px; font-family:var(--body); margin-top:8px; }
   .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
+  /* layout rhythm */
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
+  .stack { background:var(--card); border-radius:20px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; }
+  .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); margin-top:0; }
+  .stack > .card:last-child { border-bottom:none; }
+  #secOrders, #secMenu, #secIssues, #secShift { display:flex; flex-direction:column; gap:12px; }
+  #stockList, #equipList { display:grid; grid-template-columns:1fr 1fr; column-gap:26px; }
+  @media (min-width:761px) {
+    #stockList .stockrow:nth-last-child(-n+2), #equipList .stockrow:nth-last-child(-n+2) { border-bottom:none; }
+  }
+  @media (max-width:760px) { #stockList, #equipList { grid-template-columns:1fr; } }
+  .card.flat { background:transparent; box-shadow:none; padding:6px 4px; }
+  .wrap > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .wrap > *:nth-child(2) { animation-delay:.05s; }
+  .wrap > *:nth-child(3) { animation-delay:.1s; }
+  .wrap > *:nth-child(4) { animation-delay:.15s; }
+  .wrap > *:last-child { animation-delay:.2s; }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .order { animation:none; } }
 </style>
 </head>
 <body>
@@ -104,6 +123,7 @@
   <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="index.html">Member app</a></nav>
 
   <!-- top bar -->
+  <div class="stack">
   <div class="card topbar">
     <span class="open-chip" id="openChip">CAFÉ OPEN</span>
     <div class="tstat"><b id="stNew">0</b>new</div>
@@ -120,6 +140,7 @@
     <button id="reportIssue">Report issue</button>
     <button class="danger" id="pauseBtn">Pause orders</button>
   </div>
+  </div>
 
   <div class="seg" id="mainSeg">
     <button class="on" data-sec="orders">Orders</button>
@@ -130,13 +151,14 @@
 
   <!-- ORDERS -->
   <div id="secOrders">
+    <div class="sect-label">Order pipeline</div>
     <div class="cols">
       <div class="card"><div class="colh">NEW</div><div id="colNew"><div class="empty">No new orders.</div></div></div>
       <div class="card"><div class="colh">PREPARING</div><div id="colPrep"><div class="empty">Nothing on the bar.</div></div></div>
       <div class="card"><div class="colh">READY</div><div id="colReady"><div class="empty">Nothing waiting.</div></div></div>
       <div class="card"><div class="colh">NEEDS ATTENTION</div><div id="attn"><div class="empty">All clear.</div></div></div>
     </div>
-    <div class="card" style="margin-top:12px;">
+    <div class="card flat">
       <div class="eyebrow">Collected today</div>
       <div id="histList"><div class="empty">Nothing collected yet.</div></div>
     </div>
@@ -152,22 +174,25 @@
 
   <!-- ISSUES -->
   <div id="secIssues" class="hidden">
+    <div class="sect-label">Station &amp; support</div>
+    <div class="stack">
     <div class="card">
       <div class="eyebrow">Equipment &amp; station status</div>
       <div id="equipList"></div>
     </div>
-    <div class="card" style="margin-top:12px;">
+    <div class="card">
       <div class="eyebrow">Waste log</div>
       <div id="wasteList"><div class="empty">No waste recorded.</div></div>
       <button class="primary" id="wasteBtn" style="margin-top:10px;">＋ Record waste</button>
     </div>
-    <div class="card" style="margin-top:12px;">
+    <div class="card">
       <div class="eyebrow">Internal help</div>
       <div class="actions" style="padding:0;">
         <button id="helpReception">Contact reception</button>
         <button id="helpSupervisor">Contact supervisor</button>
         <button id="helpStock">Request stock</button>
       </div>
+    </div>
     </div>
   </div>
 

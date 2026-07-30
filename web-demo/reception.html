@@ -156,6 +156,30 @@
 
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(23,33,28,.3); max-width:92vw; }
   @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 12%,82%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
+
+  /* ---------- layout rhythm (labels on the background, fused stacks, entrance) ---------- */
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
+  .sect-label + .grid, .sect-label + .stats, .sect-label + .stack, .sect-label + .card { margin-top:12px; }
+  .stack { background:var(--card); border-radius:18px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; }
+  .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); margin-top:0; }
+  .stack > .card:last-child { border-bottom:none; }
+  /* de-boxed quiet card — flat on the background */
+  .flat-block { background:transparent; box-shadow:none; padding:6px 2px 0; }
+  /* tighter task queue rows — same shape, less air */
+  .task { padding:8px 10px; margin-top:6px; }
+  /* staggered section entrance */
+  @keyframes sectRise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
+  .topbar, .nav, .qa, .grid, .stats, body > .sect-label { animation:sectRise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .nav { animation-delay:.05s }
+  .qa { animation-delay:.1s }
+  body > .sect-label { animation-delay:.12s }
+  .grid { animation-delay:.15s }
+  .grid ~ .sect-label { animation-delay:.2s }
+  .stats { animation-delay:.25s }
+  @media (prefers-reduced-motion: reduce) {
+    .topbar, .nav, .qa, .grid, .stats, body > .sect-label { animation:none; }
+  }
 </style>
 <style>
   /* search results — pick the right person, never the first fuzzy match */
@@ -212,8 +236,10 @@
     <button class="tb-btn tb-light" data-open="system">System status</button>
   </div>
 
+  <div class="sect-label">Live operations</div>
   <div class="grid">
     <div>
+      <div class="stack">
       <div class="card">
         <div style="display:flex; align-items:center;"><div class="eyebrow">At the gate — live feed</div>
           <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="feedCount"></span></div>
@@ -236,6 +262,7 @@
         <div class="occ-lbl" id="occSplit" style="margin-top:7px;"></div>
         <div style="margin-top:12px;"><div class="eyebrow" style="font-size:10px;">Inside unusually long</div><div id="longInside"></div></div>
       </div>
+      </div>
     </div>
 
     <div>
@@ -244,13 +271,14 @@
           <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="taskCount"></span></div>
         <div id="tasks"></div>
       </div>
-      <div class="card" style="margin-top:14px;">
+      <div class="card flat-block" style="margin-top:14px;">
         <div class="eyebrow">Upcoming — next 2 hours</div>
         <div id="upcoming"></div>
       </div>
     </div>
   </div>
 
+  <div class="sect-label">Today at a glance</div>
   <div class="stats" id="stats">
     <button class="stat" data-open="txlist"><b id="sRev">$0</b><span>revenue today · tap for breakdown</span></button>
     <button class="stat" data-open="guest"><b id="sGuests">0</b><span>guest passes</span></button>

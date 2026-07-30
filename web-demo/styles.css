@@ -139,8 +139,30 @@ button { font-family: var(--body); color: inherit; }
   background: var(--card); border-radius: var(--r-lg); box-shadow: var(--shadow);
   display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
 }
-.stack > .card { border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line); }
-.stack > .card:last-child { border-bottom: none; }
+.stack > * { border-radius: 0 !important; box-shadow: none !important; border-bottom: 1px solid var(--line); }
+.stack > *:last-child { border-bottom: none; }
+
+/* horizontal scroll row — for runs of same-shaped cards (classes, trainers) */
+.hscroll {
+  display: flex; gap: 11px; overflow-x: auto; flex-shrink: 0;
+  scroll-snap-type: x mandatory; scrollbar-width: none;
+  margin: 0 -18px; padding: 2px 18px 6px;
+}
+.hscroll::-webkit-scrollbar { display: none; }
+.hscroll > * { min-width: 80%; scroll-snap-align: start; }
+
+/* compact menu tiles — two per row instead of one long card each */
+.menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; flex-shrink: 0; }
+.mtile {
+  background: var(--card); box-shadow: var(--shadow); border-radius: var(--r-md);
+  padding: 12px 12px 10px; display: flex; flex-direction: column; gap: 6px; min-width: 0;
+}
+.mtile.off { opacity: 0.45; }
+.mtile .tn { font-weight: 700; font-size: 13.5px; line-height: 1.3; }
+.mtile .tp { font-weight: 800; font-size: 14px; color: var(--green); }
+.mtile .tm { font-size: 11px; color: var(--muted); }
+.mtile .stepper { display: flex; align-items: center; justify-content: space-between; margin-top: auto; padding-top: 4px; }
+.mtile .qty-btn { width: 30px; height: 30px; border-radius: 10px; font-size: 16px; }
 
 /* a label that sits on the paper BETWEEN groups — gives the page rhythm */
 .sect-label {

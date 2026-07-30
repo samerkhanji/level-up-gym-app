@@ -85,6 +85,25 @@
   .adh { display:flex; gap:4px; margin-top:6px; }
   .adh span { flex:1; height:8px; border-radius:4px; background:#eceee8; }
   .adh span.g { background:var(--green); } .adh span.y { background:var(--amber); } .adh span.r { background:var(--red); }
+  /* ---- layout rhythm (matches member app home) ---- */
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  .sect-label::after { content:''; flex:1; height:1px; background:rgba(23,33,28,.08); }
+  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; }
+  .stack > .card { border-radius:0; box-shadow:none; animation:none; }
+  .stack > .card + .card { border-top:1px solid var(--line); }
+  .stack:not(:has(> .card:not(.hidden))) { display:none; }
+  #secDash, #secClients { display:flex; flex-direction:column; gap:13px; }
+  #queue { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px; }
+  #queue .task { margin-top:0; }
+  #clientList .client { padding:8px 0; }
+  #clientCard, #planCard { animation:rise .3s ease both; }
+  .wrap > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .wrap > .stack { animation:none; }
+  .wrap > *:nth-child(2) { animation-delay:.05s; }
+  .wrap > *:nth-child(3) { animation-delay:.1s; }
+  .wrap > *:nth-child(4) { animation-delay:.15s; }
+  .wrap > *:nth-child(7) { animation-delay:.2s; }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .task, .warnbox, #clientCard, #planCard { animation:none; } }
 </style>
 </head>
 <body>
@@ -103,17 +122,19 @@
 
   <!-- DASHBOARD -->
   <div id="secDash">
-    <div class="card">
-      <div class="eyebrow">Today — consultations</div>
-      <div id="schedule"></div>
-      <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
-        <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addAppt">+ Add appointment</button>
-        <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addBreakN">Add break</button>
+    <div class="eyebrow sect-label">Today — consultations</div>
+    <div class="stack">
+      <div class="card">
+        <div id="schedule"></div>
+        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
+          <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addAppt">+ Add appointment</button>
+          <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addBreakN">Add break</button>
+        </div>
       </div>
-    </div>
-    <div class="card" style="margin-top:13px;">
-      <div class="eyebrow">Needs attention</div>
-      <div id="queue"></div>
+      <div class="card">
+        <div class="eyebrow">Needs attention</div>
+        <div id="queue"></div>
+      </div>
     </div>
   </div>
 
@@ -127,8 +148,10 @@
     </div>
   </div>
 
-  <div class="card hidden" id="clientCard"></div>
-  <div class="card hidden" id="planCard"></div>
+  <div class="stack">
+    <div class="card hidden" id="clientCard"></div>
+    <div class="card hidden" id="planCard"></div>
+  </div>
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
