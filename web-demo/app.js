@@ -1,4 +1,4 @@
-/* GYM-APP static demo — complete member experience, mock state machine, no backend.
+/* Level Up OS static demo — complete member experience, mock state machine, no backend.
    v4: crafted UI — icon system, sectioned cards, motion. Logic identical to v3. */
 
 const KEY = 'gym_demo_state_v3';
@@ -77,8 +77,8 @@ const menu = [
 const shop = [
   { id: 'whey2kg', cat: 'Supplements', name: 'Whey Isolate 2 kg', price: 55, note: 'Chocolate · vanilla · member price' },
   { id: 'creatine', cat: 'Supplements', name: 'Creatine Monohydrate 500 g', price: 24, note: 'Trainer-recommended' },
-  { id: 'shaker', cat: 'Gear', name: 'GYM Shaker 700 ml', price: 9, note: 'Club green' },
-  { id: 'tee', cat: 'Gear', name: 'GYM Training Tee', price: 18, note: 'S–XXL · breathable' },
+  { id: 'shaker', cat: 'Gear', name: 'Level Up Shaker 700 ml', price: 9, note: 'Onyx black' },
+  { id: 'tee', cat: 'Gear', name: 'Level Up Training Tee', price: 18, note: 'S–XXL · breathable' },
   { id: 'bands', cat: 'Gear', name: 'Resistance Band Set', price: 22, note: '5 levels' },
 ];
 
@@ -126,7 +126,7 @@ const redeemOptions = [
 /* Overridable from the sheet (Settings / Branches / Lockers / Parking / Users) */
 const PRICES = { guest_pass: 10, car_wash: 12, assessment: 25, nutritionist: 30, pt_package: 300, renewal: 480 };
 const POINTS = { visit: 10, class: 15, pr: 20, cafe_order: 5, referral: 300, challenge: 500 };
-const CONFIG = { gym_name: 'GYM', referral_code: 'SAMER-2026', freeze_days_per_year: 30, qr_refresh_seconds: 25 };
+const CONFIG = { gym_name: 'Level Up', referral_code: 'SAMER-2026', freeze_days_per_year: 30, qr_refresh_seconds: 25 };
 
 /* 12 palettes from the Claude Design color exploration — tap to retheme the whole app */
 const THEMES = [
@@ -2303,7 +2303,7 @@ function renderOnboard() {
   const steps = [
     { t: 'Your invitation', s: 'The gym sent this link to your phone', body: `
       <label class="ob-label">Invitation code</label>
-      <input class="input" id="obCode" value="GYM-INV-2481" />
+      <input class="input" id="obCode" value="LU-INV-2481" />
       <label class="ob-label">Your phone number</label>
       <input class="input" id="obPhone" placeholder="Phone" value="03 555123" />` },
     { t: 'Verify your number', s: 'We sent a code by SMS', body: `

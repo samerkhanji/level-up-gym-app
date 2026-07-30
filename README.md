@@ -1,10 +1,15 @@
-# GYM-APP
+# Level Up OS
 
-Phone-based gym access and membership platform. The member's phone is their
-access card: dynamic QR entry/exit, device binding, anti-passback, live
-occupancy, visit history, trainer booking and subscription management.
+One operating platform connecting every Level Up branch, member, trainer,
+class, payment, asset, and manager. The member's phone is their access card:
+dynamic QR entry/exit, device binding, anti-passback, live occupancy, visit
+history, trainer booking and subscription management — across every branch,
+not just one gym.
 
-See [SPEC.md](SPEC.md) for the full product spec and screen map.
+See [SPEC.md](SPEC.md) for the original product spec and screen map, and
+[LEVEL_UP_SPEC.md](LEVEL_UP_SPEC.md) for the Level Up Beirut-specific product
+direction (multi-branch model, zone-level access, module rework) this fork
+is being built toward.
 
 ## Structure
 

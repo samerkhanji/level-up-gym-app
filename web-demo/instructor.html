@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GYM — Instructor</title>
+<title>Level Up — Instructor</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
-    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+  :root { --paper:#f2ece0; --card:#fff; --ink:#18140f; --muted:#6f6656; --faint:#a89b83;
+    --line:#e6ddc9; --green:#1a1613; --deep:#000000; --mint:#efe6d2;
     --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
     --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -18,7 +18,7 @@
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
-  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
@@ -29,7 +29,7 @@
   .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
   .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
   .qbar { display:flex; gap:7px; flex-wrap:wrap; }
-  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(23,33,28,.05); }
+  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(24,20,15,.05); }
   .qbar button.dark { background:var(--deep); color:#fff; }
   .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
   .cls.live { outline:2.5px solid var(--deep); }
@@ -37,7 +37,7 @@
   .cls-n { font-family:var(--display); font-weight:800; font-size:15px; }
   .cls-meta { font-size:11.5px; color:var(--muted); margin-top:2px; }
   .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
-  .st-sched { background:#eceee8; color:var(--muted); }
+  .st-sched { background:#e9e2d2; color:var(--muted); }
   .st-prep { background:var(--amber-soft); color:var(--amber); }
   .st-live { background:var(--deep); color:#fff; animation:pulse 1.6s infinite; }
   .st-done { background:var(--mint); color:var(--deep); }
@@ -60,9 +60,9 @@
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
-  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
   .hidden { display:none !important; }
-  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:none; place-items:center; z-index:90; padding:16px; }
+  .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
   .overlay.show { display:grid; }
   .modal { background:#fff; border-radius:20px; padding:18px; width:min(430px, 100%); max-height:86vh; overflow:auto; }
   .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
@@ -76,8 +76,8 @@
   .chk-line.bad { background:var(--red-soft); color:var(--red); }
   /* ---- layout rhythm ---- */
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
-  .sect-label::after { content:''; flex:1; height:1px; background:rgba(23,33,28,.08); }
-  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; }
+  .sect-label::after { content:''; flex:1; height:1px; background:rgba(24,20,15,.08); }
+  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
   .stack > .card { border-radius:0; box-shadow:none; animation:none; }
   .stack > .card + .card { border-top:1px solid var(--line); }
   #classCard { animation:rise .3s ease both; }

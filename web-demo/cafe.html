@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GYM — Café</title>
+<title>Level Up — Café</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --paper:#f3f4ef; --card:#fff; --ink:#17211c; --muted:#6c7a71; --faint:#9aa79f;
-    --line:#f2f4ee; --green:#1e6b52; --deep:#124a38; --mint:#dff0e6;
+  :root { --paper:#f2ece0; --card:#fff; --ink:#18140f; --muted:#6f6656; --faint:#a89b83;
+    --line:#e6ddc9; --green:#1a1613; --deep:#000000; --mint:#efe6d2;
     --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
     --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
@@ -17,10 +17,10 @@
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
-  .card { background:var(--card); border-radius:20px; padding:15px; box-shadow:0 6px 18px rgba(23,33,28,.05); animation:rise .3s ease both; }
+  .card { background:var(--card); border-radius:20px; padding:15px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
-  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(23,33,28,.05); }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
   /* top bar */
   .topbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
   .open-chip { font-size:13px; font-weight:800; padding:8px 14px; border-radius:999px; background:var(--mint); color:var(--deep); }
@@ -35,9 +35,9 @@
   .actions button.solid { background:var(--deep); color:#fff; }
   .actions button.danger { background:var(--red-soft); color:var(--red); }
   /* tabs */
-  .seg { display:flex; gap:6px; background:#eceee8; border-radius:14px; padding:4px; max-width:520px; }
+  .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; max-width:520px; }
   .seg button { flex:1; font-size:13px; font-weight:700; padding:10px 4px; border-radius:11px; color:var(--muted); }
-  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(23,33,28,.08); }
+  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
   /* board */
   .cols { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; align-items:start; }
   @media (max-width:1000px){ .cols { grid-template-columns:repeat(2, 1fr); } }
@@ -57,7 +57,7 @@
   .c-danger { background:var(--red); color:#fff; }
   .c-pay { background:var(--mint); color:var(--deep); }
   .c-wait { background:var(--amber-soft); color:var(--amber); }
-  .c-grey { background:#eceee8; color:var(--muted); }
+  .c-grey { background:#e9e2d2; color:var(--muted); }
   .conflict { background:var(--red-soft); border-radius:12px; padding:9px 11px; font-size:12.5px; font-weight:700; color:var(--red); margin-top:8px; }
   .big-act { display:block; width:100%; margin-top:10px; background:var(--deep); color:#fff; font-size:14.5px; font-weight:800; padding:14px; border-radius:13px; }
   .big-act:disabled { opacity:.45; cursor:default; }
@@ -87,7 +87,7 @@
   .primary { background:var(--deep); color:#fff; border-radius:12px; padding:11px 15px; font-weight:800; font-size:13px; }
   .hidden { display:none !important; }
   /* chooser modal */
-  .overlay { position:fixed; inset:0; background:rgba(23,33,28,.45); display:none; place-items:center; z-index:90; padding:16px; }
+  .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
   .overlay.show { display:grid; }
   .modal { background:#fff; border-radius:20px; padding:18px; width:min(420px, 100%); max-height:86vh; overflow:auto; }
   .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
@@ -100,7 +100,7 @@
   /* layout rhythm */
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
-  .stack { background:var(--card); border-radius:20px; box-shadow:0 6px 18px rgba(23,33,28,.05); overflow:hidden; }
+  .stack { background:var(--card); border-radius:20px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
   .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); margin-top:0; }
   .stack > .card:last-child { border-bottom:none; }
   #secOrders, #secMenu, #secIssues, #secShift { display:flex; flex-direction:column; gap:12px; }

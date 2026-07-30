@@ -1,4 +1,4 @@
-/* GYM-APP backend switch.
+/* Level Up OS backend switch.
    mode 'demo'  — today's behavior: DemoData engine + GymBus, no server.
    mode 'live'  — pages talk to Supabase (fill url + anonKey from the project's
                   Settings → API after launch; see LAUNCH.md). The anon key is
