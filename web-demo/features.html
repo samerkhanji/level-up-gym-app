@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Level Up — Features &amp; Services</title>
+<title>Level Up OS — Service Catalog</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -34,32 +34,28 @@
     transition:transform var(--motion-fast) var(--ease-standard), box-shadow var(--motion-fast) var(--ease-standard); }
   a.feat:hover, a.feat:focus-visible { transform:translateY(-2px); box-shadow:0 10px 24px rgba(24,20,15,.1); }
   a.feat:focus-visible { outline:3px solid var(--green); outline-offset:2px; }
-  .feat.dim { opacity:.75; }
+  .f-img { width:100%; height:88px; object-fit:cover; border-radius:12px; background:var(--mint); }
   .f-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
   .f-n { font-family:var(--display); font-weight:800; font-size:15px; }
   .f-d { font-size:12.5px; color:var(--muted); line-height:1.45; flex:1; }
   .f-ent { font-size:12px; font-weight:700; }
+  .f-br { font-size:11px; font-weight:700; color:var(--deep); background:var(--mint); border-radius:999px; padding:4px 10px; align-self:flex-start; }
   .chip { display:inline-block; font-size:10px; font-weight:800; border-radius:999px; padding:4px 9px; white-space:nowrap; }
   .c-inc { background:var(--mint); color:var(--deep); }
   .c-pay { background:var(--amber-soft); color:var(--amber); }
-  .c-appr { background:var(--amber-soft); color:var(--amber); }
-  .c-out { background:var(--red-soft); color:var(--red); }
-  .c-soon { background:#e9e2d2; color:var(--muted); }
   .c-staff { background:var(--deep); color:#fff; }
   .f-dept { font-size:10.5px; color:var(--faint); font-weight:600; }
   .f-act { margin-top:4px; font-size:12px; font-weight:800; color:var(--green); }
-  .notify-btn { align-self:flex-start; font-size:12px; font-weight:800; padding:9px 13px; border-radius:10px; background:var(--paper); color:var(--muted); min-height:32px; }
-  .notify-btn:focus-visible { outline:3px solid var(--green); }
-  .foryou { background:var(--card); border-radius:18px; padding:15px; box-shadow:0 6px 18px rgba(24,20,15,.05); }
-  .fy-row { display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--line); font-size:13.5px; }
-  .fy-row:last-child { border-bottom:none; }
-  .fy-row a { color:var(--green); font-weight:800; text-decoration:none; font-size:12px; }
-  .fy-row a:focus-visible { outline:3px solid var(--green); }
   .empty { text-align:center; color:var(--faint); font-size:13.5px; padding:26px 0; }
   .empty b { display:block; color:var(--muted); margin-bottom:4px; }
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; }
   .staff-note { font-size:11.5px; color:var(--faint); line-height:1.5; padding:2px 6px; }
+  .arch { background:var(--card); border-radius:18px; box-shadow:0 6px 18px rgba(24,20,15,.05); padding:4px 15px; }
+  .arch summary { cursor:pointer; font-weight:800; font-family:var(--display); font-size:14px; padding:12px 0; color:var(--muted); list-style-position:inside; }
+  .arch summary:focus-visible { outline:3px solid var(--green); }
+  .arch-row { display:flex; justify-content:space-between; gap:12px; padding:9px 0; border-top:1px solid var(--line); font-size:12.5px; }
+  .arch-row b { flex-shrink:0; }
+  .arch-row span { color:var(--muted); text-align:right; }
+  .arch-note { font-size:11.5px; color:var(--faint); padding:10px 0 12px; line-height:1.5; }
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
   }
@@ -68,17 +64,12 @@
 <body>
 <div class="wrap">
   <nav class="navrow"><a href="index.html">← Member app</a><a href="staff.html">All departments</a><a href="motion.html">Motion system</a></nav>
-  <h1>Features &amp; services</h1>
-  <div class="sub">Everything the club offers — what's included in your plan, what costs extra, and who delivers it.</div>
+  <h1>Level Up service catalog</h1>
+  <div class="sub" id="subLine">Level Up OS — what each plan includes, what costs extra, and which team delivers it.</div>
 
-  <input class="search" id="q" type="search" placeholder="⌕  Search services — try “shake”, “massage”, “locker”…" aria-label="Search services" autocomplete="off" />
+  <input class="search" id="q" type="search" placeholder="⌕  Search the catalog — try “TRX”, “guest”, “supplement”…" aria-label="Search services" autocomplete="off" />
 
   <div class="cats" id="cats" role="tablist" aria-label="Service categories"></div>
-
-  <div class="foryou" id="forYou" hidden>
-    <div class="section-h" style="margin:0 0 6px;">For you right now</div>
-    <div id="fyRows"></div>
-  </div>
 
   <div id="sections"></div>
 
@@ -86,117 +77,118 @@
   <div class="staff-note">Employee tools live in their own dashboards, separated from member services. In this demo they open directly;
     in production each requires a staff login and role permissions — members never see manual entry, refunds, shift or work-order tools.</div>
   <div class="grid" id="staffGrid"></div>
+
+  <details class="arch" id="archBox">
+    <summary>Architecture-ready · not enabled for Level Up</summary>
+    <div class="arch-row"><b>Pool &amp; lane booking</b><span>Lane reservations with live lifeguard and maintenance status.</span></div>
+    <div class="arch-row"><b>Sauna &amp; steam</b><span>Timed recovery slots booked and paid from the wallet.</span></div>
+    <div class="arch-row"><b>Massage &amp; compression recovery</b><span>Therapist scheduling with contraindication screens before approval.</span></div>
+    <div class="arch-row"><b>Restaurant &amp; kitchen</b><span>Full kitchen order board beyond the Fuel Bar's grab-and-go menu.</span></div>
+    <div class="arch-row"><b>Spa treatments</b><span>Treatment catalog with therapist rosters and room allocation.</span></div>
+    <div class="arch-note">The engine's booking, payment and maintenance services already model these journeys — they switch on only if Level Up adds the facilities. Nothing here is sold or shown to members today.</div>
+  </details>
 </div>
 
+<script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-function toast(m) { document.querySelectorAll('.toast').forEach((t) => t.remove()); const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2600); }
+const D = typeof DemoData !== 'undefined' ? DemoData : null;
 
-/* One controlled state system — a card is only "Included"/paid-Live when its
-   full request → delivery → confirmation → history journey works in the demo. */
-const STATES = {
-  inc: ['Included', 'c-inc'], pay: ['Payment required', 'c-pay'], appr: ['Approval required', 'c-appr'],
-  out: ['Temporarily unavailable', 'c-out'], soon: ['Coming soon', 'c-soon'],
-};
+/* branch context from the shared engine */
+const BRANCHES = D ? D.BranchService.list() : [];
+const branchNames = BRANCHES.map((b) => b.name);
+if (branchNames.length) $('subLine').textContent = 'Level Up OS across ' + branchNames.join(' · ') + ' — what each plan includes, what costs extra, and which team delivers it.';
+/* which branches a class runs in, from the seeded schedule (fallback to static) */
+function runsIn(nameMatch, fallback) {
+  if (!D) return fallback;
+  const locs = [...new Set(D.load().classes.filter((c) => c.name.toLowerCase().includes(nameMatch)).map((c) => (D.BranchService.byId(c.locationId) || {}).name).filter(Boolean))];
+  return locs.length ? locs.join(' · ') : fallback;
+}
+
+const STATES = { inc: ['Included', 'c-inc'], pay: ['Payment required', 'c-pay'], staff: ['Staff', 'c-staff'] };
 
 const FEATURES = [
-  /* Training */
-  { cat: 'Training', n: 'Personal training', d: 'Book Karim from genuinely open slots; sessions complete only after you confirm them.', ent: '10-pack $300 · $30/session', st: 'pay', dept: 'Trainer', act: 'Open in app → Train', href: 'index.html', syn: 'pt coach karim session book' },
-  { cat: 'Training', n: 'Workout programs & PRs', d: 'Trainer-built programs sync to your phone; PRs are detected automatically in live sessions.', ent: 'Included in every plan', st: 'inc', dept: 'Trainer', act: 'Open in app → Train', href: 'index.html', syn: 'program exercise record bench squat' },
-  { cat: 'Training', n: 'Fitness assessment', d: 'Body composition, posture, mobility and strength — repeated every 3 months.', ent: '$25 · 1 included on Performance', st: 'pay', dept: 'Trainer', act: 'Open in app → Train', href: 'index.html', syn: 'inbody test measure body fat' },
-  { cat: 'Training', n: 'Wearables sync', d: 'Apple Health, Garmin, WHOOP and more — opt-in, with your consent controls.', ent: '—', st: 'soon', dept: 'Trainer', syn: 'watch apple garmin whoop steps' },
+  /* Multi-branch access */
+  { cat: 'Access & Branches', n: 'Multi-branch entry', d: 'One dynamic QR admits you at every branch your plan covers — single-branch or all-branch. Every denial carries a reason; reception is the backup.', ent: 'Included in every plan', st: 'inc', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'qr gate door check in entry access branch hamra badaro gemmayzeh hazmieh' },
+  { cat: 'Access & Branches', n: 'Live branch occupancy', d: 'See how busy Hamra, Badaro, Gemmayzeh and Hazmieh are before you leave the house — Beirut traffic is real.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'busy crowded capacity occupancy branches full' },
+  { cat: 'Access & Branches', n: 'Zone access', d: 'Studios, the PT zone and staff areas gate one layer below the front door — class bookings and PT packages unlock them automatically.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'zone studio area locker floor access' },
+  { cat: 'Access & Branches', n: 'Guest passes', d: 'Invite a friend — reception expects them by name, waiver at the desk, one visit, paid from your wallet.', ent: '$10 · wallet', st: 'pay', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'friend visitor bring invite guest pass' },
+  /* Memberships & payments */
+  { cat: 'Memberships & Payments', n: 'Plan catalog', d: 'Single-branch and all-branch monthlies, quarterly, 6-month, annual, student, off-peak, corporate and couple plans. Demo pricing until Level Up confirms real packages.', ent: 'From $65/month · demo prices', st: 'pay', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'membership price plan monthly annual student corporate couple offpeak subscribe join' },
+  { cat: 'Memberships & Payments', n: 'Renewals, freezes & self-service', d: 'Renew, freeze or upgrade from the app; reception confirms — nothing changes silently, and every override needs a logged reason.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open member app', href: 'index.html', syn: 'renew freeze cancel upgrade subscription expiry' },
+  { cat: 'Memberships & Payments', n: 'Payments & wallet', d: 'Card, cash and wallet land in one ledger per branch. Refunds and big discounts route to the owner for approval.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open reception', href: 'reception.html', syn: 'pay wallet cash card ledger refund discount' },
+  /* Personal training */
+  { cat: 'Personal Training', n: 'Personal training', d: 'Book Karim, Nadim, Yara or Elie at any branch they cover — the engine refuses physically impossible cross-branch schedules using Beirut travel times.', ent: 'Packages from $140', st: 'pay', dept: 'Trainer', act: 'Open member app', href: 'index.html', syn: 'pt coach trainer session book karim nadim yara elie package' },
+  { cat: 'Personal Training', n: 'Session log & PBs', d: 'Exercises, sets and personal bests logged live during sessions; a session completes only after you confirm it.', ent: 'Included with PT', st: 'inc', dept: 'Trainer', act: 'Open member app', href: 'index.html', syn: 'exercise set record pb deadlift squat log confirm' },
+  { cat: 'Personal Training', n: 'Trainer scorecard', d: 'Delivery, no-show rate, confirmations and retention alongside revenue — deliberately not a sales-only ranking.', ent: 'Staff accountability', st: 'staff', dept: 'Trainer', act: 'Open trainer dashboard', href: 'trainer.html', syn: 'performance scorecard accountability trainer metrics' },
   /* Classes */
-  { cat: 'Classes', n: 'Group classes', d: 'HIIT, spin, yoga and more — capacity-limited with fair waitlists.', ent: 'Included in every plan', st: 'inc', dept: 'Instructor', act: 'Open in app → Train → Classes', href: 'index.html', syn: 'hiit spin yoga pilates boxing group' },
-  { cat: 'Classes', n: 'Waitlists', d: 'Full class? The first opened space is offered to you alone, with a response window.', ent: 'Included', st: 'inc', dept: 'Instructor', act: 'Open in app → Train → Classes', href: 'index.html', syn: 'full queue promote space' },
-  { cat: 'Classes', n: 'Workshops & series', d: 'Multi-week specialty programs with their own passes.', ent: '—', st: 'soon', dept: 'Instructor', syn: 'course seminar event' },
-  /* Nutrition & Café */
-  { cat: 'Nutrition & Café', n: 'Nutrition consultation', d: 'Assessment, allergy-safe meal plans you acknowledge before they start, and adherence follow-up.', ent: '$30 · pay from wallet', st: 'pay', dept: 'Nutritionist', act: 'Open in app → Food → Meal plan', href: 'index.html', syn: 'diet dietitian meal plan food nutrition' },
-  { cat: 'Nutrition & Café', n: 'Café ordering', d: 'Order ahead, customize, pay from wallet, collect with your pickup code. Allergy conflicts are blocked.', ent: 'Menu prices · member rates', st: 'inc', dept: 'Café', act: 'Open in app → Food → Café', href: 'index.html', syn: 'food shake meal cafe coffee protein bowl order eat drink' },
-  { cat: 'Nutrition & Café', n: 'Food & adherence logging', d: 'Mark meals followed, partly or skipped — your nutritionist sees it, without calorie-counting chores.', ent: 'Included with an active plan', st: 'inc', dept: 'Nutritionist', act: 'Open in app → Food → Meal plan', href: 'index.html', syn: 'log track diary water' },
-  { cat: 'Nutrition & Café', n: 'Meal subscriptions', d: 'Weekly prepared-meal delivery matched to your plan.', ent: '—', st: 'soon', dept: 'Café', syn: 'weekly prep delivery' },
-  /* Pool */
-  { cat: 'Pool', n: 'Pool & lane booking', d: '25 m, 6 lanes, lifeguard on duty. Reserve a 45-minute lane from the app — status updates live if maintenance closes it.', ent: 'Included in every plan', st: 'inc', dept: 'Reception', act: 'Open in app → Gym → Pool', href: 'index.html', syn: 'swim swimming water lane laps pool' },
-  { cat: 'Pool', n: 'Aqua Fit classes', d: 'Low-impact water training with Rita — capacity-limited with the same fair waitlist as every class.', ent: 'Included', st: 'inc', dept: 'Instructor', act: 'Open in app → Train → Classes', href: 'index.html', syn: 'aqua water class aerobics swim' },
-  { cat: 'Pool', n: 'Swim coaching', d: 'One-to-one technique sessions in the pool.', ent: '—', st: 'soon', dept: 'Trainer', syn: 'swim lesson coach technique stroke' },
-  /* Recovery */
-  { cat: 'Recovery', n: 'Sauna', d: '30-minute sessions, booked from the app.', ent: '$8 · wallet', st: 'pay', dept: 'Reception', act: 'Open in app → Gym → Recovery', href: 'index.html', syn: 'heat steam relax' },
-  { cat: 'Recovery', n: 'Sports massage', d: '45 minutes with a qualified therapist.', ent: '$40 · not included in current plans', st: 'pay', dept: 'Reception', act: 'Open in app → Gym → Recovery', href: 'index.html', syn: 'therapist deep tissue relax' },
-  { cat: 'Recovery', n: 'Compression therapy', d: 'Recovery boots — requires a quick contraindication screen first.', ent: '$12 · staff approval', st: 'appr', dept: 'Reception', act: 'Open in app → Gym → Recovery', href: 'index.html', syn: 'boots normatec legs' },
-  { cat: 'Recovery', n: 'Cold plunge', d: 'Maintenance in progress — expected back at 5:00 PM today.', ent: '$6 · wallet', st: 'out', dept: 'Maintenance', syn: 'ice bath cold water plunge' },
-  /* Access & Convenience */
-  { cat: 'Access & Convenience', n: 'Gym entry', d: 'Your phone is the membership — dynamic QR, anti-passback, denial reasons, reception backup.', ent: 'Included in every plan', st: 'inc', dept: 'Reception', act: 'Open in app → Enter Gym', href: 'index.html', syn: 'qr gate door check in entry access' },
-  { cat: 'Access & Convenience', n: 'Lockers', d: 'Auto-assigned at check-in; lock and unlock from your phone; released when you leave.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open in app → Gym', href: 'index.html', syn: 'storage locker key changing' },
-  { cat: 'Access & Convenience', n: 'Guest passes', d: 'Invite a friend — reception expects them by name, waiver at the desk, one visit.', ent: '$10 · wallet', st: 'pay', dept: 'Reception', act: 'Open in app → Gym', href: 'index.html', syn: 'friend visitor bring invite' },
-  { cat: 'Access & Convenience', n: 'Parking & car wash', d: 'Reserved spot on your plate, and a wash while you train.', ent: 'Parking included · wash $12', st: 'pay', dept: 'Reception', act: 'Open in app → Gym', href: 'index.html', syn: 'car vehicle park wash valet' },
-  { cat: 'Access & Convenience', n: 'NFC & Wallet passes', d: 'Apple Wallet / Google Wallet entry cards as QR backup.', ent: '—', st: 'soon', dept: 'Reception', syn: 'apple wallet google nfc tap' },
-  /* Support */
-  { cat: 'Support', n: 'Reception assistance', d: 'Every request gets a ticket number, a named resolver, and a rating when it is done.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open in app → Gym → Contact', href: 'index.html', syn: 'help desk ticket question ask' },
-  { cat: 'Support', n: 'Equipment reports', d: 'Report a machine; maintenance isolates it, shows you an alternative, and tells you who fixed it.', ent: 'Included', st: 'inc', dept: 'Maintenance', act: 'Open in app → Gym → Report', href: 'index.html', syn: 'broken machine repair fix issue' },
-  { cat: 'Support', n: 'Emergency SOS', d: 'Hold-safe alert with type and zone — staff acknowledge by name and close with a record.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open in app → Gym → SOS', href: 'index.html', syn: 'emergency help injury alarm' },
-  { cat: 'Support', n: 'Membership self-service', d: 'Renew, freeze, upgrade or request cancellation — reception confirms, nothing changes silently.', ent: 'Included', st: 'inc', dept: 'Reception', act: 'Open in app → Account', href: 'index.html', syn: 'renew freeze cancel upgrade plan subscription' },
+  { cat: 'Classes', n: 'TRX Circuit', d: 'Suspension training in the dedicated TRX studio — capacity-limited with station-level safety checks before every class.', ent: 'Included with class plans', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', img: 'img/class-trx.svg', br: runsIn('trx', 'Gemmayzeh'), syn: 'trx suspension circuit strap class' },
+  { cat: 'Classes', n: 'Spinning', d: 'Spin 45 on Keiser bikes — book from the app, cancel up to 2 hours before, waitlist when full.', ent: 'Included with class plans', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', img: 'img/class-spinning.svg', br: runsIn('spin', 'Badaro · Gemmayzeh'), syn: 'spin spinning bike cycle cardio class' },
+  { cat: 'Classes', n: 'Yoga', d: 'Power Yoga with Maya K. — mats and blocks provided, intermediate level.', ent: 'Included with class plans', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', img: 'img/class-yoga.svg', br: runsIn('yoga', 'Hamra'), syn: 'yoga power flow stretch mat class' },
+  { cat: 'Classes', n: 'Abs & Core', d: '30 focused minutes, all levels — the easiest class to add after a floor session.', ent: 'Included with class plans', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', img: 'img/class-abs-core.svg', br: runsIn('abs', 'Hamra'), syn: 'abs core stomach class' },
+  { cat: 'Classes', n: 'Workshops', d: 'Specialty sessions like Deadlift Technique — small capacity, open level, taught by senior coaches.', ent: 'Included with class plans', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', img: 'img/class-workshop.svg', br: runsIn('workshop', 'Hamra'), syn: 'workshop seminar technique deadlift barbell' },
+  { cat: 'Classes', n: 'Fair waitlists', d: 'Full class? Spots free up in order. If equipment fails and capacity drops, the latest bookings move to the front of the waitlist — automatically.', ent: 'Included', st: 'inc', dept: 'Instructor', act: 'Open member app', href: 'index.html', syn: 'full queue waitlist promote capacity space' },
+  /* Equipment & maintenance */
+  { cat: 'Equipment & Maintenance', n: 'Equipment transparency', d: 'Every machine shows its real status; out-of-service gear points you to the nearest working alternative and an expected review date.', ent: 'Included', st: 'inc', dept: 'Maintenance', act: 'Open member app', href: 'index.html', syn: 'machine status broken alternative treadmill available equipment' },
+  { cat: 'Equipment & Maintenance', n: 'Report a machine', d: 'Report an issue from the floor; safety reports auto-isolate the machine and open a work order you can follow.', ent: 'Included', st: 'inc', dept: 'Maintenance', act: 'Open member app', href: 'index.html', syn: 'broken machine repair fix issue report' },
+  { cat: 'Equipment & Maintenance', n: 'Work orders & verified repair', d: 'Reported → assigned → parts → done, with warranty records and a verified return to service. Major repairs above threshold need owner approval.', ent: 'Staff accountability', st: 'staff', dept: 'Maintenance', act: 'Open maintenance', href: 'maintenance.html', syn: 'work order parts warranty repair maintenance asset' },
+  /* Fuel Bar & Retail */
+  { cat: 'Fuel Bar & Retail', n: 'Fuel Bar', d: 'Shakes, protein bars and drinks at member rates. Items are checked against your declared allergies at the till.', ent: 'Menu prices · member rates', st: 'inc', dept: 'Fuel Bar & Retail', act: 'Open member app', href: 'index.html', syn: 'shake protein bar water energy drink fuel bar cafe eat allergen' },
+  { cat: 'Fuel Bar & Retail', n: 'Supplements & merch', d: 'Whey, creatine, pre-workout, shakers, tees and training accessories — per-branch stock with low-stock alerts.', ent: 'Retail prices', st: 'pay', dept: 'Fuel Bar & Retail', act: 'Open member app', href: 'index.html', syn: 'whey creatine preworkout supplement shaker tee gloves bands merch retail shop buy' },
+  /* Nutrition */
+  { cat: 'Nutrition', n: 'Nutrition consultation', d: 'Consultations and follow-ups with Rima D., licensed dietitian — body-composition tracking and meal-plan files. Qualified consultation, not medical nutrition therapy.', ent: '$30 · pay from wallet', st: 'pay', dept: 'Nutrition', act: 'Open member app', href: 'index.html', syn: 'diet dietitian nutrition consult meal plan body composition rima' },
+  { cat: 'Nutrition', n: 'Body-composition tracking', d: 'Weight, body fat and muscle trends recorded at each visit — one shared record your dietitian and you both see.', ent: 'Included with consults', st: 'inc', dept: 'Nutrition', act: 'Open member app', href: 'index.html', syn: 'weight body fat muscle inbody measure trend' },
+  /* Owner & back office */
+  { cat: 'Owner & Back Office', n: 'Owner reporting', d: 'Network KPIs and a branch-by-branch comparison — revenue, occupancy, PT, retail, denied entries, offline equipment, pending approvals.', ent: 'Owner only', st: 'staff', dept: 'Owner', act: 'Open owner dashboard', href: 'owner.html', syn: 'owner kpi report revenue comparison network dashboard' },
+  { cat: 'Owner & Back Office', n: 'Leads & CRM', d: 'Instagram, walk-in, WhatsApp and corporate leads through one pipeline — follow-up SLAs, conversion by source and branch, lost reasons.', ent: 'Staff tool', st: 'staff', dept: 'Reception', act: 'Open reception', href: 'reception.html', syn: 'lead crm pipeline instagram whatsapp corporate follow up sales convert' },
+  { cat: 'Owner & Back Office', n: 'Staff accountability', d: 'Shifts and cash reconciliation, owner approvals for refunds, discounts and big repairs, and an append-only audit trail behind every override.', ent: 'Built into every workflow', st: 'staff', dept: 'Owner', act: 'Open owner dashboard', href: 'owner.html', syn: 'shift cash drawer variance approval audit log accountability override reason' },
 ];
 
 const STAFF = [
-  { n: 'Reception', d: 'Gate feed, member drawer, POS, denials, tasks, shift & cash.', href: 'reception.html' },
-  { n: 'Trainer', d: 'Schedule, clients, live sessions, program builder, availability.', href: 'trainer.html' },
-  { n: 'Café', d: 'Order board, availability, walk-ins, waste, shift.', href: 'cafe.html' },
-  { n: 'Nutritionist', d: 'Consultations, versioned meal plans, adherence.', href: 'nutritionist.html' },
-  { n: 'Maintenance', d: 'Work orders, assets, parts, verified return to service.', href: 'maintenance.html' },
-  { n: 'Instructor', d: 'Classes, rosters, waitlists, live mode, reports.', href: 'instructor.html' },
+  { n: 'Reception', d: 'Gate feed, member drawer, POS, denials, leads, shift & cash.', href: 'reception.html' },
+  { n: 'Trainer', d: 'Schedule, clients, live sessions, cross-branch booking guard.', href: 'trainer.html' },
+  { n: 'Instructor', d: 'Classes, rosters, waitlists, safety checks, reports.', href: 'instructor.html' },
+  { n: 'Fuel Bar & Retail', d: 'Sales, per-branch stock, allergen guard, restock approvals.', href: 'cafe.html' },
+  { n: 'Nutrition', d: 'Consults, body comp, meal-plan files — Rima D.', href: 'nutritionist.html' },
+  { n: 'Maintenance', d: 'Work orders, assets, isolation, verified return to service.', href: 'maintenance.html' },
+  { n: 'Owner dashboard', d: 'Network KPIs, branch comparison, approvals queue.', href: 'owner.html' },
 ];
 
 const CATS = ['All', ...new Set(FEATURES.map((f) => f.cat))];
 let cat = sessionStorage.getItem('feat_cat') || 'All';
+if (!CATS.includes(cat)) cat = 'All';
 let q = sessionStorage.getItem('feat_q') || '';
 
 function card(f) {
   const [lbl, cls] = STATES[f.st];
-  const actionable = f.href && f.st !== 'out' && f.st !== 'soon';
   const inner = `
+    ${f.img ? `<img class="f-img" src="${f.img}" alt="" onerror="this.remove()" />` : ''}
     <div class="f-top"><span class="f-n">${f.n}</span><span class="chip ${cls}">${lbl}</span></div>
     <div class="f-d">${f.d}</div>
+    ${f.br ? `<span class="f-br">runs in ${f.br}</span>` : ''}
     <div class="f-ent">${f.ent}</div>
     <div class="f-dept">Handled by ${f.dept}</div>
-    ${actionable ? `<div class="f-act">${f.act} ›</div>` : ''}`;
-  if (actionable) return `<a class="feat" href="${f.href}" aria-label="${f.n} — ${lbl}">${inner}</a>`;
-  /* unavailable / coming soon: NEVER a transactional action — Notify me only */
-  return `<div class="feat dim" role="group" aria-label="${f.n} — ${lbl}">${inner}
-    <button class="notify-btn" data-notify="${f.n}">Notify me when available</button></div>`;
+    <div class="f-act">${f.act} ›</div>`;
+  return `<a class="feat" href="${f.href}" aria-label="${f.n} — ${lbl}">${inner}</a>`;
 }
 
 function render() {
   $('cats').innerHTML = CATS.map((c) => `<button role="tab" aria-selected="${c === cat}" class="${c === cat ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('');
   const ql = q.trim().toLowerCase();
   const hits = FEATURES.filter((f) => (cat === 'All' || f.cat === cat)
-    && (!ql || f.n.toLowerCase().includes(ql) || f.d.toLowerCase().includes(ql) || (f.syn || '').includes(ql)));
+    && (!ql || f.n.toLowerCase().includes(ql) || f.d.toLowerCase().includes(ql) || (f.br || '').toLowerCase().includes(ql) || (f.syn || '').includes(ql)));
   const byCat = {};
   hits.forEach((f) => { (byCat[f.cat] = byCat[f.cat] || []).push(f); });
   $('sections').innerHTML = Object.keys(byCat).map((c) => `
     <div class="section-h">${c}</div>
     <div class="grid">${byCat[c].map(card).join('')}</div>`).join('')
-    || `<div class="empty"><b>No services match “${q}”.</b>Try “café”, “massage”, “locker” or “class” — or clear the search to browse all categories.</div>`;
+    || `<div class="empty"><b>Nothing matches “${q}”.</b>Try “class”, “supplement”, “guest” or “owner” — or clear the search to browse the whole catalog.</div>`;
   document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { cat = b.dataset.cat; sessionStorage.setItem('feat_cat', cat); render(); }; });
-  document.querySelectorAll('[data-notify]').forEach((b) => { b.onclick = () => toast("We'll notify you in the app when " + b.dataset.notify + ' is available — nothing was booked or charged.'); });
 }
 
 $('q').value = q;
 $('q').addEventListener('input', () => { q = $('q').value; sessionStorage.setItem('feat_q', q); render(); });
-
-/* For you — real member state from the same-origin app (no fabrication) */
-try {
-  const s = JSON.parse(localStorage.getItem('gym_demo_state_v3') || 'null');
-  if (s) {
-    const rows = [];
-    if (s.booking && s.booking.when) rows.push(['Next training — ' + s.booking.trainer + ' · ' + s.booking.when, 'index.html', 'Open']);
-    if (s.order && s.order.status) rows.push(['Café order #' + (s.order.code || '') + ' — ' + String(s.order.status).slice(0, 40), 'index.html', 'Track']);
-    const ends = Date.parse(s.subEnds);
-    if (!isNaN(ends)) { const d = Math.round((ends - Date.now()) / 86400000); if (d < 45) rows.push(['Membership expires in ' + d + ' days', 'index.html', 'Renew']); }
-    if (rows.length) {
-      $('forYou').hidden = false;
-      $('fyRows').innerHTML = rows.map(([t, h, a]) => `<div class="fy-row"><span>${t}</span><a href="${h}">${a} ›</a></div>`).join('');
-    }
-  }
-} catch (e) {}
 
 $('staffGrid').innerHTML = STAFF.map((s) => `
   <a class="feat" href="${s.href}" aria-label="${s.n} staff workspace">

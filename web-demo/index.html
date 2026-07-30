@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-<title>Level Up — App Demo</title>
+<title>Level Up — Member App</title>
 <meta name="theme-color" content="#f2ece0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
@@ -11,24 +11,119 @@
 <meta name="apple-mobile-web-app-title" content="Level Up" />
 <link rel="manifest" href="manifest.webmanifest" />
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
-<link rel="apple-touch-icon" href="icon.svg" />
 <link rel="stylesheet" href="styles.css?v=9" />
+<style>
+/* ---- Level Up OS member-app additions (page-local; styles.css is shared) ---- */
+
+/* six tabs need slightly tighter cells */
+.tabbar { padding: 7px; }
+.tabbar .tab { font-size: 10px; padding: 7px 0 5px; gap: 2px; }
+.tabbar .tab svg { width: 20px; height: 20px; }
+
+/* new tab containers get the same stagger the legacy ones have in styles.css */
+#c-branches, #c-classes, #c-fuel {
+  display: flex; flex-direction: column; gap: 13px;
+}
+#c-branches > *, #c-classes > *, #c-fuel > * {
+  animation: rise 0.38s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+#c-branches > *:nth-child(2), #c-classes > *:nth-child(2), #c-fuel > *:nth-child(2) { animation-delay: 0.05s; }
+#c-branches > *:nth-child(3), #c-classes > *:nth-child(3), #c-fuel > *:nth-child(3) { animation-delay: 0.1s; }
+#c-branches > *:nth-child(4), #c-classes > *:nth-child(4), #c-fuel > *:nth-child(4) { animation-delay: 0.15s; }
+#c-branches > *:nth-child(n+5), #c-classes > *:nth-child(n+5), #c-fuel > *:nth-child(n+5) { animation-delay: 0.2s; }
+
+.login-hero { width: 100%; max-height: 150px; object-fit: cover; border-radius: 18px; margin-bottom: 4px; }
+
+/* digital membership card */
+.lu-card {
+  background:
+    radial-gradient(160px 160px at 90% -30%, rgba(255,255,255,0.12) 0%, transparent 70%),
+    linear-gradient(150deg, #16130e 0%, #000000 70%);
+  color: #f7f2e6; border-radius: var(--r-lg); padding: 18px;
+  display: flex; flex-direction: column; gap: 13px;
+  box-shadow: var(--shadow-float); flex-shrink: 0;
+}
+.lu-card .lc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.lu-card .lc-brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: 3px; color: #cfc6b0; }
+.lu-card .lc-name { font-family: var(--display); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+.lu-card .lc-plan { font-size: 12.5px; color: #b8ae97; margin-top: 2px; }
+.lu-card .lc-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+.lu-card .lc-cell b { display: block; font-size: 12.5px; font-weight: 700; }
+.lu-card .lc-cell span { font-size: 10px; color: #938a70; text-transform: uppercase; letter-spacing: 0.9px; }
+.lu-chip { border-radius: 999px; padding: 4px 11px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.16); white-space: nowrap; }
+.lu-chip.bad { background: rgba(187,58,42,0.45); }
+.lu-chip.frz { background: rgba(168,100,8,0.45); }
+
+/* branch chip — appears on every class / session card so branches can't be confused */
+.chip-branch {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1.5px solid var(--line); background: var(--card);
+  border-radius: 999px; padding: 2.5px 9px; font-size: 11px; font-weight: 700; color: var(--ink);
+}
+.chip-branch .dotc { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.chip-branch.tbc { color: var(--muted); border-style: dashed; }
+
+/* occupancy bar */
+.occ-track { height: 7px; border-radius: 4px; background: var(--tint); overflow: hidden; flex: 1; }
+.occ-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #33302a, #000); transition: width 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.occ-fill.mid { background: linear-gradient(90deg, #c8952c, var(--amber)); }
+.occ-fill.hot { background: linear-gradient(90deg, #d5654f, var(--red)); }
+
+.bimg { width: 100%; height: 108px; object-fit: cover; border-radius: 14px; display: block; background: var(--tint); }
+.class-thumb { width: 62px; height: 62px; border-radius: 14px; object-fit: cover; flex-shrink: 0; background: var(--tint); }
+.svc-thumb { width: 52px; height: 52px; border-radius: 13px; object-fit: cover; flex-shrink: 0; background: var(--tint); }
+
+.zone-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.zone-strip::-webkit-scrollbar { display: none; }
+.zone-cell { flex-shrink: 0; width: 74px; display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
+.zone-cell img { width: 74px; height: 52px; object-fit: cover; border-radius: 10px; background: var(--tint); }
+.zone-cell span { font-size: 9.5px; color: var(--muted); line-height: 1.25; }
+
+/* slot / option chips used by PT booking, gate picker, filters */
+.slot {
+  border: 1.5px solid var(--line); background: var(--card); cursor: pointer;
+  border-radius: 11px; padding: 7px 12px; font-size: 12.5px; font-weight: 700; color: var(--ink);
+}
+.slot.sel { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+.slot:disabled { opacity: 0.35; cursor: default; }
+.slot-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.gate-picker { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+.token-line { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10.5px; color: var(--muted); letter-spacing: 0.4px; }
+
+.warn-banner {
+  background: var(--amber-soft); border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink); flex-shrink: 0;
+}
+.warn-banner .ic { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+.warn-banner b { display: block; }
+.err-line { color: var(--red); font-size: 13px; font-weight: 600; line-height: 1.45; }
+
+details.more-stub {
+  background: var(--card); border-radius: var(--r-md); padding: 13px 15px;
+  font-size: 13.5px; color: var(--muted); box-shadow: var(--shadow); flex-shrink: 0; line-height: 1.5;
+}
+details.more-stub summary { font-weight: 700; color: var(--ink); cursor: pointer; }
+details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-direction: column; gap: 5px; }
+</style>
 </head>
 <body>
   <div class="stage">
     <div class="demo-note">
-      <h1>Level Up OS · Full Member Experience</h1>
-      <p>Complete clickable prototype — every member-facing feature from the product
-      spec, mock data, no backend.</p>
+      <h1>Level Up OS · Member App</h1>
+      <p>The member-facing app of the multi-branch Level Up Beirut platform —
+      Hamra, Badaro, Gemmayzeh (+ Hazmieh, opening to be confirmed). Every number
+      on screen comes from the shared demo engine; staff dashboards see the same
+      events live.</p>
       <ul>
-        <li><b>Access</b> — dynamic QR, anti-passback, denial reasons, geofence checkout reminder</li>
-        <li><b>Train</b> — workout program &amp; PR log, trainers, classes, assessments, challenges</li>
-        <li><b>Gym</b> — locker control, guest passes, parking &amp; car wash, recovery bookings, equipment reports, SOS</li>
-        <li><b>Food</b> — café ordering, meal plan, supplement &amp; merch shop</li>
-        <li><b>Account</b> — wallet &amp; credits, loyalty points, family, referrals, invoices, privacy</li>
+        <li><b>Membership</b> — digital card, QR access with real denial reasons, renewal, freeze, guest passes</li>
+        <li><b>Branches</b> — live occupancy per branch, "Hamra is busy — Gemmayzeh is quieter" nudge</li>
+        <li><b>PT</b> — trainers by branch &amp; specialty, Beirut travel-time booking guard, packages &amp; credits</li>
+        <li><b>Classes</b> — capacity, waitlists, cancellation windows, branch-tagged bookings</li>
+        <li><b>Fuel Bar &amp; Retail</b> — per-branch stock, allergen guard from the health record</li>
+        <li><b>Payments</b> — one ledger shared with reception and the owner dashboard</li>
       </ul>
       <div class="side-controls">
-        <button class="ghost-btn" id="simLeave" hidden>Simulate: phone left the gym area</button>
         <button class="ghost-btn" id="resetDemo">Reset demo</button>
       </div>
     </div>
@@ -40,26 +135,27 @@
         <!-- LOGIN -->
         <section class="view" id="view-login">
           <div class="login-wrap">
+            <img class="login-hero" src="img/hero-login.svg" alt="" />
             <div class="logo">LU</div>
             <div class="tagline">One membership. Every branch.</div>
             <input class="input" id="loginName" placeholder="Full name" value="Samer Khanji" autocomplete="off" />
             <input class="input" id="loginPassword" type="password" placeholder="Password" autocomplete="off" />
             <div id="loginError" class="dim small center" style="color:#bb3a2a" hidden></div>
             <button class="accent-btn" id="loginBtn">Log in</button>
-            <button class="ghost-btn" id="activateBtn">Activate membership from invitation</button>
-            <button class="ghost-btn" id="forgotBtn" style="border:none; font-size:13px;">Forgot password?</button>
-            <div class="dim small center">Accounts come from the Member tab of the data sheet</div>
+            <button class="ghost-btn" id="activateBtn">Join Level Up</button>
+            <div class="dim small center">Demo members live in the shared engine — try “Samer Khanji”</div>
           </div>
         </section>
 
-        <!-- ONBOARDING WIZARD -->
+        <!-- JOIN WIZARD -->
         <section class="view" id="view-onboard"><div id="c-onboard"></div></section>
 
-        <!-- MAIN TABS: content rendered by app.js -->
+        <!-- MAIN TABS -->
         <section class="view" id="view-home"><div id="c-home"></div></section>
+        <section class="view" id="view-branches"><div id="c-branches"></div></section>
         <section class="view" id="view-train"><div id="c-train"></div></section>
-        <section class="view" id="view-gym"><div id="c-gym"></div></section>
-        <section class="view" id="view-food"><div id="c-food"></div></section>
+        <section class="view" id="view-classes"><div id="c-classes"></div></section>
+        <section class="view" id="view-fuel"><div id="c-fuel"></div></section>
         <section class="view" id="view-account"><div id="c-account"></div></section>
 
         <!-- SUB-VIEWS -->
@@ -71,25 +167,20 @@
           <div id="c-notifs"></div>
         </section>
 
-        <section class="view" id="view-visitdetail">
-          <header class="app-header">
-            <button class="back" data-back="gym">‹</button>
-            <div class="greeting" id="vdTitle">Visit</div><span></span>
-          </header>
-          <div id="c-visitdetail"></div>
-        </section>
-
         <!-- ENTRY PASS -->
         <section class="view" id="view-pass">
           <div class="pass-wrap" id="passOk">
             <div class="identity">
-              <div class="avatar">S</div>
+              <div class="avatar" id="passAvatar">S</div>
               <div>
-                <div class="member-name">Samer Khanji</div>
+                <div class="member-name" id="passName">—</div>
                 <div class="purpose" id="passPurpose">Scan to ENTER</div>
               </div>
             </div>
+            <div class="dim small" id="gateLabel">Which gate are you at?</div>
+            <div class="gate-picker" id="gatePicker"></div>
             <div class="qr-box"><canvas id="qrCanvas" width="220" height="220"></canvas></div>
+            <div class="token-line" id="qrToken">—</div>
             <div class="refresh">
               <div class="bar"><div class="fill" id="qrBar"></div></div>
               <div class="dim small" id="qrSecs">refreshes in 25s</div>
@@ -113,15 +204,18 @@
           <button class="tab active" data-view="home">
             <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
             Home</button>
+          <button class="tab" data-view="branches">
+            <svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+            Branches</button>
           <button class="tab" data-view="train">
             <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>
             Train</button>
-          <button class="tab" data-view="gym">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>
-            Gym</button>
-          <button class="tab" data-view="food">
+          <button class="tab" data-view="classes">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg>
+            Classes</button>
+          <button class="tab" data-view="fuel">
             <svg viewBox="0 0 24 24"><path d="M4 11h16a8 8 0 0 1-16 0Z"/><path d="M9 8c0-2 1.5-2 1.5-4M13.5 8c0-2 1.5-2 1.5-4"/></svg>
-            Food</button>
+            Fuel Bar</button>
           <button class="tab" data-view="account">
             <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.5-3.5 4-5 7.5-5s6 1.5 7.5 5"/></svg>
             Account</button>
@@ -131,6 +225,6 @@
   </div>
 <script src="bus.js?v=3"></script>
 <script src="data.js?v=4"></script>
-<script src="app.js?v=31"></script>
+<script src="app.js?v=32"></script>
 </body>
 </html>

@@ -28,27 +28,35 @@
   .t-sub { font-size:12px; color:var(--muted); }
   .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
   .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
-  .qbar { display:flex; gap:7px; flex-wrap:wrap; }
-  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(24,20,15,.05); }
-  .qbar button.dark { background:var(--deep); color:#fff; }
-  .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
-  .cls.live { outline:2.5px solid var(--deep); }
+  .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
+  .seg button { flex:1; font-size:12px; font-weight:700; padding:8px 4px; border-radius:11px; color:var(--muted); line-height:1.35; }
+  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
+  .seg button small { display:block; font-size:10px; font-weight:600; color:var(--faint); }
+  .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; cursor:pointer; }
+  .cls.sel { outline:2.5px solid var(--deep); }
   .cls-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
   .cls-n { font-family:var(--display); font-weight:800; font-size:15px; }
-  .cls-meta { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .cls-meta { font-size:11.5px; color:var(--muted); margin-top:4px; }
   .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
   .st-sched { background:#e9e2d2; color:var(--muted); }
-  .st-prep { background:var(--amber-soft); color:var(--amber); }
   .st-live { background:var(--deep); color:#fff; animation:pulse 1.6s infinite; }
   .st-done { background:var(--mint); color:var(--deep); }
   .st-warn { background:var(--amber-soft); color:var(--amber); }
   .st-bad { background:var(--red-soft); color:var(--red); }
   .st-ok { background:var(--mint); color:var(--deep); }
-  .big-act { display:block; width:100%; margin-top:9px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
-  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:9px 7px; min-height:32px; }
-  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--amber-soft); font-size:12.5px; }
-  .task.urgent { background:var(--red-soft); }
-  .task b { display:block; font-size:13px; }
+  .chiprow { display:flex; gap:5px; flex-wrap:wrap; margin-top:7px; }
+  .chip { font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:999px; background:#fff; color:var(--muted); box-shadow:0 2px 6px rgba(24,20,15,.05); }
+  .chip.b-chip { background:var(--deep); color:#fff; letter-spacing:.06em; text-transform:uppercase; font-size:9.5px; }
+  .chip.amber { background:var(--amber-soft); color:var(--amber); }
+  .chip.red { background:var(--red-soft); color:var(--red); }
+  .chip.mint { background:var(--mint); color:var(--deep); }
+  .lockbox { margin-top:9px; background:#fff; border-radius:13px; padding:11px 12px; font-size:12.5px; }
+  .lockbox b { font-size:13px; }
+  .lockbox .by { font-size:11px; color:var(--faint); margin-top:4px; }
+  .big-act { display:block; width:100%; margin-top:10px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
+  .act { display:inline-block; background:var(--deep); color:#fff; font-size:12.5px; font-weight:800; padding:10px 15px; border-radius:11px; margin-top:9px; }
+  .act.ghost { background:var(--mint); color:var(--deep); }
+  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:8px 7px; min-height:30px; }
   .roster { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); }
   .roster:last-child { border-bottom:none; }
   .roster .n { flex:1; min-width:0; font-weight:700; font-size:13px; }
@@ -56,471 +64,531 @@
   .roster button { font-size:10.5px; font-weight:800; padding:7px 10px; border-radius:9px; background:var(--deep); color:#fff; min-height:30px; }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 9px; margin-left:4px; }
   .flag.amber { background:var(--amber-soft); color:var(--amber); }
+  .flag.mint { background:var(--mint); color:var(--deep); }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
-  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 3.2s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 8%,84%{opacity:1} 100%{opacity:0} }
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
   .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
-  .hidden { display:none !important; }
-  .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
-  .overlay.show { display:grid; }
-  .modal { background:#fff; border-radius:20px; padding:18px; width:min(430px, 100%); max-height:86vh; overflow:auto; }
-  .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
-  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
-  .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:13px; border-radius:13px; background:var(--paper); margin-top:7px; cursor:pointer; }
-  .opt.danger { background:var(--red-soft); color:var(--red); }
-  .opt.solid { background:var(--deep); color:#fff; }
-  .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
   .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
-  .chk-line input { width:17px; height:17px; accent-color:var(--deep); }
-  .chk-line.bad { background:var(--red-soft); color:var(--red); }
+  .chk-line input { width:17px; height:17px; accent-color:var(--deep); flex-shrink:0; }
+  .chk-line .st { margin-left:auto; }
+  .inp { display:block; width:100%; font-family:var(--body); font-size:13.5px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--line); background:#fff; margin-top:7px; color:var(--ink); }
+  textarea.inp { resize:vertical; min-height:60px; }
+  .inp:focus { outline:2px solid var(--deep); border-color:transparent; }
+  .frow { display:flex; gap:8px; align-items:center; }
+  .frow .inp { margin-top:7px; }
+  .frow .inp.short { width:90px; flex-shrink:0; }
+  /* ---- pre-class checklist steps ---- */
+  .step-h { display:flex; align-items:center; gap:10px; }
+  .stepno { width:25px; height:25px; border-radius:50%; background:var(--deep); color:#fff; display:grid; place-items:center;
+    font-family:var(--display); font-weight:800; font-size:12px; flex-shrink:0; }
+  .stepno.done { background:var(--mint); color:var(--deep); }
+  .step-h b { font-size:14px; }
+  .step-h .t-sub { margin-top:1px; }
+  .step-h .st { margin-left:auto; }
+  /* ---- the propagation chain stepper ---- */
+  .chain { margin-top:11px; padding:4px 0 2px 2px; }
+  .chain-title { font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .chain-step { display:flex; gap:10px; align-items:flex-start; position:relative; padding-bottom:11px; }
+  .chain-step:last-child { padding-bottom:0; }
+  .chain-step::before { content:''; position:absolute; left:9px; top:20px; bottom:1px; width:2px; background:var(--line); }
+  .chain-step:last-child::before { display:none; }
+  .chain-step .tick { width:20px; height:20px; border-radius:50%; background:var(--mint); color:var(--deep); display:grid;
+    place-items:center; font-size:11px; font-weight:800; flex-shrink:0; position:relative; z-index:1; }
+  .chain-step .txt { font-size:12.5px; font-weight:600; line-height:1.45; padding-top:1px; }
+  .chain-step .txt small { display:block; font-weight:400; color:var(--faint); font-size:11px; }
+  .evt { display:flex; justify-content:space-between; gap:10px; font-size:12px; padding:7px 0; border-bottom:1px solid var(--line); }
+  .evt:last-child { border-bottom:none; }
+  .evt .t { color:var(--faint); white-space:nowrap; }
+  .note { font-size:11px; color:var(--faint); line-height:1.55; margin-top:8px; }
+  .hidden { display:none !important; }
   /* ---- layout rhythm ---- */
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:rgba(24,20,15,.08); }
   .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
   .stack > .card { border-radius:0; box-shadow:none; animation:none; }
   .stack > .card + .card { border-top:1px solid var(--line); }
-  #classCard { animation:rise .3s ease both; }
-  .tight .roster { padding:5px 0; }
-  .grid2 { display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
-  .grid2 .roster { border-bottom:none; }
+  #workspace { display:flex; flex-direction:column; gap:13px; }
   @keyframes riseUp { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
   .wrap > * { animation:riseUp .38s cubic-bezier(.2,.7,.3,1) both; }
   .wrap > *:nth-child(2) { animation-delay:.05s; }
   .wrap > *:nth-child(3) { animation-delay:.1s; }
   .wrap > *:nth-child(4) { animation-delay:.15s; }
   .wrap > *:nth-child(5) { animation-delay:.2s; }
-  .wrap > *:nth-child(6) { animation-delay:.25s; }
-  .wrap > *:nth-child(7) { animation-delay:.3s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .cls, #classCard { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .cls { animation:none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
   <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="maintenance.html">Maintenance</a><a href="index.html">Member app</a></nav>
 
-  <div class="card head">
-    <div class="avatar">TA</div>
-    <div><div class="t-name">Tony A. — Instructor</div><div class="t-sub">Group classes · HIIT · Boxing</div></div>
-    <div class="stats">
-      <div><b id="stClasses">0</b>classes today</div>
-      <div><b id="stBooked">0</b>booked</div>
-      <div><b id="stWait">0</b>waitlist</div>
-    </div>
+  <div class="card head" id="headCard"></div>
+
+  <div class="card">
+    <div class="eyebrow">Instructor workspace — signed in as</div>
+    <div class="seg" id="personaSeg"></div>
+    <div class="note">Class program, not 1:1 — the instructor workflow is deliberately separate from the trainer portal.
+      Everything below is read from and written to the shared engine (<code>DemoData</code>).</div>
   </div>
 
   <div class="eyebrow sect-label">Today — my classes</div>
-  <div class="stack">
-    <div class="card">
-      <div id="classList"></div>
-      <div class="qbar" style="margin-top:10px;">
-        <button id="addClass">+ Add class</button>
-        <button id="reqCover">Request cover</button>
-        <button id="repIssue">Report issue</button>
-      </div>
-    </div>
-    <div class="card hidden" id="classCard"></div>
-  </div>
+  <div class="card"><div id="classList"></div></div>
 
-  <div class="eyebrow sect-label">Needs attention</div>
-  <div class="card">
-    <div id="attn"></div>
-  </div>
+  <div id="workspace"></div>
+
+  <div class="eyebrow sect-label">Engine activity — my classes</div>
+  <div class="card" id="activity"></div>
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
       <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-      <span>Member bookings and check-ins update the roster live; cancellations offer the space to the first waitlisted
-      member; the prep checklist gates starting. Cover requests go to reception.</span></details></div>
+      <span>The pre-class flow gates the session: room safety check → equipment confirm → report anything unusable.
+      Reporting unusable stations runs the real engine chain — maintenance work orders, auto-isolation, capacity drop,
+      excess bookings to the waitlist, reception notified on the bus. Check-ins come from the class roster; attendance
+      locks the moment the post-class report is filed. Instructors see members' movement limits (injuries) only —
+      allergies and medical conditions are scoped to other roles by design.</span></details></div>
   </div>
 </div>
-
-<div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
 <script src="bus.js?v=3"></script>
 <script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
-const ME = 'Tony A.';
-
-/* ---------------- state ---------------- */
-const IKEY = 'gym_instr_state';
-let I = {
-  classes: [
-    { id: 'hiit', name: 'HIIT Burn', time: '7:00 PM', room: 'Functional Zone', cap: 18, status: 'scheduled',
-      policy: 'Instructor approval after warm-up begins', firstTimers: ['Samer Khanji'],
-      roster: [
-        { n: 'Samer Khanji', state: 'booked', warn: 'Right shoulder limitation' },
-        { n: 'Lina Saab', state: 'booked' },
-        { n: 'Jawad', state: 'booked' },
-        { n: 'Omar Khal', state: 'booked' },
-      ],
-      wait: ['Maya Haddad', 'Pamela <3'],
-      prep: null, startedAt: null, endedAt: null, notes: '' },
-    { id: 'spin', name: 'Spin 45', time: '6:00 PM', room: 'Studio B', cap: 20, status: 'scheduled',
-      policy: 'No entry after the safety briefing',
-      roster: [{ n: 'Lina Saab', state: 'booked' }, { n: 'Hassan M.', state: 'booked' }], wait: [],
-      prep: null, startedAt: null, endedAt: null, notes: '' },
-  ],
-  inside: {}, queue: [], offers: {}, // offers: classId → {member, at} — one open offer max
-};
-try { const s = JSON.parse(localStorage.getItem(IKEY)); if (s && s.classes) I = s; } catch (e) {}
-function save() { localStorage.setItem(IKEY, JSON.stringify(I)); }
-const clsByName = (n) => I.classes.find((c) => n && (c.name === n || n.startsWith(c.name)));
-function audit(c, line) { (c.log = c.log || []).unshift(now() + ' · ' + line); }
-
-/* ---------------- chooser ---------------- */
-function choose(title, sub, options, withNote) {
-  return new Promise((resolve) => {
-    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">${sub || ''}</div>
-      ${options.map((o, i) => `<button class="opt ${o.cls || ''}" data-oi="${i}">${o.label}</button>`).join('')}
-      ${withNote ? '<input class="opt" style="background:#fff; border:1.5px solid var(--line); font-weight:400;" id="optNote" placeholder="Note…" />' : ''}
-      <button class="m-cancel" id="optCancel">Cancel</button>`;
-    $('overlay').classList.add('show');
-    const close = (v) => { $('overlay').classList.remove('show'); resolve(v); };
-    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => close({ choice: options[Number(b.dataset.oi)].label, note: withNote ? ($('optNote')?.value || '') : '' }); });
-    $('optCancel').onclick = () => close(null);
-  });
+const D = DemoData;
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function toast(m) {
+  const e = document.createElement('div'); e.className = 'toast'; e.textContent = m;
+  e.style.top = (16 + document.querySelectorAll('.toast').length * 46) + 'px';
+  document.body.appendChild(e); setTimeout(() => e.remove(), 3300);
 }
-$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) $('overlay').classList.remove('show'); });
 
-/* ---------------- dashboard ---------------- */
-function primaryFor(c) {
-  if (c.status === 'scheduled') return ['prep', 'Prepare class'];
-  if (c.status === 'ready') return ['start', 'Start class'];
-  if (c.status === 'live') return ['open', 'Open live class'];
-  if (c.status === 'ended') return ['complete', 'Complete report'];
-  return [null, null];
+/* ---------------- persona (localStorage 'lu_instructor') ---------------- */
+const PERSONAS = ['stf_in_tony', 'stf_in_rita', 'stf_in_mayak'];
+const personaId = () => { const v = localStorage.getItem('lu_instructor'); return PERSONAS.includes(v) ? v : 'stf_in_tony'; };
+const me = () => D.load().staff.find((s) => s.id === personaId());
+const staffName = (id) => (D.load().staff.find((s) => s.id === id) || { name: id }).name;
+const branchName = (id) => (D.BranchService.byId(id) || { name: '—' }).name;
+const roomById = (id) => D.load().rooms.find((r) => r.id === id) || null;
+const initials = (n) => n.split(/[\s.]+/).filter(Boolean).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+
+/* ---------------- page-local UI state ---------------- */
+let selId = null;                 // selected class
+let safetyFormOpen = false;       // re-run an already-logged safety check
+/* chain results persist across refresh so the showcase stays visible */
+const CHAIN_KEY = 'lu_instructor_chain';
+const LATE_KEY = 'lu_instructor_late';
+const readJSON = (k) => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
+let chains = readJSON(CHAIN_KEY);
+let lateMap = readJSON(LATE_KEY);   // classId → { memberId:true } — "late" is a local chip, by design
+const saveChains = () => localStorage.setItem(CHAIN_KEY, JSON.stringify(chains));
+const saveLate = () => localStorage.setItem(LATE_KEY, JSON.stringify(lateMap));
+let insideMap = {};                 // memberId → time, seeded from engine visits, kept live via gate-entry
+D.AccessService.insideNow().forEach((v) => { insideMap[v.memberId] = v.enteredAt.slice(11, 16); });
+
+/* ---------------- engine helpers ---------------- */
+const myClasses = () => D.InstructorService.myClasses(personaId())
+  .filter((c) => D.isToday(c.startsAt))
+  .sort((a, b) => (a.status === 'scheduled' ? 0 : 1) - (b.status === 'scheduled' ? 0 : 1) || a.startsAt - b.startsAt);
+const bookedFor = (c) => D.BookingService.forClass(c.id);
+/* map the class's room to the maintenance zone its tracked stations live in */
+const ROOM_ZONE = { 'TRX Studio': 'TRX studio', 'Spin Studio': 'Spinning studio', 'Group Class Room': 'Group class room' };
+function zoneAssets(c) {
+  const room = roomById(c.roomId); if (!room) return [];
+  const zone = ROOM_ZONE[room.name] || room.name;
+  return D.MaintenanceService.assets(c.locationId).filter((a) => a.zone.toLowerCase() === zone.toLowerCase());
 }
-function render() {
-  const ordered = [...I.classes].sort((a, b) => {
-    const done = (x) => ['completed', 'cancelled'].includes(x.status) ? 1 : 0;
-    if (done(a) !== done(b)) return done(a) - done(b); // next class first, finished last
-    return a.time.localeCompare(b.time);
-  });
-  $('classList').innerHTML = ordered.map((c) => {
-    const booked = c.roster.filter((r) => ['booked', 'checkedin', 'participated'].includes(r.state)).length;
-    const insideN = c.roster.filter((r) => I.inside[r.n] && r.state === 'booked').length;
-    const [act, lbl] = primaryFor(c);
-    const stc = c.status === 'live' ? ['LIVE', 'st-live'] : c.status === 'ready' ? ['READY', 'st-ok'] : c.status === 'ended' ? ['REPORT DUE', 'st-warn'] : c.status === 'completed' ? ['COMPLETED', 'st-done'] : c.status === 'cancelled' ? ['CANCELLED', 'st-bad'] : ['SCHEDULED', 'st-sched'];
-    return `<div class="cls ${c.status === 'live' ? 'live' : ''}">
-      <div class="cls-top"><span class="cls-n">${c.time} · ${c.name}</span><span class="st ${stc[1]}">${stc[0]}</span></div>
-      <div class="cls-meta">${c.room} · ${booked} booked${c.cap - booked > 0 ? ' · ' + (c.cap - booked) + ' spaces left' : ' · FULL'}${c.wait.length ? ' · ' + c.wait.length + ' on waitlist' : ''}${insideN ? ' · ' + insideN + ' already inside' : ''}</div>
-      ${c.prep && c.prep.fail ? `<div class="cls-meta" style="color:var(--amber); font-weight:800;">⚠ ${c.prep.fail}</div>` : ''}
-      ${act ? `<button class="big-act" data-c="${c.id}" data-a="${act}">${lbl}</button>` : ''}
-      ${!['completed', 'cancelled'].includes(c.status) ? `<button class="more-btn" data-c="${c.id}" data-a="more">More…</button>` : `<div class="cls-meta">${(c.log || [])[0] || ''}</div>`}
+const ASSET_ST = { available: ['AVAILABLE', 'st-ok'], limited: ['LIMITED', 'st-warn'], waiting_parts: ['WAITING PARTS', 'st-warn'], out_of_service: ['OUT OF SERVICE', 'st-bad'] };
+const ERR_MSG = { not_booked: 'Not on the booked roster for this class', attendance_locked: 'Attendance is locked — the post-class report is already filed',
+  reason_required: 'A reason is required (3+ characters)', unknown_class: 'Unknown class' };
+const errToast = (r) => toast(ERR_MSG[r.error] || ('Error: ' + r.error));
+
+/* ---------------- header + persona switcher ---------------- */
+function renderHead() {
+  const m = me();
+  const mine = myClasses();
+  const open = mine.filter((c) => c.status === 'scheduled');
+  const booked = mine.reduce((s, c) => s + bookedFor(c).length, 0);
+  const wait = mine.reduce((s, c) => s + c.waitlist.length, 0);
+  $('headCard').innerHTML = `
+    <div class="avatar">${esc(initials(m.name))}</div>
+    <div><div class="t-name">${esc(m.name)} — Instructor</div>
+      <div class="t-sub">${esc((m.certs || []).join(' · '))} · home branch ${esc(branchName(m.locationId))}</div></div>
+    <div class="stats">
+      <div><b>${mine.length}</b>classes today</div>
+      <div><b>${booked}</b>booked</div>
+      <div><b>${wait}</b>waitlist</div>
+      <div><b>${open.length}</b>to run</div>
     </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px;">No classes today — use <b>+ Add class</b>; member bookings fill the roster live.</div>';
-  const booked = I.classes.reduce((s, c) => s + c.roster.filter((r) => r.state === 'booked').length, 0);
-  $('stClasses').textContent = I.classes.filter((c) => !['completed', 'cancelled'].includes(c.status)).length;
-  $('stBooked').textContent = booked;
-  $('stWait').textContent = I.classes.reduce((s, c) => s + c.wait.length, 0);
-  renderAttn();
-  document.querySelectorAll('[data-c]').forEach((b) => { b.onclick = () => act(b.dataset.c, b.dataset.a); });
-}
-function renderAttn() {
-  const items = [...I.queue];
-  I.classes.forEach((c) => {
-    if (c.status === 'ended') items.push({ t: c.name + ' — report incomplete', s: 'Attendance, incidents and notes are still open' });
-    if (c.prep && c.prep.fail && c.status !== 'completed') items.push({ t: c.name + ' — equipment shortage', s: c.prep.fail, urgent: true });
-    if (I.offers[c.id]) items.push({ t: c.name + ' — waitlist offer pending', s: I.offers[c.id].member + ' has the space on hold; next person is contacted only if they decline' });
-  });
-  $('attn').innerHTML = items.map((i) => `<div class="task ${i.urgent ? 'urgent' : ''}"><b>${i.t}</b>${i.s}</div>`).join('')
-    || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All caught up — cover requests, equipment problems, pending offers and unfinished reports land here.</div>';
-}
-
-/* ---------------- class actions ---------------- */
-async function act(id, action) {
-  const c = I.classes.find((x) => x.id === id); if (!c) return;
-
-  if (action === 'prep') {
-    if (c.status !== 'scheduled') return;
-    const items = ['Studio available & floor inspected', 'Emergency exit clear', 'Music + attendance device ready', 'Equipment counted (' + c.cap + ' stations)', 'First-aid location confirmed'];
-    const done = await new Promise((resolve) => {
-      $('modalBox').innerHTML = `<h3>Prepare — ${c.name}</h3><div class="sub">A failed safety item blocks a normal start.</div>
-        ${items.map((t, i) => `<label class="chk-line"><input type="checkbox" data-ck="${i}" ${i === 3 && c.id === 'hiit' ? '' : 'checked'} /> ${t}</label>`).join('')}
-        <button class="opt danger" id="ckFail">Equipment problem — report &amp; reduce capacity</button>
-        <button class="opt solid" id="ckOK">Confirm studio ready</button>
-        <button class="m-cancel" id="ckCancel">Cancel</button>`;
-      $('overlay').classList.add('show');
-      $('ckOK').onclick = () => {
-        const all = [...document.querySelectorAll('[data-ck]')].every((x) => x.checked);
-        if (!all) { toast('A checklist item is unchecked — resolve it or use the equipment-problem path'); return; }
-        $('overlay').classList.remove('show'); resolve('ok');
-      };
-      $('ckFail').onclick = () => { $('overlay').classList.remove('show'); resolve('fail'); };
-      $('ckCancel').onclick = () => { $('overlay').classList.remove('show'); resolve(null); };
-    });
-    if (!done) return;
-    if (done === 'fail') {
-      const r = await choose('Equipment problem — ' + c.name, 'Maintenance is notified; capacity drops so no one books a missing station.',
-        [{ label: '2 resistance bands missing — capacity −2' }, { label: 'Sound system fault — report only' }], true);
-      if (!r) return;
-      if (r.choice.includes('capacity')) { c.cap = Math.max(c.roster.length, c.cap - 2); }
-      c.prep = { ok: false, fail: r.choice + (r.note ? ' — ' + r.note : '') };
-      GymBus.send('report', { ref: 'CLS-' + Date.now().toString().slice(-4), machine: c.room + ' equipment', issue: r.choice, member: ME + ' (instructor)' }, 'instructor');
-      audit(c, 'Equipment issue reported — ' + r.choice + ' (' + ME + ')');
-      c.status = 'ready';
-      save(); render(); toast('Reported to maintenance — capacity now ' + c.cap);
-      return;
-    }
-    c.prep = { ok: true }; c.status = 'ready';
-    audit(c, 'Preparation confirmed by ' + ME);
-    save(); render(); toast(c.name + ' ready — start when participants are in');
-  }
-
-  if (action === 'start') {
-    if (c.status !== 'ready') return; // double-click guard
-    c.status = 'live'; c.startedAt = now();
-    audit(c, 'Class started ' + c.startedAt);
-    save(); render(); openLive(c);
-  }
-  if (action === 'open') openLive(c);
-
-  if (action === 'complete') {
-    if (c.status !== 'ended') return;
-    const notes = prompt('Class notes (required — performance, incidents, follow-ups):', '');
-    if (notes == null) return;
-    if (notes.trim().length < 5) { toast('Real class notes are required to complete'); return; }
-    if (GymBus.isProcessed('done-' + c.id + '-' + (c.startedAt || ''), 'instructor')) { toast('Already completed'); return; }
-    GymBus.markProcessed('done-' + c.id + '-' + (c.startedAt || ''), 'instructor');
-    c.notes = notes; c.status = 'completed';
-    const attendees = c.roster.filter((r) => r.state === 'participated').map((r) => r.n);
-    c.roster.forEach((r) => { if (r.state === 'booked') r.state = 'noshow'; });
-    GymBus.send('class-done', { name: c.name, instructor: ME, attendees, notes: 'Thanks for coming — see you next time!' }, 'instructor');
-    audit(c, 'Completed by ' + ME + ' — ' + attendees.length + ' attended, credits processed once');
-    save(); render();
-    toast(c.name + ' completed — ' + attendees.length + ' participants notified, credits processed exactly once');
-  }
-
-  if (action === 'more') {
-    const r = await choose(c.name + ' — more actions', c.time + ' · ' + c.room, [
-      { label: 'Open roster & check-in' },
-      { label: 'Request cover for this class' },
-      { label: 'Propose room change' },
-      { label: 'Cancel class with reason', cls: 'danger' },
-    ], true);
-    if (!r) return;
-    if (r.choice.startsWith('Open roster')) openRoster(c);
-    if (r.choice.startsWith('Request cover')) requestCover(c, r.note);
-    if (r.choice.startsWith('Propose room')) {
-      GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'Room change request — ' + c.name + ' (' + c.time + ') · needs supervisor approval' }, 'instructor');
-      audit(c, 'Room change proposed — awaiting approval');
-      save(); render(); toast('Sent for supervisor approval — nothing changes until confirmed');
-    }
-    if (r.choice.startsWith('Cancel class')) {
-      if (!r.note) { toast('A reason is required to cancel'); return; }
-      c.status = 'cancelled';
-      GymBus.send('class-done', { name: c.name, instructor: ME, cancelled: true, attendees: [], notes: 'Cancelled — ' + r.note + '. Your credit is not used.' }, 'instructor');
-      audit(c, 'Cancelled by ' + ME + ' — ' + r.note);
-      save(); render(); toast('Cancelled — every booked member is notified, no credits used');
-    }
-  }
-}
-
-/* ---------------- roster & check-in ---------------- */
-let rosterOpen = null;
-function openRoster(c) {
-  rosterOpen = c.id;
-  $('classCard').classList.remove('hidden');
-  const stLbl = { booked: 'Booked', checkedin: 'Checked in', participated: 'Participated', noshow: 'No-show', cancelled: 'Cancelled', late: 'Late entry' };
-  $('classCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">${c.name} — roster (${c.roster.length}/${c.cap})</div>
-      <button class="more-btn" style="width:auto; margin:0;" id="rcClose">✕</button></div>
-    <div class="tight">${c.roster.map((r, i) => `
-      <div class="roster">
-        <div class="avatar sm">${r.n[0]}</div>
-        <div class="n">${r.n}
-          ${r.warn ? `<span class="flag">⚠ ${r.warn}</span>` : ''}
-          ${(c.firstTimers || []).includes(r.n) ? '<span class="flag amber">First class</span>' : ''}
-          <span class="sub">${stLbl[r.state] || r.state}${I.inside[r.n] ? ' · inside gym since ' + I.inside[r.n] : ''}</span></div>
-        ${['booked'].includes(r.state) && c.status !== 'completed' ? `<button data-ri="${i}" data-ra="checkin">Check in</button>` : ''}
-        ${r.state === 'checkedin' && c.status === 'live' ? `<button data-ri="${i}" data-ra="part">Participated</button>` : ''}
-      </div>`).join('')}</div>
-    ${c.wait.length ? `<div class="eyebrow" style="margin-top:10px;">Waitlist (${c.wait.length})</div>
-      <div class="grid2 tight">${c.wait.map((w) => `<div class="roster"><div class="avatar sm">${w[0]}</div><div class="n">${w}<span class="sub">${I.offers[c.id]?.member === w ? 'Offer sent — waiting for answer' : 'Waiting'}</span></div></div>`).join('')}</div>` : ''}
-    <div style="font-size:11px; color:var(--faint); margin-top:8px;">Contact goes through the gym — participant phone numbers are not shown here. Attendance locks when the report is completed.</div>`;
-  $('rcClose').onclick = () => { $('classCard').classList.add('hidden'); rosterOpen = null; };
-  document.querySelectorAll('[data-ri]').forEach((b) => { b.onclick = () => {
-    const r = c.roster[Number(b.dataset.ri)];
-    if (b.dataset.ra === 'checkin') { r.state = 'checkedin'; audit(c, r.n + ' checked in'); }
-    if (b.dataset.ra === 'part') { r.state = 'participated'; }
-    save(); openRoster(c); render();
+  $('personaSeg').innerHTML = PERSONAS.map((id) => {
+    const s = D.load().staff.find((x) => x.id === id);
+    return `<button data-p="${id}" class="${id === personaId() ? 'on' : ''}">${esc(s.name)}<small>${esc(branchName(s.locationId))} · ${esc((s.certs || []).join('/'))}</small></button>`;
+  }).join('');
+  document.querySelectorAll('[data-p]').forEach((b) => { b.onclick = () => {
+    localStorage.setItem('lu_instructor', b.dataset.p); selId = null; safetyFormOpen = false; render();
   }; });
-  $('classCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-/* ---------------- live mode ---------------- */
-function openLive(c) {
-  rosterOpen = c.id;
-  $('classCard').classList.remove('hidden');
-  const present = c.roster.filter((r) => ['checkedin', 'participated'].includes(r.state)).length;
-  $('classCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">${c.name} · LIVE — started ${c.startedAt}</div>
-      <button class="more-btn" style="width:auto; margin:0;" id="lvClose">✕</button></div>
-    <div style="font-size:13.5px; margin-top:6px;"><b>${present}</b> participants present · policy: ${c.policy}</div>
-    <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;">
-      <button class="big-act" style="flex:1; margin:0;" id="lvEnd">End class</button>
-      <button class="more-btn" style="width:auto;" id="lvLate">Late arrival…</button>
-      <button class="more-btn" style="width:auto; color:var(--red);" id="lvIncident">Report incident</button>
+/* ---------------- my classes ---------------- */
+const CLS_ST = { scheduled: ['SCHEDULED', 'st-sched'], completed: ['COMPLETED', 'st-done'], cancelled: ['CANCELLED', 'st-bad'] };
+function renderClassList() {
+  const mine = myClasses();
+  if (!selId || !mine.some((c) => c.id === selId)) selId = (mine.find((c) => c.status === 'scheduled') || mine[0] || {}).id || null;
+  $('classList').innerHTML = mine.map((c) => {
+    const b = bookedFor(c).length;
+    const [stl, stc] = CLS_ST[c.status] || [c.status.toUpperCase(), 'st-sched'];
+    const away = c.locationId !== me().locationId;
+    return `<div class="cls ${c.id === selId ? 'sel' : ''}" data-sel="${c.id}">
+      <div class="cls-top"><span class="cls-n">${D.fmtTime(c.startsAt)} · ${esc(c.name)}</span><span class="st ${stc}">${stl}</span></div>
+      <div class="chiprow">
+        <span class="chip b-chip">${esc(branchName(c.locationId))}${away ? ' — away' : ''}</span>
+        <span class="chip">${esc((roomById(c.roomId) || { name: c.roomId }).name)}</span>
+        <span class="chip">${esc(c.difficulty)}</span>
+        <span class="chip ${b >= c.capacity ? 'amber' : ''}">${b}/${c.capacity} booked</span>
+        ${c.waitlist.length ? `<span class="chip amber">${c.waitlist.length} waitlist</span>` : ''}
+        ${c.coverRequested ? '<span class="chip red">cover requested</span>' : ''}
+        ${c.roomChangeProposal ? '<span class="chip amber">room change proposed</span>' : ''}
+      </div>
+      <div class="cls-meta">${c.durationMins} min · equipment: ${esc(c.equipment.join(', '))}${c.safetyCheck ? ' · safety check ✓' : ''}</div>
+      ${c.report ? `<div class="lockbox"><b>Post-class report — locked 🔒</b><br>${c.report.attended} attended · “${esc(c.report.notes)}”
+        <div class="by">Filed by ${esc(staffName(c.report.by))} at ${new Date(c.report.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} — attendance can no longer change.</div></div>` : ''}
+    </div>`;
+  }).join('') || '<div style="color:var(--faint); font-size:13px;">No classes on today’s program for this instructor.</div>';
+  document.querySelectorAll('[data-sel]').forEach((el) => { el.onclick = () => { selId = el.dataset.sel; safetyFormOpen = false; render(); }; });
+}
+
+/* ---------------- workspace: pre-class flow, roster, controls, report ---------------- */
+function renderWorkspace() {
+  const c = myClasses().find((x) => x.id === selId);
+  const w = $('workspace');
+  if (!c) { w.innerHTML = ''; return; }
+  if (c.status !== 'scheduled') { w.innerHTML = completedView(c); return; }
+  w.innerHTML = `
+    <div class="eyebrow sect-label">Pre-class flow — ${esc(c.name)}</div>
+    <div class="stack">
+      <div class="card">${stepSafety(c)}</div>
+      <div class="card">${stepEquipment(c)}</div>
+      <div class="card">${stepReport(c)}</div>
     </div>
-    <div class="eyebrow" style="margin-top:12px;">Roster</div>
-    <div id="lvRoster" class="tight"></div>`;
-  const rerenderMini = () => {
-    $('lvRoster').innerHTML = c.roster.map((r, i) => `
-      <div class="roster"><div class="avatar sm">${r.n[0]}</div>
-        <div class="n">${r.n}<span class="sub">${r.state}${r.warn ? ' · ⚠ ' + r.warn : ''}</span></div>
-        ${r.state === 'booked' ? `<button data-lvi="${i}">Check in</button>` : r.state === 'checkedin' ? `<button data-lvi="${i}">Participated</button>` : ''}
-      </div>`).join('');
-    document.querySelectorAll('[data-lvi]').forEach((b) => { b.onclick = () => {
-      const r = c.roster[Number(b.dataset.lvi)];
-      r.state = r.state === 'booked' ? 'checkedin' : 'participated';
-      save(); rerenderMini(); render();
-    }; });
-  };
-  rerenderMini();
-  $('lvClose').onclick = () => { $('classCard').classList.add('hidden'); rosterOpen = null; };
-  $('lvEnd').onclick = () => {
-    if (c.status !== 'live') return;
-    c.status = 'ended'; c.endedAt = now();
-    audit(c, 'Class ended ' + c.endedAt + ' — complete the report');
-    save(); render(); $('classCard').classList.add('hidden');
-    toast('Ended — attendance and notes are required before completion');
-  };
-  $('lvLate').onclick = async () => {
-    const r = await choose('Late arrival — ' + c.name, 'Policy: ' + c.policy, [
-      { label: 'Allow late entry (logged)', cls: 'solid' },
-      { label: 'Deny — offer the next suitable class', cls: 'danger' },
-    ], true);
-    if (!r) return;
-    if (r.choice.startsWith('Allow')) {
-      c.roster.push({ n: r.note || 'Walk-in member', state: 'late' });
-      audit(c, 'Late entry allowed — ' + (r.note || 'walk-in') + ' (' + ME + ')');
-      save(); openLive(c); render(); toast('Late entry allowed — logged');
+    <div class="eyebrow sect-label">Check-in — roster</div>
+    <div class="card">${rosterView(c)}</div>
+    <div class="eyebrow sect-label">Class controls</div>
+    <div class="stack">
+      <div class="card">${incidentView(c)}</div>
+      <div class="card">${coverView(c)}</div>
+      <div class="card">${roomChangeView(c)}</div>
+      <div class="card">${capacityView(c)}</div>
+    </div>
+    <div class="eyebrow sect-label">Post-class report</div>
+    <div class="card">${reportFormView(c)}</div>`;
+  bindWorkspace(c);
+}
+
+/* -- step 1: room safety check -- */
+function stepSafety(c) {
+  const done = !!c.safetyCheck && !safetyFormOpen;
+  const head = `<div class="step-h"><div class="stepno ${c.safetyCheck ? 'done' : ''}">1</div>
+    <div><b>Room safety check</b><div class="t-sub">Floor, exits, rigging — logged to the engine with your name on it.</div></div>
+    <span class="st ${c.safetyCheck ? 'st-ok' : 'st-warn'}">${c.safetyCheck ? 'LOGGED' : 'TO DO'}</span></div>`;
+  if (done) {
+    const s = c.safetyCheck;
+    return head + `<div class="lockbox" style="margin-top:10px;">
+      Room ${s.roomOk ? 'OK ✓' : '<span style="color:var(--red); font-weight:800;">NOT OK</span>'} ·
+      Equipment ${s.equipmentOk ? 'OK ✓' : '<span style="color:var(--amber); font-weight:800;">FLAGGED</span>'}
+      ${s.issues && s.issues.length ? '<br>Issues: ' + s.issues.map(esc).join(' · ') : ''}
+      <div class="by">By ${esc(staffName(s.by))} at ${new Date(s.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div></div>
+      <button class="more-btn" id="safetyRerun">Re-run the check…</button>`;
+  }
+  return head + `
+    <label class="chk-line"><input type="checkbox" id="sfRoom" checked /> Room OK — floor clean, exits clear</label>
+    <label class="chk-line"><input type="checkbox" id="sfEquip" checked /> Equipment OK — stations rigged &amp; safe</label>
+    <input class="inp" id="sfIssues" placeholder="Issues found (separate with ; ) — optional" />
+    <button class="big-act" id="sfLog">Log safety check</button>`;
+}
+
+/* -- step 2: equipment confirm against the branch's tracked assets -- */
+function stepEquipment(c) {
+  const assets = zoneAssets(c);
+  const bad = assets.filter((a) => a.status !== 'available');
+  const room = (roomById(c.roomId) || { name: c.roomId }).name;
+  return `<div class="step-h"><div class="stepno ${assets.length && !bad.length ? 'done' : ''}">2</div>
+    <div><b>Equipment confirm</b><div class="t-sub">Class needs: ${esc(c.equipment.join(', '))} — tracked stations in ${esc(room)} (${esc(branchName(c.locationId))}).</div></div>
+    <span class="st ${!assets.length ? 'st-sched' : bad.length ? 'st-warn' : 'st-ok'}">${!assets.length ? 'VISUAL' : bad.length ? bad.length + ' FLAGGED' : 'ALL OK'}</span></div>
+    ${assets.length ? assets.map((a) => {
+      const [lbl, cls] = ASSET_ST[a.status] || [a.status.toUpperCase(), 'st-warn'];
+      return `<div class="chk-line" style="cursor:default;"><span style="font-weight:700;">${esc(a.name)}</span>
+        <span class="sub" style="font-size:11px; color:var(--faint); font-weight:400;">${esc(a.brand)} · inspected ${esc(a.lastInspection)}</span>
+        <span class="st ${cls}">${lbl}</span></div>`;
+    }).join('') : `<div class="note">No individually tracked stations for this room in the asset register (${esc(c.equipment.join(', '))} are counted visually). Anything broken still goes through step 3.</div>`}`;
+}
+
+/* -- step 3: report unusable equipment → THE chain -- */
+function stepReport(c) {
+  const assets = zoneAssets(c);
+  const chain = chains[c.id];
+  const usable = assets.filter((a) => a.status === 'available' || a.status === 'limited');
+  return `<div class="step-h"><div class="stepno ${chain ? 'done' : ''}">3</div>
+    <div><b>Report unusable equipment</b><div class="t-sub">Creates work orders, isolates the stations, drops capacity, recalculates the waitlist.</div></div>
+    <span class="st ${chain ? 'st-ok' : 'st-sched'}">${chain ? 'REPORTED' : 'IF NEEDED'}</span></div>
+    ${usable.length ? usable.map((a) => `<label class="chk-line"><input type="checkbox" class="eqSel" value="${a.id}" /> ${esc(a.name)}
+      <span class="st ${ASSET_ST[a.status][1]}">${ASSET_ST[a.status][0]}</span></label>`).join('')
+      : '<div class="note">No in-service tracked stations left to report in this room.</div>'}
+    <input class="inp" id="eqProblem" placeholder="Problem — e.g. anchor loose / strap torn" />
+    <div class="frow">
+      <input class="inp short" id="eqDrop" type="number" min="0" max="${c.capacity}" value="0" />
+      <div class="t-sub" style="margin-top:7px;">places to drop from capacity (currently ${c.capacity})</div>
+    </div>
+    <button class="big-act" id="eqReport">Report unusable — run the chain</button>
+    ${chain ? chainView(chain) : ''}`;
+}
+function chainView(chain) {
+  return `<div class="chain"><div class="chain-title">What the engine just did — ${esc(chain.at)}</div>
+    ${chain.steps.map((s) => `<div class="chain-step"><span class="tick">✓</span>
+      <div class="txt">${esc(s.t)}${s.d ? `<small>${esc(s.d)}</small>` : ''}</div></div>`).join('')}</div>`;
+}
+
+/* -- roster & check-in -- */
+function rosterView(c) {
+  const started = D.now() > c.startsAt;
+  const rows = bookedFor(c).map((b) => {
+    const m = D.MemberService.byId(b.memberId) || { name: b.memberId };
+    const checked = c.checkins.includes(b.memberId);
+    const late = (lateMap[c.id] || {})[b.memberId];
+    const facts = checked ? D.HealthService.visibleTo(b.memberId, 'instructor') : [];
+    return `<div class="roster"><div class="avatar sm">${esc(initials(m.name))}</div>
+      <div class="n">${esc(m.name)}
+        ${facts.map((f) => `<span class="flag" title="${esc(f.note)}">⚠ ${esc(f.label)}</span>`).join('')}
+        ${late ? '<span class="flag amber">late</span>' : ''}
+        ${insideMap[b.memberId] ? '<span class="flag mint">in the gym</span>' : ''}
+        <span class="sub">${checked ? 'Checked in ✓' : b.fromWaitlist ? 'Booked (promoted from waitlist)' : 'Booked'}</span></div>
+      ${!checked && !c.report ? `<button data-ck="${b.memberId}">Check in</button>` : ''}
+    </div>`;
+  }).join('');
+  const wl = c.waitlist.map((id, i) => {
+    const m = D.MemberService.byId(id) || { name: id };
+    return `<div class="roster"><div class="avatar sm">${i + 1}</div>
+      <div class="n">${esc(m.name)}<span class="sub">Waitlist position ${i + 1} — promoted automatically when a space opens</span></div></div>`;
+  }).join('');
+  return `<div class="eyebrow" style="margin-bottom:2px;">Roster — ${bookedFor(c).length}/${c.capacity} booked · ${c.checkins.length} checked in</div>
+    ${started ? '<div class="note" style="margin:0 0 4px;">Class has started — new check-ins are chipped <b>late</b> (local chip, not an engine state).</div>' : ''}
+    ${rows || '<div style="color:var(--faint); font-size:13px; padding:6px 0;">No bookings yet.</div>'}
+    ${wl ? `<div class="eyebrow" style="margin-top:12px;">Waitlist (${c.waitlist.length})</div>${wl}` : ''}
+    <div class="note">Injury visibility: checked-in members show <b>movement limits only</b>
+    (HealthService.visibleTo(member, 'instructor')) — allergies &amp; conditions are scoped to other roles by design.
+    Attendance locks when the post-class report is filed.</div>`;
+}
+
+/* -- incidents -- */
+function incidentView(c) {
+  const mine = D.IncidentService.list(c.locationId).filter((i) => i.kind === 'class_incident' && (i.note || '').includes(c.name));
+  return `<div class="eyebrow" style="margin-bottom:2px;">Report incident — scoped to this class</div>
+    <input class="inp" id="incNote" placeholder="What happened? (kept on the branch incident log)" />
+    <button class="act" id="incSend">Log class incident</button>
+    ${mine.length ? mine.map((i) => `<div class="lockbox" style="margin-top:8px;">${esc(i.note)}
+      <div class="by">${i.status} · ${new Date(i.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div></div>`).join('') : ''}`;
+}
+
+/* -- cover request -- */
+function coverView(c) {
+  return `<div class="eyebrow" style="margin-bottom:2px;">Request cover</div>
+    ${c.coverRequested ? `<div class="lockbox">Cover requested — “${esc(c.coverRequested.reason)}”
+      <div class="by">By ${esc(staffName(c.coverRequested.by))} at ${new Date(c.coverRequested.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · reception notified via the bus — you stay responsible until confirmed.</div></div>`
+    : `<input class="inp" id="cvReason" placeholder="Reason (required)" />
+      <button class="act" id="cvSend">Request cover</button>`}`;
+}
+
+/* -- room change proposal -- */
+function roomChangeView(c) {
+  const sameBranch = D.load().rooms.filter((r) => r.locationId === c.locationId && r.id !== c.roomId);
+  const options = sameBranch.length ? sameBranch : D.load().rooms.filter((r) => r.id !== c.roomId);
+  const crossNote = sameBranch.length ? '' : `<div class="note">${esc(branchName(c.locationId))} has no other room — proposing a room at another branch (needs approval anyway).</div>`;
+  return `<div class="eyebrow" style="margin-bottom:2px;">Propose room change</div>
+    ${c.roomChangeProposal ? `<div class="lockbox">Proposed → ${esc((roomById(c.roomChangeProposal.toRoomId) || { name: c.roomChangeProposal.toRoomId }).name)}
+      (${esc(branchName((roomById(c.roomChangeProposal.toRoomId) || {}).locationId))}) — “${esc(c.roomChangeProposal.reason)}”
+      <div class="by">Awaiting approval — nothing moves until reception confirms.</div></div>`
+    : `${crossNote}<select class="inp" id="rcRoom">${options.map((r) => `<option value="${r.id}">${esc(r.name)} — ${esc(branchName(r.locationId))} (cap ${r.capacity})</option>`).join('')}</select>
+      <input class="inp" id="rcReason" placeholder="Reason (required)" />
+      <button class="act" id="rcSend">Propose room change</button>`}`;
+}
+
+/* -- standalone capacity reduction -- */
+function capacityView(c) {
+  return `<div class="eyebrow" style="margin-bottom:2px;">Reduce capacity — non-equipment reasons</div>
+    <div class="frow">
+      <input class="inp short" id="capNew" type="number" min="1" max="${c.capacity}" value="${c.capacity}" />
+      <div class="t-sub" style="margin-top:7px;">new capacity (currently ${c.capacity} · ${bookedFor(c).length} booked)</div>
+    </div>
+    <input class="inp" id="capReason" placeholder="Reason (required) — e.g. AC down, half the room unusable" />
+    <button class="act" id="capSend">Reduce capacity</button>
+    <div class="note">Excess confirmed bookings (latest first) move to the front of the waitlist; members are notified on the bus.</div>`;
+}
+
+/* -- post-class report -- */
+function reportFormView(c) {
+  return `<div class="eyebrow" style="margin-bottom:2px;">File the report — flips the class to completed</div>
+    <div class="frow">
+      <input class="inp short" id="rpAttended" type="number" min="0" value="${c.checkins.length}" />
+      <div class="t-sub" style="margin-top:7px;">attended — pre-filled from ${c.checkins.length} check-in${c.checkins.length === 1 ? '' : 's'}</div>
+    </div>
+    <textarea class="inp" id="rpNotes" placeholder="Class notes — energy, incidents, follow-ups"></textarea>
+    <button class="big-act" id="rpSend">Complete class — file report &amp; lock attendance</button>
+    <div class="note">⚠ Filing the report <b>locks attendance</b> — further check-ins are rejected by the engine (attendance_locked).</div>`;
+}
+
+/* -- completed class: locked view -- */
+function completedView(c) {
+  const s = c.safetyCheck;
+  return `<div class="eyebrow sect-label">${esc(c.name)} — completed &amp; locked</div>
+    <div class="card">
+      <div class="lockbox" style="margin-top:0;"><b>Post-class report 🔒</b><br>
+        ${c.report ? `${c.report.attended} attended · “${esc(c.report.notes)}”
+        <div class="by">Filed by ${esc(staffName(c.report.by))} at ${new Date(c.report.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}. Attendance is locked — check-ins are rejected (attendance_locked).</div>` : 'No report on file.'}</div>
+      ${s ? `<div class="lockbox">Safety check — room ${s.roomOk ? 'OK ✓' : 'NOT OK'}, equipment ${s.equipmentOk ? 'OK ✓' : 'flagged'}
+        <div class="by">By ${esc(staffName(s.by))} at ${new Date(s.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div></div>` : ''}
+      ${c.checkins.length ? `<div class="eyebrow" style="margin-top:12px;">Checked in (${c.checkins.length})</div>
+        ${c.checkins.map((id) => { const m = D.MemberService.byId(id) || { name: id }; return `<div class="roster"><div class="avatar sm">${esc(initials(m.name))}</div><div class="n">${esc(m.name)}<span class="sub">Attended</span></div></div>`; }).join('')}` : ''}
+    </div>`;
+}
+
+/* ---------------- workspace actions ---------------- */
+function bindWorkspace(c) {
+  const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
+  on('safetyRerun', () => { safetyFormOpen = true; render(); });
+  on('sfLog', () => {
+    const issues = ($('sfIssues').value || '').split(';').map((s) => s.trim()).filter(Boolean);
+    const r = D.InstructorService.safetyCheck(c.id, personaId(), { roomOk: $('sfRoom').checked, equipmentOk: $('sfEquip').checked, issues });
+    if (r.error) return errToast(r);
+    safetyFormOpen = false;
+    toast('Safety check logged — ' + ($('sfRoom').checked && $('sfEquip').checked ? 'all clear' : 'issues flagged'));
+    render();
+  });
+  /* auto-suggest the capacity drop = number of stations picked */
+  document.querySelectorAll('.eqSel').forEach((cb) => { cb.onchange = () => {
+    $('eqDrop').value = document.querySelectorAll('.eqSel:checked').length;
+  }; });
+  on('eqReport', () => {
+    const assetIds = [...document.querySelectorAll('.eqSel:checked')].map((x) => x.value);
+    const problem = ($('eqProblem').value || '').trim();
+    const drop = Math.max(0, Number($('eqDrop').value) || 0);
+    if (!assetIds.length) return toast('Pick at least one affected station');
+    if (problem.length < 3) return toast('Describe the problem (3+ characters)');
+    const before = D.BookingService.classById(c.id).capacity;
+    const res = D.InstructorService.reportEquipment(c.id, personaId(), assetIds, problem, drop);
+    if (res.error) return errToast(res);
+    const after = D.BookingService.classById(c.id);
+    /* build the visible chain from the engine's actual return + its event log */
+    const evs = D.events().slice(0, 20);
+    const woIds = res.workOrders.map((w) => w.id);
+    const woEvs = evs.filter((e) => e.type === 'maintenance.work_order_created' && woIds.includes((e.payload || {}).workOrderId));
+    const isoEvs = evs.filter((e) => e.type === 'maintenance.asset_isolated' && assetIds.includes(e.subjectId));
+    const capEv = evs.find((e) => e.type === 'class.capacity_reduced' && e.subjectId === c.id);
+    const steps = [
+      { t: `${res.workOrders.length} maintenance work order${res.workOrders.length === 1 ? '' : 's'} created`, d: woIds.join(', ') + (woEvs.length ? ' — confirmed in the event log' : '') },
+      { t: `${isoEvs.length || assetIds.length} station${assetIds.length === 1 ? '' : 's'} auto-isolated (safety severity → out of service)`, d: assetIds.map((id) => (D.MaintenanceService.assetById(id) || { name: id }).name).join(', ') },
+    ];
+    if (res.reduced) {
+      steps.push({ t: `capacity ${capEv ? capEv.payload.from : before} → ${capEv ? capEv.payload.to : after.capacity}`, d: 'class.capacity_reduced in the event log' });
+      steps.push({ t: res.reduced.bumped > 0 ? `${res.reduced.bumped} booking${res.reduced.bumped === 1 ? '' : 's'} moved to waitlist` : 'no confirmed bookings displaced', d: `${bookedFor(after).length} booked ≤ ${after.capacity} capacity` });
     } else {
-      GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: r.note || 'Member at studio door', subject: 'Late entry denied for ' + c.name + ' per class policy — please offer the next suitable class' }, 'instructor');
-      audit(c, 'Late entry denied per policy — reception notified');
-      save(); toast('Denied per policy — reception offers the next class');
+      steps.push({ t: 'capacity unchanged — no drop requested', d: `still ${after.capacity}` });
     }
-  };
-  $('lvIncident').onclick = () => {
-    const t = prompt('What happened? (goes to reception as an incident — stays open until THEY close it):', '');
-    if (!t) return;
-    GymBus.send('sos', { member: ME + ' (instructor)', sosType: 'Class incident — ' + c.name, zone: c.room + ': ' + t }, 'instructor');
-    audit(c, 'Incident reported — ' + t);
-    save(); toast('Incident sent — reception acknowledges and closes it');
-  };
-  $('classCard').scrollIntoView({ behavior: 'smooth' });
+    steps.push({ t: 'reception notified', d: "'work-order' + 'class-capacity' events on the GymBus" });
+    steps.push({ t: 'waitlist recalculated', d: `${after.waitlist.length} member${after.waitlist.length === 1 ? '' : 's'} waiting` });
+    chains[c.id] = { at: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }), steps };
+    saveChains();
+    toast(`Chain complete — ${res.workOrders.length} work orders, capacity ${before} → ${after.capacity}`);
+    render();
+  });
+  document.querySelectorAll('[data-ck]').forEach((b) => { b.onclick = (e) => {
+    e.stopPropagation();
+    const memberId = b.dataset.ck;
+    const r = D.InstructorService.checkInMember(c.id, memberId, personaId());
+    if (r.error) return errToast(r);
+    if (D.now() > c.startsAt) { (lateMap[c.id] = lateMap[c.id] || {})[memberId] = true; saveLate(); }
+    toast((D.MemberService.byId(memberId) || { name: memberId }).name + ' checked in' + (D.now() > c.startsAt ? ' — late' : ''));
+    render();
+  }; });
+  on('incSend', () => {
+    const note = ($('incNote').value || '').trim();
+    if (note.length < 5) return toast('Describe the incident (5+ characters)');
+    const r = D.IncidentService.report({ kind: 'class_incident', note: `${c.name} (${(roomById(c.roomId) || { name: '' }).name}): ${note}`, staffId: personaId(), branchId: c.locationId });
+    if (r.error) return errToast(r);
+    toast('Incident logged on the ' + branchName(c.locationId) + ' branch log');
+    render();
+  });
+  on('cvSend', () => {
+    const r = D.InstructorService.requestCover(c.id, personaId(), ($('cvReason').value || '').trim());
+    if (r.error) return errToast(r);
+    toast("Cover requested — reception notified via 'cover-request' on the bus");
+    render();
+  });
+  on('rcSend', () => {
+    const r = D.InstructorService.proposeRoomChange(c.id, personaId(), $('rcRoom').value, ($('rcReason').value || '').trim());
+    if (r.error) return errToast(r);
+    toast('Room change proposed — awaiting approval');
+    render();
+  });
+  on('capSend', () => {
+    const newCap = Number($('capNew').value);
+    if (!newCap || newCap < 1) return toast('Enter a valid capacity');
+    if (newCap >= c.capacity) return toast('New capacity must be below the current ' + c.capacity);
+    const r = D.BookingService.reduceCapacity(c.id, newCap, personaId(), ($('capReason').value || '').trim());
+    if (r.error) return errToast(r);
+    toast(`Capacity reduced to ${newCap} — ${r.bumped} booking${r.bumped === 1 ? '' : 's'} moved to waitlist`);
+    render();
+  });
+  on('rpSend', () => {
+    const notes = ($('rpNotes').value || '').trim();
+    if (notes.length < 5) return toast('Real class notes are required (5+ characters)');
+    const attended = Math.max(0, Number($('rpAttended').value) || 0);
+    const r = D.InstructorService.postClassReport(c.id, personaId(), { attended, notes });
+    if (r.error) return errToast(r);
+    toast(`${c.name} completed — ${attended} attended · attendance locked`);
+    render();
+  });
 }
 
-/* ---------------- scheduling, cover, issues ---------------- */
-$('addClass').onclick = async () => {
-  const name = prompt('Class name:', 'Mobility Basics'); if (!name) return;
-  const time = prompt('Time today (e.g. 8:00 PM):', '8:00 PM'); if (!time) return;
-  const room = prompt('Room:', 'Studio B'); if (room == null) return;
-  const clash = I.classes.find((c) => !['completed', 'cancelled'].includes(c.status) && (c.time === time || (c.room === room && c.time === time)));
-  if (clash) { toast('Not created — clashes with ' + clash.name + ' at ' + clash.time + (clash.room === room ? ' in the same room' : ' (you are double-booked)')); return; }
-  I.classes.push({ id: 'c' + Date.now(), name, time, room, cap: 15, status: 'scheduled', policy: 'Late entry allowed for 10 minutes', roster: [], wait: [], prep: null, startedAt: null, endedAt: null, notes: '', draft: true });
-  GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'New class draft — ' + name + ' ' + time + ' (' + room + ') · supervisor approval before publishing' }, 'instructor');
-  save(); render();
-  toast(name + ' drafted — supervisor approval requested before members see it');
+/* ---------------- engine activity feed ---------------- */
+const EVT_LABEL = {
+  'class.safety_check': 'Safety check logged', 'maintenance.work_order_created': 'Work order created',
+  'maintenance.asset_isolated': 'Asset isolated', 'class.capacity_reduced': 'Capacity reduced',
+  'class.member_checked_in': 'Member checked in', 'class.cover_requested': 'Cover requested',
+  'class.room_change_proposed': 'Room change proposed', 'class.report_completed': 'Post-class report filed',
+  'incident.reported': 'Incident reported', 'class.waitlist_promoted': 'Promoted from waitlist',
+  'class.booked': 'Class booked', 'class.booking_cancelled': 'Booking cancelled', 'class.waitlisted': 'Joined waitlist',
 };
-$('reqCover').onclick = () => requestCover(I.classes[0], null);
-function requestCover(c, note) {
-  GymBus.send('ticket', { tkt: 'TKT-' + Date.now().toString().slice(-5), member: ME + ' (instructor)', subject: 'Cover request — ' + c.name + ' ' + c.time + (note ? ' · ' + note : '') + ' · qualified HIIT instructor needed · I remain responsible until confirmed' }, 'instructor');
-  I.queue.unshift({ t: 'Cover requested — ' + c.name, s: 'Awaiting a qualified volunteer + supervisor approval · you stay responsible until confirmed' });
-  audit(c, 'Cover requested by ' + ME);
-  save(); render(); toast('Cover request sent — you remain responsible until a replacement is confirmed');
-}
-$('repIssue').onclick = async () => {
-  const r = await choose('Report issue', 'Goes straight to maintenance.', [
-    { label: 'Sound system — Studio B' }, { label: 'Spin bike — Studio B' }, { label: 'Flooring — Functional Zone' }, { label: 'Other' },
-  ], true);
-  if (!r) return;
-  GymBus.send('report', { ref: 'CLS-' + Date.now().toString().slice(-4), machine: r.choice, issue: 'Reported by instructor' + (r.note ? ' — ' + r.note : ''), member: ME + ' (instructor)' }, 'instructor');
-  toast('Reported to maintenance');
-};
-
-/* ---------------- waitlist lifecycle ---------------- */
-function processCancellation(c, member) {
-  const r = c.roster.find((x) => x.n === member && ['booked', 'checkedin'].includes(x.state));
-  if (r) { r.state = 'cancelled'; audit(c, member + ' cancelled'); }
-  if (c.wait.length && !I.offers[c.id]) { // never two open offers for one space
-    const next = c.wait[0];
-    I.offers[c.id] = { member: next, at: now() };
-    GymBus.send('class-offer', { name: c.name, member: next, expires: '30 min' }, 'instructor');
-    audit(c, 'Space offered to ' + next + ' (first on waitlist)');
-    toast('Space offered to ' + next + ' — 30 min to answer');
-  }
-  save(); render(); if (rosterOpen === c.id) openRoster(c);
+function renderActivity() {
+  const ids = new Set(myClasses().map((c) => c.id));
+  const rows = D.events()
+    .filter((e) => ids.has(e.subjectId) || e.actorId === personaId() || ids.has((e.payload || {}).classId))
+    .slice(0, 8)
+    .map((e) => `<div class="evt"><span><b>${esc(EVT_LABEL[e.type] || e.type)}</b>${e.actorId ? ' · ' + esc(staffName(e.actorId)) : ''}</span>
+      <span class="t">${new Date(e.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span></div>`).join('');
+  $('activity').innerHTML = rows || '<div style="color:var(--faint); font-size:13px;">Nothing yet — safety checks, work orders and reports land here (DemoData.events()).</div>';
 }
 
-/* ---------------- bus ---------------- */
+/* ---------------- render all ---------------- */
+function render() { renderHead(); renderClassList(); renderWorkspace(); renderActivity(); }
+
+/* ---------------- GymBus: live cross-department events ---------------- */
 GymBus.on((kind, ev) => {
-  if (kind === 'event' && ev.type === 'gate-entry') {
-    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
-    I.inside[ev.payload.member] = ev.payload.time; save(); render();
-    if (I.classes.some((c) => c.roster.some((r) => r.n === ev.payload.member && r.state === 'booked'))) toast(ev.payload.member + ' is in the gym');
+  if (kind !== 'event' || !ev || !ev.payload) return;
+  const key = ev.id; const seen = () => { if (GymBus.isProcessed(key, 'instructor')) return true; GymBus.markProcessed(key, 'instructor'); return false; };
+  const p = ev.payload;
+  if (ev.type === 'gate-entry') {
+    if (seen()) return;
+    if (p.memberId) insideMap[p.memberId] = p.time || '';
+    const mine = myClasses().map((c) => c.id);
+    const booked = p.memberId && D.BookingService.forMember(p.memberId).some((b) => mine.includes(b.classId));
+    if (booked) toast(p.member + ' is in the gym — booked for your class');
+    render();
   }
-  if (kind === 'event' && ev.type === 'class-book') {
-    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
-    const c = clsByName(ev.payload.name); if (!c) return;
-    const booked = c.roster.filter((r) => ['booked', 'checkedin', 'participated'].includes(r.state)).length;
-    if (booked >= c.cap) { c.wait.push(ev.payload.member); audit(c, ev.payload.member + ' → waitlist (class full — stale tab protected)'); }
-    else if (!c.roster.some((r) => r.n === ev.payload.member && r.state !== 'cancelled')) {
-      c.roster.push({ n: ev.payload.member, state: 'booked' });
-      audit(c, ev.payload.member + ' booked via app');
-    }
-    save(); render(); if (rosterOpen === c.id) openRoster(c);
-    toast(ev.payload.member + ' → ' + c.name);
-  }
-  if (kind === 'event' && ev.type === 'class-waitlist') {
-    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
-    const c = clsByName(ev.payload.name); if (!c) return;
-    if (!c.wait.includes(ev.payload.member)) c.wait.push(ev.payload.member);
-    save(); render();
-  }
-  if (kind === 'event' && ev.type === 'class-cancel') {
-    if (GymBus.isProcessed(ev.id, 'instructor')) return; GymBus.markProcessed(ev.id, 'instructor');
-    const c = clsByName(ev.payload.name); if (!c) return;
-    processCancellation(c, ev.payload.member);
-  }
-  if (kind === 'update' && ev.type === 'class-offer') {
-    const c = clsByName(ev.payload.name); if (!c) return;
-    const key = ev.id + ':' + ev.status;
-    if (GymBus.isProcessed(key, 'instructor')) return; GymBus.markProcessed(key, 'instructor');
-    if (ev.status === 'accepted') {
-      c.wait = c.wait.filter((w) => w !== ev.payload.member);
-      c.roster.push({ n: ev.payload.member, state: 'booked' });
-      delete I.offers[c.id];
-      audit(c, ev.payload.member + ' accepted the waitlist offer — booked');
-      save(); render(); if (rosterOpen === c.id) openRoster(c);
-      toast(ev.payload.member + ' promoted from the waitlist ✓');
-    }
-    if (ev.status === 'declined') {
-      c.wait = c.wait.filter((w) => w !== ev.payload.member);
-      delete I.offers[c.id];
-      audit(c, ev.payload.member + ' declined the offer');
-      save(); render();
-      if (c.wait.length) processCancellation(c, '—'); // offer the next person
-    }
-  }
+  if (ev.type === 'class-capacity') { if (seen()) return; toast(`Capacity — ${p.cls}: ${p.from} → ${p.to} (${p.branch})`); render(); }
+  if (ev.type === 'work-order') { if (seen()) return; toast(`Work order — ${p.asset} · ${p.branch} · ${p.severity}`); render(); }
+  if (ev.type === 'waitlist-promoted') { if (seen()) return; toast(`${p.member} promoted from the waitlist — ${p.cls}`); render(); }
+  if (ev.type === 'cover-request') { if (seen()) return; toast(`Cover request — ${p.cls}: ${p.reason}`); render(); }
 });
-/* catch-up */
-GymBus.all().forEach((ev) => {
-  if (['class-book', 'class-waitlist', 'class-cancel'].includes(ev.type) && !GymBus.isProcessed(ev.id, 'instructor')) {
-    GymBus.markProcessed(ev.id, 'instructor');
-    const c = clsByName(ev.payload.name); if (!c) return;
-    if (ev.type === 'class-book' && !c.roster.some((r) => r.n === ev.payload.member && r.state !== 'cancelled')) c.roster.push({ n: ev.payload.member, state: 'booked' });
-    if (ev.type === 'class-waitlist' && !c.wait.includes(ev.payload.member)) c.wait.push(ev.payload.member);
-    if (ev.type === 'class-cancel') processCancellation(c, ev.payload.member);
-  }
-});
-save();
+
 render();
 </script>
 </body>

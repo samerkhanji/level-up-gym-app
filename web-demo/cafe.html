@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Level Up — Café</title>
+<title>Level Up — Fuel Bar &amp; Retail</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -23,99 +23,123 @@
   .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
   /* top bar */
   .topbar { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-  .open-chip { font-size:13px; font-weight:800; padding:8px 14px; border-radius:999px; background:var(--mint); color:var(--deep); }
+  .open-chip { font-size:13px; font-weight:800; padding:8px 14px; border-radius:999px; background:var(--mint); color:var(--deep); white-space:nowrap; }
   .open-chip.paused { background:var(--red-soft); color:var(--red); animation:pulse 1.6s infinite; }
   .tstat { font-size:12px; color:var(--muted); }
   .tstat b { display:block; font-family:var(--display); font-size:17px; color:var(--ink); }
   .tstat b.bad { color:var(--red); }
-  .staff { margin-left:auto; font-size:12.5px; color:var(--muted); text-align:right; }
-  .staff b { color:var(--ink); }
-  .actions { display:flex; gap:8px; flex-wrap:wrap; }
-  .actions button { font-size:13.5px; font-weight:800; padding:13px 18px; border-radius:14px; background:var(--paper); color:var(--deep); }
-  .actions button.solid { background:var(--deep); color:#fff; }
-  .actions button.danger { background:var(--red-soft); color:var(--red); }
+  .staff { margin-left:auto; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pswitch { display:flex; gap:4px; background:#e9e2d2; border-radius:999px; padding:3px; }
+  .pswitch button { font-size:12px; font-weight:700; padding:7px 12px; border-radius:999px; color:var(--muted); }
+  .pswitch button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
+  .pausebtn { font-size:12.5px; font-weight:800; padding:9px 14px; border-radius:12px; background:var(--red-soft); color:var(--red); }
+  .pausebtn.resume { background:var(--mint); color:var(--deep); }
+  /* branch row */
+  .branchrow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .branchrow .lbl { font-size:11.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); }
+  .bpill { font-size:13px; font-weight:700; padding:9px 15px; border-radius:999px; background:var(--paper); color:var(--muted); }
+  .bpill.on { background:var(--deep); color:#fff; }
+  .branchnote { margin-left:auto; font-size:12px; color:var(--faint); }
   /* tabs */
   .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; max-width:520px; }
   .seg button { flex:1; font-size:13px; font-weight:700; padding:10px 4px; border-radius:11px; color:var(--muted); }
   .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
-  /* board */
-  .cols { display:grid; grid-template-columns:repeat(4, 1fr); gap:12px; align-items:start; }
-  @media (max-width:1000px){ .cols { grid-template-columns:repeat(2, 1fr); } }
-  @media (max-width:640px){ .cols { grid-template-columns:1fr; } }
-  .colh { font-size:11px; font-weight:800; letter-spacing:.09em; color:var(--muted); margin-bottom:4px; }
-  .order { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
-  .order.late { outline:2.5px solid var(--red); }
-  .o-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .o-code { font-family:var(--display); font-weight:800; font-size:15px; }
-  .o-wait { font-size:11.5px; color:var(--faint); font-weight:700; }
-  .o-wait.late { color:var(--red); }
-  .o-member { font-weight:700; font-size:14px; margin-top:3px; }
-  .o-items { font-size:13.5px; margin-top:2px; }
-  .o-custom { font-size:12.5px; color:var(--muted); line-height:1.5; }
-  .chip { display:inline-block; font-size:10.5px; font-weight:800; border-radius:999px; padding:4px 10px; margin:6px 4px 0 0; }
+  /* POS layout */
+  .poscols { display:grid; grid-template-columns:1fr 340px; gap:12px; align-items:start; }
+  @media (max-width:900px){ .poscols { grid-template-columns:1fr; } }
+  .catpills { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+  .catpills button { font-size:12.5px; font-weight:700; padding:8px 14px; border-radius:999px; background:var(--paper); color:var(--muted); }
+  .catpills button.on { background:var(--deep); color:#fff; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+  .prod { text-align:left; background:var(--paper); border-radius:16px; padding:11px; display:flex; flex-direction:column; gap:6px; animation:rise .3s ease both; }
+  .prod:disabled { opacity:.45; cursor:default; }
+  .prod img { width:100%; height:74px; object-fit:contain; border-radius:10px; background:#fff; }
+  .p-name { font-weight:700; font-size:13px; line-height:1.25; }
+  .p-meta { display:flex; justify-content:space-between; align-items:baseline; }
+  .p-price { font-family:var(--display); font-weight:800; font-size:15px; }
+  .p-stock { font-size:11px; font-weight:700; color:var(--faint); }
+  .p-stock.low { color:var(--amber); }
+  .p-stock.out { color:var(--red); }
+  .chip { display:inline-block; font-size:10.5px; font-weight:800; border-radius:999px; padding:4px 10px; margin:2px 4px 0 0; }
   .c-warn { background:var(--amber-soft); color:var(--amber); }
   .c-danger { background:var(--red); color:#fff; }
   .c-pay { background:var(--mint); color:var(--deep); }
-  .c-wait { background:var(--amber-soft); color:var(--amber); }
   .c-grey { background:#e9e2d2; color:var(--muted); }
-  .conflict { background:var(--red-soft); border-radius:12px; padding:9px 11px; font-size:12.5px; font-weight:700; color:var(--red); margin-top:8px; }
+  /* cart */
+  .cartcard { position:sticky; top:12px; }
+  .cust { border-radius:14px; background:var(--paper); padding:11px 12px; font-size:13px; }
+  .cust b { font-size:14px; }
+  .cust .sub { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .scanbtn { display:flex; align-items:center; justify-content:center; gap:8px; width:100%; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:13px; border-radius:13px; margin-top:8px; }
+  .walkbtn { display:block; width:100%; text-align:center; font-size:12px; font-weight:700; color:var(--muted); padding:9px; }
+  .cline { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .cline .n { flex:1; font-weight:700; }
+  .qbtn { width:28px; height:28px; border-radius:9px; background:var(--paper); font-weight:800; font-size:14px; color:var(--ink); }
+  .cline .amt { font-weight:800; width:48px; text-align:right; font-family:var(--display); }
+  .paymethods { display:flex; gap:6px; margin-top:10px; }
+  .paymethods button { flex:1; font-size:12.5px; font-weight:700; padding:10px; border-radius:11px; background:var(--paper); color:var(--muted); }
+  .paymethods button.on { background:var(--mint); color:var(--deep); box-shadow:inset 0 0 0 1.5px var(--deep); }
   .big-act { display:block; width:100%; margin-top:10px; background:var(--deep); color:#fff; font-size:14.5px; font-weight:800; padding:14px; border-radius:13px; }
   .big-act:disabled { opacity:.45; cursor:default; }
-  .more-btn { display:block; width:100%; margin-top:6px; font-size:12px; font-weight:700; color:var(--muted); padding:7px; }
+  .empty { color:var(--faint); font-size:12.5px; padding:8px 0; }
+  /* inventory */
+  .invrow { display:flex; align-items:center; gap:10px; padding:10px 8px; border-bottom:1px solid var(--line); font-size:13.5px; flex-wrap:wrap; border-radius:10px; }
+  .invrow:last-child { border-bottom:none; }
+  .invrow.lowrow { background:var(--amber-soft); }
+  .invrow img { width:34px; height:34px; object-fit:contain; background:#fff; border-radius:8px; }
+  .invrow .n { flex:1; font-weight:700; min-width:150px; }
+  .invrow .n small { display:block; font-weight:600; font-size:11px; color:var(--faint); }
+  .invrow .qty { font-family:var(--display); font-weight:800; font-size:15px; width:76px; text-align:right; }
+  .invrow .qty small { font-family:var(--body); font-weight:600; font-size:10.5px; color:var(--faint); display:block; }
+  .av { font-size:11px; font-weight:800; border-radius:999px; padding:7px 13px; }
+  .av-ok { background:var(--mint); color:var(--deep); }
+  .av-low { background:var(--amber-soft); color:var(--amber); border:1px solid rgba(168,100,8,.25); }
+  .av-out { background:var(--red-soft); color:var(--red); }
+  .restockbtn { font-size:11.5px; font-weight:800; padding:9px 13px; border-radius:10px; background:var(--deep); color:#fff; }
+  .glance { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--amber-soft); font-size:12.5px; line-height:1.55; }
+  .glance b { font-size:13px; }
+  .approv { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--mint); font-size:12.5px; }
+  /* sales */
+  .bigstat { font-family:var(--display); font-weight:800; font-size:34px; }
   .hist-line { font-size:12.5px; color:var(--muted); padding:8px 0; border-bottom:1px solid var(--line); }
   .hist-line:last-child { border-bottom:none; }
   .hist-line b { color:var(--ink); }
-  /* attention */
-  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--amber-soft); font-size:12.5px; }
-  .task.urgent { background:var(--red-soft); }
-  .task b { display:block; font-size:13px; }
-  .task button { margin-top:7px; font-size:11.5px; font-weight:800; padding:8px 12px; border-radius:9px; background:var(--deep); color:#fff; }
-  /* menu availability */
-  .stockrow { display:flex; align-items:center; gap:8px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13.5px; flex-wrap:wrap; }
-  .stockrow:last-child { border-bottom:none; }
-  .stockrow .n { flex:1; font-weight:700; min-width:150px; }
-  .stockrow .meta { font-size:11.5px; color:var(--faint); width:100%; }
-  .av { font-size:11px; font-weight:800; border-radius:999px; padding:7px 13px; cursor:pointer; }
-  .av-ok { background:var(--mint); color:var(--deep); }
-  .av-low { background:var(--amber-soft); color:var(--amber); }
-  .av-out { background:var(--red-soft); color:var(--red); }
-  .empty { color:var(--faint); font-size:12.5px; padding:8px 0; }
+  .mixrow { display:flex; gap:8px; flex-wrap:wrap; margin-top:8px; }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
-  .shiftline { font-size:12.5px; padding:5px 0; border-bottom:1px solid var(--line); color:var(--muted); }
   .primary { background:var(--deep); color:#fff; border-radius:12px; padding:11px 15px; font-weight:800; font-size:13px; }
   .hidden { display:none !important; }
-  /* chooser modal */
+  /* modal */
   .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
   .overlay.show { display:grid; }
-  .modal { background:#fff; border-radius:20px; padding:18px; width:min(420px, 100%); max-height:86vh; overflow:auto; }
+  .modal { background:#fff; border-radius:20px; padding:18px; width:min(440px, 100%); max-height:86vh; overflow:auto; }
   .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
   .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .modal.danger { outline:3px solid var(--red); }
+  .modal.danger h3 { color:var(--red); font-size:19px; }
   .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:14px; border-radius:13px; background:var(--paper); margin-top:7px; }
   .opt.danger { background:var(--red-soft); color:var(--red); }
   .opt.solid { background:var(--deep); color:#fff; }
-  .modal input, .modal select { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px; font-size:14px; font-family:var(--body); margin-top:8px; }
+  .modal input { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:12px; font-size:14px; font-family:var(--body); margin-top:8px; }
   .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
-  /* layout rhythm */
+  .mres { display:block; width:100%; text-align:left; background:var(--paper); border-radius:13px; padding:12px 14px; margin-top:7px; font-size:13.5px; }
+  .mres b { display:block; font-size:14px; }
+  .mres small { color:var(--muted); font-weight:600; }
+  /* rhythm */
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
   .stack { background:var(--card); border-radius:20px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
   .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); margin-top:0; }
   .stack > .card:last-child { border-bottom:none; }
-  #secOrders, #secMenu, #secIssues, #secShift { display:flex; flex-direction:column; gap:12px; }
-  #stockList, #equipList { display:grid; grid-template-columns:1fr 1fr; column-gap:26px; }
-  @media (min-width:761px) {
-    #stockList .stockrow:nth-last-child(-n+2), #equipList .stockrow:nth-last-child(-n+2) { border-bottom:none; }
-  }
-  @media (max-width:760px) { #stockList, #equipList { grid-template-columns:1fr; } }
-  .card.flat { background:transparent; box-shadow:none; padding:6px 4px; }
+  #secPos, #secInv, #secSales { display:flex; flex-direction:column; gap:12px; }
+  .privnote { font-size:11.5px; color:var(--faint); line-height:1.55; margin-top:10px; }
   .wrap > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
   .wrap > *:nth-child(2) { animation-delay:.05s; }
   .wrap > *:nth-child(3) { animation-delay:.1s; }
   .wrap > *:nth-child(4) { animation-delay:.15s; }
   .wrap > *:last-child { animation-delay:.2s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .order { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .prod { animation:none; } }
 </style>
 </head>
 <body>
@@ -125,550 +149,438 @@
   <!-- top bar -->
   <div class="stack">
   <div class="card topbar">
-    <span class="open-chip" id="openChip">CAFÉ OPEN</span>
-    <div class="tstat"><b id="stNew">0</b>new</div>
-    <div class="tstat"><b id="stLate" class="bad">0</b>late</div>
-    <div class="tstat"><b id="stAvg">—</b>avg prep</div>
-    <div class="tstat"><b id="stTop">—</b>top item</div>
-    <div class="tstat"><b id="stEquip">OK</b>equipment</div>
-    <div class="staff"><b>Nour A.</b><br><span id="shiftLabel">Shift open · since 8:03 AM</span></div>
+    <span class="open-chip" id="openChip">FUEL BAR OPEN</span>
+    <div class="tstat"><b id="stSales">$0</b>sales today</div>
+    <div class="tstat"><b id="stOrders">0</b>orders today</div>
+    <div class="tstat"><b id="stLow">0</b>low stock</div>
+    <div class="staff">
+      <div class="pswitch" id="personaSwitch">
+        <button data-staff="stf_fb_sara">Sara T.</button>
+        <button data-staff="stf_fb_nour">Nour A.</button>
+      </div>
+      <button class="pausebtn" id="pauseBtn">Pause counter</button>
+    </div>
   </div>
-
-  <div class="card actions">
-    <button class="solid" id="counterOrder">＋ New counter order</button>
-    <button id="scanMember">Scan member</button>
-    <button id="reportIssue">Report issue</button>
-    <button class="danger" id="pauseBtn">Pause orders</button>
+  <div class="card branchrow">
+    <span class="lbl">Branch</span>
+    <span id="branchPills"></span>
+    <span class="branchnote" id="branchNote"></span>
   </div>
   </div>
 
   <div class="seg" id="mainSeg">
-    <button class="on" data-sec="orders">Orders</button>
-    <button data-sec="menu">Menu availability</button>
-    <button data-sec="issues">Issues</button>
-    <button data-sec="shift">Shift</button>
+    <button class="on" data-sec="pos">Point of sale</button>
+    <button data-sec="inv">Inventory</button>
+    <button data-sec="sales">Sales</button>
   </div>
 
-  <!-- ORDERS -->
-  <div id="secOrders">
-    <div class="sect-label">Order pipeline</div>
-    <div class="cols">
-      <div class="card"><div class="colh">NEW</div><div id="colNew"><div class="empty">No new orders.</div></div></div>
-      <div class="card"><div class="colh">PREPARING</div><div id="colPrep"><div class="empty">Nothing on the bar.</div></div></div>
-      <div class="card"><div class="colh">READY</div><div id="colReady"><div class="empty">Nothing waiting.</div></div></div>
-      <div class="card"><div class="colh">NEEDS ATTENTION</div><div id="attn"><div class="empty">All clear.</div></div></div>
-    </div>
-    <div class="card flat">
-      <div class="eyebrow">Collected today</div>
-      <div id="histList"><div class="empty">Nothing collected yet.</div></div>
-    </div>
-  </div>
-
-  <!-- MENU -->
-  <div id="secMenu" class="hidden">
-    <div class="card">
-      <div class="eyebrow">Menu availability — changes reach member apps instantly</div>
-      <div id="stockList"></div>
-    </div>
-  </div>
-
-  <!-- ISSUES -->
-  <div id="secIssues" class="hidden">
-    <div class="sect-label">Station &amp; support</div>
-    <div class="stack">
-    <div class="card">
-      <div class="eyebrow">Equipment &amp; station status</div>
-      <div id="equipList"></div>
-    </div>
-    <div class="card">
-      <div class="eyebrow">Waste log</div>
-      <div id="wasteList"><div class="empty">No waste recorded.</div></div>
-      <button class="primary" id="wasteBtn" style="margin-top:10px;">＋ Record waste</button>
-    </div>
-    <div class="card">
-      <div class="eyebrow">Internal help</div>
-      <div class="actions" style="padding:0;">
-        <button id="helpReception">Contact reception</button>
-        <button id="helpSupervisor">Contact supervisor</button>
-        <button id="helpStock">Request stock</button>
+  <!-- POS -->
+  <div id="secPos">
+    <div class="poscols">
+      <div class="card">
+        <div class="eyebrow">Fuel Bar &amp; Retail — tap to add</div>
+        <div class="catpills" id="catPills"></div>
+        <div class="grid" id="prodGrid"></div>
+        <div class="privnote">Allergen data shown because food is sold here. Staff see allergy flags only — no other health data.</div>
+      </div>
+      <div class="card cartcard">
+        <div class="eyebrow">Current sale</div>
+        <div class="cust" id="custBox"></div>
+        <div id="cartLines"><div class="empty">Cart is empty — tap products to add.</div></div>
+        <div class="paymethods" id="payMethods"></div>
+        <button class="big-act" id="chargeBtn" disabled>Charge</button>
+        <button class="walkbtn" id="clearCart">Clear sale</button>
       </div>
     </div>
+  </div>
+
+  <!-- INVENTORY -->
+  <div id="secInv" class="hidden">
+    <div class="stack">
+    <div class="card">
+      <div class="eyebrow" id="invTitle">Stock at this branch</div>
+      <div id="invList"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Cross-branch stock glance</div>
+      <div id="glanceList"></div>
+      <div class="privnote">Transfers are arranged by phone between branch counters — display only in this demo.</div>
+    </div>
+    <div class="card" id="apprCard">
+      <div class="eyebrow">Pending owner approvals — restocks</div>
+      <div id="apprList"></div>
+    </div>
     </div>
   </div>
 
-  <!-- SHIFT -->
-  <div id="secShift" class="hidden">
-    <div class="card"><div class="eyebrow">Shift</div><div id="shiftBody"></div></div>
+  <!-- SALES -->
+  <div id="secSales" class="hidden">
+    <div class="stack">
+    <div class="card">
+      <div class="eyebrow" id="salesTitle">Today at this branch <span class="chip c-grey" style="margin-left:6px;">Simulated demo data</span></div>
+      <div class="bigstat" id="salesTotal">$0</div>
+      <div class="mixrow" id="payMix"></div>
+    </div>
+    <div class="card">
+      <div class="eyebrow">Recent orders</div>
+      <div id="orderList"><div class="empty">No sales yet today.</div></div>
+    </div>
+    </div>
   </div>
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
       <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-      <span>Order from the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> Food tab —
-      orders, availability and pickup sync live. Reception collects pay-at-desk amounts; preparation stays here.</span></details></div>
+      <span>The Fuel Bar counter sells packaged fuel, supplements, merch and accessories — no kitchen at Level Up.
+      Every sale goes through the shared demo engine: stock, payments, low-stock alerts and owner approvals update
+      across all dashboards. Scan a member to charge their account — declared food allergies flag automatically.</span></details></div>
   </div>
 </div>
 
-<!-- chooser modal -->
+<!-- modal -->
 <div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
 <script src="bus.js?v=3"></script>
 <script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
-const STAFF = 'Nour A.';
-
-/* soft sounds — different tones for different events */
-function beep(freq, dur) {
-  try {
-    const ctx = beep.ctx = beep.ctx || new (window.AudioContext || window.webkitAudioContext)();
-    const o = ctx.createOscillator(), g = ctx.createGain();
-    o.frequency.value = freq; o.connect(g); g.connect(ctx.destination);
-    g.gain.setValueAtTime(.08, ctx.currentTime);
-    g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + (dur || .25));
-    o.start(); o.stop(ctx.currentTime + (dur || .25));
-  } catch (e) {}
+const D = window.DemoData;
+const { RetailService, MemberService, HealthService, BranchService, PlanService, ApprovalService } = D;
+function toast(m) {
+  const e = document.createElement('div'); e.className = 'toast'; e.textContent = m;
+  e.style.top = (16 + document.querySelectorAll('.toast').length * 46) + 'px';
+  document.body.appendChild(e); setTimeout(() => e.remove(), 2900);
 }
+const money = (n) => '$' + (Math.round(n * 100) / 100);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
-/* ---------------- state ---------------- */
-const CKEY = 'gym_cafe_state';
-let C = {
-  orders: [], waste: [], log: [], shiftOpen: true, paused: false, collected: 0, revenue: 0, prepTimes: [],
-  stock: [
-    { name: 'Whey Protein Shake', price: 6, stock: 12, av: 'ok', allerg: ['milk'], by: null, eta: null },
-    { name: 'Grilled Chicken Bowl', price: 12, stock: 6, av: 'ok', allerg: [], by: null, eta: null },
-    { name: 'Salmon & Quinoa', price: 15, stock: 2, av: 'low', allerg: ['fish'], by: null, eta: null },
-    { name: 'Iced Matcha', price: 5, stock: 14, av: 'ok', allerg: [], by: null, eta: null },
-    { name: 'Protein Bar', price: 4, stock: 0, av: 'out', allerg: ['nuts', 'milk'], by: 'Nour A.', eta: 'tomorrow' },
-  ],
-  equipment: [
-    { name: 'Blender', ok: true, affects: ['Whey Protein Shake'] },
-    { name: 'Coffee machine', ok: true, affects: [] },
-    { name: 'Refrigerator', ok: true, affects: ['Grilled Chicken Bowl', 'Salmon & Quinoa'] },
-    { name: 'Receipt printer', ok: true, affects: [] },
-    { name: 'Payment terminal', ok: true, affects: [] },
-  ],
+/* ---------------- persona + branch ---------------- */
+const PERSONAS = {
+  stf_fb_sara: { name: 'Sara T.', home: 'loc_hamra' },
+  stf_fb_nour: { name: 'Nour A.', home: 'loc_badaro' },
 };
-try { const s = JSON.parse(localStorage.getItem(CKEY)); if (s && s.stock) { C = s; C.equipment = C.equipment || []; C.prepTimes = C.prepTimes || []; } } catch (e) {}
-function save() { localStorage.setItem(CKEY, JSON.stringify(C)); }
-const stockOf = (name) => C.stock.find((s) => s.name === name);
+const BRANCH_IDS = ['loc_hamra', 'loc_badaro', 'loc_gemmayzeh', 'loc_hazmieh'];
+const SKEY = 'lu_fuelbar_staff', BKEY = 'lu_fuelbar_branch', PKEY = 'lu_fuelbar_paused';
+let staffId = PERSONAS[localStorage.getItem(SKEY)] ? localStorage.getItem(SKEY) : 'stf_fb_sara';
+let branchId = BRANCH_IDS.includes(localStorage.getItem(BKEY)) ? localStorage.getItem(BKEY) : PERSONAS[staffId].home;
+let paused = localStorage.getItem(PKEY) === '1';
+const branchName = (id) => (BranchService.byId(id) || { name: id }).name;
 
-function publishMenu() {
-  GymBus.send('cafe-menu', { items: C.stock.map((s) => ({ name: s.name, av: s.stock === 0 ? 'out' : s.av })) }, 'cafe');
+/* ---------------- sale state ---------------- */
+const CATS = ['Fuel Bar', 'Supplements', 'Merch', 'Accessories'];
+let activeCat = 'Fuel Bar';
+let cart = [];            // [{ itemId, qty }]
+let customer = null;      // { id, name, allergies:[], status, plan }
+let method = 'cash';      // walk-ins default to cash; members to card
+
+/* ---------------- modal helpers ---------------- */
+function openModal(html, danger) {
+  $('modalBox').innerHTML = html;
+  $('modalBox').classList.toggle('danger', !!danger);
+  $('overlay').classList.add('show');
 }
-function publishStatus() { GymBus.send('cafe-status', { open: !C.paused }, 'cafe'); }
+function closeModal() { $('overlay').classList.remove('show'); }
+$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) closeModal(); });
 
-/* ---------------- chooser modal (no typing for common actions) ---------------- */
-function choose(title, sub, options, withNote) {
+function choose(title, sub, options, danger) {
   return new Promise((resolve) => {
-    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">${sub || ''}</div>
+    openModal(`<h3>${title}</h3><div class="sub">${sub || ''}</div>
       ${options.map((o, i) => `<button class="opt ${o.cls || ''}" data-oi="${i}">${o.label}</button>`).join('')}
-      ${withNote ? '<input id="optNote" placeholder="Optional note…" autocomplete="off" />' : ''}
-      <button class="m-cancel" id="optCancel">Cancel</button>`;
-    $('overlay').classList.add('show');
-    const close = (val) => { $('overlay').classList.remove('show'); resolve(val); };
-    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => close({ choice: options[Number(b.dataset.oi)].label, note: withNote ? ($('optNote').value || '') : '' }); });
-    $('optCancel').onclick = () => close(null);
+      <button class="m-cancel" id="optCancel">Cancel</button>`, danger);
+    const done = (v) => { closeModal(); resolve(v); };
+    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => done(options[Number(b.dataset.oi)]); });
+    $('optCancel').onclick = () => done(null);
   });
 }
-$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) $('overlay').classList.remove('show'); });
+
+/* prominent allergen confirm — engine-backed guard where food is sold */
+function confirmAllergy(memberName, allergen, itemName) {
+  return new Promise((resolve) => {
+    openModal(`<h3>⚠ ${esc(memberName)} has a declared ${esc(String(allergen).toUpperCase())} allergy. Confirm they're aware?</h3>
+      <div class="sub"><b>${esc(itemName)}</b> contains ${esc(allergen)}. This is a member-declared allergy on file.
+      Confirming is logged with your name.</div>
+      <button class="opt danger" id="algYes">Member confirmed they're aware — complete this item</button>
+      <button class="opt solid" id="algNo">Remove ${esc(itemName)} from the sale</button>`, true);
+    $('algYes').onclick = () => { closeModal(); resolve(true); };
+    $('algNo').onclick = () => { closeModal(); resolve(false); };
+  });
+}
+
+/* member search — styled as the membership-QR scan */
+function openMemberSearch() {
+  openModal(`<h3>Scan membership QR</h3>
+    <div class="sub">Point the counter scanner at the member's QR — or search by name / phone (demo).</div>
+    <input id="memQ" placeholder="Search name or phone…" autocomplete="off" />
+    <div id="memRes"></div>
+    <button class="m-cancel" id="memCancel">Cancel — keep as walk-in</button>`);
+  const res = $('memRes');
+  const renderRes = (q) => {
+    const hits = (q ? MemberService.search(q) : MemberService.list()).slice(0, 6);
+    res.innerHTML = hits.map((m) => {
+      const plan = PlanService.byId(m.planId) || {};
+      const flags = HealthService.visibleTo(m.id, 'fuelbar').map((f) => f.label);
+      return `<button class="mres" data-mid="${m.id}"><b>${esc(m.name)}</b>
+        <small>${esc(m.phone || '')} · ${esc(plan.name || '—')} · ${esc(m.status)}</small>
+        ${flags.map((f) => `<span class="chip c-danger">⚠ ${esc(f)} allergy</span>`).join('')}</button>`;
+    }).join('') || '<div class="empty">No members match.</div>';
+    res.querySelectorAll('[data-mid]').forEach((b) => { b.onclick = () => { setCustomer(b.dataset.mid); closeModal(); }; });
+  };
+  renderRes('');
+  $('memQ').oninput = () => renderRes($('memQ').value.trim());
+  $('memQ').focus();
+  $('memCancel').onclick = closeModal;
+}
+
+function setCustomer(memberId) {
+  const m = MemberService.byId(memberId); if (!m) return;
+  customer = {
+    id: m.id, name: m.name, status: m.status,
+    plan: (PlanService.byId(m.planId) || {}).name || '—',
+    allergies: HealthService.visibleTo(m.id, 'fuelbar').map((f) => f.label),
+  };
+  method = 'card';
+  render();
+  toast('Member scanned — ' + m.name + (customer.allergies.length ? ' · ⚠ ' + customer.allergies.join(', ') + ' allergy on file' : ''));
+}
+
+/* ---------------- top bar ---------------- */
+function renderTop() {
+  $('stSales').textContent = money(RetailService.salesToday(branchId));
+  const orders = D.load().orders.filter((o) => o.locationId === branchId && D.isToday(new Date(o.at).getTime()));
+  $('stOrders').textContent = orders.length;
+  const low = RetailService.lowStock(branchId).length;
+  $('stLow').textContent = low;
+  $('stLow').className = low ? 'bad' : '';
+  $('openChip').textContent = paused ? 'FUEL BAR PAUSED' : 'FUEL BAR OPEN';
+  $('openChip').classList.toggle('paused', paused);
+  $('pauseBtn').textContent = paused ? 'Resume counter' : 'Pause counter';
+  $('pauseBtn').classList.toggle('resume', paused);
+  document.querySelectorAll('#personaSwitch button').forEach((b) => b.classList.toggle('on', b.dataset.staff === staffId));
+  $('branchPills').innerHTML = BRANCH_IDS.map((id) =>
+    `<button class="bpill ${id === branchId ? 'on' : ''}" data-b="${id}">${esc(branchName(id))}</button>`).join(' ');
+  document.querySelectorAll('[data-b]').forEach((b) => { b.onclick = () => { branchId = b.dataset.b; localStorage.setItem(BKEY, branchId); cart = []; render(); toast('Now serving at ' + branchName(branchId)); }; });
+  $('branchNote').textContent = PERSONAS[staffId].name + ' on counter · ' + branchName(branchId);
+}
+document.querySelectorAll('#personaSwitch button').forEach((b) => { b.onclick = () => {
+  staffId = b.dataset.staff; localStorage.setItem(SKEY, staffId);
+  branchId = PERSONAS[staffId].home; localStorage.setItem(BKEY, branchId);
+  cart = []; render();
+  toast(PERSONAS[staffId].name + ' on counter — ' + branchName(branchId));
+}; });
+$('pauseBtn').onclick = () => {
+  paused = !paused; localStorage.setItem(PKEY, paused ? '1' : '0'); render();
+  toast(paused ? 'Counter paused — no sales until resumed' : 'Counter open again');
+};
 
 /* ---------------- section nav ---------------- */
 document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
   document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
-  $('secOrders').classList.toggle('hidden', b.dataset.sec !== 'orders');
-  $('secMenu').classList.toggle('hidden', b.dataset.sec !== 'menu');
-  $('secIssues').classList.toggle('hidden', b.dataset.sec !== 'issues');
-  $('secShift').classList.toggle('hidden', b.dataset.sec !== 'shift');
+  $('secPos').classList.toggle('hidden', b.dataset.sec !== 'pos');
+  $('secInv').classList.toggle('hidden', b.dataset.sec !== 'inv');
+  $('secSales').classList.toggle('hidden', b.dataset.sec !== 'sales');
 }; });
 
-/* ---------------- order cards: ONE obvious action + More ---------------- */
-const minsSince = (t) => Math.max(0, Math.round((Date.now() - t) / 60000));
+/* ---------------- POS ---------------- */
+function inCart(itemId) { return cart.find((l) => l.itemId === itemId); }
 
-function conflictOf(o) {
-  const declared = o.declaredAllergies || [];
-  return (o.allergens || []).filter((a) => declared.some((d) => a.toLowerCase().includes(d.toLowerCase()) || d.toLowerCase().includes(a.toLowerCase())));
+function renderPOS() {
+  $('catPills').innerHTML = CATS.map((c) =>
+    `<button class="${c === activeCat ? 'on' : ''}" data-cat="${c}">${c}</button>`).join('');
+  document.querySelectorAll('[data-cat]').forEach((b) => { b.onclick = () => { activeCat = b.dataset.cat; renderPOS(); }; });
+
+  const items = RetailService.catalog().filter((i) => i.cat === activeCat);
+  $('prodGrid').innerHTML = items.map((i) => {
+    const stock = RetailService.stockAt(i.id, branchId);
+    const out = stock <= 0;
+    const low = !out && stock <= i.lowAt;
+    return `<button class="prod" data-add="${i.id}" ${out ? 'disabled' : ''}>
+      <img src="${i.img}" alt="" />
+      <span class="p-name">${esc(i.name)}</span>
+      <span class="p-meta"><span class="p-price">${money(i.price)}</span>
+        <span class="p-stock ${out ? 'out' : low ? 'low' : ''}">${out ? 'OUT OF STOCK' : stock + ' in stock'}</span></span>
+      ${i.allergens.length ? '<span>' + i.allergens.map((a) => `<span class="chip c-warn">Contains ${esc(a)}</span>`).join('') + '</span>' : ''}
+    </button>`;
+  }).join('');
+  document.querySelectorAll('[data-add]').forEach((b) => { b.onclick = () => addToCart(b.dataset.add); });
+  renderCart();
 }
 
-function orderCard(o) {
-  const waitMin = minsSince(o.t);
-  const late = o.estAt && Date.now() > o.estAt && o.status === 'preparing';
-  const conf = conflictOf(o);
-  let main = '', mainAct = '';
-  if (o.status === 'awaiting-payment') main = `<button class="big-act" disabled>Waiting for reception payment</button>`;
-  if (o.status === 'new') { main = `<button class="big-act" data-o="${o.code}" data-a="prep">Start preparing</button>`; }
-  if (o.status === 'preparing') main = `<button class="big-act" data-o="${o.code}" data-a="ready">Mark ready</button>`;
-  if (o.status === 'ready') main = `<button class="big-act" data-o="${o.code}" data-a="collect">Confirm pickup</button>`;
-  if (o.status === 'sub-waiting') main = `<button class="big-act" disabled>Substitution offered: ${o.subOffer}</button>`;
-  const payChip = o.pay === 'wallet' ? `✓ Paid by wallet — $${o.total}`
-    : o.paid ? `✓ Payment confirmed by ${o.paidBy || 'reception'}${o.paidAt ? ' at ' + o.paidAt : ''} — $${o.total}`
-    : `UNPAID — reception collects $${o.total}`;
-  return `<div class="order ${late ? 'late' : ''}">
-    <div class="o-top"><span class="o-code">#${o.code}</span><span class="o-wait ${late || waitMin >= 8 ? 'late' : ''}">Waiting ${waitMin} min</span></div>
-    <div class="o-member">${o.member}</div>
-    <div class="o-items">${o.items.map((i) => i.qty + ' × ' + i.n + (i.price != null ? ' — $' + (i.price * i.qty) : '')).join('<br>')}</div>
-    ${o.custom && o.custom.length ? `<div class="o-custom">${o.custom.join('<br>')}</div>` : ''}
-    ${o.items.some((i) => i.kcal) ? `<div class="o-custom">≈${o.items.reduce((s, i) => s + (i.kcal || 0) * i.qty, 0)} kcal · ${o.items.reduce((s, i) => s + (i.p || 0) * i.qty, 0)} g protein</div>` : ''}
-    ${(o.allergens || []).map((a) => `<span class="chip c-warn">Contains ${a}</span>`).join('')}
-    ${conf.length ? `<div class="conflict">⚠ Member profile lists a ${conf.join(', ')} allergy — do NOT prepare as ordered. Offer an alternative.</div>` : ''}
-    <span class="chip ${o.pay === 'wallet' || o.paid ? 'c-pay' : 'c-wait'}">${payChip}</span>
-    ${o.pickup ? `<span class="chip c-grey">${o.pickup}</span>` : ''}
-    ${o.est && o.status === 'preparing' ? `<span class="chip ${late ? 'c-danger' : 'c-grey'}">${late ? 'LATE ' + Math.round((Date.now() - o.estAt) / 60000) + ' min — was due ' + o.est : 'ready ~' + o.est}</span>` : ''}
-    ${main}
-    ${['new', 'preparing', 'ready'].includes(o.status) ? `<button class="more-btn" data-o="${o.code}" data-a="more">More…</button>` : ''}
-  </div>`;
+function addToCart(itemId) {
+  if (paused) { toast('Counter is paused — resume to sell'); return; }
+  const stock = RetailService.stockAt(itemId, branchId);
+  const line = inCart(itemId);
+  const want = (line ? line.qty : 0) + 1;
+  if (want > stock) { toast('Only ' + stock + ' in stock at ' + branchName(branchId)); return; }
+  if (line) line.qty = want; else cart.push({ itemId, qty: 1 });
+  renderCart();
 }
 
-function render() {
-  const news = C.orders.filter((o) => ['awaiting-payment', 'new', 'sub-waiting'].includes(o.status));
-  const preps = C.orders.filter((o) => o.status === 'preparing');
-  const readys = C.orders.filter((o) => o.status === 'ready');
-  $('colNew').innerHTML = news.map(orderCard).join('') || '<div class="empty">No new orders — member orders land here instantly, or start a <b>＋ New counter order</b> above.</div>';
-  $('colPrep').innerHTML = preps.map(orderCard).join('');
-  $('colReady').innerHTML = readys.map(orderCard).join('');
-  /* empty lanes collapse — never a row of "nothing here" sections */
-  $('colPrep').parentElement.style.display = preps.length ? '' : 'none';
-  $('colReady').parentElement.style.display = readys.length ? '' : 'none';
-  $('stNew').textContent = news.length;
-  const lateCount = C.orders.filter((o) => o.estAt && Date.now() > o.estAt && o.status === 'preparing').length;
-  $('stLate').textContent = lateCount;
-  $('stAvg').textContent = C.prepTimes.length ? Math.round(C.prepTimes.reduce((a, b) => a + b, 0) / C.prepTimes.length) + ' min' : '—';
-  const tally = {};
-  C.orders.filter((o) => o.status === 'collected').forEach((o) => o.items.forEach((i) => { tally[i.n] = (tally[i.n] || 0) + i.qty; }));
-  const top = Object.entries(tally).sort((a, b) => b[1] - a[1])[0];
-  $('stTop').textContent = top ? top[0].split(' ').slice(0, 2).join(' ') + ' · ' + top[1] : '—';
-  const broken = C.equipment.filter((e) => !e.ok);
-  $('stEquip').textContent = broken.length ? broken.length + ' down' : 'OK';
-  $('stEquip').className = broken.length ? 'bad' : '';
-  $('openChip').textContent = C.paused ? 'CAFÉ PAUSED' : 'CAFÉ OPEN';
-  $('openChip').classList.toggle('paused', C.paused);
-  $('pauseBtn').textContent = C.paused ? 'Resume orders' : 'Pause orders';
-  $('histList').innerHTML = C.orders.filter((o) => ['collected', 'cancelled'].includes(o.status)).slice(0, 8).map((o) =>
-    `<div class="hist-line"><b>#${o.code}</b> · ${o.items.map((i) => i.qty + '× ' + i.n).join(', ')} · $${o.total} —
-     ${o.status === 'collected' ? `collected by <b>${o.member}</b>, confirmed by ${o.confirmedBy || STAFF} at ${o.collectedAt || ''} ${o.collectMethod ? '(' + o.collectMethod + ')' : ''}` : 'cancelled — ' + (o.cancelReason || '')}</div>`
-  ).join('') || '<div class="empty">Nothing collected yet.</div>';
-  document.querySelectorAll('[data-o]').forEach((b) => { if (!b.disabled) b.onclick = () => act(b.dataset.o, b.dataset.a); });
-  renderAttn(); renderStock(); renderEquip(); renderWaste(); renderShift();
-}
+function cartTotal() { return cart.reduce((s, l) => { const i = RetailService.byId(l.itemId); return s + (i ? i.price * l.qty : 0); }, 0); }
 
-function renderAttn() {
-  const items = [];
-  C.orders.forEach((o) => {
-    const conf = conflictOf(o);
-    if (conf.length && ['new', 'awaiting-payment'].includes(o.status)) items.push({ urgent: true, t: '#' + o.code + ' allergy conflict', s: 'Declared ' + conf.join(', ') + ' allergy — substitute before preparing', code: o.code, a: 'sub', l: 'Offer alternative' });
-    if (o.status === 'new' && minsSince(o.t) >= 3) items.push({ t: '#' + o.code + ' not started', s: 'Waiting ' + minsSince(o.t) + ' min', code: o.code, a: 'prep', l: 'Start preparing' });
-    if (o.status === 'awaiting-payment') items.push({ t: '#' + o.code + ' unpaid', s: 'Reception collects $' + o.total + ' before preparation' });
-    if (o.status === 'sub-waiting') items.push({ t: '#' + o.code + ' substitution pending', s: 'Waiting for ' + o.member.split(' ')[0] });
-    if (o.status === 'ready' && minsSince(o.readyAt || o.t) >= 5) items.push({ urgent: true, t: '#' + o.code + ' ready, not collected', s: 'Ready ' + minsSince(o.readyAt) + ' min ago', code: o.code, a: 'remind', l: 'Send pickup reminder' });
-    if (o.estAt && Date.now() > o.estAt && o.status === 'preparing') items.push({ urgent: true, t: '#' + o.code + ' is late', s: 'Update the estimate so the member is not misled', code: o.code, a: 'delay', l: 'Add time' });
-  });
-  C.stock.forEach((s) => { if (s.stock === 0) items.push({ urgent: true, t: s.name + ' sold out', s: 'Hidden from member menus' + (s.eta ? ' · back ' + s.eta : '') });
-    else if (s.av === 'low' || s.stock <= 2) items.push({ t: s.name + ' low stock', s: s.stock + ' left' }); });
-  C.equipment.filter((e) => !e.ok).forEach((e) => items.push({ urgent: true, t: e.name + ' offline', s: e.affects.length ? 'Affects: ' + e.affects.join(', ') : 'Maintenance notified' }));
-  $('attn').innerHTML = items.map((i) => `<div class="task ${i.urgent ? 'urgent' : ''}"><b>${i.t}</b>${i.s}
-    ${i.a ? `<br><button data-o="${i.code}" data-a="${i.a}">${i.l}</button>` : ''}</div>`).join('');
-  $('attn').parentElement.style.display = items.length ? '' : 'none';
-  document.querySelectorAll('#attn [data-o]').forEach((b) => { b.onclick = () => act(b.dataset.o, b.dataset.a); });
-}
+function renderCart() {
+  /* customer box */
+  $('custBox').innerHTML = customer
+    ? `<b>${esc(customer.name)}</b>
+       ${customer.status !== 'active' ? `<span class="chip c-warn">${esc(customer.status)}</span>` : ''}
+       ${customer.allergies.map((a) => `<span class="chip c-danger">⚠ ${esc(a)} allergy</span>`).join('')}
+       <div class="sub">${esc(customer.plan)} · charged to member account</div>
+       <button class="walkbtn" id="unsetCust">Switch to walk-in</button>`
+    : `<b>Walk-in customer</b><div class="sub">Cash sale — or scan a membership QR to charge a member.</div>
+       <button class="scanbtn" id="scanBtn">▣ Scan membership QR</button>`;
+  const sb = $('scanBtn'); if (sb) sb.onclick = openMemberSearch;
+  const uc = $('unsetCust'); if (uc) uc.onclick = () => { customer = null; method = 'cash'; renderCart(); };
 
-/* ---------------- staff actions ---------------- */
-function logLine(s) { C.log.unshift(now() + ' · ' + s); C.log = C.log.slice(0, 14); }
-
-async function act(code, a) {
-  const o = C.orders.find((x) => x.code === code); if (!o) return;
-  if (!C.shiftOpen) { toast('Shift is closed — open it first'); return; }
-
-  if (a === 'prep') {
-    if (o.status !== 'new') return; // double-click guard
-    const conf = conflictOf(o);
-    if (conf.length) {
-      const r = await choose('⚠ Allergy conflict — #' + o.code, o.member + "'s profile lists a " + conf.join(', ') + ' allergy and this order contains it.',
-        [{ label: 'Offer an alternative instead', cls: 'solid' }, { label: 'Member confirmed verbally — prepare anyway (logged)', cls: 'danger' }]);
-      if (!r) return;
-      if (r.choice.startsWith('Offer')) { act(code, 'sub'); return; }
-      o.allergyOverride = 'Confirmed verbally · logged by ' + STAFF + ' at ' + now();
-      logLine('#' + o.code + ' allergy override — ' + o.allergyOverride);
-    }
-    const short = o.items.find((i) => { const s = stockOf(i.n); return s && s.stock < i.qty; });
-    if (short) { toast(short.n + " — not enough stock. Use More → Can't prepare or substitute."); return; }
-    o.items.forEach((i) => { const s = stockOf(i.n); if (s) s.stock -= i.qty; });
-    o.status = 'preparing'; o.prepStart = Date.now();
-    o.est = new Date(Date.now() + 6 * 60000).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    o.estAt = Date.now() + 6 * 60000;
-    GymBus.update(o.busId, 'preparing', STAFF, o.est);
-    logLine('#' + o.code + ' started (' + STAFF + ')');
-    save(); publishMenu(); render();
-    toast('#' + o.code + ' preparing — member sees ready ~' + o.est);
-  }
-  if (a === 'ready') {
-    if (o.status !== 'preparing') return;
-    o.status = 'ready'; o.readyAt = Date.now();
-    if (o.prepStart) C.prepTimes.push(Math.max(1, Math.round((o.readyAt - o.prepStart) / 60000)));
-    GymBus.update(o.busId, 'ready', STAFF, o.code);
-    logLine('#' + o.code + ' ready');
-    beep(1046, .18);
-    save(); render(); toast('Ready — member notified with code ' + o.code);
-  }
-  if (a === 'collect') {
-    if (o.status !== 'ready') return;
-    const r = await choose('Confirm pickup — #' + o.code, 'Verify it is really ' + o.member + ' collecting.',
-      [{ label: 'Scan member QR / enter pickup code', cls: 'solid' }, { label: 'Manual identity confirmation (reason required)' }]);
-    if (!r) return;
-    if (r.choice.startsWith('Scan')) {
-      const entered = prompt("Code from the member's phone:", '');
-      if (entered == null) return;
-      if (entered.trim().toUpperCase().replace(/^#/, '') !== o.code.toUpperCase()) { toast('Code mismatch — do NOT hand over.'); return; }
-      o.collectMethod = 'code verified';
-    } else {
-      const why = await choose('Manual confirmation — why?', 'This is logged.',
-        [{ label: 'Member has no phone with them' }, { label: 'Known member, ID checked' }, { label: 'Reception verified identity' }]);
-      if (!why) return;
-      o.collectMethod = 'manual: ' + why.choice;
-      logLine('#' + o.code + ' manual pickup — ' + why.choice + ' (' + STAFF + ')');
-    }
-    o.status = 'collected'; o.collectedAt = now(); o.confirmedBy = STAFF;
-    C.collected++; C.revenue += o.total;
-    GymBus.update(o.busId, 'collected', STAFF, o.collectMethod);
-    logLine('#' + o.code + ' collected by ' + o.member + ' — confirmed by ' + STAFF);
-    save(); render(); toast('#' + o.code + ' collected ✓ — points issued to ' + o.member.split(' ')[0]);
-  }
-  if (a === 'remind') {
-    GymBus.update(o.busId, 'ready', STAFF, o.code + ' — final pickup reminder');
-    toast('Pickup reminder sent to ' + o.member.split(' ')[0]);
-  }
-  if (a === 'delay') {
-    const r = await choose('Delay #' + o.code, 'The member sees the new time immediately.',
-      [{ label: 'Add 5 minutes' }, { label: 'Add 10 minutes' }, { label: 'Add 15 minutes' }]);
-    if (!r) return;
-    const mins = Number(r.choice.match(/\d+/)[0]);
-    o.estAt = (o.estAt || Date.now()) + mins * 60000;
-    o.est = new Date(o.estAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    GymBus.update(o.busId, 'preparing', STAFF, o.est);
-    save(); render(); toast('+' + mins + ' min — member sees ready ~' + o.est);
-  }
-  if (a === 'sub') {
-    const avail = C.stock.filter((s) => s.stock > 0 && s.av !== 'out' && !o.items.some((i) => i.n === s.name));
-    const r = await choose('Suggest substitution — #' + o.code, 'The member must approve; price difference is settled automatically.',
-      avail.map((s) => ({ label: s.name + ' — $' + s.price })));
-    if (!r) return;
-    const name = r.choice.split(' — $')[0];
-    o.status = 'sub-waiting'; o.subOffer = name;
-    GymBus.update(o.busId, 'sub-offer', STAFF, name);
-    save(); render(); toast('Offered ' + name + ' — waiting for ' + o.member.split(' ')[0]);
-  }
-  if (a === 'cancel') {
-    const r = await choose("Can't prepare #" + o.code, 'The member is notified and refunded automatically.',
-      [{ label: 'Item sold out' }, { label: 'Ingredient unavailable' }, { label: 'Equipment unavailable' }, { label: 'Order duplicated' }, { label: 'Café closing' }, { label: 'Other' }], true);
-    if (!r) return;
-    const reason = r.choice + (r.note ? ' — ' + r.note : '');
-    if (o.status === 'preparing') { // stock already deducted → waste
-      C.waste.push({ item: o.items.map((i) => i.n).join(', '), qty: o.items.reduce((s, i) => s + i.qty, 0), reason, cost: o.total, by: STAFF, at: now(), order: o.code });
-    } else { o.items.forEach((i) => { const s = stockOf(i.n); if (s && o.reserved) s.stock += i.qty; }); }
-    o.status = 'cancelled'; o.cancelReason = reason;
-    GymBus.update(o.busId, 'rejected', STAFF, reason + '. Refunded in full.');
-    logLine('#' + o.code + ' cancelled — ' + reason + ' (' + STAFF + ')');
-    save(); publishMenu(); render(); toast('Cancelled — member refunded');
-  }
-  if (a === 'remake') {
-    const r = await choose('Remake #' + o.code, 'The original is recorded as waste; the order returns to Preparing.',
-      [{ label: 'Wrong product' }, { label: 'Wrong customization' }, { label: 'Quality problem' }, { label: 'Spillage' }, { label: 'Member complaint' }]);
-    if (!r) return;
-    C.waste.push({ item: o.items.map((i) => i.n).join(', '), qty: 1, reason: 'Remake — ' + r.choice, cost: o.total, by: STAFF, at: now(), order: o.code });
-    const short = o.items.find((i) => { const s = stockOf(i.n); return s && s.stock < i.qty; });
-    if (short) { toast('No stock left to remake ' + short.n + " — use Can't prepare"); save(); render(); return; }
-    o.items.forEach((i) => { const s = stockOf(i.n); if (s) s.stock -= i.qty; });
-    o.status = 'preparing'; o.readyAt = null;
-    o.estAt = Date.now() + 6 * 60000; o.est = new Date(o.estAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-    GymBus.update(o.busId, 'preparing', STAFF, o.est + ' (remade)');
-    logLine('#' + o.code + ' remake — ' + r.choice);
-    save(); publishMenu(); render(); toast('Remaking — waste recorded');
-  }
-  if (a === 'more') {
-    const opts = [];
-    if (o.status === 'new') { opts.push({ label: 'Suggest substitution' }, { label: "Can't prepare (refund)", cls: 'danger' }); }
-    if (o.status === 'preparing') { opts.push({ label: 'Add preparation time' }, { label: 'Remake' }, { label: "Can't prepare (refund)", cls: 'danger' }); }
-    if (o.status === 'ready') { opts.push({ label: 'Send pickup reminder' }, { label: 'Remake' }, { label: 'Cancel uncollected (waste + refund)', cls: 'danger' }); }
-    const r = await choose('#' + o.code + ' — more actions', o.member + ' · $' + o.total, opts);
-    if (!r) return;
-    if (r.choice === 'Suggest substitution') act(code, 'sub');
-    if (r.choice === "Can't prepare (refund)") act(code, 'cancel');
-    if (r.choice === 'Add preparation time') act(code, 'delay');
-    if (r.choice === 'Remake') act(code, 'remake');
-    if (r.choice === 'Send pickup reminder') act(code, 'remind');
-    if (r.choice.startsWith('Cancel uncollected')) act(code, 'cancel');
-  }
-}
-
-/* ---------------- top-bar actions ---------------- */
-$('pauseBtn').onclick = () => {
-  C.paused = !C.paused; save(); publishStatus(); render();
-  toast(C.paused ? 'Orders paused — member apps show the café as closed' : 'Orders resumed');
-};
-$('scanMember').onclick = () => toast('Scanner ready — point at the member QR (demo)');
-$('reportIssue').onclick = async () => {
-  const r = await choose('Report issue', 'Affected menu items go unavailable automatically.',
-    C.equipment.map((e) => ({ label: (e.ok ? '' : '✓ down — ') + e.name })));
-  if (!r) return;
-  const name = r.choice.replace('✓ down — ', '');
-  const e = C.equipment.find((x) => x.name === name);
-  e.ok = !e.ok;
-  if (!e.ok) {
-    e.affects.forEach((n) => { const s = stockOf(n); if (s && s.av === 'ok') { s.av = 'out'; s.by = STAFF; s.eta = 'when ' + name.toLowerCase() + ' is fixed'; } });
-    GymBus.send('report', { ref: 'CAFE-' + Date.now().toString().slice(-4), machine: name + ' (café)', issue: 'Reported offline by café staff', member: STAFF }, 'cafe');
-    logLine(name + ' reported offline — maintenance notified');
-    toast(name + ' offline — ' + (e.affects.length ? e.affects.join(', ') + ' set unavailable' : 'maintenance notified'));
-  } else {
-    e.affects.forEach((n) => { const s = stockOf(n); if (s && s.stock > 0) { s.av = 'ok'; s.by = STAFF; s.eta = null; } });
-    toast(name + ' back online');
-  }
-  save(); publishMenu(); render();
-};
-
-/* walk-in counter order */
-$('counterOrder').onclick = async () => {
-  const who = await choose('New counter order', 'Scan the member QR or serve a guest.',
-    [{ label: 'Samer Khanji (scanned)' }, { label: 'Jawad (scanned)' }, { label: 'Guest' }]);
-  if (!who) return;
-  const avail = C.stock.filter((s) => s.stock > 0 && s.av !== 'out');
-  const prod = await choose('Product', 'Tap to add.', avail.map((s) => ({ label: s.name + ' — $' + s.price })));
-  if (!prod) return;
-  const name = prod.choice.split(' — $')[0];
-  const item = stockOf(name);
-  const pay = await choose('Payment — $' + item.price, 'Counter orders are paid before preparation.',
-    [{ label: 'Cash at café' }, { label: 'Card at café' }]);
-  if (!pay) return;
-  const code = 'C-' + (1000 + Math.floor(Math.random() * 9000));
-  C.orders.unshift({
-    busId: null, code, member: who.choice.replace(' (scanned)', ''), items: [{ n: name, qty: 1, price: item.price }],
-    custom: [], allergens: item.allerg || [], declaredAllergies: [], total: item.price,
-    pay: 'counter', paid: true, paidBy: STAFF + ' (' + pay.choice.toLowerCase() + ')', paidAt: now(),
-    pickup: 'At counter', status: 'new', at: now(), t: Date.now(),
-  });
-  logLine('#' + code + ' counter order — ' + who.choice + ' · $' + item.price);
-  save(); render(); toast('#' + code + ' added — start preparing');
-};
-$('helpReception').onclick = () => { GymBus.send('ticket', { tkt: 'CAF-' + Date.now().toString().slice(-4), member: STAFF + ' (café)', subject: 'Café needs reception assistance' }, 'cafe'); toast('Reception notified'); };
-$('helpSupervisor').onclick = () => toast('Supervisor paged (demo)');
-$('helpStock').onclick = () => toast('Replacement stock requested (demo)');
-
-/* ---------------- menu availability ---------------- */
-function renderStock() {
-  $('stockList').innerHTML = C.stock.map((s, i) => `
-    <div class="stockrow">
-      <span class="n">${s.name}</span>
-      <span style="font-size:12px; color:var(--muted);">${s.stock} in stock</span>
-      <span class="av av-${s.stock === 0 ? 'out' : s.av}" data-av="${i}">${s.stock === 0 ? 'SOLD OUT' : s.av === 'ok' ? 'AVAILABLE' : s.av === 'low' ? 'LOW STOCK' : 'UNAVAILABLE'}</span>
-      ${s.by || s.eta ? `<span class="meta">${s.by ? 'changed by ' + s.by : ''}${s.eta ? ' · back ' + s.eta : ''}</span>` : ''}
-    </div>`).join('');
-  document.querySelectorAll('[data-av]').forEach((c) => { c.onclick = () => {
-    const s = C.stock[Number(c.dataset.av)];
-    if (s.stock === 0) { toast(s.name + ' has no stock — restock first'); return; }
-    s.av = s.av === 'ok' ? 'low' : s.av === 'low' ? 'out' : 'ok';
-    s.by = STAFF; s.eta = s.av === 'out' ? 'later today' : null;
-    save(); publishMenu(); render();
-    toast(s.name + ' → ' + (s.av === 'ok' ? 'available' : s.av === 'low' ? 'low stock' : 'unavailable') + ' — member menus updated');
+  /* lines */
+  $('cartLines').innerHTML = cart.map((l) => {
+    const i = RetailService.byId(l.itemId); if (!i) return '';
+    return `<div class="cline"><span class="n">${esc(i.name)}</span>
+      <button class="qbtn" data-dec="${i.id}">−</button><span>${l.qty}</span><button class="qbtn" data-inc="${i.id}">＋</button>
+      <span class="amt">${money(i.price * l.qty)}</span></div>`;
+  }).join('') || '<div class="empty">Cart is empty — tap products to add.</div>';
+  document.querySelectorAll('[data-dec]').forEach((b) => { b.onclick = () => {
+    const l = inCart(b.dataset.dec); if (!l) return;
+    l.qty -= 1; if (l.qty <= 0) cart = cart.filter((x) => x !== l); renderCart();
   }; });
+  document.querySelectorAll('[data-inc]').forEach((b) => { b.onclick = () => addToCart(b.dataset.inc); });
+
+  /* payment */
+  const methods = customer ? ['card', 'cash', 'wallet'] : ['cash', 'card'];
+  if (!methods.includes(method)) method = methods[0];
+  $('payMethods').innerHTML = methods.map((m) =>
+    `<button class="${m === method ? 'on' : ''}" data-pm="${m}">${m === 'wallet' ? 'Member wallet' : m[0].toUpperCase() + m.slice(1)}</button>`).join('');
+  document.querySelectorAll('[data-pm]').forEach((b) => { b.onclick = () => { method = b.dataset.pm; renderCart(); }; });
+
+  const total = cartTotal();
+  $('chargeBtn').disabled = !cart.length || paused;
+  $('chargeBtn').textContent = paused ? 'Counter paused' : 'Charge ' + money(total) + ' — ' + (customer ? customer.name.split(' ')[0] : 'walk-in');
+  $('chargeBtn').onclick = charge;
+  $('clearCart').onclick = () => { cart = []; renderCart(); };
 }
 
-/* ---------------- issues: equipment + waste ---------------- */
-function renderEquip() {
-  $('equipList').innerHTML = C.equipment.map((e) => `
-    <div class="stockrow"><span class="n">${e.name}</span>
-      <span class="av ${e.ok ? 'av-ok' : 'av-out'}">${e.ok ? 'OK' : 'OFFLINE'}</span>
-      ${!e.ok && e.affects.length ? `<span class="meta">affects ${e.affects.join(', ')}</span>` : ''}</div>`).join('');
-}
-function renderWaste() {
-  $('wasteList').innerHTML = C.waste.slice(-6).reverse().map((w) =>
-    `<div class="hist-line"><b>${w.item}</b> ×${w.qty} — ${w.reason} · ~$${w.cost} · ${w.by} · ${w.at}${w.order ? ' · #' + w.order : ''}</div>`
-  ).join('') || '<div class="empty">No waste recorded.</div>';
-  $('wasteBtn').onclick = async () => {
-    const prod = await choose('Waste — product', '', C.stock.map((s) => ({ label: s.name })));
-    if (!prod) return;
-    const why = await choose('Reason', '', [{ label: 'Spillage' }, { label: 'Incorrect preparation' }, { label: 'Expired' }, { label: 'Damaged' }, { label: 'Member cancelled' }, { label: 'Uncollected' }, { label: 'Quality failure' }]);
-    if (!why) return;
-    const s = stockOf(prod.choice);
-    if (s && s.stock > 0) s.stock -= 1;
-    C.waste.push({ item: prod.choice, qty: 1, reason: why.choice, cost: s ? s.price : 0, by: STAFF, at: now() });
-    save(); publishMenu(); render(); toast('Waste recorded — stock adjusted');
-  };
-}
-
-/* ---------------- shift ---------------- */
-function renderShift() {
-  const active = C.orders.filter((o) => ['new', 'preparing', 'ready', 'sub-waiting', 'awaiting-payment'].includes(o.status)).length;
-  $('shiftBody').innerHTML = C.shiftOpen ? `
-    <div class="shiftline">Collected today: <b>${C.collected}</b> · Revenue: <b>$${C.revenue}</b> · Avg prep: <b>${$('stAvg').textContent}</b></div>
-    <div class="shiftline">Waste entries: <b>${C.waste.length}</b> · Active orders: <b>${active}</b></div>
-    ${C.log.slice(0, 6).map((l) => `<div class="shiftline">${l}</div>`).join('')}
-    <button class="primary" id="closeShift" style="margin-top:10px;">Close shift — stock count &amp; reconciliation</button>`
-    : `<div class="shiftline">Shift closed. ${C.closeNote || ''}</div><button class="primary" id="openShift" style="margin-top:10px;">Open shift</button>`;
-  const cs = $('closeShift'), os = $('openShift');
-  if (cs) cs.onclick = () => {
-    if (active) { toast(active + ' active order(s) — resolve every order before closing'); return; }
-    C.shiftOpen = false;
-    C.closeNote = `Closed ${now()} — ${C.collected} orders · $${C.revenue} · ${C.waste.length} waste entries · stock counted · handover logged.`;
-    $('shiftLabel').textContent = 'Shift closed';
-    save(); renderShift(); toast('Shift closed — summary sent to management');
-  };
-  if (os) os.onclick = () => { C.shiftOpen = true; $('shiftLabel').textContent = 'Shift open · since ' + now(); save(); renderShift(); };
-}
-
-/* ---------------- bus ---------------- */
-function ingestOrder(ev) {
-  if (GymBus.isProcessed(ev.id, 'cafe')) return;
-  GymBus.markProcessed(ev.id, 'cafe');
-  const p = ev.payload;
-  C.orders.unshift({
-    busId: ev.id, code: p.code, member: p.member, items: p.items, custom: p.custom || [],
-    allergens: p.allergens || [], declaredAllergies: p.declaredAllergies || [], total: p.total,
-    pay: p.pay, pickup: p.pickup, paid: p.pay === 'wallet', reserved: false,
-    status: p.pay === 'reception' ? 'awaiting-payment' : 'new',
-    at: ev.at, t: ev.t || Date.now(),
-  });
-  save(); render();
-  beep(880, .2);
-  toast('New order #' + p.code + ' — ' + p.member);
-}
-
-GymBus.on((kind, ev) => {
-  if (kind === 'event' && ev.type === 'cafe-order') ingestOrder(ev);
-  if (kind === 'update' && ev.type === 'cafe-order') {
-    const o = C.orders.find((x) => x.busId === ev.id); if (!o) return;
-    const last = ev.history[ev.history.length - 1] || {};
-    if (ev.status === 'paid' && last.by !== STAFF) {
-      if (GymBus.isProcessed(ev.id + ':paid', 'cafe')) return; GymBus.markProcessed(ev.id + ':paid', 'cafe');
-      o.paid = true; o.paidBy = last.by; o.paidAt = last.at;
-      if (o.status === 'awaiting-payment') o.status = 'new';
-      beep(660, .18);
-      save(); render(); toast('✓ Payment confirmed by ' + last.by + ' at ' + last.at + ' — #' + o.code);
+/* one engine sale per line; allergen guard confirms BEFORE the line completes */
+async function charge() {
+  if (!cart.length || paused) return;
+  const memberId = customer ? customer.id : null;
+  let sold = 0, total = 0;
+  const remaining = [];
+  for (const l of cart) {
+    const item = RetailService.byId(l.itemId); if (!item) continue;
+    /* pre-check with the same role-scoped health data the engine's guard uses —
+       fuelbar staff see allergy flags only */
+    if (memberId && item.allergens.length) {
+      const facts = HealthService.visibleTo(memberId, 'fuelbar');
+      const hit = facts.find((f) => item.allergens.includes(f.label));
+      if (hit) {
+        const ok = await confirmAllergy(customer.name, hit.label, item.name);
+        if (!ok) { toast('Removed ' + item.name + ' — allergy not confirmed'); continue; }
+      }
     }
-    if (ev.status === 'sub-accepted') {
-      if (GymBus.isProcessed(ev.id + ':sub-accepted', 'cafe')) return; GymBus.markProcessed(ev.id + ':sub-accepted', 'cafe');
-      const ns = stockOf(o.subOffer);
-      const diff = ns ? ns.price - o.total : 0;
-      o.items = [{ n: o.subOffer, qty: 1, price: ns ? ns.price : o.total }];
-      o.custom = []; o.allergens = ns ? (ns.allerg || []) : []; o.status = 'new'; o.subOffer = null;
-      if (diff !== 0) GymBus.update(o.busId, 'price-adjust', STAFF, (diff < 0 ? 'Refund $' + Math.abs(diff) : 'Extra $' + diff) + ' settled to wallet');
-      o.total = ns ? ns.price : o.total;
-      save(); render(); toast('#' + o.code + ': substitution accepted' + (diff ? ' — price difference settled' : '') + ' — start preparing');
-    }
-    if (ev.status === 'sub-declined') {
-      if (GymBus.isProcessed(ev.id + ':sub-declined', 'cafe')) return; GymBus.markProcessed(ev.id + ':sub-declined', 'cafe');
-      o.status = 'cancelled'; o.cancelReason = 'Substitution declined by member';
-      GymBus.update(o.busId, 'rejected', STAFF, 'Substitution declined — cancelled and refunded in full.');
-      logLine('#' + o.code + ' cancelled — substitution declined');
-      save(); render(); toast('#' + o.code + ' cancelled — member refunded');
-    }
+    const res = RetailService.sell({ itemId: l.itemId, branchId, memberId, qty: l.qty, staffId, method });
+    if (res.error === 'out_of_stock') { toast(item.name + ' — out of stock at ' + branchName(branchId)); remaining.push(l); continue; }
+    if (res.error) { toast('Sale failed — ' + res.error); remaining.push(l); continue; }
+    sold += l.qty; total += res.order.total;
+    if (res.allergenWarning) toast('Logged: ' + customer.name + ' confirmed aware of ' + res.allergenWarning + ' allergen');
+    const left = RetailService.stockAt(l.itemId, branchId);
+    if (left <= item.lowAt) toast('Low stock — ' + item.name + ': ' + left + ' left at ' + branchName(branchId));
   }
+  cart = remaining;
+  if (sold) toast('Charged ' + money(total) + ' (' + method + ') — ' + (customer ? customer.name : 'walk-in') + ' · ' + sold + ' item(s)');
+  if (customer) { customer = null; method = 'cash'; }
+  render();
+}
+
+/* ---------------- INVENTORY ---------------- */
+async function restock(itemId) {
+  const item = RetailService.byId(itemId); if (!item) return;
+  const unitCost = Math.round(item.price * 0.6 * 100) / 100; // demo wholesale cost
+  const opts = [10, 25, 50].map((q) => {
+    const cost = Math.round(unitCost * q * 100) / 100;
+    return { label: `＋${q} units — cost ${money(cost)}${cost > 500 ? ' · needs owner approval' : ''}`, qty: q, cost };
+  });
+  const pick = await choose('Restock — ' + esc(item.name), branchName(branchId) + ' has ' + RetailService.stockAt(itemId, branchId) + ' now. Restocks over $500 go to the owner automatically.', opts);
+  if (!pick) return;
+  const res = RetailService.restock({ itemId, branchId, qty: pick.qty, staffId, cost: pick.cost });
+  if (res && res.error) { toast('Restock failed — ' + res.error); return; }
+  if (res && res.type === 'stock_purchase') {
+    toast('Sent to owner approval — ' + money(pick.cost) + ' restock of ' + item.name);
+  } else {
+    toast('Restocked ' + item.name + ' +' + pick.qty + ' — now ' + RetailService.stockAt(itemId, branchId));
+  }
+  render();
+}
+
+function renderInventory() {
+  $('invTitle').textContent = 'Stock at ' + branchName(branchId) + ' — low rows highlighted';
+  const items = RetailService.catalog();
+  $('invList').innerHTML = items.map((i) => {
+    const stock = RetailService.stockAt(i.id, branchId);
+    const out = stock <= 0, low = stock <= i.lowAt;
+    return `<div class="invrow ${low ? 'lowrow' : ''}">
+      <img src="${i.img}" alt="" />
+      <span class="n">${esc(i.name)}<small>${esc(i.cat)}${i.allergens.length ? ' · contains ' + i.allergens.map(esc).join(', ') : ''}</small></span>
+      <span class="qty">${stock}<small>low at ${i.lowAt}</small></span>
+      <span class="av ${out ? 'av-out' : low ? 'av-low' : 'av-ok'}">${out ? 'OUT' : low ? 'LOW' : 'OK'}</span>
+      <button class="restockbtn" data-rs="${i.id}">Restock</button>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('[data-rs]').forEach((b) => { b.onclick = () => restock(b.dataset.rs); });
+
+  /* cross-branch glance — display only */
+  const lows = RetailService.lowStock(branchId);
+  $('glanceList').innerHTML = lows.length ? lows.map((i) => {
+    const others = BRANCH_IDS.filter((b) => b !== branchId)
+      .map((b) => ({ b, n: RetailService.stockAt(i.id, b) }))
+      .sort((a, z) => z.n - a.n);
+    const best = others.slice(0, 2).map((o) => branchName(o.b) + ' has ' + o.n);
+    return `<div class="glance"><b>${esc(i.name)}</b> — ${RetailService.stockAt(i.id, branchId)} left here.
+      ${best.join(', ')} — transfer?</div>`;
+  }).join('') : '<div class="empty">Nothing low at ' + esc(branchName(branchId)) + ' — no transfers needed.</div>';
+
+  /* pending restock approvals for this branch */
+  const pend = ApprovalService.list('pending').filter((a) => a.type === 'stock_purchase' && a.branchId === branchId);
+  $('apprCard').style.display = pend.length ? '' : 'none';
+  $('apprList').innerHTML = pend.map((a) =>
+    `<div class="approv"><b>${esc(a.subject)}</b> — ${money(a.amount)} · sent to owner approval · stock updates once approved</div>`).join('');
+}
+
+/* ---------------- SALES ---------------- */
+function renderSales() {
+  $('salesTitle').innerHTML = 'Today at ' + esc(branchName(branchId)) + ' <span class="chip c-grey" style="margin-left:6px;">Simulated demo data</span>';
+  $('salesTotal').textContent = money(RetailService.salesToday(branchId));
+
+  const db = D.load();
+  const staffName = (id) => { const s = db.staff.find((x) => x.id === id); return s ? s.name : '—'; };
+  const orders = db.orders
+    .filter((o) => o.locationId === branchId)
+    .slice(0, 14);
+  $('orderList').innerHTML = orders.map((o) => {
+    const m = o.memberId ? MemberService.byId(o.memberId) : null;
+    const t = new Date(o.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    return `<div class="hist-line"><b>${esc(o.name)}</b>${o.qty > 1 ? ' ×' + o.qty : ''} · ${money(o.total)} —
+      ${m ? esc(m.name) : 'walk-in'} · by ${esc(staffName(o.staffId))} · ${t}</div>`;
+  }).join('') || '<div class="empty">No sales yet today at ' + esc(branchName(branchId)) + '.</div>';
+
+  /* payment method mix — match today's retail payments at this branch */
+  const catalogNames = new Set(RetailService.catalog().map((i) => i.name));
+  const mix = {};
+  db.payments.filter((p) => p.locationId === branchId && p.status === 'paid' && D.isToday(new Date(p.at).getTime()))
+    .filter((p) => catalogNames.has(String(p.what || '').replace(/ ×\d+$/, '')))
+    .forEach((p) => { mix[p.method] = (mix[p.method] || 0) + p.amount; });
+  $('payMix').innerHTML = Object.keys(mix).length
+    ? Object.entries(mix).map(([m, amt]) => `<span class="chip c-pay">${esc(m)} · ${money(amt)}</span>`).join('')
+    : '<span class="chip c-grey">No payments yet today</span>';
+}
+
+/* ---------------- GymBus — arrivals + low-stock from other dashboards ---------------- */
+GymBus.on((kind, ev) => {
+  if (kind !== 'event' || !ev || !ev.payload) return;
+  if (ev.type === 'gate-entry') toast('Member arrived — ' + ev.payload.member + ' at ' + (ev.payload.branch || 'the gym'));
+  if (ev.type === 'low-stock') { toast('Low stock — ' + ev.payload.item + ' at ' + ev.payload.branch + ': ' + ev.payload.left + ' left'); render(); }
 });
 
-GymBus.all().forEach((ev) => { if (ev.type === 'cafe-order' && !['collected', 'rejected'].includes(ev.status)) ingestOrder(ev); });
-
-publishMenu(); publishStatus();
+/* ---------------- render all ---------------- */
+function render() { renderTop(); renderPOS(); renderInventory(); renderSales(); }
 render();
-setInterval(render, 30000); // waiting times / late flags — display only
 </script>
 </body>
 </html>

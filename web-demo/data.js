@@ -285,7 +285,9 @@ const DemoData = (() => {
         return db;
       }
     } catch (e) {}
-    db = seed(); persist(); return db;
+    /* truly fresh browser — no scenario has ever run, so seed AND populate a
+       normal-day network instead of an empty gym with nobody inside */
+    return reset('normal-day');
   }
   function persist() { try { localStorage.setItem(DB_KEY, JSON.stringify(db)); } catch (e) {} }
   const nextId = (prefix, coll) => prefix + '_' + String((load()[coll] || []).length + 1).padStart(4, '0') + Math.random().toString(36).slice(2, 5);

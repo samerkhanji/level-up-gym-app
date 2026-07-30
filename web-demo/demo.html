@@ -37,19 +37,51 @@
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px;
     font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; max-width:92vw; }
   select, input { font-family:var(--body); font-size:13px; padding:10px 12px; border:1.5px solid var(--line); border-radius:11px; background:#fff; }
+  /* --- the hero: sales-demo story --- */
+  .hero { background:var(--deep); color:var(--mint); }
+  .hero .eyebrow { color:var(--mint); opacity:.75; }
+  .hero-btn { display:block; width:100%; background:var(--mint); color:var(--deep); font-family:var(--display); font-weight:800;
+    font-size:16.5px; padding:15px; border-radius:14px; text-align:center; }
+  .hero-btn:hover { transform:translateY(-1px); }
+  .hero-sub { font-size:12px; opacity:.75; line-height:1.5; margin-top:9px; }
+  .hero-sub a { color:var(--mint); font-weight:700; }
+  .steps { list-style:none; margin-top:12px; counter-reset: step; }
+  .steps li { counter-increment: step; display:flex; gap:10px; align-items:baseline; font-size:12.5px; padding:6px 0;
+    border-bottom:1px solid rgba(239,230,210,.12); }
+  .steps li:last-child { border-bottom:none; }
+  .steps li::before { content: counter(step); font-family:var(--display); font-weight:800; font-size:11px; opacity:.5; min-width:16px; }
+  .steps .tick { min-width:20px; height:20px; border-radius:50%; display:inline-grid; place-items:center; font-size:11px; font-weight:800;
+    background:rgba(239,230,210,.14); color:var(--mint); align-self:center; }
+  .steps li.ok .tick { background:var(--mint); color:var(--deep); }
+  .steps li.fail .tick { background:var(--red); color:#fff; }
+  .steps .lbl { flex:1; min-width:0; }
+  .steps .evd { display:block; font-size:11px; opacity:.6; margin-top:1px; }
+  .steps li.ok .evd { opacity:.75; }
+  .story-sum { margin-top:11px; font-size:12.5px; font-weight:700; text-align:center; background:rgba(239,230,210,.12); border-radius:11px; padding:9px; }
+  .story-sum.allok { background:var(--mint); color:var(--deep); }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav class="navrow"><a href="staff.html">← All departments</a><a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="maintenance.html">Maintenance</a></nav>
-  <div class="banner">DEMO MODE — fictional data only. Nothing here touches a real customer, payment or device.</div>
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="owner.html">Owner dashboard</a><a href="index.html">Member app</a><a href="reception.html">Reception</a><a href="maintenance.html">Maintenance</a></nav>
+  <div class="banner">DEMO MODE — all figures are simulated. Nothing here touches a real customer, payment or device.</div>
   <h1>Demo Control Center</h1>
   <div class="sub">Put the whole platform into a known state before a demo, then trigger the moments you want to show.</div>
 
   <div class="card">
     <div class="eyebrow">Current state</div>
     <div class="stat" id="stats"></div>
+  </div>
+
+  <div class="card hero">
+    <div class="eyebrow">The connected story — one lead travels the whole network</div>
+    <button class="hero-btn" id="heroBtn">▶ Run the sales-demo story</button>
+    <div class="hero-sub">Instagram DM to owner dashboard in fourteen connected steps, replayed through the same service layer
+      every workspace uses. After the run, each step below is checked against the live engine — a self-proving demo.
+      Then open the <a href="owner.html">owner dashboard</a> to see it all land.</div>
+    <ol class="steps" id="storySteps"></ol>
+    <div class="story-sum" id="storySum" hidden></div>
   </div>
 
   <div class="card">
@@ -92,11 +124,13 @@
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      Scenarios reset the shared demo database (<code>gym_demo_db_v1</code>) and replay a known sequence through the
-      service layer, so every dashboard sees the same records. Open a dashboard in another tab to watch changes arrive.</div>
+      Scenarios reset the shared demo database (<code>levelup_demo_db_v3</code>) and replay a known sequence through the
+      service layer, so every dashboard sees the same records — all figures are simulated. Open a dashboard in another
+      tab (try the <a href="owner.html">owner dashboard</a>) to watch changes arrive.</div>
   </div>
 </div>
 
+<script src="config.js"></script>
 <script src="bus.js?v=3"></script>
 <script src="data.js?v=4"></script>
 <script>
@@ -105,13 +139,15 @@ function toast(m) { document.querySelectorAll('.toast').forEach((t) => t.remove(
 
 const LABELS = {
   'normal-day': ['Normal operating day', 'a few members inside, nothing on fire'],
-  'morning-rush': ['Morning rush', 'six members check in back-to-back'],
+  'morning-rush': ['Morning rush', 'members check in back-to-back at Hamra'],
   'full-capacity': ['Full-capacity gym', 'capacity reached — next entry is denied'],
   'medical-emergency': ['Medical emergency', 'active SOS waiting for reception'],
   'equipment-breakdown': ['Equipment breakdown', 'safety report auto-isolates a treadmill'],
   'payment-failure': ['Membership payment failure', 'expired member denied at the gate'],
-  'class-cancellation': ['Class cancellation', 'HIIT Burn cancelled by the instructor'],
+  'class-cancellation': ['Class cancellation', 'TRX Circuit cancelled by the instructor'],
   'end-of-day': ['End-of-day reconciliation', 'visits closed, payments on the drawer'],
+  'busy-network': ['Busy network', 'all four branches active — the owner-dashboard state'],
+  'sales-demo-story': ['Sales-demo story', 'the 14-step connected chain — run it from the hero above'],
 };
 
 function renderStats() {
@@ -135,7 +171,7 @@ function renderEvents() {
 }
 function refresh() { renderStats(); renderEvents(); }
 
-$('scenarios').innerHTML = DemoData.scenarios().map((s) => {
+$('scenarios').innerHTML = DemoData.scenarios().filter((s) => s !== 'sales-demo-story').map((s) => {
   const [t, sub] = LABELS[s] || [s, ''];
   return `<button class="btn ${s === 'normal-day' ? 'dark' : ''}" data-s="${s}">${t}<small>${sub}</small></button>`;
 }).join('');
@@ -145,17 +181,99 @@ document.querySelectorAll('[data-s]').forEach((b) => { b.onclick = () => {
   toast('Reset into: ' + (LABELS[b.dataset.s] || [b.dataset.s])[0]);
 }; });
 
+/* ---------------- the sales-demo story: run, then PROVE each step against the engine ---------------- */
+function storyChecks() {
+  const D = DemoData, d = D.load();
+  const lead = D.LeadService.list().find((l) => l.name === 'Karim Aswad' && l.source === 'Instagram') || null;
+  const member = lead && lead.convertedMemberId ? D.MemberService.byId(lead.convertedMemberId) : null;
+  const cls = D.BookingService.classById('cls_trx_gem');
+  const trxWOs = d.workOrders.filter((w) => ['ast_0201', 'ast_0202'].includes(w.assetId));
+  const closedShift = d.shifts.find((s) => s.branchId === 'loc_hamra' && s.closedAt);
+  const ptBadaro = d.ptSessions.find((s) => s.memberId === 'mbr_0001' && s.branchId === 'loc_badaro' && s.status === 'scheduled');
+  const tourNote = lead && (lead.notes || []).find((n) => /tour/i.test(n.txt || ''));
+  const trxBooked = cls ? D.BookingService.forClass('cls_trx_gem').length : 0;
+  const net = D.OwnerService.network();
+  return [
+    { t: 'Instagram lead captured — “Karim Aswad” enters the CRM pipeline',
+      ok: !!lead, ev: lead && ('lead ' + lead.id) },
+    { t: 'Lead assigned to Hamra · owner: Lara Gh. (reception)',
+      ok: !!lead && lead.branchId === 'loc_hamra' && lead.ownerStaffId === 'stf_rc_lara', ev: 'branch loc_hamra' },
+    { t: 'Contacted on WhatsApp, tour booked at Hamra',
+      ok: !!tourNote, ev: tourNote && ('“' + tourNote.txt + '”') },
+    { t: 'All-branch membership sold — 6-Month · All Branches, $600 on card',
+      ok: !!lead && lead.stage === 'won' && !!member && member.planId === 'pln_6mo_all'
+        && d.payments.some((p) => member && p.memberId === member.id && p.amount >= 600),
+      ev: member && ('stage won · member ' + member.id) },
+    { t: 'Membership QR issued — valid at every branch',
+      ok: !!member && member.qrVersion >= 1 && (D.PlanService.byId(member.planId) || {}).branchAccess === 'all',
+      ev: member && ('QR v' + member.qrVersion + ' · branchAccess all') },
+    { t: 'New member walks in — admitted through the Hamra gate',
+      ok: !!member && d.visits.some((v) => v.memberId === member.id && v.locationId === 'loc_hamra'), ev: 'visit logged at Hamra' },
+    { t: 'PT session booked with Karim H. at Badaro — travel-time validated (Beirut traffic)',
+      ok: !!ptBadaro, ev: ptBadaro && (D.fmtTime(ptBadaro.startsAt) + ' at Badaro · ' + ptBadaro.id) },
+    { t: 'TRX Circuit reserved in Gemmayzeh',
+      ok: !!cls && trxBooked >= 2, ev: trxBooked + ' member(s) booked on cls_trx_gem' },
+    { t: 'Instructor safety check flags 2 dead TRX stations',
+      ok: !!cls && !!cls.safetyCheck && cls.safetyCheck.equipmentOk === false && (cls.safetyCheck.issues || []).length === 2,
+      ev: cls && cls.safetyCheck && cls.safetyCheck.issues.join(' · ') },
+    { t: 'Two safety work orders created — stations auto-isolated everywhere',
+      ok: trxWOs.length === 2 && ['ast_0201', 'ast_0202'].every((id) => (D.MaintenanceService.assetById(id) || {}).status === 'out_of_service'),
+      ev: trxWOs.map((w) => w.id).join(' · ') },
+    { t: 'Class capacity 14 → 12, waitlist recalculated',
+      ok: !!cls && cls.capacity === 12 && D.events().some((e) => e.type === 'class.capacity_reduced'),
+      ev: cls && ('capacity ' + cls.capacity + ' · waitlist ' + cls.waitlist.length) },
+    { t: 'New member buys a protein shake at the Hamra Fuel Bar — stock decremented',
+      ok: !!member && d.orders.some((o) => o.itemId === 'rtl_shake_choc' && o.memberId === member.id), ev: '$6 order on record' },
+    { t: 'Reception shift closed — cash drawer reconciled',
+      ok: !!closedShift && closedShift.varianceUSD != null,
+      ev: closedShift && ('variance $' + closedShift.varianceUSD + (Math.abs(closedShift.varianceUSD) > 20 ? ' → owner approval raised' : '')) },
+    { t: 'Owner sees it all — revenue, approvals and the full event trail on one screen',
+      ok: net.revenueToday >= 600 && net.pendingApprovals >= 2 && D.events().length > 10,
+      ev: '$' + net.revenueToday + ' today · ' + net.pendingApprovals + ' approvals pending · ' + D.events().length + ' events' },
+  ];
+}
+function renderStory(results, upTo) {
+  const rows = results || storyChecks().map((c) => ({ t: c.t }));
+  $('storySteps').innerHTML = rows.map((c, i) => {
+    const decided = results && upTo != null && i <= upTo;
+    const cls = decided ? (c.ok ? 'ok' : 'fail') : '';
+    const mark = decided ? (c.ok ? '✓' : '✗') : '·';
+    return `<li class="${cls}"><span class="lbl">${c.t}${decided && c.ev ? `<span class="evd">engine: ${c.ev}</span>` : ''}</span><span class="tick">${mark}</span></li>`;
+  }).join('');
+}
+$('heroBtn').onclick = () => {
+  DemoData.reset('sales-demo-story');
+  refresh();
+  const results = storyChecks();
+  $('storySum').hidden = true;
+  let i = -1;
+  const step = () => {
+    i += 1;
+    renderStory(results, i);
+    if (i < results.length - 1) { setTimeout(step, 160); return; }
+    const passed = results.filter((c) => c.ok).length;
+    $('storySum').hidden = false;
+    $('storySum').className = 'story-sum' + (passed === results.length ? ' allok' : '');
+    $('storySum').textContent = passed === results.length
+      ? '✓ All ' + results.length + ' steps verified against the live engine — open any workspace to see them.'
+      : passed + '/' + results.length + ' steps verified — inspect the ✗ steps above.';
+    toast('Sales-demo story replayed — ' + passed + '/' + results.length + ' steps verified');
+  };
+  step();
+};
+renderStory(null, null);
+
 document.querySelectorAll('[data-t]').forEach((b) => { b.onclick = () => {
   const t = b.dataset.t;
   const M = DemoData.MemberService, A = DemoData.AccessService, MT = DemoData.MaintenanceService;
   if (t === 'sos') { DemoData.IncidentService.raiseSOS({ memberId: 'mbr_0001', type: 'Injury — needs first aid', zone: 'Free-weights area' }); toast('SOS raised — check Reception'); }
-  if (t === 'denied') { const r = A.checkIn('mbr_0003', 'stf_0001'); toast(r.ok ? 'Admitted (unexpected)' : 'Denied: ' + r.reason); }
-  if (t === 'breakdown') { MT.createWorkOrder({ assetId: 'ast_0001', problem: 'Belt slipping under load', severity: 'safety', reporterId: 'mbr_0001' }); toast('Safety work order — treadmill isolated everywhere'); }
-  if (t === 'restore') { MT.returnToService('ast_0001', 'stf_0005', 'Suhail M.'); toast('Treadmill verified and back in service'); }
-  if (t === 'admit') { const r = A.checkIn('mbr_0005', 'stf_0001'); toast(r.ok ? 'Lina admitted' : 'Denied: ' + r.reason); }
-  if (t === 'payment') { DemoData.PaymentService.take({ memberId: 'mbr_0002', amount: 95, method: 'cash', what: 'Monthly renewal', staffId: 'stf_0001' }); toast('$95 taken at the desk'); }
-  if (t === 'freeze') { M.setStatus('mbr_0001', 'frozen', 'stf_0001', 'member request'); toast('Samer frozen — entry now denied'); }
-  if (t === 'unfreeze') { M.setStatus('mbr_0001', 'active', 'stf_0001', 'unfrozen at desk'); toast('Samer active again'); }
+  if (t === 'denied') { const r = A.checkIn('mbr_0003', 'stf_rc_joelle'); toast(r.ok ? 'Admitted (unexpected)' : 'Denied: ' + r.reason); }
+  if (t === 'breakdown') { MT.createWorkOrder({ assetId: 'ast_0004', problem: 'Belt slipping under load', severity: 'safety', reporterId: 'mbr_0001' }); toast('Safety work order — treadmill isolated everywhere'); }
+  if (t === 'restore') { MT.returnToService('ast_0004', 'stf_mt_suhail', 'Suhail M.'); toast('Treadmill verified and back in service'); }
+  if (t === 'admit') { const r = A.checkIn('mbr_0005', 'stf_rc_joelle'); toast(r.ok ? 'Lina admitted' : 'Denied: ' + r.reason); }
+  if (t === 'payment') { DemoData.PaymentService.take({ memberId: 'mbr_0002', amount: 95, method: 'cash', what: 'Monthly renewal', staffId: 'stf_rc_lara' }); toast('$95 taken at the desk'); }
+  if (t === 'freeze') { M.setStatus('mbr_0001', 'frozen', 'stf_rc_lara', 'member request'); toast('Samer frozen — entry now denied'); }
+  if (t === 'unfreeze') { M.setStatus('mbr_0001', 'active', 'stf_rc_lara', 'unfrozen at desk'); toast('Samer active again'); }
   refresh();
 }; });
 

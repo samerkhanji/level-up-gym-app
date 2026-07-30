@@ -30,23 +30,15 @@
   .tb-light { background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(24,20,15,.05); }
   .occ-pill { display:flex; align-items:center; gap:7px; background:var(--mint); color:var(--deep); font-size:12px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; }
   .occ-pill .dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite; }
-  .sys-pill { display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; padding:6px 11px; border-radius:999px; cursor:pointer; }
-  .sys-ok { background:var(--mint); color:var(--deep); }
-  .sys-warn { background:var(--amber-soft); color:var(--amber); }
-  .sys-off { background:var(--red-soft); color:var(--red-ink); }
 
   .nav { display:flex; gap:6px; margin:12px 0 14px; flex-wrap:wrap; }
   .nav button { font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:999px; color:var(--muted); background:var(--card); box-shadow:0 3px 10px rgba(24,20,15,.04); }
   .nav button.on { background:var(--deep); color:#fff; }
   .nav a { font-size:12.5px; font-weight:700; padding:8px 15px; border-radius:999px; color:var(--green); background:var(--card); text-decoration:none; box-shadow:0 3px 10px rgba(24,20,15,.04); }
 
-  .offline-banner { display:none; background:var(--red-soft); border:1.5px solid var(--red-line); color:var(--red-ink); border-radius:14px; padding:11px 16px; font-weight:700; font-size:13px; margin-bottom:12px; }
-  .offline-banner.show { display:flex; justify-content:space-between; align-items:center; }
-
   .qa { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:14px; }
   .qa button { background:var(--card); border-radius:12px; padding:9px 13px; font-weight:700; font-size:12px; color:var(--deep); box-shadow:0 4px 12px rgba(24,20,15,.05); }
   .qa button.dark { background:var(--deep); color:#fff; }
-  .qa button.warn { background:var(--amber-soft); color:var(--amber); }
 
   .grid { display:grid; grid-template-columns:1.35fr 1fr; gap:14px; align-items:start; }
   @media (max-width:980px) { .grid { grid-template-columns:1fr; } }
@@ -54,15 +46,13 @@
     body { padding:12px 10px 40px; }
     .search { width:100%; }
     .search-wrap { width:100%; }
-    .occ-grid { grid-template-columns:repeat(2,1fr); }
     .stats { grid-template-columns:repeat(2,1fr); }
     .card { padding:13px; min-width:0; }
-    .ev-actions { flex-wrap:wrap; }
     * { min-width:0; }
   }
   .card { background:var(--card); border-radius:18px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); }
-  .filters { display:flex; gap:6px; margin:10px 0 4px; }
+  .filters { display:flex; gap:6px; margin:10px 0 4px; flex-wrap:wrap; }
   .filters button { font-size:11.5px; font-weight:700; padding:5px 12px; border-radius:999px; background:var(--paper); color:var(--muted); }
   .filters button.on { background:var(--deep); color:#fff; }
 
@@ -81,33 +71,16 @@
   .ev.deny .ev-reason { color:var(--red-ink); } .ev.warn .ev-reason { color:var(--amber); }
   .ev-state { margin-left:auto; font-size:11px; font-weight:800; }
   .st-ok { color:var(--green); } .st-deny { color:var(--red-ink); } .st-warn { color:var(--amber); } .st-out { color:var(--faint); }
-  .ev-actions { display:flex; gap:6px; margin-top:8px; }
+  .ev-actions { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
   .ev-actions button { font-size:11px; font-weight:700; padding:5px 10px; border-radius:8px; background:#fff; color:var(--deep); box-shadow:0 2px 6px rgba(24,20,15,.08); }
   .ev-actions button.hot { background:var(--red); color:#fff; }
 
-  .occ-card { margin-top:14px; }
-  .occ-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-top:10px; }
-  .occ-num { font-family:var(--display); font-weight:800; font-size:22px; color:var(--deep); }
-  .occ-lbl { font-size:10.5px; color:var(--muted); }
-  .cap-bar { height:8px; background:var(--line); border-radius:4px; margin-top:10px; overflow:hidden; }
-  .cap-fill { height:100%; background:linear-gradient(90deg,var(--green),var(--deep)); border-radius:4px; transition:width .5s ease; }
-  .long-row { display:flex; justify-content:space-between; font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
-  .long-row:last-child { border-bottom:none; }
-
-  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper); display:flex; align-items:center; gap:10px; animation:rise .3s ease both; }
-  .task.urgent { background:var(--red-soft); }
-  .task.warn { background:var(--amber-soft); }
-  .task-body { flex:1; min-width:0; }
-  .task-t { font-weight:700; font-size:13px; }
-  .task-s { font-size:11.5px; color:var(--muted); }
-  .task button { font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:9px; background:var(--deep); color:#fff; flex-shrink:0; }
-  .badge { font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px; flex-shrink:0; }
-  .b-red { background:var(--red); color:#fff; } .b-amber { background:var(--amber); color:#fff; } .b-grey { background:#d8dbd3; color:var(--muted); }
-
   .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:10px; margin-top:14px; }
-  .stat { background:var(--card); border-radius:16px; padding:13px 15px; box-shadow:0 5px 14px rgba(24,20,15,.05); cursor:pointer; }
+  .stat { background:var(--card); border-radius:16px; padding:13px 15px; box-shadow:0 5px 14px rgba(24,20,15,.05); cursor:pointer; text-align:left; }
   .stat b { font-family:var(--display); font-weight:800; font-size:21px; color:var(--deep); display:block; }
   .stat span { font-size:11px; color:var(--muted); }
+  .stat.alert { background:var(--red-soft); }
+  .stat.alert b { color:var(--red-ink); }
 
   /* drawer */
   .drawer-wrap { position:fixed; inset:0; background:rgba(24,20,15,.35); z-index:40; display:none; }
@@ -123,14 +96,16 @@
   .c-ok { background:var(--mint); color:var(--deep); } .c-bad { background:var(--red-soft); color:var(--red-ink); }
   .c-warn { background:var(--amber-soft); color:var(--amber); } .c-grey { background:var(--paper); color:var(--muted); }
   .d-sec { border-top:1px solid var(--line); padding:12px 0; }
-  .d-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; }
-  .d-row b.due { color:var(--red-ink); }
+  .d-row { display:flex; justify-content:space-between; font-size:13px; padding:4px 0; gap:10px; }
   .d-note { background:var(--amber-soft); border-radius:10px; padding:9px 12px; font-size:12px; color:#7a5a1e; margin-top:6px; }
   .resolve { background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:14px; padding:12px; margin:12px 0; }
   .resolve h4 { font-size:13px; color:var(--red-ink); margin-bottom:8px; }
+  .resolve.okbox { background:#f7faf6; border-color:#e2ede5; }
+  .resolve.okbox h4 { color:var(--green); }
   .r-grid { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .r-grid button { font-size:11.5px; font-weight:700; padding:8px; border-radius:9px; background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(24,20,15,.06); }
   .r-grid button.main { background:var(--deep); color:#fff; }
+  .r-grid button.hot { background:var(--red); color:#fff; }
   .d-actions { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:8px; }
   .d-actions button { font-size:12px; font-weight:700; padding:9px; border-radius:10px; background:var(--paper); color:var(--ink); }
   .d-actions button.main { background:var(--deep); color:#fff; }
@@ -138,7 +113,7 @@
   /* modals */
   .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:60; }
   .overlay.show { display:grid; }
-  .modal { background:#fff; border-radius:20px; padding:22px; width:min(460px,94vw); max-height:88vh; overflow-y:auto; box-shadow:0 24px 60px rgba(24,20,15,.3); }
+  .modal { background:#fff; border-radius:20px; padding:22px; width:min(470px,94vw); max-height:88vh; overflow-y:auto; box-shadow:0 24px 60px rgba(24,20,15,.3); }
   .modal h3 { font-family:var(--display); font-weight:800; font-size:18px; margin-bottom:4px; }
   .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
   .modal label { display:block; font-size:11.5px; font-weight:700; color:var(--muted); margin:10px 0 4px; }
@@ -147,766 +122,1248 @@
   .modal .mrow button { flex:1; border-radius:12px; padding:12px; font-weight:700; font-size:14px; }
   .m-cancel { background:var(--paper); color:var(--ink); }
   .m-confirm { background:var(--deep); color:#fff; }
-  .m-err { color:var(--red-ink); font-size:12px; margin-top:8px; display:none; }
-  .tx-row { display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
-  .checkline { display:flex; align-items:center; gap:8px; font-size:13px; padding:6px 0; }
-  .sys-row { display:flex; justify-content:space-between; align-items:center; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); }
-  .dot { width:9px; height:9px; border-radius:50%; display:inline-block; }
-  .dg { background:var(--green); } .da { background:var(--amber); } .dr { background:var(--red); }
+  .m-err { color:var(--red-ink); font-size:12px; margin-top:8px; display:none; font-weight:700; }
+  .tx-row { display:flex; justify-content:space-between; font-size:13px; padding:8px 0; border-bottom:1px solid var(--line); gap:8px; }
+  .tx-row:last-child { border-bottom:none; }
+  .terms { background:var(--paper); border-radius:12px; padding:10px 12px; margin-top:10px; font-size:12.5px; }
+  .terms .d-row { padding:2px 0; font-size:12.5px; }
+  .fineprint { font-size:11px; color:var(--faint); margin-top:8px; }
 
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 2.6s ease forwards; box-shadow:0 10px 30px rgba(24,20,15,.3); max-width:92vw; }
-  @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 12%,82%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastAnim 3.2s ease forwards; box-shadow:0 10px 30px rgba(24,20,15,.3); max-width:92vw; }
+  @keyframes toastAnim { 0%{opacity:0; transform:translate(-50%,-8px)} 10%,85%{opacity:1; transform:translate(-50%,0)} 100%{opacity:0; transform:translate(-50%,-8px)} }
 
-  /* ---------- layout rhythm (labels on the background, fused stacks, entrance) ---------- */
-  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  /* layout rhythm */
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px 10px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
-  .sect-label + .grid, .sect-label + .stats, .sect-label + .stack, .sect-label + .card { margin-top:12px; }
   .stack { background:var(--card); border-radius:18px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
   .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); margin-top:0; }
   .stack > .card:last-child { border-bottom:none; }
-  /* de-boxed quiet card — flat on the background */
-  .flat-block { background:transparent; box-shadow:none; padding:6px 2px 0; }
-  /* tighter task queue rows — same shape, less air */
-  .task { padding:8px 10px; margin-top:6px; }
-  /* staggered section entrance */
   @keyframes sectRise { from{opacity:0; transform:translateY(10px)} to{opacity:1; transform:none} }
-  .topbar, .nav, .qa, .grid, .stats, body > .sect-label { animation:sectRise .38s cubic-bezier(.2,.7,.3,1) both; }
-  .nav { animation-delay:.05s }
-  .qa { animation-delay:.1s }
-  body > .sect-label { animation-delay:.12s }
-  .grid { animation-delay:.15s }
-  .grid ~ .sect-label { animation-delay:.2s }
-  .stats { animation-delay:.25s }
-  @media (prefers-reduced-motion: reduce) {
-    .topbar, .nav, .qa, .grid, .stats, body > .sect-label { animation:none; }
-  }
+  .topbar, .nav, .qa, .view { animation:sectRise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .nav { animation-delay:.05s } .qa { animation-delay:.1s } .view { animation-delay:.14s }
+  @media (prefers-reduced-motion: reduce) { .topbar, .nav, .qa, .view { animation:none; } }
 </style>
 <style>
-  /* search results — pick the right person, never the first fuzzy match */
+  /* search results */
   .search-wrap{position:relative;}
-  .search-drop{position:absolute; top:110%; left:0; min-width:290px; background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(24,20,15,.18); z-index:60; overflow:hidden; display:none;}
+  .search-drop{position:absolute; top:110%; right:0; min-width:290px; background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(24,20,15,.18); z-index:60; overflow:hidden; display:none;}
   .search-drop.show{display:block;}
   .sr{display:flex; align-items:center; gap:9px; padding:10px 12px; cursor:pointer; border-bottom:1px solid #e6ddc9; font-size:13px;}
   .sr:last-child{border-bottom:none;}
   .sr.sel,.sr:hover{background:#f2ece0;}
-  .sr .av{width:28px; height:28px; border-radius:50%; background:#efe6d2; color:#000000; display:grid; place-items:center; font-weight:800; font-size:11px; flex-shrink:0;}
+  .sr .av{width:28px; height:28px; border-radius:50%; background:#efe6d2; color:#000; display:grid; place-items:center; font-weight:800; font-size:11px; flex-shrink:0;}
   .sr b{display:block; font-size:13px;}
   .sr span{font-size:11px; color:#a89b83;}
   .sr .stx{margin-left:auto; font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px;}
-  .stx.ok{background:#efe6d2; color:#000000;} .stx.bad{background:#fae7e3; color:#bb3a2a;}
+  .stx.ok{background:#efe6d2; color:#000;} .stx.bad{background:#fae7e3; color:#bb3a2a;}
+</style>
+<style>
+  /* v3 additions — branch selector, rows, kanban, chips */
+  .branch-wrap{position:relative;}
+  .branch-btn{display:flex; align-items:center; gap:8px; background:var(--deep); color:#fff; border-radius:12px; padding:9px 14px; font-weight:700; font-size:12.5px;}
+  .branch-btn .caret{font-size:10px; opacity:.7;}
+  .branch-drop{position:absolute; top:112%; left:0; min-width:250px; background:#fff; border-radius:14px; box-shadow:0 12px 32px rgba(24,20,15,.18); z-index:70; overflow:hidden; display:none;}
+  .branch-drop.show{display:block;}
+  .bd-row{display:flex; align-items:center; gap:9px; padding:11px 14px; cursor:pointer; font-size:13px; border-bottom:1px solid var(--line); width:100%; text-align:left;}
+  .bd-row:last-child{border-bottom:none;}
+  .bd-row:hover{background:var(--paper);}
+  .bd-row.on{background:var(--mint); font-weight:700;}
+  .bd-row small{display:block; color:var(--faint); font-size:11px; font-weight:400;}
+  .bchip{font-size:10px; font-weight:800; padding:2px 8px; border-radius:999px; background:var(--mint); color:var(--deep); flex-shrink:0;}
+  .row{display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); font-size:12.5px;}
+  .row:last-child{border-bottom:none;}
+  .row .grow{flex:1; min-width:0;}
+  .row .r-t{font-weight:700; font-size:13px;}
+  .row .r-s{font-size:11.5px; color:var(--muted);}
+  .act{font-size:11px; font-weight:700; padding:6px 11px; border-radius:8px; background:var(--paper); color:var(--deep); box-shadow:0 2px 6px rgba(24,20,15,.06); flex-shrink:0;}
+  .act.dark{background:var(--deep); color:#fff;}
+  .act.hot{background:var(--red); color:#fff;}
+  .empty{color:var(--faint); font-size:12.5px; padding:10px 0;}
+  .view{display:none;}
+  .view.on{display:block;}
+  .kanban{display:flex; gap:10px; overflow-x:auto; padding:4px 2px 12px; align-items:flex-start;}
+  .kcol{min-width:222px; flex:0 0 222px; background:var(--card); border-radius:16px; padding:12px; box-shadow:0 5px 14px rgba(24,20,15,.05);}
+  .kcol h4{font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); display:flex; justify-content:space-between;}
+  .lead-card{background:var(--paper); border-radius:12px; padding:10px 11px; margin-top:8px; font-size:12.5px; animation:rise .3s ease both;}
+  .lead-card.overdue{background:var(--red-soft); outline:1.5px solid var(--red-line);}
+  .lead-card b{font-size:13px; display:block;}
+  .lead-card .lc-meta{color:var(--muted); font-size:11.5px; margin:2px 0 6px;}
+  .lead-card .lc-btns{display:flex; gap:5px; flex-wrap:wrap;}
+  .lead-card .lc-btns button{font-size:10.5px; font-weight:700; padding:4px 9px; border-radius:7px; background:#fff; color:var(--deep); box-shadow:0 2px 6px rgba(24,20,15,.08);}
+  .lead-card .lc-btns button.win{background:var(--deep); color:#fff;}
+  .lead-card .lc-btns button.lose{color:var(--red-ink);}
+  .flag{background:var(--red-soft); border:1.5px solid var(--red-line); border-radius:10px; padding:8px 11px; font-size:12px; color:var(--red-ink); font-weight:700; margin-top:6px;}
 </style>
 </head>
 <body>
   <div class="topbar">
-    <div class="logo">G</div>
+    <div class="logo">LU</div>
     <div class="title">Reception</div>
-    <button class="occ-pill" data-open="occupancy"><span class="dot"></span><span id="occPill">—</span></button>
-    <button class="sys-pill sys-ok" id="sysPill" data-open="system"><span class="dot dg"></span>All systems</button>
+    <div class="branch-wrap">
+      <button class="branch-btn" id="branchBtn"><span id="branchLbl">My branch: —</span><span class="caret">▾</span></button>
+      <div class="branch-drop" id="branchDrop"></div>
+    </div>
+    <button class="occ-pill" id="occPillBtn"><span class="dot"></span><span id="occPill">—</span></button>
     <div class="spacer"></div>
     <div class="search-wrap">
       <input class="search" id="searchBox" placeholder="⌕  Search member, phone, ID…  ( / )" autocomplete="off" />
       <div class="search-drop" id="searchDrop"></div>
     </div>
-    <div class="staff" style="font-size:12.5px; color:var(--muted);"><b>Lara</b> · <span id="clock"></span></div>
+    <div class="staff" style="font-size:12.5px; color:var(--muted);"><b id="staffLbl">—</b> · <span id="clock"></span></div>
   </div>
 
-  <div class="nav">
-    <button class="on" data-nav="gate">Gate</button>
-    <button data-nav="members">Members</button>
-    <button data-open="pos">Payments</button>
-    <button data-open="guest">Guests</button>
-    <button data-open="bookings">Bookings</button>
-    <button data-open="incidents">Incidents</button>
-    <button data-open="shift">Shift</button>
+  <div class="nav" id="nav">
+    <button class="on" data-view="board">Live board</button>
+    <button data-view="crm">CRM pipeline</button>
+    <button data-view="pay">Payments</button>
     <a href="staff.html">All departments →</a>
   </div>
 
-  <!-- primary actions only — everything else is contextual (member drawer) or under More -->
-  <div class="qa">
-    <button class="dark" data-qa="scan">Scan member</button>
-    <button data-qa="register">+ Register member</button>
+  <div class="qa" id="qa">
+    <button class="dark" data-qa="checkin">Check in member</button>
+    <button data-qa="lead">+ Register lead</button>
+    <button data-qa="sell">Sell membership / trial</button>
+    <button data-qa="renew">Renew</button>
     <button data-qa="pay">Take payment</button>
-    <button data-qa="daypass">Day pass</button>
+    <button data-qa="ptpkg">PT package</button>
     <button data-qa="guest">Guest pass</button>
-    <button data-qa="moremenu">More ▾</button>
+    <button data-qa="bookclass">Book class</button>
+    <button data-qa="bookpt">Book trainer</button>
+    <button data-qa="more">More ▾</button>
   </div>
 
-  <div class="offline-banner" id="offlineBanner">
-    <span>⚠ OFFLINE MODE — gate in manual entry. Everything you record syncs when the connection returns.</span>
-    <button class="tb-btn tb-light" data-open="system">System status</button>
-  </div>
-
-  <div class="sect-label">Live operations</div>
-  <div class="grid">
-    <div>
-      <div class="stack">
-      <div class="card">
-        <div style="display:flex; align-items:center;"><div class="eyebrow">At the gate — live feed</div>
-          <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="feedCount"></span></div>
-        <div class="filters" id="filters">
-          <button class="on" data-f="all">All</button><button data-f="ok">Admitted</button>
-          <button data-f="deny">Denied</button><button data-f="warn">Overrides</button><button data-f="out">Exited</button>
+  <!-- ============ LIVE BOARD ============ -->
+  <div class="view on" id="view-board">
+    <div class="sect-label" id="boardLabel">Live board</div>
+    <div class="grid">
+      <div>
+        <div class="stack">
+          <div class="card">
+            <div style="display:flex; align-items:center;"><div class="eyebrow">Inside now</div>
+              <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="insideCount"></span></div>
+            <div id="insideList"></div>
+          </div>
+          <div class="card">
+            <div style="display:flex; align-items:center;"><div class="eyebrow">Entry feed</div>
+              <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="feedCount"></span></div>
+            <div class="filters" id="filters">
+              <button class="on" data-f="all">All</button><button data-f="ok">Admitted</button>
+              <button data-f="deny">Denied</button><button data-f="warn">Overrides</button><button data-f="out">Exited</button>
+            </div>
+            <div id="feed"></div>
+          </div>
         </div>
-        <div id="feed"></div>
       </div>
-
-      <div class="card occ-card">
-        <div class="eyebrow">Occupancy — live</div>
-        <div class="occ-grid">
-          <div><div class="occ-num" id="oInside">0</div><div class="occ-lbl">inside now · evacuation count</div></div>
-          <div><div class="occ-num" id="oCap">0%</div><div class="occ-lbl">of capacity <span id="oCapMax"></span></div></div>
-          <div><div class="occ-num" id="oIn">0</div><div class="occ-lbl">entries today</div></div>
-          <div><div class="occ-num" id="oOut">0</div><div class="occ-lbl">exits today</div></div>
+      <div>
+        <div class="stack">
+          <div class="card">
+            <div class="eyebrow">Denied entries today</div>
+            <div id="deniedList"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Shift &amp; cash drawer</div>
+            <div id="shiftBox"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Expected guest passes</div>
+            <div id="guestList"></div>
+          </div>
         </div>
-        <div class="cap-bar"><div class="cap-fill" id="capFill" style="width:0%"></div></div>
-        <div class="occ-lbl" id="occSplit" style="margin-top:7px;"></div>
-        <div style="margin-top:12px;"><div class="eyebrow" style="font-size:10px;">Inside unusually long</div><div id="longInside"></div></div>
-      </div>
       </div>
     </div>
 
-    <div>
-      <div class="card">
-        <div style="display:flex; align-items:center;"><div class="eyebrow">Needs attention — task queue</div>
-          <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="taskCount"></span></div>
-        <div id="tasks"></div>
+    <div class="sect-label">Today at this branch</div>
+    <div class="grid">
+      <div>
+        <div class="stack">
+          <div class="card">
+            <div class="eyebrow">Classes today</div>
+            <div id="classList"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">PT sessions today</div>
+            <div id="ptList"></div>
+          </div>
+        </div>
       </div>
-      <div class="card flat-block" style="margin-top:14px;">
-        <div class="eyebrow">Upcoming — next 2 hours</div>
-        <div id="upcoming"></div>
+      <div>
+        <div class="stack">
+          <div class="card">
+            <div class="eyebrow">Renewals due — next 14 days</div>
+            <div id="renewList"></div>
+          </div>
+          <div class="card">
+            <div class="eyebrow">Open incidents</div>
+            <div id="incidentList"></div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <div class="sect-label">Today at a glance</div>
+    <div class="stats" id="stats"></div>
   </div>
 
-  <div class="sect-label">Today at a glance</div>
-  <div class="stats" id="stats">
-    <button class="stat" data-open="txlist"><b id="sRev">$0</b><span>revenue today · tap for breakdown</span></button>
-    <button class="stat" data-open="guest"><b id="sGuests">0</b><span>guest passes</span></button>
-    <button class="stat" data-open="txlist"><b id="sRenew">0</b><span>renewals</span></button>
-    <button class="stat" data-open="denials"><b id="sDeny">0</b><span>denials</span></button>
-    <button class="stat" data-open="shift"><b id="sDrawer">$0</b><span>cash drawer</span></button>
+  <!-- ============ CRM PIPELINE ============ -->
+  <div class="view" id="view-crm">
+    <div class="sect-label">Pipeline metrics — simulated demo data</div>
+    <div class="stats" id="crmStats"></div>
+    <div class="sect-label">Pipeline — new → contacted → tour → trial → offer → follow-up → won / lost</div>
+    <div class="kanban" id="kanban"></div>
+  </div>
+
+  <!-- ============ PAYMENTS ============ -->
+  <div class="view" id="view-pay">
+    <div class="sect-label" id="payLabel">Payments ledger</div>
+    <div class="card">
+      <div style="display:flex; align-items:center;"><div class="eyebrow">Ledger</div>
+        <span class="spacer"></span><span style="font-size:11px; color:var(--faint);" id="ledgerTotal"></span></div>
+      <div style="font-size:11.5px; color:var(--faint); margin-top:4px;">Refunds are never instant — every refund creates an owner approval request.</div>
+      <div id="ledger"></div>
+    </div>
   </div>
 
   <!-- member drawer -->
-  <div class="drawer-wrap" id="drawerWrap">
-    <div class="drawer" id="drawer"></div>
-  </div>
-
+  <div class="drawer-wrap" id="drawerWrap"><div class="drawer" id="drawer"></div></div>
   <!-- generic modal -->
   <div class="overlay" id="overlay"><div class="modal" id="modalBox"></div></div>
 
 <script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
 <script>
-const SHEET_ID = '1ApGcaazok6jm9IGaem_qJHDP0Gj8QMZ0BvRh7PYocw0';
-function parseCSV(text){const rows=[];let row=[],cell='',q=false;for(let i=0;i<text.length;i++){const ch=text[i];
-  if(q){if(ch==='"'&&text[i+1]==='"'){cell+='"';i++;}else if(ch==='"')q=false;else cell+=ch;}
-  else if(ch==='"')q=true;else if(ch===','){row.push(cell);cell='';}
-  else if(ch==='\n'||ch==='\r'){if(cell!==''||row.length){row.push(cell);rows.push(row);row=[];cell='';}if(ch==='\r'&&text[i+1]==='\n')i++;}
-  else cell+=ch;}
-  if(cell!==''||row.length){row.push(cell);rows.push(row);}
-  const[h,...b]=rows;return b.filter(r=>r.some(c=>c.trim()!==''))
-    .map(r=>Object.fromEntries(h.map((k,i)=>[k.trim().toLowerCase(),(r[i]??'').trim()])));}
-async function tab(n){const r=await fetch(`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(n)}`);if(!r.ok)throw new Error(n);return parseCSV(await r.text());}
+/* ============================================================
+   Reception — Level Up OS. All state lives in window.DemoData
+   (the shared v3 engine); this page is a pure view + actions.
+   ============================================================ */
+const D = DemoData;
+const $ = (id) => document.getElementById(id);
 
-/* ---------- state ---------- */
-const CAPACITY = 120, GUEST_LIMIT = 3;
-/* fallback data — the screen renders instantly and never looks empty,
-   then hydrates from the sheet when it arrives */
-const FALLBACK_USERS=[
-  {name:'Samer Khanji',phone:'03 123456',tier:'Performance',status:'active',plan:'6-Month',joined:'Mar 2026'},
-  {name:'Jawad',phone:'03 234567',tier:'Performance',status:'active',plan:'6-Month',joined:'Mar 2026'},
-  {name:'Mohamad',phone:'70 345678',tier:'Performance',status:'active',plan:'6-Month',joined:'Jun 2026'},
-  {name:'Pamela <3',phone:'71 456789',tier:'Performance',status:'active',plan:'6-Month',joined:'May 2026'},
-  {name:'Hassan M.',phone:'76 567890',tier:'Access',status:'active',plan:'Monthly',joined:'Jun 2026'},
-  {name:'Elie G.',phone:'03 678901',tier:'Access',status:'frozen',plan:'Monthly',joined:'Apr 2026'},
-  {name:'Walid R.',phone:'81 789012',tier:'Access',status:'expired',plan:'Monthly',joined:'Jan 2026'},
-  {name:'Maya F.',phone:'03 890123',tier:'Elite',status:'active',plan:'Annual',joined:'Dec 2025'}];
-let members=[], classes=[{name:'HIIT Burn',when:'Today · 7:00 PM',instructor:'Tony A.',spots:'4'},{name:'Reformer Pilates',when:'Tomorrow · 9:00 AM',instructor:'Rita S.',spots:'0'}], trainers=[{name:'Karim H.',specialty:'Strength',availability:'available'},{name:'Maya R.',specialty:'Mobility',availability:'busy'}], lockers=[], family=[];
-let inside={};              // name -> entry ts
-let entriesToday=141, exitsToday=118, denialsToday=0, guestsToday=4, renewalsToday=2, guestsInside=0;
-let feed=[], tasks=[], txs=[
-  {t:'6:41 PM', what:'Membership renewal · Jawad', amt:95, how:'cash'},
-  {t:'6:12 PM', what:'Guest pass · walk-in', amt:10, how:'card'},
-  {t:'5:55 PM', what:'PT package · Dana T.', amt:300, how:'card'},
-  {t:'5:20 PM', what:'Day pass', amt:15, how:'cash'},
-];
-let incidents=[]; let shift={in:'2:00 PM', startCash:100, note:''};
-let offline=false; let filter='all'; let guestVisits={'Rami B.':3};
-const sys={'Entrance gate':'ok','Exit gate':'ok','QR scanner':'ok','Door controller':'ok',Internet:'ok','App server':'ok','Payment terminal':'ok','CCTV / access camera':'ok',Printer:'warn'};
-let lastSync=Date.now();
-const bannedGuests=['R. Karam'];
-/* denial taxonomy → structured resolutions (override is the LAST resort) */
-const DENIALS={
-  expired:{reason:m=>'Membership expired'+(m.expiry?' — '+m.expiry:''),fix:['pay','renew','daypass']},
-  frozen:{reason:()=>'Account frozen at member request',fix:['unfreeze','daypass']},
-  invalidqr:{reason:()=>'Invalid QR — identity mismatch',fix:['resetqr']},
-  dup:{reason:()=>'Duplicate scan — entered 4 min ago (anti-passback)',fix:['dup']},
-  waiver:{reason:()=>'Waiver not signed',fix:['waiver']},
-  suspended:{reason:()=>'Account suspended — see manager',fix:['mgr','contact']},
-  gate:{reason:()=>'Gate malfunction — scanner not responding',fix:['gatefix']},
+/* ---------- branch + persona ---------- */
+const BRANCH_KEY = 'lu_reception_branch';
+const PERSONA = { loc_hamra:'stf_rc_lara', loc_badaro:'stf_rc_joelle', loc_gemmayzeh:'stf_rc_marc', loc_hazmieh:'stf_rc_dana' };
+const VALID_BRANCH = ['loc_hamra','loc_badaro','loc_gemmayzeh','loc_hazmieh','all'];
+const S = {
+  branch: (() => { const v = localStorage.getItem(BRANCH_KEY); return VALID_BRANCH.includes(v) ? v : 'loc_hamra'; })(),
+  filter: 'all', view: 'board',
 };
-const FIX_LABELS={pay:'Collect balance',renew:'Renew membership',daypass:'Sell day pass · $15',unfreeze:'Remove freeze',resetqr:'Verify ID & reset QR',dup:'Review recent entry',waiver:'Sign waiver now',gatefix:'Controlled manual entry',once:'One-time access',mgr:'Manager approval',contact:'Contact member',retry:'Retry gate'};
+const isAll = () => S.branch === 'all';
+const scopeBranch = () => (isAll() ? null : S.branch);
+const staffId = () => (isAll() ? 'stf_own_samer' : PERSONA[S.branch]);
+const staffRec = () => D.load().staff.find((s) => s.id === staffId()) || { name: '—' };
+const branchName = (id) => (D.BranchService.byId(id) || {}).name || '—';
+const memberById = (id) => D.MemberService.byId(id);
+const memberName = (id) => (memberById(id) || {}).name || (id || '—');
+const staffName = (id) => (D.load().staff.find((s) => s.id === id) || {}).name || (id || '—');
+const planName = (id) => (D.PlanService.byId(id) || {}).name || '—';
+const t = (ms) => new Date(ms).toLocaleTimeString([], { hour:'numeric', minute:'2-digit' });
+const initial = (n) => (n || '?').trim()[0].toUpperCase();
 
-const $=id=>document.getElementById(id);
-const now=()=>new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
-function toast(m){const e=document.createElement('div');e.className='toast';e.textContent=m;document.body.appendChild(e);setTimeout(()=>e.remove(),2700);}
-const initial=n=>(n||'?').trim()[0].toUpperCase();
-const cashTotal=()=>shift.startCash+txs.filter(t=>t.how==='cash').reduce((s,t)=>s+t.amt,0);
-const revToday=()=>txs.reduce((s,t)=>s+t.amt,0);
+function guard() {
+  if (!isAll()) return false;
+  toast('Regional view is read-only — switch to a branch to act.');
+  return true;
+}
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 3300); }
 
-/* enrich sheet members with reception-side records */
-function enrich(u,i){return {...u,
-  id:'M-10'+String(10+i), balance: u.status==='expired'?95:0,
-  waiver: u.name==='Maya F.'?false:true,
-  guestLeft: u.tier==='Elite'?2:1, ptLeft: u.name==='Samer Khanji'?3:(u.name==='Mohamad'?8:0),
-  lastEntry: ['Yesterday 6:10 PM','Jul 26 · 7:44 AM','Jul 25 · 6:02 PM'][i%3],
-  notes: u.status==='frozen'?'Asked to freeze while travelling — back Aug 5.':(u.name==='Pamela <3'?'Prefers evening classes; ask about PT trial.':''),
-  expiry: u.status==='expired'?'expired Jul 1':'Dec 28, 2026'};}
-
-/* ---------- occupancy ---------- */
-function renderOcc(){
-  const n=Object.keys(inside).length, pct=Math.round(n/CAPACITY*100);
-  $('occPill').textContent=n+' inside · '+pct+'%';
-  $('oInside').textContent=n; $('oCap').textContent=pct+'%'; $('oCapMax').textContent='of '+CAPACITY;
-  $('oIn').textContent=entriesToday; $('oOut').textContent=exitsToday;
-  $('capFill').style.width=Math.min(100,pct)+'%';
-  $('occSplit').textContent=n+' members · '+guestsInside+' guest'+(guestsInside===1?'':'s')+' inside — tap the pill above for the full evacuation list';
-  const longs=Object.entries(inside).map(([name,ts])=>({name,min:Math.round((Date.now()-ts)/60000)}))
-    .filter(x=>x.min>150).sort((a,b)=>b.min-a.min).slice(0,3);
-  $('longInside').innerHTML=longs.length?longs.map(l=>
-    `<div class="long-row"><span>${l.name}</span><span style="color:var(--amber); font-weight:700;">${Math.floor(l.min/60)} h ${l.min%60} min</span></div>`).join('')
-    :'<div class="long-row"><span style="color:var(--faint);">No one over 2.5 hours.</span></div>';
+/* ---------- words for engine reason codes ---------- */
+const REASON_WORDS = {
+  unknown_member:'Not found in the member list', frozen:'Membership frozen', expired:'Membership expired',
+  suspended:'Account suspended', access_restricted:'Access restricted — see account note',
+  unknown_branch:'Unknown branch', branch_closed:'Branch closed right now',
+  branch_not_allowed:'Single-branch plan — not valid at this branch',
+  outside_allowed_hours:'Off-peak plan — outside allowed hours',
+  duplicate_visit:'Already inside (anti-passback)', at_capacity:'Branch at capacity',
+};
+const rWord = (r) => REASON_WORDS[r] || r;
+const BOOK_WORDS = {
+  unknown_class:'Class not found', class_not_open:'Class is not open for booking', unknown_member:'Member not found',
+  branch_not_allowed:'Member is on a single-branch plan — this class is at a branch their plan does not cover',
+  classes_not_included:'Their plan does not include classes — offer a gym + classes plan',
+  already_booked:'Already booked on this class', time_conflict:'Member has another class around the same time',
+};
+function ptBookWords(res, trainerId) {
+  const tn = staffName(trainerId);
+  if (res.error === 'travel_time_conflict') { const mins = (res.detail && res.detail.travelMins) || 25; return tn + ' has a session at another branch around then — needs ~' + mins + ' min Beirut travel between branches, so this slot is physically impossible.'; }
+  if (res.error === 'trainer_busy') return tn + ' already has a session at this branch in that slot.';
+  if (res.error === 'class_conflict') return tn + ' is teaching a class that overlaps this slot.';
+  if (res.error === 'trainer_not_at_branch') return tn + ' does not work at this branch.';
+  if (res.error === 'no_pt_credits') return 'No PT package or plan credits — sell a PT package first.';
+  if (res.error === 'branch_not_allowed') return 'Member is on a single-branch plan — cannot train at this branch.';
+  return res.error || 'Could not book.';
 }
 
-/* ---------- gate feed ---------- */
-function pushEvent(ev){ ev.time=now(); ev.gate=ev.gate||'Main gate'; feed.unshift(ev); if(feed.length>25)feed.pop(); renderFeed(); }
-/* trainer-session context on admissions (e.g. "Trainer session — Tue · 6:00 PM") */
-function ptCtx(name){
-  const ev=GymBus.all().slice().reverse().find(x=>((x.type==='pt-request'&&x.status==='accepted')||x.type==='pt-booked')&&x.payload?.member===name);
-  return ev?'Trainer session — '+(ev.payload.slot||'today'):null;
+/* ---------- previous-visit phrasing ---------- */
+function prevVisitTxt(memberId) {
+  const lv = D.MemberService.lastVisit(memberId);
+  if (!lv) return 'First recorded visit';
+  const d = new Date(lv.at), n = new Date(D.now());
+  const days = Math.floor((new Date(n.getFullYear(), n.getMonth(), n.getDate()) - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 864e5);
+  const when = days <= 0 ? 'earlier today' : days === 1 ? 'yesterday' : days + ' days ago';
+  return 'Previous: ' + (lv.branch || '—') + ', ' + when;
 }
-function renderFeed(){
-  const list=feed.filter(e=>filter==='all'||e.kind===filter);
-  $('feedCount').textContent=list.length+' events';
-  $('feed').innerHTML=list.slice(0,9).map((e,i)=>{
-    const av=e.kind==='ok'?'av-g':e.kind==='deny'?'av-r':e.kind==='warn'?'av-o':'av-x';
-    const st=e.kind==='ok'?['ADMITTED','st-ok']:e.kind==='deny'?['DENIED','st-deny']:e.kind==='warn'?['OVERRIDE','st-warn']:['EXITED','st-out'];
-    const m=members.find(x=>x.name===e.name);
-    return `<div class="ev ${e.kind}">
-      <div class="ev-top"><div class="avatar ${av}">${initial(e.name)}</div>
-        <div><div class="ev-name">${e.name}</div>
-          <div class="ev-meta">${m?m.plan+' · '+m.tier+' · ':''}${e.time} · ${e.gate}${m&&e.kind!=='out'?' · last entry '+m.lastEntry:''}</div>
-          ${e.reason?`<div class="ev-reason">${e.reason}</div>`:''}
-          ${e.kind==='ok'&&ptCtx(e.name)?`<div class="ev-reason" style="color:#1a1613;">${ptCtx(e.name)}</div>`:''}</div>
-        <span class="ev-state ${st[1]}">${st[0]}</span></div>
-      <div class="ev-actions">
-        <button data-view="${e.name}">View member</button>
-        ${e.kind==='deny'?`<button class="hot" data-assist="${e.name}">${(e.dtype&&DENIALS[e.dtype]&&FIX_LABELS[(DENIALS[e.dtype].fix||[])[0]])||'Assist'}</button><button data-retry="${i}">Retry scan</button><button data-mgr="${e.name}">Call manager</button>`:''}
-      </div></div>`;}).join('')||`<div style="color:var(--faint); font-size:13px; padding:14px 0;">
-        No gate activity for this filter — live admissions and denials appear here as members scan.
-        <button class="tb-btn tb-light" id="demoScan" style="margin-left:6px;">Run demo scan</button></div>`;
-  const ds=$('feed').querySelector('#demoScan');
-  if(ds)ds.onclick=()=>{const act=members.filter(u=>u.status==='active'&&!inside[u.name]);
-    const u=act[Math.floor(Math.random()*act.length)]||members[0];
-    inside[u.name]=Date.now();entriesToday++;pushEvent({name:u.name,kind:'ok'});renderOcc();toast('Demo scan — '+u.name+' admitted');};
-  $('feed').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>openDrawer(b.dataset.view,false));
-  $('feed').querySelectorAll('[data-assist]').forEach(b=>{
-    const ev=feed.find(e=>e.name===b.dataset.assist&&e.kind==='deny');
-    b.onclick=()=>openDrawer(b.dataset.assist,true,ev?.dtype);
+
+/* ---------- modal helpers ---------- */
+function modal(html, after) { $('modalBox').innerHTML = html; $('overlay').classList.add('show'); if (after) after(); }
+function closeModal() { $('overlay').classList.remove('show'); }
+$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) closeModal(); });
+function showErr(msg) { const e = $('mErr'); if (e) { e.textContent = msg; e.style.display = 'block'; } else toast(msg); }
+function reasonFieldHTML(label) {
+  return `<label>${label} <span style="color:var(--red-ink)">*</span></label>
+    <textarea id="mReason" rows="2" placeholder="Required — the engine rejects this without a reason"></textarea>`;
+}
+function getReason() {
+  const v = ($('mReason') ? $('mReason').value : '').trim();
+  if (v.length < 3) { showErr('A reason is required — this action is rejected without one.'); return null; }
+  return v;
+}
+function memberOptionsHTML(selectedId, includeWalkIn) {
+  const opts = D.MemberService.list().slice().sort((a, b) => a.name.localeCompare(b.name))
+    .map((m) => `<option value="${m.id}" ${m.id === selectedId ? 'selected' : ''}>${m.name} — ${planName(m.planId)} (${m.status})</option>`).join('');
+  return (includeWalkIn ? `<option value="">— walk-in / no member —</option>` : '') + opts;
+}
+function methodSelectHTML() { return `<select id="mMethod"><option>cash</option><option>card</option><option>wallet</option></select>`; }
+
+/* ---------- plan catalog grouping + terms ---------- */
+const PLAN_GROUP_ORDER = ['Single branch','All branches','Student','Off-peak','Day & trial passes','Gym + classes','Gym + PT','Corporate','Couple'];
+function planGroup(p) {
+  if (p.kind === 'trial' || p.kind === 'day_pass') return 'Day & trial passes';
+  if (p.kind === 'student') return 'Student';
+  if (p.kind === 'offpeak') return 'Off-peak';
+  if (p.kind === 'corporate') return 'Corporate';
+  if (p.kind === 'family') return 'Couple';
+  if ((p.ptCredits || 0) > 0) return 'Gym + PT';
+  if (p.id.includes('gymclass')) return 'Gym + classes';
+  return p.branchAccess === 'single' ? 'Single branch' : 'All branches';
+}
+function planSelectHTML(selId) {
+  const groups = {};
+  D.PlanService.list().forEach((p) => { const g = planGroup(p); (groups[g] = groups[g] || []).push(p); });
+  return `<select id="${selId}">` + PLAN_GROUP_ORDER.filter((g) => groups[g])
+    .map((g) => `<optgroup label="${g}">` + groups[g].map((p) => `<option value="${p.id}">${p.name} — $${p.price}</option>`).join('') + `</optgroup>`).join('') + `</select>`;
+}
+function planTermsHTML(planId) {
+  const p = D.PlanService.byId(planId); if (!p) return '';
+  const dur = p.months ? p.months + ' month' + (p.months > 1 ? 's' : '') : (p.days || 1) + ' day' + ((p.days || 1) > 1 ? 's' : '');
+  return `<div class="terms">
+    <div class="d-row"><span>Price</span><b>$${p.price}${p.joiningFee ? ' + $' + p.joiningFee + ' joining fee' : ''}</b></div>
+    <div class="d-row"><span>Duration</span><b>${dur}</b></div>
+    <div class="d-row"><span>Branch access</span><b>${p.branchAccess === 'all' ? 'All Level Up branches' : 'Home branch only'}</b></div>
+    <div class="d-row"><span>Hours</span><b>${p.accessHours ? p.accessHours.from + ':00–' + p.accessHours.to + ':00 only (off-peak)' : 'All opening hours'}</b></div>
+    <div class="d-row"><span>Freeze days</span><b>${p.freezeDays || 0}</b></div>
+    <div class="d-row"><span>Guest passes / month</span><b>${p.guestsPerMonth || 0}</b></div>
+    <div class="d-row"><span>PT credits</span><b>${p.ptCredits || 0}</b></div>
+    <div class="d-row"><span>Classes included</span><b>${p.classesIncluded ? 'Yes' : 'No'}</b></div>
+    ${p.requiresId ? `<div class="d-row"><span>Requires</span><b>${p.requiresId}</b></div>` : ''}
+    ${p.seats ? `<div class="d-row"><span>Seats</span><b>${p.seats}</b></div>` : ''}
+    <div class="fineprint">Plan terms are demo placeholders — final packages to be confirmed with Level Up.</div>
+  </div>`;
+}
+
+/* ============================================================
+   RENDER — everything reads the engine fresh
+   ============================================================ */
+function rerender() { renderTopbar(); renderBoard(); renderCRM(); renderLedger(); }
+
+function renderTopbar() {
+  const lbl = isAll() ? 'All Level Up branches' : 'My branch: ' + branchName(S.branch);
+  $('branchLbl').textContent = lbl;
+  $('staffLbl').textContent = isAll() ? staffRec().name + ' · regional view (read-only)' : staffRec().name + ' · ' + branchName(S.branch);
+  const occ = D.BranchService.occupancy();
+  const rows = isAll() ? occ : occ.filter((o) => o.branchId === S.branch);
+  const inside = rows.reduce((s, o) => s + o.inside, 0), cap = rows.reduce((s, o) => s + o.capacity, 0);
+  $('occPill').textContent = inside + ' inside · ' + (cap ? Math.round((inside / cap) * 100) : 0) + '%';
+  $('branchDrop').innerHTML = D.BranchService.list().map((l) => `
+    <button class="bd-row ${S.branch === l.id ? 'on' : ''}" data-branch="${l.id}">
+      <span class="grow" style="flex:1; text-align:left;">${l.name}${l.unconfirmed ? ' <span style="color:var(--amber); font-size:10px;">(unconfirmed)</span>' : ''}
+        <small>${staffName(PERSONA[l.id])} · ${l.phone}</small></span>
+      ${S.branch === l.id ? '✓' : ''}</button>`).join('') +
+    `<button class="bd-row ${isAll() ? 'on' : ''}" data-branch="all">
+      <span class="grow" style="flex:1; text-align:left;">All Level Up branches<small>Regional / owner view — read-only aggregates</small></span>
+      ${isAll() ? '✓' : ''}</button>`;
+  $('branchDrop').querySelectorAll('[data-branch]').forEach((b) => b.onclick = () => switchBranch(b.dataset.branch));
+}
+function switchBranch(id) {
+  S.branch = id; localStorage.setItem(BRANCH_KEY, id);
+  $('branchDrop').classList.remove('show');
+  rerender();
+  toast(isAll() ? 'Regional view — aggregated across every branch, read-only.'
+    : 'Now at ' + branchName(id) + ' — acting as ' + staffRec().name + '.');
+}
+$('branchBtn').onclick = (e) => { e.stopPropagation(); $('branchDrop').classList.toggle('show'); };
+document.addEventListener('click', (e) => { if (!e.target.closest('.branch-wrap')) $('branchDrop').classList.remove('show'); });
+
+/* ---------- live board ---------- */
+function bchip(locId) { return isAll() ? `<span class="bchip">${branchName(locId)}</span>` : ''; }
+
+function renderBoard() {
+  $('boardLabel').textContent = 'Live board — ' + (isAll() ? 'all branches' : branchName(S.branch));
+
+  /* inside now */
+  const inside = D.AccessService.insideNow(scopeBranch());
+  $('insideCount').textContent = inside.length + ' member' + (inside.length === 1 ? '' : 's');
+  $('insideList').innerHTML = inside.map((v) => {
+    const m = memberById(v.memberId) || { name: v.memberId };
+    return `<div class="row">
+      <div class="avatar av-g">${initial(m.name)}</div>
+      <div class="grow"><div class="r-t">${m.name} ${bchip(v.locationId)} ${v.override ? '<span class="chip c-warn" style="font-size:9.5px; padding:2px 7px;">OVERRIDE</span>' : ''}</div>
+        <div class="r-s">${planName(m.planId)} · in at ${t(new Date(v.enteredAt).getTime())} · ${prevVisitTxt(v.memberId)}</div></div>
+      <button class="act" data-view-m="${v.memberId}">View</button>
+      ${isAll() ? '' : `<button class="act" data-checkout="${v.memberId}">Check out</button>`}
+    </div>`;
+  }).join('') || '<div class="empty">No one inside right now — check members in from search or the gate.</div>';
+  $('insideList').querySelectorAll('[data-view-m]').forEach((b) => b.onclick = () => openDrawer(b.dataset.viewM));
+  $('insideList').querySelectorAll('[data-checkout]').forEach((b) => b.onclick = () => {
+    if (guard()) return;
+    const r = D.AccessService.checkOut(b.dataset.checkout);
+    toast(r.ok ? memberName(b.dataset.checkout) + ' checked out.' : 'No open visit found.'); rerender();
   });
-  $('feed').querySelectorAll('[data-retry]').forEach(b=>b.onclick=()=>{toast('Gate asked to rescan — waiting…');setTimeout(()=>toast('Same result — use Assist to resolve'),1500);});
-  $('feed').querySelectorAll('[data-mgr]').forEach(b=>b.onclick=()=>{toast('Manager paged about '+b.dataset.mgr);addTask({t:'Manager approval — '+b.dataset.mgr,s:'Paged '+now(),urg:'warn',kind:'mgr',name:b.dataset.mgr});});
-}
-$('filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{filter=b.dataset.f;
-  $('filters').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));renderFeed();});
 
-function denyEvent(u,dtype){
-  denialsToday++;$('sDeny').textContent=denialsToday;
-  const d=DENIALS[dtype]||DENIALS.expired;
-  pushEvent({name:u.name,kind:'deny',dtype,reason:'Denied: '+d.reason(u)+(dtype==='expired'&&u.balance?' · $'+u.balance+' due':'')});
-  addTask({t:'Denied at gate — '+u.name,s:d.reason(u),urg:'urgent',kind:'deny',name:u.name,dtype});
-}
-function simulate(){
-  if(offline)return;
-  const act=members.filter(u=>u.status==='active'), blk=members.filter(u=>u.status!=='active');
-  const r=Math.random();
-  if(r<.15){
-    if(Math.random()<.5&&blk.length){const u=blk[Math.floor(Math.random()*blk.length)];
-      denyEvent(u,u.status==='frozen'?'frozen':'expired');}
-    else if(act.length){const u=act[Math.floor(Math.random()*act.length)];
-      const t=['invalidqr','dup','waiver','suspended','gate'][Math.floor(Math.random()*5)];
-      denyEvent(u,t);}}
-  else if(r<.6&&act.length){const u=act[Math.floor(Math.random()*act.length)];
-    if(!inside[u.name]){inside[u.name]=Date.now();entriesToday++;pushEvent({name:u.name,kind:'ok'});}}
-  else{const names=Object.keys(inside);if(names.length>4){const n=names[Math.floor(Math.random()*names.length)];
-    delete inside[n];exitsToday++;pushEvent({name:n,kind:'out'});}}
-  renderOcc();
-}
+  /* entry feed from the engine event log */
+  const FEED_KIND = { 'member.entry_admitted':'ok', 'member.entry_denied':'deny', 'member.entry_override':'warn', 'member.exited':'out' };
+  const evs = D.events().filter((e) => FEED_KIND[e.type] && (isAll() || e.locationId === S.branch));
+  const list = evs.filter((e) => S.filter === 'all' || FEED_KIND[e.type] === S.filter).slice(0, 10);
+  $('feedCount').textContent = evs.length + ' events';
+  $('feed').innerHTML = list.map((e) => {
+    const kind = FEED_KIND[e.type];
+    const av = kind === 'ok' ? 'av-g' : kind === 'deny' ? 'av-r' : kind === 'warn' ? 'av-o' : 'av-x';
+    const st = kind === 'ok' ? ['ADMITTED','st-ok'] : kind === 'deny' ? ['DENIED','st-deny'] : kind === 'warn' ? ['OVERRIDE','st-warn'] : ['EXITED','st-out'];
+    const nm = memberName(e.subjectId);
+    const reason = kind === 'deny' ? 'Denied: ' + rWord(e.payload.reason)
+      : kind === 'warn' ? 'Override — ' + (e.payload.reason || '') + ' · audit-logged' : '';
+    return `<div class="ev ${kind}">
+      <div class="ev-top"><div class="avatar ${av}">${initial(nm)}</div>
+        <div><div class="ev-name">${nm} ${bchip(e.locationId)}</div>
+          <div class="ev-meta">${t(new Date(e.at).getTime())}${e.actorId ? ' · by ' + staffName(e.actorId) : ''}</div>
+          ${reason ? `<div class="ev-reason">${reason}</div>` : ''}</div>
+        <span class="ev-state ${st[1]}">${st[0]}</span></div>
+      <div class="ev-actions"><button data-view-m="${e.subjectId}">View member</button>
+        ${kind === 'deny' && !isAll() ? `<button class="hot" data-resolve="${e.subjectId}">Resolve</button>` : ''}</div>
+    </div>`;
+  }).join('') || '<div class="empty">No gate activity yet — admissions, denials and overrides appear here.</div>';
+  $('feed').querySelectorAll('[data-view-m]').forEach((b) => b.onclick = () => openDrawer(b.dataset.viewM));
+  $('feed').querySelectorAll('[data-resolve]').forEach((b) => b.onclick = () => openDrawer(b.dataset.resolve));
 
-/* ---------- tasks ---------- */
-function addTask(t){ if(tasks.some(x=>x.t===t.t))return; t.at=Date.now(); tasks.unshift(t); renderTasks(); }
-function renderTasks(){
-  $('taskCount').textContent=tasks.length+' open';
-  $('tasks').innerHTML=tasks.slice(0,7).map((t,i)=>{
-    const wait=Math.max(0,Math.round((Date.now()-t.at)/60000));
-    return `<div class="task ${t.urg==='urgent'?'urgent':t.urg==='warn'?'warn':''}">
-      <span class="badge ${t.urg==='urgent'?'b-red':t.urg==='warn'?'b-amber':'b-grey'}">${t.urg==='urgent'?'NOW':t.urg==='warn'?'SOON':'TODAY'}</span>
-      <div class="task-body"><div class="task-t">${t.t}</div><div class="task-s">${t.s}${wait?' · waiting '+wait+' min':''} · assigned: Lara</div></div>
-      <button data-task="${i}">${t.kind==='deny'?'Assist':t.kind==='mgr'?'Approve':t.kind==='sos'?(t.stage?'Close':'Acknowledge'):t.kind==='reportbus'?(t.stage?'Mark repaired':'Start review'):t.kind==='ticketbus'?'Respond':t.kind==='renewalbus'?'Take $'+(t.amount||95):t.kind==='cafepay'?'Take $'+t.amount:'Resolve'}</button></div>`;}).join('')
-    ||'<div style="color:var(--faint); font-size:13px; padding:14px 0;">Queue clear. 🎉</div>';
-  $('tasks').querySelectorAll('[data-task]').forEach(b=>b.onclick=()=>{
-    const i=Number(b.dataset.task), t=tasks[i];
-    if(t.kind==='deny'&&t.name){openDrawer(t.name,true,t.dtype);}
-    else if(t.kind==='mgr'){tasks.splice(i,1);renderTasks();toast('Manager approved — one-time access granted');}
-    else if(t.kind==='sos'){
-      if(!t.stage){t.stage=1;t.t=t.t.replace('SOS','SOS (acknowledged)');GymBus.update(t.busId,'acknowledged','Lara');
-        deskLog('<b>SOS acknowledged</b> · '+t.member,'Sent','done');renderTasks();toast('Member notified — help is coming');}
-      else{reasonModal('Close incident — '+t.member,'What happened and how it ended',(r,n)=>{
-        GymBus.update(t.busId,'closed','Lara',n||r);tasks.splice(i,1);renderTasks();
-        deskLog('<b>Incident closed</b> · '+t.member+' · '+r,'Logged','done');},true);}}
-    else if(t.kind==='reportbus'){
-      if(!t.stage){t.stage=1;GymBus.update(t.busId,'Under review','Maintenance');
-        t.s=t.s+' · under review';renderTasks();toast('Member sees: under review');}
-      else{reasonModal('Mark repaired — '+t.s.split(' ·')[0],'What was done',(r,n)=>{
-        GymBus.update(t.busId,'Repaired','Maintenance',n||r);tasks.splice(i,1);renderTasks();
-        deskLog('<b>Repair closed</b> · '+r,'Done','done');},true);}}
-    else if(t.kind==='ticketbus'){reasonModal('Resolve '+(t.tkt||'ticket')+' — '+t.member,'Your reply reaches the member app',(r,n)=>{
-      GymBus.update(t.busId,'resolved','Lara',n||r);tasks.splice(i,1);renderTasks();
-      if(String(t.tkt||'').startsWith('GST-')){guestsInside++;guestsToday++;renderOcc();renderStats();}
-      deskLog('<b>Ticket resolved</b> · '+t.member,'Sent','done');},true);}
-    else if(t.kind==='renewalbus'){const amt=t.amount||95,isPkg=(t.plan||'').toLowerCase().includes('package');
-      reasonModal('Renewal payment — '+t.member,(t.plan||'Membership renewal')+' · $'+amt+' cash/card at desk',(r,n)=>{
-      txs.unshift({t:now(),what:(isPkg?'PT package':'Membership renewal')+' · '+t.member,amt,how:'cash'});renewalsToday++;
-      GymBus.update(t.busId,'done','Lara',isPkg?'10 sessions added':'Aug 28, 2026');tasks.splice(i,1);renderTasks();renderStats();
-      deskLog('<b>'+(isPkg?'PT package':'Renewal')+'</b> · '+t.member,'$'+amt);toast('Member notified — '+(isPkg?'10 sessions added':'renewed to Aug 28'));});}
-    else if(t.kind==='cafepay'){reasonModal('Café payment — '+t.member,'Order #'+t.code+' · $'+t.amount+' cash/card (café is notified, they control preparation)',(r,n)=>{
-      txs.unshift({t:now(),what:'Café order #'+t.code+' · '+t.member,amt:t.amount,how:'cash'});
-      GymBus.update(t.busId,'paid','Lara');tasks.splice(i,1);renderTasks();renderStats();
-      deskLog('<b>Café payment</b> · '+t.member+' #'+t.code,'$'+t.amount);toast('Paid — café can start preparing');});}
-    else{tasks.splice(i,1);renderTasks();toast('Task resolved · logged');}});
-}
-function resolveTasksFor(name){ tasks=tasks.filter(t=>t.name!==name); renderTasks(); }
+  /* denied today */
+  const denied = D.AccessService.deniedToday(scopeBranch());
+  $('deniedList').innerHTML = denied.slice(0, 8).map((a) => `
+    <div class="row">
+      <div class="grow"><div class="r-t">${memberName(a.memberId)} ${bchip(a.locationId)}</div>
+        <div class="r-s">${t(new Date(a.at).getTime())}</div></div>
+      <span class="chip c-bad">${rWord(a.reason)}</span>
+      ${isAll() ? '' : `<button class="act" data-resolve="${a.memberId}">Resolve</button>`}
+    </div>`).join('') || '<div class="empty">No denied entries today.</div>';
+  $('deniedList').querySelectorAll('[data-resolve]').forEach((b) => b.onclick = () => openDrawer(b.dataset.resolve));
 
-/* ---------- member drawer ---------- */
-let drawerMember=null;
-function openDrawer(name,assist,dtype){
-  const m=members.find(x=>x.name===name); if(!m)return;
-  drawerMember=m;
-  drawerMember._dtype=dtype||(m.status!=='active'?(m.status==='frozen'?'frozen':'expired'):null);
-  const isIn=!!inside[m.name];
-  const st=m.status==='active'?`<span class="chip c-ok">Active · ${m.expiry}</span>`
-    :m.status==='frozen'?`<span class="chip c-warn">Frozen · asked while travelling</span>`
-    :`<span class="chip c-bad">Expired · ${m.expiry}</span>`;
-  const fam=family.filter(f=>true).slice(0,2);
-  $('drawer').innerHTML=`
-    <div class="d-head"><div class="d-avatar">${initial(m.name)}</div>
-      <div><div class="d-name">${m.name}</div><div class="d-sub">${m.id} · ${m.phone||'no phone'} · ${m.tier}</div></div>
-      <button class="d-close" id="dClose">✕</button></div>
-    <div class="d-chips">${st}
-      ${m.balance?`<span class="chip c-bad">$${m.balance} due</span>`:'<span class="chip c-ok">No balance</span>'}
-      ${m.waiver?'<span class="chip c-ok">Waiver signed</span>':'<span class="chip c-bad">Waiver missing</span>'}
-      <span class="chip ${isIn?'c-ok':'c-grey'}">${isIn?'INSIDE now':'Outside'}</span></div>
-    ${assist?(()=>{
-      const d=DENIALS[drawerMember._dtype]||DENIALS.expired;
-      const fixes=[...d.fix,'once','mgr','contact','retry'];
-      return `<div class="resolve"><h4>${d.reason(m)} — structured fixes first</h4><div class="r-grid">
-        ${fixes.map((f,i)=>`<button ${i===0?'class="main"':''} data-r="${f}">${f==='pay'?'Collect $'+(m.balance||95):FIX_LABELS[f]}</button>`).join('')}
-      </div></div>`;})():''}
-    <div class="d-sec"><div class="eyebrow">Account</div>
-      <div class="d-row"><span>Plan</span><b>${m.plan} · ${m.tier}</b></div>
-      <div class="d-row"><span>Balance</span><b class="${m.balance?'due':''}">${m.balance?'$'+m.balance+' overdue':'$0'}</b></div>
-      <div class="d-row"><span>Guest passes left</span><b>${m.guestLeft}</b></div>
-      <div class="d-row"><span>PT sessions left</span><b>${m.ptLeft||'—'}</b></div>
-      <div class="d-row"><span>Last entry</span><b>${m.lastEntry}</b></div></div>
-    <div class="d-sec"><div class="eyebrow">Bookings</div>
-      <div class="d-row"><span>${classes[0]?classes[0].name:'Class'} · ${classes[0]?classes[0].when:''}</span><b>reserved</b></div>
-      <div class="d-row"><span>Sauna · today after workout</span><b>booked</b></div></div>
-    ${fam.length?`<div class="d-sec"><div class="eyebrow">Family on account</div>
-      ${fam.map(f=>`<div class="d-row"><span>${f.name}</span><b>${f.relation||''}</b></div>`).join('')}</div>`:''}
-    ${m.notes?`<div class="d-sec"><div class="eyebrow">Staff notes</div><div class="d-note">${m.notes}</div></div>`:''}
-    <div class="d-sec"><div class="eyebrow">Quick actions</div>
-      <div class="d-actions">
-        <button class="main" data-r="${isIn?'mexit':'mentry'}">${isIn?'Manual exit':'Manual entry'}</button>
-        <button data-r="pos">Take payment</button>
-        <button data-r="renew">Renew</button>
-        <button data-r="upgrade">Upgrade plan</button>
-        <button data-r="${m.status==='frozen'?'unfreeze':'freeze'}">${m.status==='frozen'?'Unfreeze':'Freeze'}</button>
-        <button data-r="resetqr">Reset QR</button>
-        <button data-r="notify">Send app message</button>
-        <button data-r="device">Replace device</button>
-        <button data-r="note">Add staff note</button></div></div>`;
-  $('dClose').onclick=closeDrawer;
-  $('drawer').querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>resolveAction(b.dataset.r));
-  $('drawerWrap').classList.add('show');
-}
-function closeDrawer(){$('drawerWrap').classList.remove('show');}
-$('drawerWrap').addEventListener('click',e=>{if(e.target===$('drawerWrap'))closeDrawer();});
+  renderShift();
 
-/* ---------- resolution actions ---------- */
-const REASONS=['Payment collected at desk','Membership renewed','Freeze removed at member request','Manager approved exception','Waiver completed','Technical issue at gate','Other (note required)'];
-function reasonModal(title,sub,cb,needNote){
-  modal(`<h3>${title}</h3><div class="sub">${sub} · logged as <b>Lara</b></div>
-    <label>Reason code</label><select id="mReasonSel">${REASONS.map(r=>`<option>${r}</option>`).join('')}</select>
-    <label>Note ${needNote?'(required for this action)':'(optional)'}</label><textarea id="mNote" rows="2" placeholder="What happened…"></textarea>
-    <div class="m-err" id="mErr">A written note is required for this action.</div>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Confirm & log</button></div>`);
-  $('mCancel').onclick=closeModal;
-  $('mOK').onclick=()=>{const note=$('mNote').value.trim();
-    if(needNote&&note.length<3){$('mErr').style.display='block';return;}
-    closeModal();cb($('mReasonSel').value,note);};
-}
-function resolveAction(kind){
-  const m=drawerMember; if(!m)return;
-  if(kind==='pay')reasonModal('Collect $'+m.balance+' — '+m.name,'Overdue balance',(r,n)=>{
-    txs.unshift({t:now(),what:'Overdue balance · '+m.name,amt:m.balance,how:'cash'});m.balance=0;m.status='active';
-    afterFix(m,'Balance collected · gate cleared');});
-  else if(kind==='renew')reasonModal('Renew membership — '+m.name,'Monthly $95, cash/card',(r,n)=>{
-    txs.unshift({t:now(),what:'Membership renewal · '+m.name,amt:95,how:'card'});m.status='active';m.expiry='Aug 28, 2026';renewalsToday++;
-    afterFix(m,'Renewed until Aug 28 · gate cleared');});
-  else if(kind==='unfreeze')reasonModal('Remove freeze — '+m.name,'Resumes membership now',(r,n)=>{
-    m.status='active';afterFix(m,'Freeze removed · gate cleared');});
-  else if(kind==='waiver'){m.waiver=true;toast('Waiver signed on tablet · stored');openDrawer(m.name,m.status!=='active');}
-  else if(kind==='daypass')reasonModal('Day pass $15 — '+m.name,'Single-day access, no membership change',(r,n)=>{
-    txs.unshift({t:now(),what:'Day pass · '+m.name,amt:15,how:'cash'});grantEntry(m,'day pass');});
-  else if(kind==='once')reasonModal('One-time access — '+m.name,'Sensitive: requires a written note',(r,n)=>{grantEntry(m,'one-time access');},true);
-  else if(kind==='mgr'){toast('Manager paged — approval pending');addTask({t:'Manager approval — '+m.name,s:'Requested '+now(),urg:'warn',kind:'mgr',name:m.name});}
-  else if(kind==='contact'){toast('Calling '+(m.phone||'member')+'…');}
-  else if(kind==='retry'){toast('Gate asked to rescan…');}
-  else if(kind==='mentry')reasonModal('Manual entry — '+m.name,'Opens the gate without a scan',(r,n)=>{grantEntry(m,'manual entry: '+r);},true);
-  else if(kind==='mexit')reasonModal('Manual exit — '+m.name,'Records the exit',(r,n)=>{
-    delete inside[m.name];exitsToday++;pushEvent({name:m.name,kind:'out',reason:'Manual exit — '+r});renderOcc();openDrawer(m.name,false);toast('Manual exit logged');});
-  else if(kind==='device')reasonModal('Replace device — '+m.name,'Old phone stops being the key',(r,n)=>{toast('Device replaced · old key dead');});
-  else if(kind==='resetqr')reasonModal('Verify ID & reset QR — '+m.name,'Checks photo ID, then issues a fresh QR credential',(r,n)=>{
-    toast('Identity verified · new QR pushed to '+m.name+"'s app");afterFix(m,'QR reset · member can rescan');});
-  else if(kind==='dup'){toast('Last entry: '+m.lastEntry+' · reviewing CCTV frame…');
-    setTimeout(()=>reasonModal('Duplicate scan — '+m.name,'If legitimate (re-entry), grant one-time access',(r,n)=>{grantEntry(m,'anti-passback reviewed: '+r);},true),900);}
-  else if(kind==='gatefix')reasonModal('Controlled manual entry — '+m.name,'Gate malfunction: identity verified at desk',(r,n)=>{
-    grantEntry(m,'gate malfunction — controlled entry');
-    sys['QR scanner']='warn';addTask({t:'Gate scanner error',s:'Malfunction during scan · maintenance paged',urg:'urgent',kind:'system'});});
-  else if(kind==='freeze')reasonModal('Freeze membership — '+m.name,'Pauses access until unfrozen',(r,n)=>{
-    m.status='frozen';openDrawer(m.name,false);toast('Membership frozen');});
-  else if(kind==='upgrade')reasonModal('Upgrade plan — '+m.name,'Monthly → 6-Month · charge the difference $385',(r,n)=>{
-    txs.unshift({t:now(),what:'Plan upgrade · '+m.name,amt:385,how:'card'});m.plan='6-Month';renderStats();openDrawer(m.name,false);toast('Upgraded · $385 · receipt sent');});
-  else if(kind==='notify'){
-    const MSGS=['Please visit reception','Your membership has expired','Your payment was successful','Your guest pass is ready','Your booking was changed','Your trainer is waiting','Your locker is ready','Your vehicle service is complete','Please sign the waiver'];
-    modal(`<h3>Send app message — ${m.name}</h3><div class="sub">Predefined notifications, delivered to the member app</div>
-      <label>Message</label><select id="nMsg">${MSGS.map(x=>`<option>${x}</option>`).join('')}</select>
-      <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Send</button></div>`,
-      ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{closeModal();toast('Sent to '+m.name+"'s app: \""+$('nMsg').value+'"');};});
-  }
-  else if(kind==='note')modal(`<h3>Staff note — ${m.name}</h3><div class="sub">Visible to staff only</div>
-    <textarea id="mNote" rows="3" placeholder="Note…"></textarea>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Save</button></div>`,
-    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{m.notes=$('mNote').value.trim();closeModal();openDrawer(m.name,false);toast('Note saved');};});
-  else if(kind==='pos')openPOS(m);
-}
-function notifyMemberResolved(m,note){const id=GymBus.send('gate-resolved',{member:m.name});GymBus.update(id,'resolved','Lara',note);}
-function grantEntry(m,how){inside[m.name]=Date.now();entriesToday++;
-  pushEvent({name:m.name,kind:'warn',reason:'Override — '+how});resolveTasksFor(m.name);renderOcc();renderStats();
-  notifyMemberResolved(m,how);
-  openDrawer(m.name,false);toast(m.name+' admitted — '+how);}
-function afterFix(m,msg){resolveTasksFor(m.name);renderStats();notifyMemberResolved(m,msg);openDrawer(m.name,false);toast(msg);}
+  /* guest passes */
+  const guests = D.GuestService.list(scopeBranch());
+  const expected = guests.filter((g) => g.status === 'expected');
+  $('guestList').innerHTML = expected.map((g) => `
+    <div class="row">
+      <div class="grow"><div class="r-t">${g.guestName} ${bchip(g.branchId)}</div>
+        <div class="r-s">Host: ${memberName(g.hostMemberId)} · $${g.fee} · created ${t(new Date(g.createdAt).getTime())}</div></div>
+      ${isAll() ? '' : `<button class="act dark" data-redeem="${g.id}">Arrived — redeem</button>`}
+    </div>`).join('') || '<div class="empty">No guests expected. Sell a guest pass from the actions above.</div>';
+  $('guestList').querySelectorAll('[data-redeem]').forEach((b) => b.onclick = () => {
+    if (guard()) return;
+    const r = D.GuestService.redeem(b.dataset.redeem, staffId());
+    toast(r.error ? 'Could not redeem: ' + r.error : 'Guest pass redeemed — welcome them in.'); rerender();
+  });
 
-/* ---------- modals ---------- */
-function modal(html,after){$('modalBox').innerHTML=html;$('overlay').classList.add('show');if(after)after();}
-function closeModal(){$('overlay').classList.remove('show');}
-$('overlay').addEventListener('click',e=>{if(e.target===$('overlay'))closeModal();});
+  /* classes today */
+  const branches = isAll() ? D.BranchService.list().map((l) => l.id) : [S.branch];
+  const classes = branches.flatMap((b) => D.BranchService.classesToday(b));
+  $('classList').innerHTML = classes.sort((a, b) => a.startsAt - b.startsAt).map((c) => {
+    const booked = D.BookingService.forClass(c.id).length;
+    const full = booked >= c.capacity;
+    return `<div class="row">
+      <div class="grow"><div class="r-t">${c.name} ${bchip(c.locationId)} ${c.status !== 'scheduled' ? `<span class="chip c-grey" style="font-size:9.5px; padding:2px 7px;">${c.status.toUpperCase()}</span>` : ''}</div>
+        <div class="r-s">${t(c.startsAt)} · ${staffName(c.instructorId)} · ${c.difficulty}</div></div>
+      <span class="chip ${full ? 'c-warn' : 'c-ok'}">${booked}/${c.capacity}${c.waitlist.length ? ' · WL ' + c.waitlist.length : ''}</span>
+      ${!isAll() && c.status === 'scheduled' ? `<button class="act" data-bookc="${c.id}">Book member</button>` : ''}
+    </div>`;
+  }).join('') || '<div class="empty">No classes scheduled today at this branch.</div>';
+  $('classList').querySelectorAll('[data-bookc]').forEach((b) => b.onclick = () => openBookClassModal(null, b.dataset.bookc));
 
-const POS_ITEMS=[['Membership renewal · Monthly',95],['Membership upgrade → 6-Month',385],['Day pass',15],['Guest pass',10],['PT package · 10 sessions',300],['Class pack · 10',120],['Locker rental · month',12],['Recovery · sauna',8],['Café credit top-up',25],['Outstanding invoice',95]];
-function memberPicker(title,list,cb){
-  modal(`<h3>${title}</h3><div class="sub">Pick the member</div>
-    <select id="pickSel">${list.map(n=>`<option>${n}</option>`).join('')}</select>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Continue</button></div>`,
-    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{const v=$('pickSel').value;closeModal();cb(v);};});
-}
-function openPOS(member,preset){
-  modal(`<h3>Take payment</h3><div class="sub">${member?('For '+member.name):'Walk-in or member'} · receipt goes to app/email</div>
-    <label>Item</label><select id="posItem">${POS_ITEMS.map((x,i)=>`<option value="${i}" ${i===(preset||0)?'selected':''}>${x[0]} — $${x[1]}</option>`).join('')}</select>
-    <label>Payment method</label><select id="posHow"><option>cash</option><option>card</option><option>wallet</option></select>
-    <div class="checkline"><input type="checkbox" id="posDisc" style="width:auto;"> <span>Apply discount (manager approval)</span></div>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Charge & receipt</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
-    const it=POS_ITEMS[Number($('posItem').value)];let amt=it[1];
-    if($('posDisc').checked){amt=Math.round(amt*0.9);toast('10% discount — manager approval logged');}
-    txs.unshift({t:now(),what:it[0]+(member?' · '+member.name:''),amt,how:$('posHow').value});
-    if(it[0].includes('renewal'))renewalsToday++;
-    if(it[0].includes('Guest pass')){guestsToday++;}
-    closeModal();renderStats();toast('$'+amt+' '+$('posHow').value+' · receipt sent');};});
+  /* PT sessions today */
+  const pts = D.TrainerService.sessionsToday(null, scopeBranch());
+  $('ptList').innerHTML = pts.sort((a, b) => a.startsAt - b.startsAt).map((s) => `
+    <div class="row">
+      <div class="grow"><div class="r-t">${memberName(s.memberId)} ${bchip(s.branchId)}</div>
+        <div class="r-s">${t(s.startsAt)} · with ${staffName(s.trainerId)} · ${s.durationMins} min</div></div>
+      <span class="chip ${s.status === 'scheduled' ? 'c-ok' : s.status === 'completed' ? 'c-grey' : s.status === 'live' ? 'c-warn' : 'c-bad'}">${s.status.replace('_', ' ')}</span>
+    </div>`).join('') || '<div class="empty">No PT sessions today at this branch.</div>';
+
+  /* renewals due */
+  const due = D.MemberService.renewalsDue(scopeBranch());
+  $('renewList').innerHTML = due.map((m) => {
+    const days = Math.ceil((new Date(m.subEnds + 'T23:59:59').getTime() - D.now()) / 864e5);
+    return `<div class="row">
+      <div class="grow"><div class="r-t">${m.name} ${bchip(m.homeBranchId)}</div>
+        <div class="r-s">${planName(m.planId)} · ends ${m.subEnds} (${days <= 0 ? 'today' : days + 'd'})</div></div>
+      ${isAll() ? '' : `<button class="act dark" data-renew="${m.id}">Renew</button>`}
+    </div>`;
+  }).join('') || '<div class="empty">No renewals due in the next 14 days.</div>';
+  $('renewList').querySelectorAll('[data-renew]').forEach((b) => b.onclick = () => openRenewModal(b.dataset.renew));
+
+  /* incidents */
+  const incs = D.IncidentService.list(scopeBranch()).filter((i) => i.status !== 'closed');
+  $('incidentList').innerHTML = incs.map((i) => `
+    <div class="row">
+      <div class="grow"><div class="r-t">${i.kind === 'sos' ? '🆘 SOS — ' + (i.type || '') : (i.kind || 'incident')} ${bchip(i.locationId)}</div>
+        <div class="r-s">${i.memberId ? memberName(i.memberId) + ' · ' : ''}${i.note || i.zone || ''} · ${t(new Date(i.createdAt).getTime())}${i.sensitive ? ' · sensitive' : ''}</div></div>
+      <span class="chip ${i.status === 'active' ? 'c-bad' : 'c-warn'}">${i.status}</span>
+      ${isAll() ? '' : (i.status === 'active'
+        ? `<button class="act hot" data-ack="${i.id}">Acknowledge</button>`
+        : `<button class="act" data-closeinc="${i.id}">Close</button>`)}
+    </div>`).join('') || '<div class="empty">No open incidents.</div>';
+  $('incidentList').querySelectorAll('[data-ack]').forEach((b) => b.onclick = () => {
+    if (guard()) return;
+    D.IncidentService.acknowledge(b.dataset.ack, staffId());
+    toast('Incident acknowledged — member/staff notified.'); rerender();
+  });
+  $('incidentList').querySelectorAll('[data-closeinc]').forEach((b) => b.onclick = () => openIncidentCloseModal(b.dataset.closeinc));
+
+  /* stats */
+  const revenue = D.PaymentService.todayTotal(scopeBranch());
+  const sh = isAll() ? null : D.ShiftService.current(S.branch);
+  const cashToday = D.PaymentService.ledger(scopeBranch()).filter((p) => p.method === 'cash' && D.isToday(new Date(p.at).getTime())).reduce((s, p) => s + p.amount, 0);
+  const drawer = sh ? sh.floatUSD + cashToday : null;
+  const overdue = D.LeadService.metrics().overdue.filter((l) => isAll() || l.branchId === S.branch);
+  $('stats').innerHTML = `
+    <button class="stat" data-goto="pay"><b>$${revenue}</b><span>revenue today · tap for ledger</span></button>
+    <button class="stat"><b>${inside.length}</b><span>inside now</span></button>
+    <button class="stat ${denied.length ? 'alert' : ''}"><b>${denied.length}</b><span>denied entries today</span></button>
+    <button class="stat"><b>${expected.length}</b><span>guests expected</span></button>
+    <button class="stat"><b>${sh ? '$' + drawer : '—'}</b><span>${sh ? 'cash drawer (expected)' : isAll() ? 'drawer — per branch' : 'no open shift'}</span></button>
+    <button class="stat ${overdue.length ? 'alert' : ''}" data-goto="crm"><b>${overdue.length}</b><span>overdue follow-ups</span></button>`;
+  $('stats').querySelectorAll('[data-goto]').forEach((b) => b.onclick = () => setView(b.dataset.goto));
 }
 
-function openGuest(){
-  modal(`<h3>Guest registration</h3><div class="sub">One visit · $10 · logged under the host member</div>
-    <label>Guest full name</label><input id="gName" placeholder="Full name" />
-    <label>Phone</label><input id="gPhone" placeholder="Phone" />
-    <label>Host member</label><select id="gHost">${members.map(m=>`<option>${m.name}</option>`).join('')}</select>
-    <label>Visit purpose</label><select id="gWhy"><option>Try the gym</option><option>Train with host</option><option>Event</option><option>Tour</option></select>
-    <label>Validity</label><select id="gValid"><option>Today only</option><option>48 hours</option></select>
-    <div class="checkline"><input type="checkbox" id="gWaiver" style="width:auto;"> <span>Waiver signed on tablet</span></div>
-    <div class="checkline"><span style="width:60px;height:44px;background:var(--paper);border-radius:8px;display:grid;place-items:center;color:var(--faint);font-size:10px;">photo</span><span style="color:var(--muted);font-size:12px;">Capture at desk camera</span></div>
-    <div class="m-err" id="mErr">Name and signed waiver are required.</div>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Sell pass · $10</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
-    const n=$('gName').value.trim(), host=$('gHost').value;
-    if(n.length<2||!$('gWaiver').checked){$('mErr').style.display='block';return;}
-    if(bannedGuests.includes(n)){$('mErr').textContent='This guest is banned — contact the manager.';$('mErr').style.display='block';return;}
-    const prev=(guestVisits[n]||0)+1;guestVisits[n]=prev;
-    closeModal();guestsToday++;txs.unshift({t:now(),what:'Guest pass · '+n+' (host '+host+')',amt:10,how:'cash'});
-    const code='GST-'+String(Date.now()).slice(-6);
-    inside['Guest: '+n]=Date.now();entriesToday++;
-    pushEvent({name:'Guest: '+n,kind:'ok',reason:'Pass '+code+' · host '+host+' · visit #'+prev});
-    if(prev>=GUEST_LIMIT)addTask({t:'Guest limit — '+n,s:prev+' visits used · suggest membership (convert to prospect)',urg:'warn',kind:'guest'});
-    renderStats();renderOcc();toast('Guest pass '+code+' · waiver stored · invite + QR sent to guest phone');};});
-}
-
-function openTxList(){
-  modal(`<h3>Today's transactions</h3><div class="sub">$${revToday()} total · ${txs.length} payments · refunds need manager approval</div>
-    ${txs.map((t,i)=>`<div class="tx-row"><span>${t.t} · ${t.what} <span style="color:var(--faint);">(${t.how})</span></span>
-      <span><b style="color:${t.amt<0?'var(--red-ink)':'var(--deep)'};">${t.amt<0?'−$'+(-t.amt):'$'+t.amt}</b>
-      ${t.amt>0?` <button data-refund="${i}" style="font-size:11px; font-weight:700; color:var(--red-ink); margin-left:6px;">refund</button>`:''}</span></div>`).join('')}
-    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;
-    document.querySelectorAll('[data-refund]').forEach(b=>b.onclick=()=>{
-      const t=txs[Number(b.dataset.refund)];closeModal();
-      reasonModal('Refund $'+t.amt+' — '+t.what,'Sensitive: manager approval + note required',(r,n)=>{
-        txs.unshift({t:now(),what:'REFUND · '+t.what,amt:-t.amt,how:t.how});renderStats();
-        addTask({t:'Refund pending sign-off · $'+t.amt,s:t.what,urg:'warn',kind:'mgr'});
-        toast('Refund logged — awaiting manager sign-off');},true);});});
-}
-function openRegister(){
-  modal(`<h3>Register new member</h3><div class="sub">Creates the account · they finish setup in the app</div>
-    <label>Full name</label><input id="rName" placeholder="Full name" />
-    <label>Phone</label><input id="rPhone" placeholder="Phone" />
-    <label>Plan</label><select id="rPlan"><option>Monthly — $95</option><option>3-Month — $255</option><option>6-Month — $480</option><option>Annual — $850</option></select>
-    <div class="checkline"><input type="checkbox" id="rWaiver" style="width:auto;"> <span>Waiver signed on tablet</span></div>
-    <div class="m-err" id="mErr">Name and signed waiver are required.</div>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Create & charge</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
-    const n=$('rName').value.trim();
-    if(n.length<2||!$('rWaiver').checked){$('mErr').style.display='block';return;}
-    const plan=$('rPlan').value, amt=Number(plan.match(/\$(\d+)/)[1]);
-    members.push(enrich({name:n,phone:$('rPhone').value,tier:'Access',status:'active',plan:plan.split(' — ')[0],joined:'Today'},members.length));
-    txs.unshift({t:now(),what:'New membership · '+n,amt,how:'card'});
-    closeModal();renderStats();toast(n+' registered · welcome message sent to app');openDrawer(n,false);};});
-}
-
-function openBookings(){
-  modal(`<h3>Bookings assist</h3><div class="sub">Book, cancel and check members in from the desk</div>
-    <div class="eyebrow" style="margin-top:6px;">Classes today</div>
-    ${classes.slice(0,4).map((c,i)=>`<div class="tx-row"><span>${c.name} · ${c.when} · ${c.instructor} · ${Number(c.spots)===0?'FULL':c.spots+' spots'}</span>
-      <button style="font-weight:700; color:var(--deep);" data-book="${i}">${Number(c.spots)===0?'Waitlist':'Book member'}</button></div>`).join('')}
-    <div class="eyebrow" style="margin-top:12px;">Trainer availability now</div>
-    ${trainers.slice(0,4).map(t=>`<div class="tx-row"><span>${t.name} · ${t.specialty||''}</span><b style="color:${t.availability==='available'?'var(--green)':'var(--amber)'};">${t.availability||'—'}</b></div>`).join('')}
-    <div class="eyebrow" style="margin-top:12px;">Facilities</div>
-    <div class="tx-row"><span>Free lockers</span><b>${lockers.filter(l=>l.status==='free').length} of ${lockers.length}</b></div>
-    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;
-    document.querySelectorAll('[data-book]').forEach(b=>b.onclick=()=>{toast('Booked — member notified in their app');});});
-}
-
-function openIncidents(){
-  modal(`<h3>Incident log</h3><div class="sub">Today · visible to managers</div>
-    ${incidents.length?incidents.map(i=>`<div class="tx-row"><span>${i.t} · <b>${i.type}</b> — ${i.note}</span></div>`).join(''):'<div style="color:var(--faint); font-size:13px; padding:10px 0;">No incidents logged today.</div>'}
-    <label>Type</label><select id="incType"><option>Lost property</option><option>Member complaint</option><option>Injury</option><option>Equipment danger</option><option>Altercation</option><option>Other</option></select>
-    <label>What happened</label><textarea id="incNote" rows="2"></textarea>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button><button class="m-confirm" id="mOK">Log incident</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
-    const note=$('incNote').value.trim();if(note.length<3){toast('Describe what happened');return;}
-    incidents.unshift({t:now(),type:$('incType').value,note});closeModal();toast('Incident logged · manager notified');};});
-}
-
-function openShift(){
-  const expected=cashTotal();
-  modal(`<h3>Shift — Lara</h3><div class="sub">Clocked in ${shift.in} · front desk</div>
-    <div class="tx-row"><span>Starting cash</span><b>$${shift.startCash}</b></div>
-    <div class="tx-row"><span>Cash payments today</span><b>$${expected-shift.startCash}</b></div>
-    <div class="tx-row"><span>Drawer should hold</span><b>$${expected}</b></div>
-    <div class="checkline"><input type="checkbox" checked style="width:auto;"> Opening checklist done (7 items)</div>
-    <div class="checkline"><input type="checkbox" style="width:auto;" id="shiftClose"> Closing checklist</div>
-    <label>Count the drawer</label><input id="shiftCount" type="number" placeholder="Counted cash $" />
-    <label>Handover note</label><textarea id="shiftNote" rows="2" placeholder="For the next shift…">${shift.note}</textarea>
-    <div class="m-err" id="mErr"></div>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button><button class="m-confirm" id="mOK">Reconcile & clock out</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{
-    const counted=Number($('shiftCount').value);
-    if(!counted){$('mErr').textContent='Enter the counted amount.';$('mErr').style.display='block';return;}
-    const varc=counted-expected;shift.note=$('shiftNote').value;
-    closeModal();
-    toast(varc===0?'Drawer balanced · supervisor sign-off requested':'Variance $'+varc+' reported · supervisor sign-off requested');};});
-}
-
-function openOccupancy(){
-  modal(`<h3>Occupancy detail</h3><div class="sub">Live · from check-ins, no sensors</div>
-    <div class="tx-row"><span>Inside now (evacuation count)</span><b>${Object.keys(inside).length}</b></div>
-    <div class="tx-row"><span>Capacity</span><b>${Math.round(Object.keys(inside).length/CAPACITY*100)}% of ${CAPACITY}</b></div>
-    <div class="tx-row"><span>Entries / exits today</span><b>${entriesToday} / ${exitsToday}</b></div>
-    <div class="tx-row"><span>Peak forecast</span><b>6–8 PM (from entry history)</b></div>
-    <div class="eyebrow" style="margin:12px 0 4px;">Everyone inside</div>
-    ${Object.entries(inside).map(([n,ts])=>`<div class="tx-row"><span>${n}</span><b>${Math.round((Date.now()-ts)/60000)} min</b></div>`).join('')||'—'}
-    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,()=>{$('mCancel').onclick=closeModal;});
-}
-
-function openSystem(){
-  modal(`<h3>System & gate health</h3><div class="sub">Last sync ${Math.round((Date.now()-lastSync)/1000)}s ago</div>
-    ${Object.entries(sys).map(([k,v])=>`<div class="sys-row"><span>${k}</span><span><span class="dot ${v==='ok'?'dg':v==='warn'?'da':'dr'}"></span> <b style="font-size:12px;">${v==='ok'?'Online':v==='warn'?'Degraded':'Offline'}</b></span></div>`).join('')}
-    <div class="checkline" style="margin-top:10px;"><input type="checkbox" id="offlineToggle" ${offline?'checked':''} style="width:auto;"> <span><b>Offline / manual mode</b> — keep operating without internet; records sync later</span></div>
-    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`,
-  ()=>{$('mCancel').onclick=closeModal;
-    $('offlineToggle').onchange=e=>{offline=e.target.checked;
-      $('offlineBanner').classList.toggle('show',offline);
-      sys.Internet=offline?'off':'ok';sys.Gate=offline?'warn':'ok';
-      const p=$('sysPill');p.className='sys-pill '+(offline?'sys-off':'sys-warn');
-      p.innerHTML=offline?'<span class="dot dr"></span>OFFLINE — manual mode':'<span class="dot da"></span>Printer degraded';
-      toast(offline?'Offline mode ON — manual entries only':'Back online — synced');};});
-}
-
-/* ---------- stats / misc ---------- */
-function renderStats(){$('sRev').textContent='$'+revToday();$('sGuests').textContent=guestsToday;
-  $('sRenew').textContent=renewalsToday;$('sDeny').textContent=denialsToday;$('sDrawer').textContent='$'+cashTotal();}
-function renderUpcoming(){
-  $('upcoming').innerHTML=[
-    ...classes.slice(0,3).map(c=>({t:c.when,s:c.name+' · '+c.instructor+(Number(c.spots)===0?' · FULL':''),})),
-    {t:'7:00 PM',s:'PT — Karim H. with Samer Khanji'},
-    {t:'7:30 PM',s:'Guest expected · GST-482913 (host Samer)'}
-  ].map(u=>`<div class="tx-row"><span>${u.s}</span><b style="color:var(--muted); font-weight:600;">${u.t}</b></div>`).join('');
-}
-
-/* search — results list (photo initial, ID, phone ending, status) so the wrong
-   person is never opened. Enter = first result, arrows navigate, Esc closes. */
-let srSel=0;
-function renderSearch(){
-  const q=$('searchBox').value.trim().toLowerCase();
-  const drop=$('searchDrop');
-  if(q.length<2){drop.classList.remove('show');drop.innerHTML='';return;}
-  const hits=members.filter(u=>(u.name||'').toLowerCase().includes(q)||(u.phone||'').replace(/\s/g,'').includes(q.replace(/\s/g,''))||(u.id||'').toLowerCase().includes(q)).slice(0,5);
-  srSel=Math.min(srSel,Math.max(0,hits.length-1));
-  drop.innerHTML=hits.map((u,i)=>`<div class="sr ${i===srSel?'sel':''}" data-sr="${u.name}">
-      <div class="av">${initial(u.name)}</div>
-      <div><b>${u.name}</b><span>${u.id||'—'} · ····${(u.phone||'').replace(/\D/g,'').slice(-4)||'????'}</span></div>
-      <span class="stx ${u.status==='active'?'ok':'bad'}">${u.status||'?'}</span></div>`).join('')
-    ||'<div class="sr"><span>No matches — check spelling or scan the member QR.</span></div>';
-  drop.classList.add('show');
-  drop.querySelectorAll('[data-sr]').forEach(x=>x.onclick=()=>pickSearch(x.dataset.sr));
-}
-function pickSearch(name){
-  $('searchDrop').classList.remove('show');$('searchBox').value='';
-  openDrawer(name,members.find(m=>m.name===name)?.status!=='active');
-}
-$('searchBox').addEventListener('input',()=>{srSel=0;renderSearch();});
-$('searchBox').addEventListener('keydown',e=>{
-  const hits=[...$('searchDrop').querySelectorAll('[data-sr]')];
-  if(e.key==='Enter'&&hits.length){e.preventDefault();pickSearch(hits[srSel].dataset.sr);}
-  if(e.key==='ArrowDown'){e.preventDefault();srSel=Math.min(hits.length-1,srSel+1);renderSearch();}
-  if(e.key==='ArrowUp'){e.preventDefault();srSel=Math.max(0,srSel-1);renderSearch();}
-  if(e.key==='Escape'){$('searchDrop').classList.remove('show');$('searchBox').blur();}
-});
-/* keyboard shortcuts — never fire while typing in a form field */
-document.addEventListener('keydown',e=>{
-  const typing=/input|textarea|select/i.test(document.activeElement?.tagName||'');
-  if(e.key==='Escape'){closeModal();closeDrawer();$('searchDrop').classList.remove('show');return;}
-  if(typing)return;
-  if(e.key==='/'){e.preventDefault();$('searchBox').focus();}
-  if(e.ctrlKey&&e.key.toLowerCase()==='p'){e.preventDefault();openPOS(null);}
-  if(e.ctrlKey&&e.key.toLowerCase()==='g'){e.preventDefault();openGuest();}
-});
-const scanBtn=$('scanBtn');
-if(scanBtn)scanBtn.onclick=()=>{const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');};
-
-document.querySelectorAll('[data-open]').forEach(b=>b.addEventListener('click',()=>{
-  const k=b.dataset.open;
-  if(k==='pos')openPOS(null); if(k==='guest')openGuest(); if(k==='txlist')openTxList();
-  if(k==='bookings')openBookings(); if(k==='incidents')openIncidents(); if(k==='shift')openShift();
-  if(k==='occupancy')openOccupancy(); if(k==='system')openSystem();
-  if(k==='denials'){const f=[...$('filters').querySelectorAll('button')].find(x=>x.textContent.trim()==='Denied');
-    if(f)f.click();$('feed').scrollIntoView({behavior:'smooth'});toast('Gate feed filtered to denials');}
-}));
-document.querySelectorAll('[data-qa]').forEach(b=>b.addEventListener('click',()=>qaAction(b.dataset.qa)));
-function qaAction(k){
-  const names=()=>members.map(m=>m.name);
-  if(k==='moremenu'){
-    modal(`<h3>More actions</h3><div class="sub">Restricted and less-common actions. Manual entry/exit always start by selecting the member.</div>
-      ${[['renew','Renew membership'],['book','Book a class'],['mentry','Manual entry (select member first)'],['mexit','Manual exit (select member first)'],['mgr','Contact manager'],['announce','Announce to all members']]
-        .map(([kk,l])=>`<button class="fix-btn" data-more="${kk}" style="display:block; width:100%; text-align:left; margin-top:7px;">${l}</button>`).join('')}
-      <div class="mrow"><button class="m-cancel" id="mCancel">Close</button></div>`,
-      ()=>{$('mCancel').onclick=closeModal;
-        document.querySelectorAll('[data-more]').forEach(x=>x.onclick=()=>{closeModal();qaAction(x.dataset.more);});});
+/* ---------- shift & drawer ---------- */
+function renderShift() {
+  if (isAll()) {
+    const open = D.ShiftService.onShiftNow();
+    $('shiftBox').innerHTML = open.map((s) => `
+      <div class="row"><div class="grow"><div class="r-t">${branchName(s.branchId)} ${bchip(s.branchId)}</div>
+        <div class="r-s">${staffName(s.staffId)} · open since ${t(new Date(s.openedAt).getTime())} · float $${s.floatUSD}</div></div>
+        <span class="chip c-ok">open</span></div>`).join('') || '<div class="empty">No open shifts anywhere.</div>';
     return;
   }
-  if(k==='scan'){const m=members[Math.floor(Math.random()*members.length)];toast('ID scanned');openDrawer(m.name,m.status!=='active');}
-  if(k==='register')openRegister();
-  if(k==='renew')memberPicker('Renew membership',names(),n=>{openDrawer(n,false);resolveAction('renew');});
-  if(k==='pay')openPOS(null,0);
-  if(k==='daypass')openPOS(null,2);
-  if(k==='guest')openGuest();
-  if(k==='mentry')memberPicker('Manual entry',names().filter(n=>!inside[n]),n=>{openDrawer(n,false);resolveAction('mentry');});
-  if(k==='mexit'){const ins=Object.keys(inside).filter(n=>members.some(m=>m.name===n));
-    if(!ins.length){toast('No members inside right now');return;}
-    memberPicker('Manual exit',ins,n=>{openDrawer(n,false);resolveAction('mexit');});}
-  if(k==='book')openBookings();
-  if(k==='mgr'){toast('Manager paged to reception');addTask({t:'Manager requested at desk',s:'Paged '+now(),urg:'warn',kind:'mgr'});}
-  if(k==='announce')modal(`<h3>Gym announcement</h3><div class="sub">Delivered to every member's app home screen</div>
-    <textarea id="annText" rows="2" placeholder="e.g. Pool closed 3–5 PM for maintenance"></textarea>
-    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Publish</button></div>`,
-    ()=>{$('mCancel').onclick=closeModal;$('mOK').onclick=()=>{const t=$('annText').value.trim();
-      if(t.length<3){toast('Write the announcement');return;}
-      GymBus.send('announcement',{text:t});closeModal();
-      deskLog('<b>Announcement</b> · '+t.slice(0,40),'Published','done');toast('Published to member apps');};});
+  const sh = D.ShiftService.current(S.branch);
+  const cashToday = D.PaymentService.ledger(S.branch).filter((p) => p.method === 'cash' && D.isToday(new Date(p.at).getTime())).reduce((s, p) => s + p.amount, 0);
+  if (sh) {
+    $('shiftBox').innerHTML = `
+      <div class="d-row"><span>On shift</span><b>${staffName(sh.staffId)} · since ${t(new Date(sh.openedAt).getTime())}</b></div>
+      <div class="d-row"><span>Opening float</span><b>$${sh.floatUSD}</b></div>
+      <div class="d-row"><span>Cash taken today</span><b>$${cashToday}</b></div>
+      <div class="d-row"><span>Drawer should hold</span><b>$${sh.floatUSD + cashToday}</b></div>
+      <div style="margin-top:10px;"><button class="act dark" id="closeShiftBtn">Close shift — count drawer</button></div>`;
+    $('closeShiftBtn').onclick = openShiftCloseModal;
+  } else {
+    const last = D.load().shifts.filter((s) => s.branchId === S.branch && s.closedAt).sort((a, b) => b.closedAt.localeCompare(a.closedAt))[0];
+    $('shiftBox').innerHTML = `
+      <div class="empty">No open shift at ${branchName(S.branch)}.</div>
+      ${last ? `<div class="d-row" style="font-size:12px;"><span>Last close</span><b>counted $${last.countedUSD} · variance $${last.varianceUSD}${Math.abs(last.varianceUSD) > 20 ? ' · owner approval raised' : ''}</b></div>` : ''}
+      <div style="margin-top:8px;"><button class="act dark" id="openShiftBtn">Open shift</button></div>`;
+    $('openShiftBtn').onclick = openShiftOpenModal;
+  }
+}
+function openShiftOpenModal() {
+  if (guard()) return;
+  modal(`<h3>Open shift — ${branchName(S.branch)}</h3><div class="sub">Logged as ${staffRec().name}</div>
+    <label>Opening float (USD)</label><input id="mFloat" type="number" value="100" />
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Open shift</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const r = D.ShiftService.open(S.branch, staffId(), Number($('mFloat').value) || 0);
+      if (r.error) { showErr(r.error === 'shift_already_open' ? 'A shift is already open at this branch.' : r.error); return; }
+      closeModal(); toast('Shift opened — float $' + r.floatUSD); rerender();
+    };
+  });
+}
+function openShiftCloseModal() {
+  if (guard()) return;
+  const sh = D.ShiftService.current(S.branch); if (!sh) return;
+  const cashToday = D.PaymentService.ledger(S.branch).filter((p) => p.method === 'cash' && D.isToday(new Date(p.at).getTime())).reduce((s, p) => s + p.amount, 0);
+  const expected = sh.floatUSD + cashToday;
+  modal(`<h3>Close shift — ${branchName(S.branch)}</h3><div class="sub">Count the physical drawer. Variance above $20 automatically creates an owner approval.</div>
+    <div class="tx-row"><span>Opening float</span><b>$${sh.floatUSD}</b></div>
+    <div class="tx-row"><span>Cash payments today</span><b>$${cashToday}</b></div>
+    <div class="tx-row"><span>Expected in drawer</span><b>$${expected}</b></div>
+    <label>Counted cash (USD) <span style="color:var(--red-ink)">*</span></label><input id="mCounted" type="number" placeholder="What is physically in the drawer" />
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Reconcile &amp; close</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const counted = $('mCounted').value.trim();
+      if (counted === '') { showErr('Enter the counted amount.'); return; }
+      const r = D.ShiftService.close(sh.id, staffId(), Number(counted));
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); rerender();
+      if (Math.abs(r.varianceUSD) > 20) toast('Shift closed — variance $' + r.varianceUSD + ' is above $20, so an owner approval was created automatically.');
+      else toast(r.varianceUSD === 0 ? 'Shift closed — drawer balanced.' : 'Shift closed — variance $' + r.varianceUSD + ' (within tolerance).');
+    };
+  });
 }
 
-/* ---------- cross-dashboard receiver: member events arrive as tasks ---------- */
-function busTask(ev){
-  if(ev.type==='sos'){
-    addTask({t:'🆘 SOS — '+ev.payload.member,s:ev.payload.sosType+' · '+ev.payload.zone+' · '+ev.at,urg:'urgent',kind:'sos',busId:ev.id,member:ev.payload.member,stage:ev.status==='acknowledged'?1:0});
-    pushEvent({name:ev.payload.member,kind:'warn',reason:'SOS — '+ev.payload.sosType+' ('+ev.payload.zone+')'});}
-  if(ev.type==='report')addTask({t:'Equipment report '+ev.payload.ref,s:ev.payload.machine+' — '+ev.payload.issue+' · by '+ev.payload.member,urg:'warn',kind:'reportbus',busId:ev.id,stage:ev.status==='Under review'?1:0});
-  if(ev.type==='ticket')addTask({t:'Ticket '+ev.payload.tkt+' — '+ev.payload.member,s:'"'+ev.payload.subject+'" · '+ev.at,urg:'warn',kind:'ticketbus',busId:ev.id,member:ev.payload.member,tkt:ev.payload.tkt});
-  if(ev.type==='renewal')addTask({t:'Renewal request — '+ev.payload.member,s:(ev.payload.plan||'Membership renewal')+' · pay at desk',urg:'ok',kind:'renewalbus',busId:ev.id,member:ev.payload.member,amount:ev.payload.price||95,plan:ev.payload.plan||'Membership renewal'});
-  /* café pay-at-desk: reception ONLY collects payment — preparation stays with café staff */
-  if(ev.type==='cafe-order'&&ev.payload.pay==='reception')addTask({t:'Café payment — '+ev.payload.member,s:'#'+ev.payload.code+' · '+ev.payload.items.map(i=>i.n+' ×'+i.qty).join(', ')+' · café waits for payment',urg:'warn',kind:'cafepay',busId:ev.id,member:ev.payload.member,amount:ev.payload.total,code:ev.payload.code});
+/* ---------- CRM ---------- */
+function renderCRM() {
+  const mt = D.LeadService.metrics();
+  const ig = mt.bySource['Instagram'];
+  const byBranchTxt = Object.entries(mt.byBranch).map(([k, v]) => branchName(k) + ' ' + v.total).join(' · ') || '—';
+  const byStaffTxt = Object.entries(mt.salesByStaff).map(([k, v]) => staffName(k) + ' ×' + v).join(' · ') || 'none yet';
+  const lostCounts = {}; mt.lostReasons.forEach((r) => { lostCounts[r] = (lostCounts[r] || 0) + 1; });
+  const topLost = Object.entries(lostCounts).sort((a, b) => b[1] - a[1]).slice(0, 2).map(([r, n]) => r + ' ×' + n).join(' · ') || 'none';
+  const overdue = mt.overdue.filter((l) => isAll() || l.branchId === S.branch);
+  $('crmStats').innerHTML = `
+    <button class="stat"><b style="font-size:14px; line-height:1.5;">${byBranchTxt}</b><span>leads by branch · simulated demo data</span></button>
+    <button class="stat"><b>${ig ? Math.round((ig.won / ig.total) * 100) + '%' : '—'}</b><span>Instagram conversion (${ig ? ig.won + '/' + ig.total : '0'})</span></button>
+    <button class="stat"><b>${mt.conversion}%</b><span>trial → membership</span></button>
+    <button class="stat ${overdue.length ? 'alert' : ''}"><b>${overdue.length}</b><span>overdue follow-ups${overdue.length ? ' — call them today' : ''}</span></button>
+    <button class="stat"><b style="font-size:14px; line-height:1.5;">${byStaffTxt}</b><span>sales by receptionist</span></button>
+    <button class="stat"><b style="font-size:14px; line-height:1.5;">${topLost}</b><span>top lost reasons</span></button>`;
+
+  const leads = D.LeadService.list(scopeBranch());
+  const stages = D.LeadService.STAGES;
+  $('kanban').innerHTML = stages.map((st) => {
+    const col = leads.filter((l) => l.stage === st);
+    const nice = st.replace('_', ' ');
+    return `<div class="kcol"><h4>${nice}<span>${col.length}</span></h4>
+      ${col.map((l) => {
+        const over = l.nextFollowUpAt && l.nextFollowUpAt < D.now() && !['won', 'lost'].includes(l.stage);
+        const idx = stages.indexOf(l.stage);
+        const canAdvance = idx < stages.indexOf('follow_up');
+        const active = !['won', 'lost'].includes(l.stage);
+        return `<div class="lead-card ${over ? 'overdue' : ''}">
+          <b>${l.name}</b>
+          <div class="lc-meta">${l.source} · ${l.interest || '—'}<br>${branchName(l.branchId)} · ${staffName(l.ownerStaffId)}
+            ${over ? '<br><span style="color:var(--red-ink); font-weight:700;">Follow-up overdue</span>' : ''}
+            ${l.stage === 'won' && l.convertedMemberId ? '<br>→ member ' + memberName(l.convertedMemberId) : ''}
+            ${l.stage === 'lost' && l.lostReason ? '<br>Lost: ' + l.lostReason : ''}</div>
+          ${!isAll() && active ? `<div class="lc-btns">
+            ${canAdvance ? `<button data-adv="${l.id}">Advance →</button>` : ''}
+            <button class="win" data-conv="${l.id}">Convert</button>
+            <button class="lose" data-lose="${l.id}">Lose</button>
+          </div>` : ''}
+        </div>`;
+      }).join('') || '<div class="empty" style="font-size:11.5px;">—</div>'}
+    </div>`;
+  }).join('');
+  $('kanban').querySelectorAll('[data-adv]').forEach((b) => b.onclick = () => openAdvanceModal(b.dataset.adv));
+  $('kanban').querySelectorAll('[data-conv]').forEach((b) => b.onclick = () => openConvertModal(b.dataset.conv));
+  $('kanban').querySelectorAll('[data-lose]').forEach((b) => b.onclick = () => openLoseModal(b.dataset.lose));
 }
-GymBus.on((kind,ev)=>{ if(kind==='event'&&['sos','report','ticket','renewal','cafe-order'].includes(ev.type)){busTask(ev);
-  if(ev.type==='sos')toast('🆘 SOS from '+ev.payload.member+' — '+ev.payload.sosType);} });
-/* catch-up: open member events from before this dashboard was opened.
-   Called from seedScreen (which resets tasks) so recovered tasks survive boot + sheet hydration. */
-function busCatchUp(){GymBus.all().filter(ev=>['sos','report','ticket','renewal','cafe-order'].includes(ev.type)&&!['closed','resolved','done','Repaired','paid','accepted','preparing','ready','collected','rejected'].includes(ev.status)).forEach(busTask);}
-document.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>{
-  document.querySelectorAll('[data-nav]').forEach(x=>x.classList.remove('on'));b.classList.add('on');
-  if(b.dataset.nav==='members'){$('searchBox').focus();toast('Type a name, phone or member ID');}
+function openLeadModal() {
+  if (guard()) return;
+  const SOURCES = ['Instagram','Walk-in','WhatsApp','Website','Referral','Existing member','Corporate partnership','Trainer referral'];
+  modal(`<h3>Register lead</h3><div class="sub">Goes into the CRM pipeline as "new" · owned by ${staffRec().name}</div>
+    <label>Full name <span style="color:var(--red-ink)">*</span></label><input id="mName" placeholder="Full name" />
+    <label>Phone</label><input id="mPhone" placeholder="+961 …" />
+    <label>Source</label><select id="mSource">${SOURCES.map((s) => `<option>${s}</option>`).join('')}</select>
+    <label>Interest</label><input id="mInterest" placeholder="e.g. All-branch membership, PT, classes" />
+    <label>Branch</label><select id="mBranch">${D.BranchService.list().map((l) => `<option value="${l.id}" ${l.id === S.branch ? 'selected' : ''}>${l.name}</option>`).join('')}</select>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Register lead</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const name = $('mName').value.trim();
+      if (name.length < 2) { showErr('Name is required.'); return; }
+      D.LeadService.create({ name, phone: $('mPhone').value.trim(), source: $('mSource').value, interest: $('mInterest').value.trim(), branchId: $('mBranch').value, staffId: staffId() });
+      closeModal(); toast('Lead registered — ' + name + ' (' + $('mSource').value + ')'); setView('crm'); rerender();
+    };
+  });
+}
+function openAdvanceModal(leadId) {
+  if (guard()) return;
+  const l = D.LeadService.byId(leadId); if (!l) return;
+  const stages = D.LeadService.STAGES;
+  const next = stages[stages.indexOf(l.stage) + 1];
+  modal(`<h3>Advance — ${l.name}</h3><div class="sub">${l.stage.replace('_', ' ')} → <b>${next.replace('_', ' ')}</b></div>
+    <label>Note (what happened)</label><textarea id="mNote" rows="2" placeholder="e.g. Answered WhatsApp — tour booked Thursday 6 pm"></textarea>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Move to ${next.replace('_', ' ')}</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      D.LeadService.advance(leadId, next, staffId(), $('mNote').value.trim());
+      closeModal(); toast(l.name + ' moved to ' + next.replace('_', ' ')); rerender();
+    };
+  });
+}
+function openLoseModal(leadId) {
+  if (guard()) return;
+  const l = D.LeadService.byId(leadId); if (!l) return;
+  modal(`<h3>Mark lost — ${l.name}</h3><div class="sub">Feeds the "top lost reasons" metric</div>
+    ${reasonFieldHTML('Lost reason')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Mark lost</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const r = D.LeadService.lose(leadId, staffId(), reason);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast(l.name + ' marked lost — ' + reason); rerender();
+    };
+  });
+}
+function openConvertModal(leadId) {
+  if (guard()) return;
+  const l = D.LeadService.byId(leadId); if (!l) return;
+  modal(`<h3>Convert — ${l.name}</h3><div class="sub">Creates the member, charges the plan, issues the QR. Home branch: ${branchName(l.branchId)}</div>
+    <label>Plan</label>${planSelectHTML('mPlan')}
+    <div id="mTerms"></div>
+    <label>Payment method</label>${methodSelectHTML()}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Convert to member</button></div>`, () => {
+    const upd = () => { $('mTerms').innerHTML = planTermsHTML($('mPlan').value); };
+    $('mPlan').onchange = upd; upd();
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const r = D.LeadService.convert(leadId, $('mPlan').value, staffId(), $('mMethod').value);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('Membership sold — QR issued · ' + r.member.name + ' is now searchable as a member.'); rerender();
+    };
+  });
+}
+
+/* ---------- payments ledger ---------- */
+function renderLedger() {
+  $('payLabel').textContent = 'Payments ledger — ' + (isAll() ? 'all branches' : branchName(S.branch));
+  const rows = D.PaymentService.ledger(scopeBranch());
+  $('ledgerTotal').textContent = '$' + D.PaymentService.todayTotal(scopeBranch()) + ' today · ' + rows.length + ' records';
+  $('ledger').innerHTML = rows.slice(0, 40).map((p) => `
+    <div class="tx-row"><span>${t(new Date(p.at).getTime())} · ${p.what}${p.memberId ? ' · ' + memberName(p.memberId) : ''} ${bchip(p.locationId)} <span style="color:var(--faint);">(${p.method})</span></span>
+      <span><b>$${p.amount}</b>${isAll() ? '' : ` <button data-refund="${p.id}" style="font-size:11px; font-weight:700; color:var(--red-ink); margin-left:6px; cursor:pointer;">refund</button>`}</span></div>`).join('')
+    || '<div class="empty">No payments recorded yet at this branch.</div>';
+  $('ledger').querySelectorAll('[data-refund]').forEach((b) => b.onclick = () => openRefundModal(b.dataset.refund));
+}
+function openRefundModal(paymentId) {
+  if (guard()) return;
+  const p = D.PaymentService.ledger(null).find((x) => x.id === paymentId); if (!p) return;
+  modal(`<h3>Refund $${p.amount} — ${p.what}</h3>
+    <div class="sub">This does NOT refund instantly — it creates an owner approval request. Money moves only after the owner approves.</div>
+    ${reasonFieldHTML('Refund reason')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Request refund approval</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const r = D.PaymentService.refund(paymentId, staffId(), reason);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('Refund request sent to owner approval — $' + p.amount + ' stays put until approved.'); rerender();
+    };
+  });
+}
+
+/* ============================================================
+   MEMBER DRAWER — check-in, eligibility, resolve, health flags
+   ============================================================ */
+let drawerMemberId = null;
+function openDrawer(memberId) {
+  const m = memberById(memberId); if (!m) { toast('Member not found.'); return; }
+  drawerMemberId = memberId;
+  const targetBranch = isAll() ? m.homeBranchId : S.branch;
+  const v = D.AccessService.validate(m.id, targetBranch);
+  const insideHere = D.AccessService.insideNow().find((x) => x.memberId === m.id);
+  const plan = D.PlanService.byId(m.planId);
+  const flags = D.HealthService.visibleTo(m.id, 'reception');
+  const pkgLeft = D.PackageService.remaining(m.id);
+  const stChip = m.status === 'active' ? `<span class="chip c-ok">Active · until ${m.subEnds}</span>`
+    : m.status === 'frozen' ? `<span class="chip c-warn">Frozen</span>`
+    : m.status === 'expired' ? `<span class="chip c-bad">Expired ${m.subEnds}</span>`
+    : `<span class="chip c-bad">Suspended</span>`;
+  $('drawer').innerHTML = `
+    <div class="d-head"><div class="d-avatar">${initial(m.name)}</div>
+      <div><div class="d-name">${m.name}</div><div class="d-sub">${m.id} · ${m.phone || 'no phone'} · QR v${m.qrVersion}</div></div>
+      <button class="d-close" id="dClose">✕</button></div>
+    <div class="d-chips">${stChip}
+      <span class="chip c-grey">${planName(m.planId)}</span>
+      <span class="chip c-grey">Home: ${branchName(m.homeBranchId)}</span>
+      <span class="chip ${insideHere ? 'c-ok' : 'c-grey'}">${insideHere ? 'INSIDE ' + branchName(insideHere.locationId) : 'Outside'}</span>
+      ${m.corporate ? `<span class="chip c-grey">${m.corporate}</span>` : ''}</div>
+    ${flags.length ? `<div class="d-sec"><div class="eyebrow">Health flags — high severity only</div>
+      ${flags.map((f) => `<div class="flag">⚠ ${f.kind}: ${f.label} (${f.severity})</div>`).join('')}
+      <div class="fineprint">Reception sees high-severity flags only, without notes — detail visible to trainer / nutritionist only.</div></div>` : ''}
+    ${m.restriction ? `<div class="d-note">Restriction: ${m.restriction}</div>` : ''}
+    ${insideHere ? `<div class="resolve okbox"><h4>Currently inside ${branchName(insideHere.locationId)} — in at ${t(new Date(insideHere.enteredAt).getTime())}</h4>
+        ${isAll() ? '' : '<div class="r-grid"><button class="main" id="dCheckout">Check out</button></div>'}</div>`
+      : v.ok ? `<div class="resolve okbox"><h4>Eligible to enter ${branchName(targetBranch)} ✓</h4>
+        ${isAll() ? '<div class="fineprint">Read-only regional view — switch to a branch to check members in.</div>' : '<div class="r-grid"><button class="main" id="dCheckin">Check in now</button></div>'}</div>`
+      : `<div class="resolve"><h4>Cannot enter ${branchName(targetBranch)}: ${rWord(v.reason)}</h4>
+        ${isAll() ? '<div class="fineprint">Read-only regional view — switch to a branch to resolve.</div>' : `<div class="r-grid">
+          ${v.reason === 'expired' ? '<button class="main" data-fix="renew">Renew now</button>' : ''}
+          ${v.reason === 'frozen' ? '<button class="main" data-fix="unfreeze">Unfreeze</button>' : ''}
+          ${['suspended','access_restricted'].includes(v.reason) ? '<button class="main" data-fix="pay">Take payment</button>' : ''}
+          ${v.reason === 'branch_not_allowed' ? '<button class="main" data-fix="sell">Upgrade to all-branch</button>' : ''}
+          <button class="hot" data-fix="override">Manual override…</button>
+        </div>
+        <div class="fineprint" style="color:var(--red-ink);">Manual override requires a written reason. This override is audit-logged.</div>`}</div>`}
+    <div class="d-sec"><div class="eyebrow">Account</div>
+      <div class="d-row"><span>Plan</span><b>${planName(m.planId)}${plan && plan.branchAccess === 'all' ? ' · all branches' : ' · home only'}</b></div>
+      <div class="d-row"><span>Ends</span><b>${m.subEnds}</b></div>
+      <div class="d-row"><span>Wallet / points</span><b>$${m.wallet} · ${m.points} pts</b></div>
+      <div class="d-row"><span>PT sessions left</span><b>${pkgLeft || (plan && plan.ptCredits) || '—'}</b></div>
+      <div class="d-row"><span>Trainer</span><b>${m.trainerId ? staffName(m.trainerId) : '—'}</b></div>
+      <div class="d-row"><span>Last visit</span><b>${prevVisitTxt(m.id)}</b></div>
+      <div class="d-row"><span>Member since</span><b>${m.memberSince}</b></div></div>
+    ${isAll() ? '' : `<div class="d-sec"><div class="eyebrow">Sell &amp; serve</div>
+      <div class="d-actions">
+        <button class="main" data-act="renew">Renew</button>
+        <button data-act="pay">Take payment</button>
+        <button data-act="${m.status === 'frozen' ? 'unfreeze' : 'freeze'}">${m.status === 'frozen' ? 'Unfreeze' : 'Freeze'}</button>
+        <button data-act="ptpkg">Sell PT package</button>
+        <button data-act="guest">Guest pass</button>
+        <button data-act="bookclass">Book class</button>
+        <button data-act="bookpt">Book trainer</button>
+        <button data-act="resetqr">Reset QR</button>
+        <button data-act="transfer">Transfer home branch</button>
+        <button data-act="complaint">Record complaint</button>
+      </div></div>`}`;
+  $('dClose').onclick = closeDrawer;
+  const co = $('dCheckout'); if (co) co.onclick = () => {
+    if (guard()) return;
+    D.AccessService.checkOut(m.id); toast(m.name + ' checked out.'); rerender(); openDrawer(m.id);
+  };
+  const ci = $('dCheckin'); if (ci) ci.onclick = () => doCheckIn(m.id);
+  $('drawer').querySelectorAll('[data-fix]').forEach((b) => b.onclick = () => {
+    const k = b.dataset.fix;
+    if (k === 'renew') openRenewModal(m.id);
+    else if (k === 'unfreeze') openFreezeModal(m.id, false);
+    else if (k === 'pay') openPayModal(m.id);
+    else if (k === 'sell') openSellModal();
+    else if (k === 'override') openOverrideModal(m.id);
+  });
+  $('drawer').querySelectorAll('[data-act]').forEach((b) => b.onclick = () => {
+    const k = b.dataset.act;
+    if (k === 'renew') openRenewModal(m.id);
+    else if (k === 'pay') openPayModal(m.id);
+    else if (k === 'freeze') openFreezeModal(m.id, true);
+    else if (k === 'unfreeze') openFreezeModal(m.id, false);
+    else if (k === 'ptpkg') openPTPkgModal(m.id);
+    else if (k === 'guest') openGuestModal(m.id);
+    else if (k === 'bookclass') openBookClassModal(m.id);
+    else if (k === 'bookpt') openBookPTModal(m.id);
+    else if (k === 'resetqr') openResetQRModal(m.id);
+    else if (k === 'transfer') openTransferModal(m.id);
+    else if (k === 'complaint') openComplaintModal(m.id);
+  });
+  $('drawerWrap').classList.add('show');
+}
+function closeDrawer() { $('drawerWrap').classList.remove('show'); }
+$('drawerWrap').addEventListener('click', (e) => { if (e.target === $('drawerWrap')) closeDrawer(); });
+
+function doCheckIn(memberId) {
+  if (guard()) return;
+  const r = D.AccessService.checkIn(memberId, staffId(), S.branch);
+  if (r.ok) { toast(memberName(memberId) + ' checked in to ' + branchName(S.branch) + '.'); }
+  else { toast('Denied: ' + rWord(r.reason) + ' — resolve from the member card.'); }
+  rerender(); openDrawer(memberId);
+}
+function openOverrideModal(memberId) {
+  if (guard()) return;
+  const m = memberById(memberId); if (!m) return;
+  modal(`<h3>Manual override — ${m.name}</h3>
+    <div class="sub">Admits the member past a denied gate check at ${branchName(S.branch)}.
+      <b style="color:var(--red-ink);">This override is audit-logged</b> with your name (${staffRec().name}) and the reason.</div>
+    ${reasonFieldHTML('Override reason')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK" style="background:var(--red);">Override &amp; admit</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const r = D.AccessService.manualOverride(memberId, staffId(), S.branch, reason);
+      if (r.error) { showErr(r.error === 'reason_required' ? 'The engine rejected this — a reason is mandatory.' : r.error); return; }
+      closeModal(); toast(m.name + ' admitted by override — audit-logged.'); rerender(); openDrawer(memberId);
+    };
+  });
+}
+
+/* ============================================================
+   SELL & SERVE modals
+   ============================================================ */
+function openSellModal() {
+  if (guard()) return;
+  modal(`<h3>Sell membership / trial pass</h3><div class="sub">Creates the member, takes payment, issues the QR</div>
+    <label>Full name <span style="color:var(--red-ink)">*</span></label><input id="mName" placeholder="Full name" />
+    <label>Phone</label><input id="mPhone" placeholder="+961 …" />
+    <label>Email</label><input id="mEmail" placeholder="email@example.com" />
+    <label>Plan</label>${planSelectHTML('mPlan')}
+    <div id="mTerms"></div>
+    <label>Home branch</label><select id="mBranch">${D.BranchService.list().map((l) => `<option value="${l.id}" ${l.id === S.branch ? 'selected' : ''}>${l.name}${l.unconfirmed ? ' (unconfirmed)' : ''}</option>`).join('')}</select>
+    <label>Payment method</label>${methodSelectHTML()}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Sell &amp; issue QR</button></div>`, () => {
+    const upd = () => { $('mTerms').innerHTML = planTermsHTML($('mPlan').value); };
+    $('mPlan').onchange = upd; upd();
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const name = $('mName').value.trim();
+      if (name.length < 2) { showErr('Name is required.'); return; }
+      const r = D.MemberService.sell({ name, phone: $('mPhone').value.trim(), email: $('mEmail').value.trim(), planId: $('mPlan').value, homeBranchId: $('mBranch').value, staffId: staffId(), method: $('mMethod').value });
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('Membership sold — QR issued · ' + r.name); rerender(); openDrawer(r.id);
+    };
+  });
+}
+function openRenewModal(memberId) {
+  if (guard()) return;
+  modal(`<h3>Renew membership</h3><div class="sub">Extends from the later of today / current end date, charges the plan price</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId)}</select>
+    <label>Payment method</label>${methodSelectHTML()}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Renew &amp; charge</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const r = D.MemberService.renew($('mMember').value, staffId(), $('mMethod').value);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast(r.name + ' renewed until ' + r.subEnds + '.'); rerender();
+    };
+  });
+}
+function openFreezeModal(memberId, freeze) {
+  if (guard()) return;
+  modal(`<h3>${freeze ? 'Freeze' : 'Unfreeze'} membership</h3><div class="sub">${freeze ? 'Pauses access until unfrozen' : 'Resumes access immediately'} · audit-logged</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId)}</select>
+    ${reasonFieldHTML('Reason')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">${freeze ? 'Freeze' : 'Unfreeze'}</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const id = $('mMember').value;
+      const r = freeze ? D.MemberService.freeze(id, staffId(), reason) : D.MemberService.unfreeze(id, staffId(), reason);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast(r.name + (freeze ? ' frozen.' : ' unfrozen — active again.')); rerender();
+    };
+  });
+}
+function openPayModal(memberId) {
+  if (guard()) return;
+  modal(`<h3>Take payment</h3><div class="sub">Recorded in the ${branchName(S.branch)} ledger as ${staffRec().name}</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId, true)}</select>
+    <label>What for</label><input id="mWhat" value="Front-desk payment" />
+    <label>Amount (USD) <span style="color:var(--red-ink)">*</span></label><input id="mAmt" type="number" placeholder="0" />
+    <label>Payment method</label>${methodSelectHTML()}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Charge</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const amt = Number($('mAmt').value);
+      if (!amt || amt <= 0) { showErr('Enter an amount.'); return; }
+      D.PaymentService.take({ memberId: $('mMember').value || null, amount: amt, method: $('mMethod').value, what: $('mWhat').value.trim() || 'Front-desk payment', staffId: staffId(), branchId: S.branch });
+      closeModal(); toast('$' + amt + ' ' + $('mMethod').value + ' taken — in the ledger.'); rerender();
+    };
+  });
+}
+function openPTPkgModal(memberId) {
+  if (guard()) return;
+  const trainers = D.TrainerService.byBranch(S.branch);
+  modal(`<h3>Sell PT package</h3><div class="sub">Sessions the member spends with their trainer · charged now</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId)}</select>
+    <label>Trainer (works at ${branchName(S.branch)})</label><select id="mTrainer">${trainers.map((x) => `<option value="${x.id}">${x.name} — ${(x.specialties || []).join(', ')}</option>`).join('')}</select>
+    <label>Sessions</label><select id="mTotal"><option>4</option><option selected>10</option><option>12</option></select>
+    <label>Price (USD)</label><input id="mPrice" type="number" value="300" />
+    <label>Payment method</label>${methodSelectHTML()}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Sell package</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const price = Number($('mPrice').value);
+      if (!price || price <= 0) { showErr('Enter a price.'); return; }
+      const r = D.PackageService.sell({ memberId: $('mMember').value, trainerId: $('mTrainer').value, total: Number($('mTotal').value), price, staffId: staffId(), branchId: S.branch, method: $('mMethod').value });
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('PT package sold — ' + r.total + ' sessions with ' + staffName(r.trainerId) + '.'); rerender();
+    };
+  });
+}
+function openGuestModal(hostId) {
+  if (guard()) return;
+  modal(`<h3>Guest pass</h3><div class="sub">$10 · charged to the host's wallet · guest appears in "expected" until they arrive</div>
+    <label>Host member</label><select id="mMember">${memberOptionsHTML(hostId)}</select>
+    <label>Guest full name <span style="color:var(--red-ink)">*</span></label><input id="mGuest" placeholder="Guest name" />
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Create pass · $10</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const g = $('mGuest').value.trim();
+      if (g.length < 2) { showErr('Guest name is required.'); return; }
+      const r = D.GuestService.create({ hostMemberId: $('mMember').value, guestName: g, branchId: S.branch, staffId: staffId() });
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('Guest pass created for ' + g + ' — redeem it when they arrive.'); rerender();
+    };
+  });
+}
+function openBookClassModal(memberId, classId) {
+  if (guard()) return;
+  const classes = D.BranchService.classesToday(S.branch).filter((c) => c.status === 'scheduled');
+  if (!classes.length) { toast('No bookable classes today at ' + branchName(S.branch) + '.'); return; }
+  modal(`<h3>Book class</h3><div class="sub">Waitlist is automatic when the class is full</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId)}</select>
+    <label>Class — today at ${branchName(S.branch)}</label>
+    <select id="mClass">${classes.map((c) => {
+      const booked = D.BookingService.forClass(c.id).length;
+      return `<option value="${c.id}" ${c.id === classId ? 'selected' : ''}>${c.name} · ${t(c.startsAt)} · ${booked}/${c.capacity}${c.waitlist.length ? ' · WL ' + c.waitlist.length : ''}</option>`;
+    }).join('')}</select>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Book</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const cid = $('mClass').value, mid = $('mMember').value;
+      const r = D.BookingService.bookClass(mid, cid);
+      if (r.error) { showErr(BOOK_WORDS[r.error] || r.error); return; }
+      const cls = D.BookingService.classById(cid);
+      closeModal();
+      if (r.waitlisted) toast(cls.name + ' is full — added to the waitlist, position ' + r.position + '. They are promoted automatically when a spot opens.');
+      else toast('Booked — ' + memberName(mid) + ' on ' + cls.name + '.');
+      rerender();
+    };
+  });
+}
+function openBookPTModal(memberId) {
+  if (guard()) return;
+  const trainers = D.TrainerService.byBranch(S.branch);
+  const nowH = new Date(D.now()).getHours();
+  const hours = []; for (let h = Math.max(7, nowH); h <= 21; h++) hours.push(h);
+  modal(`<h3>Book trainer</h3><div class="sub">The engine refuses double-booked or physically impossible slots (Beirut travel time between branches)</div>
+    <label>Member</label><select id="mMember">${memberOptionsHTML(memberId)}</select>
+    <label>Trainer (works at ${branchName(S.branch)})</label><select id="mTrainer">${trainers.map((x) => `<option value="${x.id}">${x.name} — ${(x.specialties || []).join(', ')}</option>`).join('')}</select>
+    <label>Time today</label><select id="mHour">${hours.map((h) => `<option value="${h}">${t(D.at(h, 0))}</option>`).join('')}</select>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Book session</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const trainerId = $('mTrainer').value;
+      const r = D.TrainerService.book({ memberId: $('mMember').value, trainerId, branchId: S.branch, startsAt: D.at(Number($('mHour').value), 0), durationMins: 60, actorId: staffId() });
+      if (r.error) { showErr(ptBookWords(r, trainerId)); return; }
+      closeModal(); toast('PT booked — ' + memberName(r.memberId) + ' with ' + staffName(r.trainerId) + ' at ' + t(r.startsAt) + '.'); rerender();
+    };
+  });
+}
+function openResetQRModal(memberId) {
+  if (guard()) return;
+  const m = memberById(memberId); if (!m) return;
+  modal(`<h3>Reset member QR — ${m.name}</h3><div class="sub">Verifies identity at the desk, kills the old code, issues QR v${m.qrVersion + 1} · audit-logged</div>
+    ${reasonFieldHTML('Reason (lost phone, suspected sharing, …)')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Reset QR</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const r = D.MemberService.resetQR(memberId, staffId(), reason);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('QR reset — v' + r.qrVersion + ' issued to ' + r.name + "'s app. Old code is dead."); rerender(); openDrawer(memberId);
+    };
+  });
+}
+function openTransferModal(memberId) {
+  if (guard()) return;
+  const m = memberById(memberId); if (!m) return;
+  const others = D.BranchService.list().filter((l) => l.id !== m.homeBranchId);
+  modal(`<h3>Transfer home branch — ${m.name}</h3>
+    <div class="sub">Home branch changes are owner-approval territory: this sends a request. Nothing changes until the owner approves it.</div>
+    <label>Current home</label><input value="${branchName(m.homeBranchId)}" disabled />
+    <label>Transfer to</label><select id="mTo">${others.map((l) => `<option value="${l.id}">${l.name}${l.unconfirmed ? ' (unconfirmed)' : ''}</option>`).join('')}</select>
+    ${reasonFieldHTML('Reason')}
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Send for owner approval</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const reason = getReason(); if (!reason) return;
+      const r = D.MemberService.requestBranchTransfer(memberId, $('mTo').value, staffId(), reason);
+      if (r.error) { showErr(r.error); return; }
+      closeModal(); toast('Transfer request sent to owner approval — ' + m.name + ' stays at ' + branchName(m.homeBranchId) + ' until approved.'); rerender();
+    };
+  });
+}
+function openComplaintModal(memberId) {
+  if (guard()) return;
+  modal(`<h3>Record complaint</h3><div class="sub">Logged as an incident at ${branchName(S.branch)} · visible to the owner</div>
+    <label>Member (optional)</label><select id="mMember">${memberOptionsHTML(memberId, true)}</select>
+    <label>What happened <span style="color:var(--red-ink)">*</span></label><textarea id="mNote" rows="3" placeholder="Describe the complaint"></textarea>
+    <div class="checkline" style="display:flex; align-items:center; gap:8px; font-size:13px; padding:8px 0;"><input type="checkbox" id="mSensitive" style="width:auto;" /> <span>Sensitive — closing it will require owner approval</span></div>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Log complaint</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const note = $('mNote').value.trim();
+      if (note.length < 3) { showErr('Describe what happened.'); return; }
+      D.IncidentService.report({ kind: 'complaint', note, staffId: staffId(), branchId: S.branch, memberId: $('mMember').value || null, sensitive: $('mSensitive').checked });
+      closeModal(); toast('Complaint recorded — it is now in open incidents.'); rerender();
+    };
+  });
+}
+function openIncidentCloseModal(incidentId) {
+  if (guard()) return;
+  const inc = D.IncidentService.list(null).find((i) => i.id === incidentId); if (!inc) return;
+  modal(`<h3>Close incident</h3><div class="sub">${inc.sensitive ? 'Sensitive incident — closing routes through owner approval.' : 'A closing report is required (min 5 characters).'}</div>
+    <label>Closing report <span style="color:var(--red-ink)">*</span></label><textarea id="mNote" rows="3" placeholder="What happened and how it ended"></textarea>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Close incident</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      const rep = $('mNote').value.trim();
+      if (rep.length < 5) { showErr('The engine requires a real closing report (5+ characters).'); return; }
+      const r = D.IncidentService.close(incidentId, staffId(), rep);
+      if (r.error) { showErr(r.error); return; }
+      closeModal();
+      if (r.type === 'incident_closure') toast('Sensitive incident — closure sent to owner approval instead of closing directly.');
+      else toast('Incident closed and reported.');
+      rerender();
+    };
+  });
+}
+function openContactBranchModal() {
+  const others = D.BranchService.list().filter((l) => l.id !== S.branch);
+  modal(`<h3>Contact another branch</h3><div class="sub">Call them, or send a note that lands on their dashboards (via the announcement bus)</div>
+    ${others.map((l) => `<div class="tx-row"><span><b>${l.name}</b>${l.unconfirmed ? ' <span style="color:var(--amber); font-size:10px;">(unconfirmed)</span>' : ''} · ${staffName(PERSONA[l.id])}<br><span style="color:var(--muted); font-size:12px;">${l.address}</span></span><b>${l.phone}</b></div>`).join('')}
+    <label>Send a note to</label><select id="mTo">${others.map((l) => `<option value="${l.id}">${l.name}</option>`).join('')}</select>
+    <label>Note <span style="color:var(--red-ink)">*</span></label><textarea id="mNote" rows="2" placeholder="e.g. Member heading your way — locker 12 left open"></textarea>
+    <div class="m-err" id="mErr"></div>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button><button class="m-confirm" id="mOK">Send note</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => {
+      if (guard()) return;
+      const note = $('mNote').value.trim();
+      if (note.length < 3) { showErr('Write the note.'); return; }
+      const to = $('mTo').value;
+      D.BranchService.announce(to, '[From ' + branchName(S.branch) + ' desk] ' + note, staffId());
+      closeModal(); toast('Note sent to ' + branchName(to) + ' — it appears on their dashboards.'); rerender();
+    };
+  });
+}
+function openOccupancyModal() {
+  const occ = D.BranchService.occupancy();
+  modal(`<h3>Occupancy — all branches</h3><div class="sub">Live, from check-ins · evacuation counts</div>
+    ${occ.map((o) => `<div class="tx-row"><span>${o.name}${o.closure ? ' · <span style="color:var(--red-ink);">CLOSED</span>' : ''}</span><b>${o.inside} inside · ${o.pct}% of ${o.capacity}</b></div>`).join('')}
+    <div class="eyebrow" style="margin:12px 0 4px;">Inside ${isAll() ? 'the network' : branchName(S.branch)}</div>
+    ${D.AccessService.insideNow(scopeBranch()).map((v) => `<div class="tx-row"><span>${memberName(v.memberId)} (${branchName(v.locationId)})</span><b>in at ${t(new Date(v.enteredAt).getTime())}</b></div>`).join('') || '<div class="empty">No one inside.</div>'}
+    <div class="mrow"><button class="m-confirm" id="mCancel">Close</button></div>`, () => { $('mCancel').onclick = closeModal; });
+}
+$('occPillBtn').onclick = openOccupancyModal;
+
+function openMoreModal() {
+  modal(`<h3>More actions</h3><div class="sub">Everything else the desk can do — member-specific actions also live on the member card</div>
+    ${[['resetqr','Reset member QR (reason required)'],['freeze','Freeze membership (reason required)'],['unfreeze','Unfreeze membership (reason required)'],['transfer','Transfer home branch → owner approval'],['complaint','Record complaint'],['contact','Contact another branch'],['shift','Shift & cash drawer']]
+      .map(([k, l]) => `<button data-more="${k}" style="display:block; width:100%; text-align:left; margin-top:7px; font-size:12.5px; font-weight:700; padding:10px 12px; border-radius:10px; background:var(--paper); color:var(--ink); cursor:pointer;">${l}</button>`).join('')}
+    <div class="mrow"><button class="m-cancel" id="mCancel">Close</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    document.querySelectorAll('[data-more]').forEach((b) => b.onclick = () => {
+      const k = b.dataset.more; closeModal();
+      if (k === 'resetqr') pickMemberThen((id) => openResetQRModal(id));
+      else if (k === 'freeze') openFreezeModal(null, true);
+      else if (k === 'unfreeze') openFreezeModal(null, false);
+      else if (k === 'transfer') pickMemberThen((id) => openTransferModal(id));
+      else if (k === 'complaint') openComplaintModal(null);
+      else if (k === 'contact') openContactBranchModal();
+      else if (k === 'shift') { setView('board'); const sh = D.ShiftService.current(S.branch); if (guard()) return; sh ? openShiftCloseModal() : openShiftOpenModal(); }
+    });
+  });
+}
+function pickMemberThen(cb) {
+  modal(`<h3>Pick the member</h3>
+    <select id="mMember">${memberOptionsHTML()}</select>
+    <div class="mrow"><button class="m-cancel" id="mCancel">Cancel</button><button class="m-confirm" id="mOK">Continue</button></div>`, () => {
+    $('mCancel').onclick = closeModal;
+    $('mOK').onclick = () => { const v = $('mMember').value; closeModal(); cb(v); };
+  });
+}
+
+/* ---------- quick actions ---------- */
+document.querySelectorAll('[data-qa]').forEach((b) => b.addEventListener('click', () => {
+  const k = b.dataset.qa;
+  if (k === 'checkin') { $('searchBox').focus(); toast('Search the member, then check them in from their card.'); }
+  else if (k === 'lead') openLeadModal();
+  else if (k === 'sell') openSellModal();
+  else if (k === 'renew') openRenewModal();
+  else if (k === 'pay') openPayModal();
+  else if (k === 'ptpkg') openPTPkgModal();
+  else if (k === 'guest') openGuestModal();
+  else if (k === 'bookclass') openBookClassModal();
+  else if (k === 'bookpt') openBookPTModal();
+  else if (k === 'more') openMoreModal();
 }));
 
-/* ---------- boot ---------- */
-function seedScreen(insideRows){
-  inside={};feed=[];tasks=[];
-  (insideRows||FALLBACK_USERS.slice(0,5).map(u=>({name:u.name})))
-    .forEach((r,i)=>{inside[r.name]=Date.now()-(i===0?200:Math.floor(Math.random()*160)+10)*60000;});
-  Object.keys(inside).slice(-2).forEach(n=>pushEvent({name:n,kind:'ok'}));
-  const expired=members.find(x=>x.status==='expired'); if(expired)denyEvent(expired,'expired');
-  const frozen=members.find(x=>x.status==='frozen'); if(frozen)denyEvent(frozen,'frozen');
-  const noWaiver=members.find(m=>!m.waiver);
-  if(noWaiver)addTask({t:'Unsigned waiver — '+noWaiver.name,s:'Must sign before next entry',urg:'warn',kind:'waiver',name:noWaiver.name,dtype:'waiver'});
-  addTask({t:'2 memberships expire today',s:'Call before 8 PM · scripts in notes',urg:'ok',kind:'expiry'});
-  addTask({t:'Failed payment — Dana T.',s:'Card declined $95 · retry or collect at desk',urg:'warn',kind:'payment'});
-  busCatchUp();
-  renderOcc();renderStats();renderUpcoming();renderTasks();renderFeed();
+/* ---------- views ---------- */
+function setView(v) {
+  S.view = v;
+  document.querySelectorAll('.view').forEach((x) => x.classList.toggle('on', x.id === 'view-' + v));
+  $('nav').querySelectorAll('[data-view]').forEach((x) => x.classList.toggle('on', x.dataset.view === v));
 }
-(async()=>{
-  setInterval(()=>{$('clock').textContent=now();},1000);$('clock').textContent=now();
-  $('sysPill').className='sys-pill sys-warn';$('sysPill').innerHTML='<span class="dot da"></span>Printer degraded';
-  /* render INSTANTLY from fallback — the desk never looks empty */
-  members=FALLBACK_USERS.map(enrich);
-  seedScreen(null);
-  setInterval(simulate,9000);
-  setInterval(()=>{if(!offline)lastSync=Date.now();renderOcc();renderTasks();},30000);
-  /* simulated hardware blip → lands in Needs attention (system health story) */
-  setTimeout(()=>{sys['QR scanner']='warn';
-    addTask({t:'QR scanner degraded — Main gate',s:'Slow reads · maintenance paged · use manual entry if it fails',urg:'urgent',kind:'system'});},45000);
-  /* hydrate from the live sheet when it arrives */
-  try{
-    const[u,ins,lk,mc,cl,tr,fam]=await Promise.all([tab('Users'),tab('InsideNow'),tab('Lockers'),tab('Machines'),tab('Classes'),tab('Trainers'),tab('Family')]);
-    members=u.map(enrich);lockers=lk;classes=cl;trainers=tr;family=fam;
-    denialsToday=0;seedScreen(ins);
-    toast('Live data connected — sheet in sync');
-  }catch(e){/* fallback stays — fully operational offline */}
-})();
+$('nav').querySelectorAll('[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
+$('filters').querySelectorAll('button').forEach((b) => b.onclick = () => {
+  S.filter = b.dataset.f;
+  $('filters').querySelectorAll('button').forEach((x) => x.classList.toggle('on', x === b));
+  renderBoard();
+});
+
+/* ---------- search ---------- */
+let srSel = 0;
+function renderSearch() {
+  const q = $('searchBox').value.trim();
+  const drop = $('searchDrop');
+  if (q.length < 2) { drop.classList.remove('show'); drop.innerHTML = ''; return; }
+  const hits = D.MemberService.search(q).slice(0, 6);
+  srSel = Math.min(srSel, Math.max(0, hits.length - 1));
+  drop.innerHTML = hits.map((m, i) => `<div class="sr ${i === srSel ? 'sel' : ''}" data-sr="${m.id}">
+      <div class="av">${initial(m.name)}</div>
+      <div><b>${m.name}</b><span>${m.id} · ${planName(m.planId)} · ${branchName(m.homeBranchId)}</span></div>
+      <span class="stx ${m.status === 'active' ? 'ok' : 'bad'}">${m.status}</span></div>`).join('')
+    || '<div class="sr"><span>No matches — check spelling, or register them as a lead.</span></div>';
+  drop.classList.add('show');
+  drop.querySelectorAll('[data-sr]').forEach((x) => x.onclick = () => pickSearch(x.dataset.sr));
+}
+function pickSearch(id) { $('searchDrop').classList.remove('show'); $('searchBox').value = ''; openDrawer(id); }
+$('searchBox').addEventListener('input', () => { srSel = 0; renderSearch(); });
+$('searchBox').addEventListener('keydown', (e) => {
+  const hits = [...$('searchDrop').querySelectorAll('[data-sr]')];
+  if (e.key === 'Enter' && hits.length) { e.preventDefault(); pickSearch(hits[srSel].dataset.sr); }
+  if (e.key === 'ArrowDown') { e.preventDefault(); srSel = Math.min(hits.length - 1, srSel + 1); renderSearch(); }
+  if (e.key === 'ArrowUp') { e.preventDefault(); srSel = Math.max(0, srSel - 1); renderSearch(); }
+  if (e.key === 'Escape') { $('searchDrop').classList.remove('show'); $('searchBox').blur(); }
+});
+document.addEventListener('keydown', (e) => {
+  const typing = /input|textarea|select/i.test(document.activeElement && document.activeElement.tagName || '');
+  if (e.key === 'Escape') { closeModal(); closeDrawer(); $('searchDrop').classList.remove('show'); $('branchDrop').classList.remove('show'); return; }
+  if (typing) return;
+  if (e.key === '/') { e.preventDefault(); $('searchBox').focus(); }
+});
+
+/* ---------- GymBus — live cross-dashboard events ---------- */
+const BUS_TOASTS = {
+  'gate-entry': (p) => (p.override ? 'Override entry — ' : 'Gate entry — ') + (p.member || '') + ' at ' + (p.branch || '') + (p.time ? ' · ' + p.time : ''),
+  'sos': (p) => '🆘 SOS — ' + (p.member || '') + ' · ' + (p.sosType || '') + (p.zone ? ' (' + p.zone + ')' : '') + ' at ' + (p.branch || ''),
+  'asset-status': (p) => (p.asset || 'Equipment') + ' → ' + (p.status || '') + (p.alt ? ' · alternative: ' + p.alt : '') + (p.branch ? ' — ' + p.branch : ''),
+  'waitlist-promoted': (p) => (p.member || 'Member') + ' promoted from the waitlist — ' + (p.cls || ''),
+  'lead': (p) => 'New lead — ' + (p.name || '') + ' via ' + (p.source || '') + ' at ' + (p.branch || ''),
+  'member-joined': (p) => 'Membership sold — ' + (p.member || '') + ' · ' + (p.plan || '') + ' at ' + (p.branch || ''),
+  'pt-booked': (p) => 'PT booked — ' + (p.member || '') + ' with ' + (p.trainer || '') + ' · ' + (p.time || '') + ' at ' + (p.branch || ''),
+  'class-capacity': (p) => (p.cls || 'Class') + ' capacity ' + p.from + '→' + p.to + ' at ' + (p.branch || '') + ' — waitlist recalculated',
+  'cover-request': (p) => 'Cover requested — ' + (p.cls || '') + ' · ' + (p.reason || ''),
+  'low-stock': (p) => 'Low stock — ' + (p.item || '') + ' at ' + (p.branch || '') + ' (' + p.left + ' left)',
+  'approval': (p) => 'Owner approval requested — ' + (p.what || '') + (p.amount ? ' · $' + p.amount : ''),
+  'guest-pass': (p) => 'Guest pass — ' + (p.guest || '') + ' (host ' + (p.host || '') + ') at ' + (p.branch || ''),
+  'announce': (p) => 'Announcement · ' + (p.branch || '') + ' — ' + (p.msg || ''),
+  'class-cancelled': (p) => 'Class cancelled — ' + (p.cls || '') + ' · ' + (p.reason || ''),
+  'work-order': (p) => 'Work order — ' + (p.asset || '') + ' at ' + (p.branch || '') + ' (' + (p.severity || '') + ')',
+};
+GymBus.on((kind, ev) => {
+  if (kind !== 'event' || !ev) return;
+  const key = ev.id + ':toast';
+  const fn = BUS_TOASTS[ev.type];
+  if (!fn) return;
+  if (!GymBus.isProcessed(key, 'reception')) {
+    GymBus.markProcessed(key, 'reception');
+    toast(fn(ev.payload || {}));
+  }
+  rerender();
+});
+
+/* ---------- boot ---------- */
+setInterval(() => { $('clock').textContent = t(D.now()); }, 1000);
+$('clock').textContent = t(D.now());
+setInterval(rerender, 30000);
+rerender();
 </script>
 </body>
 </html>

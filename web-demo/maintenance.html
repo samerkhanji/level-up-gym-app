@@ -3,19 +3,19 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Level Up — Maintenance</title>
+<title>Level Up — Maintenance &amp; Equipment</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root { --paper:#f2ece0; --card:#fff; --ink:#18140f; --muted:#6f6656; --faint:#a89b83;
-    --line:#e6ddc9; --green:#1a1613; --deep:#000000; --mint:#efe6d2;
+    --line:#e6ddc9; --deep:#000000; --mint:#efe6d2;
     --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
     --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
     padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
   .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
-  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; color:inherit; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
   .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
@@ -28,139 +28,196 @@
   .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
   .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
   .stats b.bad { color:var(--red); }
-  .qbar { display:flex; gap:7px; flex-wrap:wrap; }
-  .qbar button { font-size:12.5px; font-weight:800; padding:12px 15px; border-radius:13px; background:var(--card); color:var(--deep); box-shadow:0 4px 12px rgba(24,20,15,.05); }
-  .qbar button.dark { background:var(--deep); color:#fff; }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--ink); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
+  .hidden { display:none !important; }
+
+  /* branch filter */
+  .chips { display:flex; gap:6px; flex-wrap:wrap; }
+  .chips button { font-size:12px; font-weight:700; padding:8px 13px; border-radius:999px; background:#fff; color:var(--muted); box-shadow:0 3px 10px rgba(24,20,15,.05); }
+  .chips button.on { background:var(--deep); color:#fff; }
+
   .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
   .seg button { flex:1; font-size:13px; font-weight:700; padding:9px 4px; border-radius:11px; color:var(--muted); }
   .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
-  .wo { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
-  .wo.safety { background:var(--red-soft); outline:2px solid var(--red); }
-  .wo-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .wo-id { font-family:var(--display); font-weight:800; font-size:14px; }
-  .wo-meta { font-size:11.5px; color:var(--muted); margin-top:2px; }
-  .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
-  .st-new { background:var(--amber-soft); color:var(--amber); animation:pulse 1.6s infinite; }
-  .st-prog { background:var(--deep); color:#fff; }
-  .st-wait { background:var(--amber-soft); color:var(--amber); }
-  .st-test { background:var(--mint); color:var(--deep); }
-  .st-ok { background:var(--mint); color:var(--deep); }
-  .st-bad { background:var(--red-soft); color:var(--red); }
-  .st-grey { background:#e9e2d2; color:var(--muted); }
-  .big-act { display:block; width:100%; margin-top:9px; background:var(--deep); color:#fff; font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; }
-  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:9px 7px; min-height:32px; }
-  .asset { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
-  .asset:last-child { border-bottom:none; }
-  .asset .n { flex:1; min-width:0; font-weight:700; font-size:13.5px; }
-  .asset .loc { font-size:11.5px; color:var(--faint); display:block; font-weight:400; }
-  .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); color:var(--muted); }
-  .hist:last-child { border-bottom:none; }
-  .hist b { color:var(--ink); }
-  .partrow { display:flex; align-items:center; gap:8px; padding:9px 0; border-bottom:1px solid var(--line); font-size:13px; }
-  .partrow:last-child { border-bottom:none; }
-  .partrow .n { flex:1; font-weight:700; }
-  .partrow .meta { font-size:11.5px; color:var(--muted); }
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
-  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
-  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
-  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
-  .hidden { display:none !important; }
-  .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
-  .overlay.show { display:grid; }
-  .modal { background:#fff; border-radius:20px; padding:18px; width:min(430px, 100%); max-height:86vh; overflow:auto; }
-  .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
-  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
-  .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:13px; border-radius:13px; background:var(--paper); margin-top:7px; cursor:pointer; }
-  .opt.danger { background:var(--red-soft); color:var(--red); }
-  .opt.solid { background:var(--deep); color:#fff; }
-  .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
-  .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
-  .chk-line input { width:17px; height:17px; accent-color:var(--deep); }
-  /* ---- layout rhythm: background labels, grouped surfaces, tighter lists ---- */
-  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:8px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
   .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
   .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); animation:none; }
   .stack > .card:last-child { border-bottom:none; }
-  .stack .qbar button:not(.dark) { background:var(--paper); box-shadow:none; }
-  .qhold { padding-top:4px; }
-  #secWork { display:flex; flex-direction:column; gap:13px; }
-  #assetList { display:grid; grid-template-columns:1fr 1fr; gap:0 18px; }
-  #assetList .asset { flex-wrap:wrap; row-gap:3px; padding:8px 0; }
-  #assetList .asset .n { flex:1 1 100%; }
-  #assetList .asset:nth-last-child(-n+2) { border-bottom:none; }
-  #partList .partrow { padding:6px 0; }
+
+  /* status + misc chips */
+  .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; vertical-align:middle; }
+  .st-ok { background:var(--mint); color:var(--deep); }
+  .st-wait { background:var(--amber-soft); color:var(--amber); }
+  .st-bad { background:var(--red-soft); color:var(--red); }
+  .st-grey { background:#e9e2d2; color:var(--muted); }
+  .st-dark { background:var(--deep); color:#fff; }
+  .st-new { background:var(--amber-soft); color:var(--amber); animation:pulse 1.6s infinite; }
+  .bchip { display:inline-block; font-size:10px; font-weight:800; padding:3px 8px; border-radius:999px; background:var(--mint); color:var(--deep); white-space:nowrap; vertical-align:middle; }
+  .wchip { display:inline-block; font-size:10.5px; font-weight:700; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .w-in { background:var(--mint); color:var(--deep); }
+  .w-out { background:var(--amber-soft); color:var(--amber); }
+  .due-ok { color:var(--muted); }
+  .due-bad { color:var(--red); font-weight:800; }
+
+  /* network strip */
+  .netgrid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+  .netcell { background:var(--paper); border-radius:14px; padding:10px 11px; font-size:11.5px; color:var(--muted); line-height:1.55; }
+  .netcell b.n { display:block; font-family:var(--display); font-size:13.5px; color:var(--ink); margin-bottom:2px; }
+  .netcell .bad { color:var(--red); font-weight:800; }
+  .netnote { font-size:10.5px; color:var(--faint); margin-top:8px; }
+
+  /* asset register */
+  .acard { display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line); cursor:pointer; align-items:flex-start; }
+  .acard:last-child { border-bottom:none; padding-bottom:2px; }
+  .acard:first-of-type { padding-top:4px; }
+  .qrbox { flex-shrink:0; text-align:center; }
+  .qrbox svg { display:block; background:#fff; border:1px solid var(--line); border-radius:6px; padding:3px; }
+  .qrbox .plabel { font-size:9.5px; font-weight:700; color:var(--muted); padding:4px 2px 0; display:block; width:100%; }
+  .amain { flex:1; min-width:0; }
+  .aname { font-weight:700; font-size:13.5px; display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .ameta { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .arow { display:flex; gap:6px; flex-wrap:wrap; align-items:center; margin-top:6px; font-size:11px; }
+  .altln { font-size:11.5px; font-weight:700; color:var(--ink); background:var(--paper); border-radius:999px; padding:4px 10px; margin-top:6px; display:inline-block; }
+  .ahist { font-size:11px; color:var(--faint); margin-top:5px; }
+  .ahist b { color:var(--muted); }
+
+  /* work orders */
+  .wob { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; }
+  .wob.safety { background:var(--red-soft); outline:2px solid var(--red); }
+  .wo-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
+  .wo-id { font-family:var(--display); font-weight:800; font-size:14px; }
+  .wo-meta { font-size:11.5px; color:var(--muted); margin-top:3px; line-height:1.55; }
+  .wo-meta.alert { color:var(--red); font-weight:800; }
+  .partchip { display:inline-block; font-size:10.5px; font-weight:700; background:#fff; border:1px solid var(--line); border-radius:999px; padding:3px 9px; margin:5px 4px 0 0; }
+  .addpart { display:inline-block; font-size:10.5px; font-weight:800; color:var(--muted); border:1px dashed var(--faint); border-radius:999px; padding:3px 9px; margin-top:5px; }
+  .actrow { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+  .act-sm { font-size:12px; font-weight:800; padding:9px 12px; border-radius:11px; background:var(--deep); color:#fff; }
+  .act-sm.lite { background:#fff; color:var(--ink); border:1px solid var(--line); }
+  .act-sm.warn { background:var(--red); color:#fff; }
+  details.hist { margin-top:8px; }
+  details.hist summary { font-size:11px; font-weight:700; color:var(--muted); cursor:pointer; list-style:none; }
+  details.hist summary::before { content:'› '; }
+  details.hist[open] summary::before { content:'⌄ '; }
+  .tl { font-size:11.5px; color:var(--muted); padding:6px 0 0 10px; border-left:2px solid var(--line); margin:6px 0 0 3px; }
+  .tl div { margin-bottom:5px; }
+  .tl b { color:var(--ink); font-weight:700; }
+  .empty { color:var(--faint); font-size:13px; padding:4px 0; }
+
+  /* approvals */
+  .apr { display:flex; justify-content:space-between; gap:10px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
+  .apr:last-child { border-bottom:none; }
+  .apr .n { font-weight:700; }
+  .apr .meta { font-size:11px; color:var(--muted); }
+  .apr .amt { font-family:var(--display); font-weight:800; white-space:nowrap; }
+
+  /* inspections */
+  .insp { display:flex; gap:10px; align-items:center; padding:11px 0; border-bottom:1px solid var(--line); }
+  .insp:last-child { border-bottom:none; }
+  .insp .n { flex:1; min-width:0; font-weight:700; font-size:13px; }
+  .insp .loc { display:block; font-size:11px; color:var(--faint); font-weight:400; margin-top:1px; }
+  .insp .dates { font-size:11px; text-align:right; line-height:1.6; }
+  .insp .rec { font-size:11px; font-weight:800; background:var(--deep); color:#fff; padding:8px 11px; border-radius:10px; white-space:nowrap; }
+
+  /* modal */
+  .overlay { position:fixed; inset:0; background:rgba(24,20,15,.45); display:none; place-items:center; z-index:90; padding:16px; }
+  .overlay.show { display:grid; }
+  .modal { background:#fff; border-radius:20px; padding:18px; width:min(460px, 100%); max-height:88vh; overflow:auto; }
+  .modal h3 { font-family:var(--display); font-size:17px; margin-bottom:4px; }
+  .modal .sub { font-size:12.5px; color:var(--muted); margin-bottom:12px; }
+  .opt { display:block; width:100%; text-align:left; font-size:14px; font-weight:700; padding:13px; border-radius:13px; background:var(--paper); margin-top:7px; cursor:pointer; }
+  .opt.danger { background:var(--red-soft); color:var(--red); }
+  .opt.solid { background:var(--deep); color:#fff; text-align:center; }
+  .m-cancel { display:block; width:100%; text-align:center; font-size:13px; font-weight:700; color:var(--muted); padding:11px; margin-top:8px; }
+  .txt { display:block; width:100%; font-family:var(--body); font-size:14px; padding:12px 13px; border-radius:13px; border:1.5px solid var(--line); background:#fff; margin-top:7px; color:var(--ink); }
+  .txt:focus { outline:2px solid var(--deep); }
+  .axerr { font-size:11.5px; color:var(--red); font-weight:700; margin-top:6px; }
+  .kv { display:grid; grid-template-columns:auto 1fr; gap:5px 14px; font-size:12.5px; margin-top:10px; }
+  .kv dt { color:var(--muted); font-weight:600; white-space:nowrap; }
+  .kv dd { font-weight:600; }
+  .mview { background:var(--mint); border-radius:14px; padding:11px 13px; margin-top:12px; }
+  .mview .lbl { font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+  .mview .line { font-size:13px; font-weight:700; line-height:1.5; }
+  .mview.flash { outline:2px solid var(--deep); }
+  .mrow { display:flex; gap:12px; align-items:flex-start; margin-top:6px; }
+
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  .toast.warn { background:var(--red); }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+
   .flat-note { font-size:11.5px; color:var(--faint); line-height:1.5; padding:2px 10px; }
-  .navrow, .seg, .sect-label, .flat-note { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
+  .navrow, .seg, .chips, .sect-label, .flat-note { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
   .wrap > :nth-child(2) { animation-delay:.05s; }
   .wrap > :nth-child(3) { animation-delay:.1s; }
-  #secWork > .card { animation-delay:.15s; }
-  #secWork > .sect-label, #secWork > .stack { animation-delay:.2s; }
-  .flat-note { animation-delay:.25s; }
-  @media (max-width:480px) {
-    #assetList { grid-template-columns:1fr; }
-    #assetList .asset:nth-last-child(2) { border-bottom:1px solid var(--line); }
-  }
+  #secWork, #secAssets, #secInspect { display:flex; flex-direction:column; gap:13px; }
+  @media (max-width:480px) { .netgrid { grid-template-columns:1fr 1fr; } }
   @media (prefers-reduced-motion: reduce) {
-    .card, .wo, .stack, .navrow, .seg, .sect-label, .flat-note { animation:none !important; }
+    .card, .wob, .stack, .navrow, .seg, .chips, .sect-label, .flat-note { animation:none !important; }
   }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="instructor.html">Instructor</a><a href="trainer.html">Trainer</a><a href="index.html">Member app</a></nav>
 
-  <div class="stack">
-    <div class="card head">
-      <div class="avatar">SM</div>
-      <div><div class="t-name">Suhail M. — Maintenance</div><div class="t-sub" id="shiftLabel">Shift open · since 8:02 AM</div></div>
-      <div class="stats">
-        <div><b id="stCrit" class="bad">0</b>safety-critical</div>
-        <div><b id="stOut">0</b>out of service</div>
-        <div><b id="stMine">0</b>my jobs</div>
-        <div><b id="stParts">0</b>waiting parts</div>
-      </div>
+  <div class="card head">
+    <div class="avatar">SM</div>
+    <div><div class="t-name">Suhail M. — Maintenance</div><div class="t-sub">Equipment technician · covers all four branches</div></div>
+    <div class="stats">
+      <div><b id="stSafety" class="bad">0</b>safety open</div>
+      <div><b id="stOffline">0</b>offline</div>
+      <div><b id="stOpen">0</b>open WOs</div>
+      <div><b id="stParts">0</b>waiting parts</div>
     </div>
-    <div class="card qhold">
-      <div class="qbar">
-        <button class="dark" id="scanAsset">Scan asset</button>
-        <button id="newReport">Report issue</button>
-        <button id="inspection">Start inspection</button>
-      </div>
-    </div>
+  </div>
+
+  <div class="chips" id="branchBar" aria-label="Branch filter"></div>
+
+  <div class="card hidden" id="netCard">
+    <div class="eyebrow">Network view — equipment health per branch</div>
+    <div class="netgrid" id="netGrid"></div>
+    <div class="netnote">Simulated demo data — live figures come from the branch controllers in production.</div>
   </div>
 
   <div class="seg" id="mainSeg">
-    <button class="on" data-sec="work">Work orders</button>
-    <button data-sec="assets">Assets</button>
-    <button data-sec="parts">Parts</button>
+    <button class="on" data-act="sec" data-sec="work">Work orders</button>
+    <button data-act="sec" data-sec="assets">Asset register</button>
+    <button data-act="sec" data-sec="inspect">Inspections</button>
   </div>
 
   <div id="secWork">
-    <div class="card"><div class="eyebrow">Safety &amp; urgent</div><div id="colSafety"></div></div>
-    <div class="sect-label">Work queue</div>
+    <div class="card"><div class="eyebrow">Reported — new, untriaged</div><div id="colRep"></div></div>
+    <div class="sect-label">Pipeline</div>
     <div class="stack">
-      <div class="card"><div class="eyebrow">My assigned jobs</div><div id="colMine"></div></div>
-      <div class="card"><div class="eyebrow">Needs attention</div><div id="colAttn"></div></div>
-      <div class="card"><div class="eyebrow">Recently repaired</div><div id="colDone"></div></div>
+      <div class="card"><div class="eyebrow">In progress</div><div id="colProg"></div></div>
+      <div class="card"><div class="eyebrow">Waiting for parts</div><div id="colWait"></div></div>
+      <div class="card"><div class="eyebrow">Done — recent</div><div id="colDone"></div></div>
+    </div>
+    <div class="card hidden" id="aprCard">
+      <div class="eyebrow">Owner approvals — major repairs</div>
+      <div id="aprList"></div>
     </div>
   </div>
 
-  <div id="secAssets" class="hidden">
-    <div class="card"><div class="eyebrow">Asset registry — status syncs to member, trainer &amp; reception apps</div><div id="assetList"></div></div>
-  </div>
+  <div id="secAssets" class="hidden"></div>
 
-  <div id="secParts" class="hidden">
-    <div class="card"><div class="eyebrow">Spare parts — reserve on request, deduct on install, release on cancel</div><div id="partList"></div></div>
+  <div id="secInspect" class="hidden">
+    <div class="card">
+      <div class="eyebrow">Inspection schedule — soonest first</div>
+      <div id="inspList"></div>
+      <div class="netnote" style="margin-top:10px;">Recording an inspection is available on out-of-service assets: it verifies the repair, bumps the last-inspection date and returns the asset to service. Available assets are inspected on the floor — dates update when they cycle through service.</div>
+    </div>
   </div>
-
-  <div class="card hidden" id="assetCard"></div>
 
   <div class="flat-note">
     <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-    <span>Member reports arrive as work orders; isolating an asset hides it from member menus with an alternative;
-    verification is required before anything returns to service.</span></details>
+    <span>Every asset carries its full technical record in the shared engine — the same record reception, trainers and members read.
+    Isolating an asset requires a reason and instantly swaps the member view to a simple status with the alternative machine.
+    Safety work orders auto-isolate. Major repairs above the threshold go to the owner approvals queue.
+    Nothing returns to service without a named verifier.</span></details>
   </div>
 </div>
 
@@ -169,338 +226,512 @@
 <script src="bus.js?v=3"></script>
 <script src="data.js?v=4"></script>
 <script>
+/* =============================================================
+   MAINTENANCE & EQUIPMENT — Suhail M. (stf_mt_suhail)
+   All state lives in the shared DemoData engine (data.js).
+   Page-local extras: branch filter + per-WO parts checklist.
+   ============================================================= */
 const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
-const ME = 'Suhail M.';
+const ME_ID = 'stf_mt_suhail';
+const ME_NAME = 'Suhail M.';
+const MS = DemoData.MaintenanceService;
+const BS = DemoData.BranchService;
+const APS = DemoData.ApprovalService;
 
-/* ---------------- state ---------------- */
-const MKEY = 'gym_maint_state';
-let M = {
-  /* Assets are DERIVED from the shared demo-data engine — the registry lives in
-     one place, so an isolation here is the same record reception, trainers and
-     members see. Local-only fields (repair history) stay keyed by asset id. */
-  assets: (typeof DemoData !== 'undefined' ? DemoData.MaintenanceService.assets() : []).map((a) => ({
-    id: a.id, name: a.name, cat: a.category, loc: a.zone,
-    status: ({ available: 'Available', out_of_service: 'Out of service', waiting_parts: 'Waiting for parts', limited: 'Limited use', testing: 'Testing' })[a.status] || 'Available',
-    alt: a.altAssetId && typeof DemoData !== 'undefined' ? (DemoData.MaintenanceService.assetById(a.altAssetId) || {}).name || null : null,
-    history: a.lastInspection ? [{ at: a.lastInspection, line: 'Last inspection recorded' }] : [],
-  })),
-  wos: [
-    { id: 'WO-1041', asset: 'Rowing machine #1', priority: 'normal', status: 'Waiting for parts', assignee: ME, problem: 'Chain worn and skipping', reporter: 'Karim H. (trainer)', at: 'Jul 27', part: 'Drive chain', log: [{ at: 'Jul 27 · 9:10 AM', line: 'Reported by Karim H.' }, { at: 'Jul 27 · 9:40 AM', line: 'Assessed by Suhail M. — chain replacement needed, part reserved' }] },
-    { id: 'WO-1042', asset: 'Main gate scanner', priority: 'urgent', status: 'In progress', assignee: ME, problem: 'Intermittent slow reads', reporter: 'Lara (reception)', at: 'Today', log: [{ at: '8:15 AM', line: 'Reported by reception' }, { at: '8:30 AM', line: 'Accepted by Suhail M. — reader lens cleaning + firmware check' }] },
-  ],
-  parts: [
-    { n: 'Treadmill drive belt', no: 'TB-220', qty: 3, reserved: 0, min: 1, loc: 'Store B2' },
-    { n: 'Drive chain', no: 'RC-101', qty: 0, reserved: 1, min: 1, loc: 'On order · ETA Thu' },
-    { n: 'Cable (2.5 m)', no: 'CB-250', qty: 4, reserved: 0, min: 2, loc: 'Store B2' },
-    { n: 'Bench upholstery pad', no: 'UP-30', qty: 2, reserved: 0, min: 1, loc: 'Store B1' },
-    { n: 'Scanner power supply', no: 'PS-12', qty: 1, reserved: 0, min: 1, loc: 'IT cabinet' },
-  ],
-  log: [],
-};
-try { const s = JSON.parse(localStorage.getItem(MKEY)); if (s && s.assets) M = s; } catch (e) {}
-function save() { localStorage.setItem(MKEY, JSON.stringify(M)); }
-const assetOf = (name) => M.assets.find((a) => name && (a.name === name || name.startsWith(a.name)));
-const partOf = (n) => M.parts.find((p) => p.n === n);
-function audit(line) { M.log.unshift(now() + ' · ' + line); M.log = M.log.slice(0, 30); }
+/* legacy page state from the pre-v3 build — superseded by the engine */
+try { localStorage.removeItem('gym_maint_state'); } catch (e) {}
 
-/* status broadcast — every app sees the same asset state */
-function pushAssetStatus(a) {
-  GymBus.send('asset-status', { asset: a.name, status: a.status, alt: a.status === 'Available' ? null : a.alt }, 'maintenance');
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+function toast(m, warn) { const e = document.createElement('div'); e.className = 'toast' + (warn ? ' warn' : ''); e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+
+/* other tabs (instructor, member app…) persist engine mutations; pull them
+   into this tab's in-memory db before re-rendering */
+function hardRefresh() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('levelup_demo_db_v3'));
+    if (!raw) return;
+    const db = DemoData.load();
+    Object.keys(raw).forEach((k) => { db[k] = raw[k]; });
+  } catch (e) {}
 }
 
-/* ---------------- chooser ---------------- */
-function choose(title, sub, options, withNote) {
-  return new Promise((resolve) => {
-    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">${sub || ''}</div>
-      ${options.map((o, i) => `<button class="opt ${o.cls || ''}" data-oi="${i}">${o.label}</button>`).join('')}
-      ${withNote ? '<input class="opt" style="background:#fff; border:1.5px solid var(--line); font-weight:400;" id="optNote" placeholder="Note…" />' : ''}
-      <button class="m-cancel" id="optCancel">Cancel</button>`;
-    $('overlay').classList.add('show');
-    const close = (v) => { $('overlay').classList.remove('show'); resolve(v); };
-    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => close({ choice: options[Number(b.dataset.oi)].label, note: withNote ? ($('optNote')?.value || '') : '' }); });
-    $('optCancel').onclick = () => close(null);
-  });
+/* ---------- time helpers (engine clock — respects demo offset) ---------- */
+const NOW = () => DemoData.now();
+function fmtD(d) { return d ? new Date(d + (d.length === 10 ? 'T12:00:00' : '')).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) : '—'; }
+function daysUntil(dateStr) { return Math.floor((new Date(dateStr + 'T23:59:59').getTime() - NOW()) / 864e5); }
+function relDay(dateStr) {
+  const d = daysUntil(dateStr);
+  if (d === 0) return 'today';
+  if (d === 1) return 'tomorrow';
+  if (d > 1) return 'in ' + d + ' days';
+  return fmtD(dateStr);
 }
-$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) $('overlay').classList.remove('show'); });
-
-/* verification checklist — ALL items must be confirmed before return to service */
-function verifyChecklist(title) {
-  const items = ['Original problem resolved', 'Powers on & operates normally', 'Safety features tested', 'No loose components · area cleaned · tools removed'];
-  return new Promise((resolve) => {
-    $('modalBox').innerHTML = `<h3>${title}</h3><div class="sub">Every box is required — nothing returns to service unverified.</div>
-      ${items.map((t, i) => `<label class="chk-line"><input type="checkbox" data-ck="${i}" /> ${t}</label>`).join('')}
-      <button class="opt solid" id="ckOK" disabled style="opacity:.5;">Verify &amp; return to service</button>
-      <button class="m-cancel" id="ckCancel">Cancel</button>`;
-    $('overlay').classList.add('show');
-    const update = () => {
-      const all = [...document.querySelectorAll('[data-ck]')].every((c) => c.checked);
-      $('ckOK').disabled = !all; $('ckOK').style.opacity = all ? '1' : '.5';
-    };
-    document.querySelectorAll('[data-ck]').forEach((c) => { c.onchange = update; });
-    $('ckOK').onclick = () => { $('overlay').classList.remove('show'); resolve(true); };
-    $('ckCancel').onclick = () => { $('overlay').classList.remove('show'); resolve(false); };
-  });
+function ageOf(isoAt) {
+  const ms = Math.max(0, NOW() - new Date(isoAt).getTime());
+  const m = Math.floor(ms / 60000);
+  if (m < 60) return m + 'm';
+  const h = Math.floor(m / 60);
+  if (h < 24) return h + 'h';
+  return Math.floor(h / 24) + 'd';
+}
+function fmtWhen(isoAt) {
+  const t = new Date(isoAt).getTime();
+  return DemoData.isToday(t) ? DemoData.fmtTime(t) : new Date(t).toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + DemoData.fmtTime(t);
 }
 
-/* ---------------- nav ---------------- */
-document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
-  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
-  $('secWork').classList.toggle('hidden', b.dataset.sec !== 'work');
-  $('secAssets').classList.toggle('hidden', b.dataset.sec !== 'assets');
-  $('secParts').classList.toggle('hidden', b.dataset.sec !== 'parts');
-  if (b.dataset.sec === 'assets') renderAssets();
-  if (b.dataset.sec === 'parts') renderParts();
-}; });
+/* ---------- lookups ---------- */
+function personName(idOrName) {
+  if (!idOrName) return 'unknown';
+  const db = DemoData.load();
+  const s = db.staff.find((x) => x.id === idOrName); if (s) return s.name + ' (' + s.role + ')';
+  const m = db.members.find((x) => x.id === idOrName); if (m) return m.name + ' (member)';
+  return String(idOrName);
+}
+const branchName = (id) => (BS.byId(id) || { name: '—' }).name;
+const woLabel = (wo) => wo.id.replace('wo_', 'WO-').slice(0, 7).toUpperCase();
 
-/* ---------------- work orders ---------------- */
-const ST_CLS = { 'New': 'st-new', 'In progress': 'st-prog', 'Waiting for parts': 'st-wait', 'Ready for testing': 'st-test', 'Verified': 'st-ok', 'Closed': 'st-ok', 'Cancelled': 'st-grey', 'Duplicate': 'st-grey', 'Cannot reproduce': 'st-grey' };
+/* ---------- branch filter (persisted) ---------- */
+const BKEY = 'lu_maint_branch';
+const BRANCH_IDS = ['all'].concat(BS.list().map((l) => l.id));
+let BR = localStorage.getItem(BKEY) || 'all';
+if (!BRANCH_IDS.includes(BR)) BR = 'all';
+const scope = () => (BR === 'all' ? null : BR);
 
+/* ---------- page-local parts checklist per work order ---------- */
+const PKEY = 'lu_maint_parts';
+const readParts = () => { try { return JSON.parse(localStorage.getItem(PKEY)) || {}; } catch (e) { return {}; } };
+function addPart(woId, name) {
+  const p = readParts(); (p[woId] = p[woId] || []).push({ name, at: DemoData.fmtTime(NOW()) });
+  localStorage.setItem(PKEY, JSON.stringify(p));
+}
+
+/* ---------- fake QR stub (deterministic from asset id) ---------- */
+function qrSVG(id, size) {
+  const n = 15;
+  let h = 2166136261;
+  for (let i = 0; i < id.length; i++) { h ^= id.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  let s = h || 1;
+  const rnd = () => { s ^= s << 13; s >>>= 0; s ^= s >>> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; };
+  const g = Array.from({ length: n }, () => Array(n).fill(false));
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) g[y][x] = rnd() < 0.44;
+  const put = (ox, oy) => { for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) g[oy + y][ox + x] = (x === 0 || x === 6 || y === 0 || y === 6) || (x >= 2 && x <= 4 && y >= 2 && y <= 4); };
+  put(0, 0); put(n - 7, 0); put(0, n - 7);
+  let r = '';
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) if (g[y][x]) r += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+  return '<svg viewBox="0 0 ' + n + ' ' + n + '" width="' + size + '" height="' + size + '" shape-rendering="crispEdges" fill="#18140f" aria-hidden="true">' + r + '</svg>';
+}
+
+/* ---------- status + warranty chips ---------- */
+const ST_LABEL = { available: 'AVAILABLE', limited: 'LIMITED USE', waiting_parts: 'WAITING PARTS', out_of_service: 'OUT OF SERVICE' };
+const ST_CLS = { available: 'st-ok', limited: 'st-wait', waiting_parts: 'st-wait', out_of_service: 'st-bad' };
+function statusChip(a) { return '<span class="st ' + (ST_CLS[a.status] || 'st-grey') + '">' + (ST_LABEL[a.status] || a.status.toUpperCase()) + '</span>'; }
+function warrantyChip(a) {
+  const inW = daysUntil(a.warrantyUntil) >= 0;
+  return inW
+    ? '<span class="wchip w-in">In warranty · until ' + fmtD(a.warrantyUntil) + '</span>'
+    : '<span class="wchip w-out">Out of warranty · ended ' + fmtD(a.warrantyUntil) + '</span>';
+}
+function inspLine(a) {
+  const d = daysUntil(a.nextInspection);
+  const next = d < 0
+    ? '<span class="due-bad">next ' + fmtD(a.nextInspection) + ' — OVERDUE ' + Math.abs(d) + 'd</span>'
+    : '<span class="due-ok">next ' + fmtD(a.nextInspection) + ' · in ' + d + 'd</span>';
+  return '<span class="due-ok">insp: last ' + fmtD(a.lastInspection) + ' · </span>' + next;
+}
+
+/* member-facing preview — exactly what the member app renders */
+function memberViewLine(assetId) {
+  const v = MS.memberView(assetId);
+  if (!v) return '';
+  const bits = [esc(v.name) + ' — ' + esc(v.branch), v.available ? 'Available' : 'Out of service'];
+  if (!v.available && v.alternative) bits.push('Alternative: ' + esc(v.alternative));
+  if (!v.available && v.expectedReview) bits.push('Expected review: ' + relDay(v.expectedReview));
+  return bits.join(' · ');
+}
+
+/* ============================ RENDER ============================ */
+function renderBranchBar() {
+  $('branchBar').innerHTML = BRANCH_IDS.map((id) => {
+    const label = id === 'all' ? 'All branches' : branchName(id);
+    return '<button data-act="branch" data-branch="' + id + '" class="' + (BR === id ? 'on' : '') + '">' + esc(label) + '</button>';
+  }).join('');
+}
+
+function renderHeader() {
+  const wos = DemoData.load().workOrders.filter((w) => !scope() || w.locationId === scope());
+  $('stSafety').textContent = wos.filter((w) => w.severity === 'safety' && w.status !== 'done').length;
+  $('stOffline').textContent = MS.offline(scope()).length;
+  $('stOpen').textContent = wos.filter((w) => w.status !== 'done').length;
+  $('stParts').textContent = wos.filter((w) => w.status === 'waiting_parts').length;
+}
+
+function renderNet() {
+  $('netCard').classList.toggle('hidden', BR !== 'all');
+  if (BR !== 'all') return;
+  const wos = DemoData.load().workOrders;
+  $('netGrid').innerHTML = BS.list().map((l) => {
+    const off = MS.offline(l.id).length;
+    const open = wos.filter((w) => w.locationId === l.id && w.status !== 'done').length;
+    const safety = wos.filter((w) => w.locationId === l.id && w.severity === 'safety' && w.status !== 'done')
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt))[0];
+    return '<div class="netcell"><b class="n">' + esc(l.name) + (l.unconfirmed ? ' *' : '') + '</b>'
+      + '<span class="' + (off ? 'bad' : '') + '">' + off + ' offline</span> · ' + open + ' open WO' + (open === 1 ? '' : 's') + '<br>'
+      + (safety ? '<span class="bad">safety WO open ' + ageOf(safety.createdAt) + '</span>' : 'no safety WOs')
+      + '</div>';
+  }).join('');
+}
+
+/* ---------- work orders board ---------- */
 function woCard(w) {
-  let act = '', more = true;
-  if (w.status === 'New') act = `<button class="big-act" data-w="${w.id}" data-a="accept">Assess &amp; accept${w.priority === 'safety' ? ' — isolate first' : ''}</button>`;
-  if (w.status === 'In progress') act = `<button class="big-act" data-w="${w.id}" data-a="test">Repair done → ready for testing</button>`;
-  if (w.status === 'Waiting for parts') act = `<button class="big-act" data-w="${w.id}" data-a="install">Part arrived — install (deducts stock)</button>`;
-  if (w.status === 'Ready for testing') act = `<button class="big-act" data-w="${w.id}" data-a="verify">Run verification checklist</button>`;
-  if (['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status)) { act = ''; more = false; }
-  return `<div class="wo ${w.priority === 'safety' ? 'safety' : ''}">
-    <div class="wo-top"><span class="wo-id">${w.id} · ${w.asset}</span><span class="st ${ST_CLS[w.status] || 'st-grey'}">${w.status.toUpperCase()}</span></div>
-    <div class="wo-meta">${w.problem} · reported by ${w.reporter} · ${w.at}${w.assignee ? ' · assigned: ' + w.assignee : ' · unassigned'}${w.part ? ' · part: ' + w.part : ''}</div>
-    ${w.priority === 'safety' ? '<div class="wo-meta" style="color:var(--red); font-weight:800;">⚠ SAFETY-CRITICAL — asset auto-isolated until verified</div>' : ''}
-    ${act}
-    ${more ? `<button class="more-btn" data-w="${w.id}" data-a="more">More…</button>` : `<div class="wo-meta">${(w.log[0] || {}).line || ''}</div>`}
-  </div>`;
+  const a = MS.assetById(w.assetId);
+  const safety = w.severity === 'safety';
+  const parts = readParts()[w.id] || [];
+  const appr = DemoData.load().approvals.find((x) => x.type === 'major_repair' && x.meta && x.meta.workOrderId === w.id);
+  let acts = '';
+  if (w.status === 'reported') acts = '<button class="act-sm" data-act="adv" data-wo="' + w.id + '" data-to="in_progress">Start work</button>';
+  if (w.status === 'in_progress') acts = '<button class="act-sm lite" data-act="adv" data-wo="' + w.id + '" data-to="waiting_parts">Needs parts</button>'
+    + '<button class="act-sm" data-act="adv" data-wo="' + w.id + '" data-to="done">Mark done</button>';
+  if (w.status === 'waiting_parts') acts = '<button class="act-sm" data-act="adv" data-wo="' + w.id + '" data-to="in_progress">Parts arrived — resume</button>'
+    + '<button class="act-sm lite" data-act="adv" data-wo="' + w.id + '" data-to="done">Mark done</button>';
+  const aprLine = appr
+    ? '<div class="wo-meta">Repair approval $' + appr.amount + ' — <b>' + (appr.status === 'pending' ? 'sent to owner approvals · pending' : appr.status) + '</b></div>'
+    : (w.status !== 'done' ? '<button class="act-sm lite" data-act="req-appr" data-wo="' + w.id + '">Request repair approval</button>' : '');
+  return '<div class="wob' + (safety ? ' safety' : '') + '">'
+    + '<div class="wo-top"><span class="wo-id">' + woLabel(w) + ' · ' + esc(a ? a.name : w.assetId) + '</span>'
+    + '<span class="st ' + (safety ? 'st-bad' : (w.status === 'reported' ? 'st-new' : w.status === 'done' ? 'st-ok' : 'st-dark')) + '">' + (safety ? 'SAFETY' : w.status.replace('_', ' ').toUpperCase()) + '</span></div>'
+    + '<div class="wo-meta"><span class="bchip">' + esc(branchName(w.locationId)) + '</span> · ' + esc(w.problem)
+    + ' · by ' + esc(personName(w.reporterId)) + ' · ' + ageOf(w.createdAt) + ' ago</div>'
+    + (safety ? '<div class="wo-meta alert">SAFETY — asset auto-isolated until verified back in service</div>' : '')
+    + '<div>' + parts.map((p) => '<span class="partchip">' + esc(p.name) + ' · ' + esc(p.at) + '</span>').join('')
+    + (w.status !== 'done' ? '<button class="addpart" data-act="add-part" data-wo="' + w.id + '">+ add part</button>' : '') + '</div>'
+    + '<details class="hist"><summary>History (' + w.history.length + ')</summary><div class="tl">'
+    + w.history.map((h) => '<div><b>' + fmtWhen(h.at) + '</b> · ' + esc(h.status.replace('_', ' ')) + (h.by ? ' · ' + esc(personName(h.by)) : '') + (h.note ? ' — ' + esc(h.note) : '') + '</div>').join('')
+    + '</div></details>'
+    + (acts ? '<div class="actrow">' + acts + '</div>' : '')
+    + aprLine
+    + '</div>';
 }
 
-function render() {
-  const safety = M.wos.filter((w) => w.priority === 'safety' && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status));
-  const urgent = M.wos.filter((w) => w.priority === 'urgent' && ['New', 'In progress', 'Ready for testing'].includes(w.status));
-  const mine = M.wos.filter((w) => w.assignee === ME && ['In progress', 'Ready for testing'].includes(w.status) && w.priority !== 'safety');
-  const attn = M.wos.filter((w) => w.status === 'New' && w.priority !== 'safety').concat(M.wos.filter((w) => w.status === 'Waiting for parts'));
-  const done = M.wos.filter((w) => ['Verified', 'Closed'].includes(w.status)).slice(0, 4);
-  $('colSafety').innerHTML = safety.concat(urgent.filter((w) => !safety.includes(w))).map(woCard).join('')
-    || '<div style="color:var(--faint); font-size:13px;">Nothing unsafe right now — safety reports appear here instantly and isolate the asset.</div>';
-  $('colMine').innerHTML = mine.map(woCard).join('')
-    || '<div style="color:var(--faint); font-size:13px;">No jobs assigned to you — unassigned requests are in Needs attention below.</div>';
-  $('colAttn').innerHTML = attn.filter((w) => !safety.includes(w)).map(woCard).join('')
-    || '<div style="color:var(--faint); font-size:13px;">All caught up — new reports and parts arrivals land here.</div>';
-  $('colDone').innerHTML = done.map(woCard).join('')
-    || '<div style="color:var(--faint); font-size:13px;">Nothing repaired yet today.</div>';
-  $('stCrit').textContent = safety.length;
-  $('stOut').textContent = M.assets.filter((a) => a.status !== 'Available' && a.status !== 'Limited use').length;
-  $('stMine').textContent = M.wos.filter((w) => w.assignee === ME && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status)).length;
-  $('stParts').textContent = M.wos.filter((w) => w.status === 'Waiting for parts').length;
-  document.querySelectorAll('[data-w]').forEach((b) => { b.onclick = () => act(b.dataset.w, b.dataset.a); });
-}
-
-function setAsset(name, status, auditLine) {
-  const a = assetOf(name); if (!a) return;
-  if (a.status === status) return;
-  a.status = status;
-  a.history.unshift({ at: now(), line: auditLine });
-  pushAssetStatus(a);
-  audit(auditLine + ' — ' + name);
-}
-
-async function act(id, action) {
-  const w = M.wos.find((x) => x.id === id); if (!w) return;
-
-  if (action === 'accept') {
-    if (w.status !== 'New') return; // double-click guard
-    const diag = prompt('Quick diagnosis (goes to the reporter + the log):', '');
-    if (diag == null) return;
-    w.status = 'In progress'; w.assignee = ME; w.startedAt = now();
-    w.log.unshift({ at: now(), line: 'Accepted by ' + ME + (diag ? ' — ' + diag : '') });
-    if (w.priority === 'safety') setAsset(w.asset, 'Out of service', 'Isolated by ' + ME + ' (safety)');
-    else setAsset(w.asset, 'Waiting for repair', 'Marked waiting for repair by ' + ME);
-    if (w.busId) GymBus.update(w.busId, 'Under review', ME, diag || 'Being assessed');
-    audit(w.id + ' accepted by ' + ME);
-    save(); render(); toast(w.id + ' accepted — reporter sees "under review"');
-  }
-  if (action === 'test') {
-    if (w.status !== 'In progress') return;
-    w.status = 'Ready for testing';
-    w.log.unshift({ at: now(), line: 'Repair complete — awaiting verification' });
-    setAsset(w.asset, 'Testing', 'Repair done, testing before return to service');
-    audit(w.id + ' ready for testing');
-    save(); render(); toast('Ready for testing — verification checklist required before service');
-  }
-  if (action === 'install') {
-    if (w.status !== 'Waiting for parts') return;
-    const p = partOf(w.part);
-    if (p) {
-      if (p.qty < 1 && p.reserved < 1) { toast(w.part + ' still not in stock'); return; }
-      if (p.reserved > 0) p.reserved -= 1; else p.qty -= 1;
-      audit(w.part + ' installed on ' + w.asset + ' — stock deducted (' + ME + ')');
-    }
-    w.status = 'In progress';
-    w.log.unshift({ at: now(), line: (w.part || 'Part') + ' installed by ' + ME + ' — stock deducted' });
-    save(); render(); renderParts(); toast(w.part + ' installed — finish the repair, then test');
-  }
-  if (action === 'verify') {
-    if (w.status !== 'Ready for testing') return;
-    const ok = await verifyChecklist('Verify ' + w.asset + ' — ' + w.id);
-    if (!ok) return;
-    w.status = 'Verified'; w.verifiedBy = ME; w.closedAt = now();
-    w.log.unshift({ at: now(), line: 'Verified by ' + ME + ' — returned to service' });
-    setAsset(w.asset, 'Available', 'Verified & returned to service by ' + ME);
-    if (w.busId) GymBus.update(w.busId, 'Repaired', ME, 'Repaired, tested and verified — back in service');
-    audit(w.id + ' verified by ' + ME + ' — ' + w.asset + ' back in service');
-    save(); render(); toast(w.asset + ' back in service ✓ — reporter notified');
-  }
-  if (action === 'more') {
-    const r = await choose(w.id + ' — more actions', w.asset + ' · ' + w.problem, [
-      { label: 'Request spare part (reserves stock)' },
-      { label: 'Reassign to vendor' },
-      { label: 'Cannot reproduce', cls: 'danger' },
-      { label: 'Duplicate report', cls: 'danger' },
-      { label: 'Cancel with reason', cls: 'danger' },
-    ], true);
-    if (!r) return;
-    if (r.choice.startsWith('Request spare part')) {
-      const avail = M.parts.filter((p) => p.qty > 0 || p.reserved > 0);
-      const pr = await choose('Which part?', 'Reserved now, deducted only when installed.',
-        M.parts.map((p) => ({ label: p.n + ' — ' + p.qty + ' in stock' + (p.qty === 0 ? ' (on order)' : '') })));
-      if (!pr) return;
-      const pn = pr.choice.split(' — ')[0];
-      const p = partOf(pn);
-      if (p && p.qty > 0) { p.qty -= 1; p.reserved += 1; }
-      w.part = pn; w.status = 'Waiting for parts';
-      w.log.unshift({ at: now(), line: pn + ' requested — reserved' });
-      audit(pn + ' reserved for ' + w.id);
-      save(); render(); renderParts(); toast(pn + ' reserved — job waits for installation');
-    }
-    if (r.choice === 'Reassign to vendor') {
-      w.assignee = 'External vendor'; w.status = 'Waiting for parts';
-      w.log.unshift({ at: now(), line: 'Escalated to vendor — ' + (r.note || 'appointment requested') });
-      save(); render(); toast('Vendor requested — arrival tracked here');
-    }
-    if (['Cannot reproduce', 'Duplicate report', 'Cancel with reason'].includes(r.choice)) {
-      if (r.choice === 'Cancel with reason' && !r.note) { toast('A reason is required to cancel'); return; }
-      const p = partOf(w.part);
-      if (p && p.reserved > 0) { p.reserved -= 1; p.qty += 1; audit(w.part + ' reservation released (' + w.id + ' ' + r.choice.toLowerCase() + ')'); }
-      w.status = r.choice === 'Cancel with reason' ? 'Cancelled' : r.choice;
-      w.log.unshift({ at: now(), line: r.choice + (r.note ? ' — ' + r.note : '') + ' (' + ME + ')' });
-      setAsset(w.asset, 'Available', r.choice + ' — asset back to normal (' + ME + ')');
-      if (w.busId) GymBus.update(w.busId, 'Repaired', ME, r.choice + (r.note ? ' — ' + r.note : ''));
-      save(); render(); renderParts(); toast(w.id + ': ' + r.choice.toLowerCase());
-    }
-  }
-}
-
-/* ---------------- assets & parts ---------------- */
-const A_CLS = (s) => s === 'Available' ? 'st-ok' : s === 'Limited use' ? 'st-wait' : s === 'Testing' ? 'st-test' : 'st-bad';
-function renderAssets() {
-  $('assetList').innerHTML = M.assets.map((a) => `
-    <div class="asset">
-      <div class="n">${a.name}<span class="loc">${a.id} · ${a.cat} · ${a.loc}</span></div>
-      <span class="st ${A_CLS(a.status)}">${a.status.toUpperCase()}</span>
-      <button class="more-btn" style="width:auto; margin:0;" data-open-asset="${a.name}">Open ›</button>
-    </div>`).join('');
-  document.querySelectorAll('[data-open-asset]').forEach((b) => { b.onclick = () => openAsset(b.dataset.openAsset); });
-}
-function openAsset(name) {
-  const a = assetOf(name); if (!a) { toast('Asset not found — check the QR or register it first'); return; }
-  const wo = M.wos.find((w) => w.asset === a.name && !['Verified', 'Closed', 'Cancelled', 'Duplicate', 'Cannot reproduce'].includes(w.status));
-  $('assetCard').classList.remove('hidden');
-  $('assetCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">${a.name} · ${a.id}</div>
-      <button class="more-btn" style="width:auto; margin:0;" id="acClose">✕</button></div>
-    <div style="font-size:13px; margin-top:6px;">${a.cat} · ${a.loc} · <span class="st ${A_CLS(a.status)}">${a.status.toUpperCase()}</span></div>
-    ${a.alt && a.status !== 'Available' ? `<div style="font-size:12.5px; color:var(--muted); margin-top:4px;">Members are shown the alternative: <b>${a.alt}</b></div>` : ''}
-    ${wo ? `<div style="font-size:12.5px; margin-top:6px;">Active: <b>${wo.id}</b> · ${wo.status} · ${wo.assignee || 'unassigned'}</div>` : ''}
-    <div class="eyebrow" style="margin-top:10px;">History ${a.history.length ? '' : '— none yet'}</div>
-    ${a.history.slice(0, 5).map((h) => `<div class="hist"><b>${h.at}</b> · ${h.line}</div>`).join('') || '<div style="font-size:12.5px; color:var(--faint);">No maintenance recorded — a first inspection creates the baseline.</div>'}
-    <div style="display:flex; gap:8px; margin-top:11px; flex-wrap:wrap;">
-      ${!wo ? `<button class="big-act" style="flex:1; margin:0;" id="acReport">Report issue on this asset</button>` : ''}
-      ${a.status === 'Available' ? `<button class="more-btn" style="width:auto;" id="acIsolate">Isolate (safety)</button>` : ''}
-    </div>`;
-  $('acClose').onclick = () => $('assetCard').classList.add('hidden');
-  const rep = $('acReport'); if (rep) rep.onclick = () => createReport(a.name);
-  const iso = $('acIsolate'); if (iso) iso.onclick = () => {
-    setAsset(a.name, 'Out of service', 'Manually isolated by ' + ME + ' (safety precaution)');
-    save(); render(); renderAssets(); openAsset(a.name); toast(a.name + ' isolated — members see the alternative');
+function renderBoard() {
+  const wos = DemoData.load().workOrders.filter((w) => !scope() || w.locationId === scope());
+  const col = (st, elId, emptyMsg, cap) => {
+    const list = wos.filter((w) => w.status === st);
+    $(elId).innerHTML = (cap ? list.slice(0, cap) : list).map(woCard).join('') || '<div class="empty">' + emptyMsg + '</div>';
   };
-  $('assetCard').scrollIntoView({ behavior: 'smooth' });
-}
-function renderParts() {
-  $('partList').innerHTML = M.parts.map((p) => `
-    <div class="partrow">
-      <div class="n">${p.n}<div class="meta">${p.no} · ${p.loc}</div></div>
-      <div class="meta" style="text-align:right;">${p.qty} in stock${p.reserved ? ' · ' + p.reserved + ' reserved' : ''}${p.qty <= p.min ? ' · <b style="color:var(--amber);">LOW</b>' : ''}</div>
-    </div>`).join('');
+  col('reported', 'colRep', 'No new reports — member, trainer and instructor reports land here in real time.');
+  col('in_progress', 'colProg', 'Nothing in progress.');
+  col('waiting_parts', 'colWait', 'No jobs waiting on parts.');
+  col('done', 'colDone', 'Nothing completed yet.', 6);
+
+  const aprs = APS.list().filter((x) => x.type === 'major_repair' && (!scope() || x.branchId === scope()));
+  $('aprCard').classList.toggle('hidden', !aprs.length);
+  $('aprList').innerHTML = aprs.map((x) =>
+    '<div class="apr"><div><div class="n">' + esc(x.subject) + '</div>'
+    + '<div class="meta"><span class="bchip">' + esc(branchName(x.branchId)) + '</span> · ' + esc(x.reason) + ' · requested ' + ageOf(x.createdAt) + ' ago</div></div>'
+    + '<div style="text-align:right;"><div class="amt">$' + x.amount + '</div><span class="st ' + (x.status === 'pending' ? 'st-wait' : x.status === 'approved' ? 'st-ok' : 'st-bad') + '">' + x.status.toUpperCase() + '</span></div></div>'
+  ).join('');
 }
 
-/* ---------------- reporting & inspection ---------------- */
-async function createReport(assetName) {
-  const a = assetName ? assetOf(assetName) : null;
-  const pick = a ? { choice: a.name } : await choose('Which asset?', 'Scanning the QR opens this directly.', M.assets.map((x) => ({ label: x.name })));
-  if (!pick) return;
-  const issue = await choose('Problem type', 'Safety concerns isolate the asset immediately.', [
-    { label: 'Safety concern', cls: 'danger' }, { label: 'Not powering on' }, { label: 'Unusual noise' },
-    { label: 'Loose component' }, { label: 'Water leak' }, { label: 'Cleaning required' }, { label: 'Other' },
-  ], true);
-  if (!issue) return;
-  const safety = issue.choice === 'Safety concern';
-  const id = 'WO-' + (1043 + M.wos.length);
-  M.wos.unshift({ id, asset: pick.choice, priority: safety ? 'safety' : 'normal', status: 'New', assignee: null,
-    problem: issue.choice + (issue.note ? ' — ' + issue.note : ''), reporter: ME + ' (internal)', at: now(),
-    log: [{ at: now(), line: 'Reported internally by ' + ME }] });
-  if (safety) setAsset(pick.choice, 'Inspection required', 'Auto-isolated — safety concern reported by ' + ME);
-  audit(id + ' created — ' + pick.choice + ' (' + issue.choice + ')');
-  save(); render(); renderAssets();
-  toast(id + ' created' + (safety ? ' — asset isolated until reviewed' : ''));
+/* ---------- asset register (grouped by zone) ---------- */
+function zoneOrderFor(branchId) {
+  const ord = {};
+  DemoData.load().zones.filter((z) => z.locationId === branchId).forEach((z, i) => { ord[z.name] = i; });
+  return ord;
 }
-$('newReport').onclick = () => createReport(null);
-$('scanAsset').onclick = async () => {
-  const pick = await choose('Scan asset QR', 'Demo: pick the asset the QR would resolve to.', M.assets.map((x) => ({ label: x.name + ' · ' + x.id })));
-  if (!pick) return;
-  openAsset(pick.choice.split(' · ')[0]);
-};
-$('inspection').onclick = async () => {
-  const area = await choose('Start inspection', 'Failed items create work orders automatically.', [
-    { label: 'Gym floor' }, { label: 'Locker rooms' }, { label: 'Recovery suite' }, { label: 'Café' }, { label: 'Pool area (water quality + safety)' },
-  ]);
-  if (!area) return;
-  const fail = await choose(area.choice + ' — result', 'Pass closes the inspection; a failed item names the asset.', [
-    { label: 'All items pass', cls: 'solid' }, { label: 'One item needs attention…' },
-  ]);
-  if (!fail) return;
-  if (fail.choice === 'All items pass') { audit('Inspection passed — ' + area.choice + ' (' + ME + ')'); save(); toast(area.choice + ' inspection passed — logged'); return; }
-  createReport(null);
-};
+function assetCard(a) {
+  const alt = a.altAssetId ? MS.assetById(a.altAssetId) : null;
+  const last = (a.history || [])[0];
+  return '<div class="acard" data-act="open-asset" data-id="' + a.id + '">'
+    + '<div class="qrbox">' + qrSVG(a.id, 46) + '<button class="plabel" data-act="print" data-id="' + a.id + '">Print label</button></div>'
+    + '<div class="amain">'
+    + '<div class="aname">' + esc(a.name) + ' ' + statusChip(a) + '</div>'
+    + '<div class="ameta">' + esc(a.brand) + ' · ' + esc(a.model) + ' · ' + esc(a.floor) + ' · <span style="color:var(--faint);">' + a.id + '</span></div>'
+    + '<div class="arow">' + warrantyChip(a) + '<span>' + inspLine(a) + '</span></div>'
+    + (alt ? '<button class="altln" data-act="open-asset" data-id="' + alt.id + '">Alternative: ' + esc(alt.name) + ' — ' + esc(alt.floor) + ' ›</button>' : '')
+    + (last ? '<div class="ahist"><b>' + fmtD(last.at) + '</b> · ' + esc(last.what) + ((a.history || []).length > 1 ? ' · +' + (a.history.length - 1) + ' more' : '') + '</div>' : '<div class="ahist">No repair history yet.</div>')
+    + '</div></div>';
+}
+function zoneGroupsHTML(branchId) {
+  const assets = MS.assets(branchId);
+  const ord = zoneOrderFor(branchId);
+  const map = new Map();
+  assets.forEach((a) => { if (!map.has(a.zone)) map.set(a.zone, []); map.get(a.zone).push(a); });
+  const groups = [...map.entries()].sort((x, y) => ((ord[x[0]] ?? 99) - (ord[y[0]] ?? 99)));
+  return groups.map(([zone, list]) =>
+    '<div class="card"><div class="eyebrow">' + esc(zone) + ' — ' + list.length + ' asset' + (list.length === 1 ? '' : 's') + '</div>'
+    + list.map(assetCard).join('') + '</div>'
+  ).join('') || '<div class="card"><div class="empty">No assets registered at this branch.</div></div>';
+}
+function renderAssets() {
+  const el = $('secAssets');
+  if (BR === 'all') {
+    el.innerHTML = BS.list().map((l) =>
+      '<div class="sect-label">' + esc(l.name) + ' — ' + MS.assets(l.id).length + ' assets</div>' + zoneGroupsHTML(l.id)
+    ).join('');
+  } else {
+    el.innerHTML = zoneGroupsHTML(BR);
+  }
+}
 
-/* ---------------- bus: reports from members & departments become work orders ---------------- */
-function ingestReport(ev) {
+/* ---------- inspections ---------- */
+function renderInspections() {
+  const assets = MS.assets(scope()).slice().sort((a, b) => a.nextInspection.localeCompare(b.nextInspection));
+  $('inspList').innerHTML = assets.map((a) => {
+    const d = daysUntil(a.nextInspection);
+    return '<div class="insp">'
+      + '<div class="n">' + esc(a.name) + ' ' + statusChip(a)
+      + '<span class="loc">' + (BR === 'all' ? esc(branchName(a.locationId)) + ' · ' : '') + esc(a.zone) + ' · ' + esc(a.floor) + '</span></div>'
+      + '<div class="dates">last ' + fmtD(a.lastInspection) + '<br>'
+      + (d < 0 ? '<span class="due-bad">OVERDUE ' + Math.abs(d) + 'd — was ' + fmtD(a.nextInspection) + '</span>' : '<span class="due-ok">next ' + fmtD(a.nextInspection) + ' · in ' + d + 'd</span>') + '</div>'
+      + (a.status === 'out_of_service' ? '<button class="rec" data-act="record-insp" data-id="' + a.id + '">Record inspection</button>' : '')
+      + '</div>';
+  }).join('') || '<div class="empty">No assets in this scope.</div>';
+}
+
+function renderAll() {
+  hardRefresh(); /* cross-tab localStorage writes can land slightly late — always re-sync before painting */
+  renderBranchBar(); renderHeader(); renderNet(); renderBoard(); renderAssets(); renderInspections();
+}
+
+/* ============================ MODALS ============================ */
+function openOverlay(html) { $('modalBox').innerHTML = html; $('overlay').classList.add('show'); }
+function closeOverlay() { $('overlay').classList.remove('show'); }
+$('overlay').addEventListener('click', (e) => { if (e.target === $('overlay')) closeOverlay(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeOverlay(); });
+
+function askText(title, sub, opts) {
+  const o = opts || {};
+  return new Promise((resolve) => {
+    openOverlay('<h3>' + esc(title) + '</h3><div class="sub">' + (sub || '') + '</div>'
+      + '<input id="axIn" class="txt" type="' + (o.number ? 'number' : 'text') + '" placeholder="' + esc(o.placeholder || '') + '" value="' + esc(o.value || '') + '" />'
+      + '<div class="axerr hidden" id="axErr">' + esc(o.errMsg || 'At least 3 characters are required.') + '</div>'
+      + '<button class="opt solid" id="axOK">' + esc(o.ok || 'Save') + '</button>'
+      + '<button class="m-cancel" id="axCancel">Cancel</button>');
+    const inp = $('axIn'); inp.focus();
+    const submit = () => {
+      const v = inp.value.trim();
+      if (o.required && v.length < 3) { $('axErr').classList.remove('hidden'); return; }
+      if (o.number && (!v || isNaN(Number(v)) || Number(v) <= 0)) { $('axErr').classList.remove('hidden'); return; }
+      closeOverlay(); resolve(v);
+    };
+    $('axOK').onclick = submit;
+    inp.onkeydown = (e) => { if (e.key === 'Enter') submit(); };
+    $('axCancel').onclick = () => { closeOverlay(); resolve(null); };
+  });
+}
+function askChoice(title, sub, options) {
+  return new Promise((resolve) => {
+    openOverlay('<h3>' + esc(title) + '</h3><div class="sub">' + (sub || '') + '</div>'
+      + options.map((o, i) => '<button class="opt ' + (o.cls || '') + '" data-oi="' + i + '">' + o.label + '</button>').join('')
+      + '<button class="m-cancel" id="axCancel">Cancel</button>');
+    document.querySelectorAll('[data-oi]').forEach((b) => { b.onclick = () => { closeOverlay(); resolve(options[Number(b.dataset.oi)]); }; });
+    $('axCancel').onclick = () => { closeOverlay(); resolve(null); };
+  });
+}
+
+/* ---------- asset detail modal ---------- */
+function openAsset(assetId, flashMember) {
+  const a = MS.assetById(assetId);
+  if (!a) { toast('Asset not found'); return; }
+  const alt = a.altAssetId ? MS.assetById(a.altAssetId) : null;
+  const openWOs = DemoData.load().workOrders.filter((w) => w.assetId === a.id && w.status !== 'done');
+  const dNext = daysUntil(a.nextInspection);
+  openOverlay(
+    '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">'
+    + '<h3>' + esc(a.name) + ' ' + statusChip(a) + '</h3>'
+    + '<button style="font-weight:800; color:var(--muted); padding:2px 6px;" data-act="close-modal">✕</button></div>'
+    + '<div class="sub">' + esc(a.category) + ' · ' + esc(branchName(a.locationId)) + '</div>'
+    + '<div class="mrow"><div class="qrbox">' + qrSVG(a.id, 92) + '<button class="plabel" data-act="print" data-id="' + a.id + '">Print label</button></div>'
+    + '<dl class="kv">'
+    + '<dt>Asset ID</dt><dd>' + a.id + '</dd>'
+    + '<dt>Brand · model</dt><dd>' + esc(a.brand) + ' · ' + esc(a.model) + '</dd>'
+    + '<dt>Location</dt><dd>' + esc(branchName(a.locationId)) + ' · ' + esc(a.floor) + ' · ' + esc(a.zone) + '</dd>'
+    + '<dt>Purchased</dt><dd>' + fmtD(a.purchaseDate) + '</dd>'
+    + '<dt>Warranty</dt><dd>' + warrantyChip(a) + '</dd>'
+    + '<dt>Last inspection</dt><dd>' + fmtD(a.lastInspection) + '</dd>'
+    + '<dt>Next inspection</dt><dd>' + (dNext < 0 ? '<span class="due-bad">' + fmtD(a.nextInspection) + ' — OVERDUE</span>' : fmtD(a.nextInspection)) + '</dd>'
+    + (a.expectedReviewAt ? '<dt>Expected review</dt><dd>' + relDay(a.expectedReviewAt) + '</dd>' : '')
+    + '<dt>Alternative</dt><dd>' + (alt ? '<button class="altln" style="margin:0;" data-act="open-asset" data-id="' + alt.id + '">' + esc(alt.name) + ' — ' + esc(alt.floor) + ' ›</button>' : 'none linked') + '</dd>'
+    + '</dl></div>'
+    + '<div class="mview' + (flashMember ? ' flash' : '') + '"><div class="lbl">What members see</div><div class="line">' + memberViewLine(a.id) + '</div></div>'
+    + (openWOs.length ? '<div class="wo-meta" style="margin-top:10px;">Open work orders: ' + openWOs.map((w) => '<b>' + woLabel(w) + '</b> · ' + w.status.replace('_', ' ')).join(' · ') + '</div>' : '')
+    + '<div class="eyebrow" style="margin-top:12px;">Repair history</div>'
+    + ((a.history || []).length
+      ? '<div class="tl">' + a.history.map((h) => '<div><b>' + fmtD(h.at) + '</b> · ' + esc(h.what) + ' · ' + esc(personName(h.by)) + '</div>').join('') + '</div>'
+      : '<div class="empty">No repair history — the first event creates the baseline.</div>')
+    + '<div class="actrow" style="margin-top:12px;">'
+    + (a.status !== 'out_of_service' ? '<button class="act-sm warn" data-act="isolate" data-id="' + a.id + '">Isolate — out of service</button>' : '')
+    + (a.status !== 'available' ? '<button class="act-sm" data-act="rts" data-id="' + a.id + '">Return to service</button>' : '')
+    + '<button class="act-sm lite" data-act="create-wo" data-id="' + a.id + '">Create work order</button>'
+    + '</div>'
+    + '<div class="netnote" style="margin-top:8px;">Isolate requires a reason and swaps the member app to the simple view above. A safety work order auto-isolates immediately. Return to service records the verifier and bumps the last inspection.</div>'
+  );
+}
+
+/* ---------- flows ---------- */
+async function doIsolate(assetId) {
+  const a = MS.assetById(assetId); if (!a) return;
+  const reason = await askText('Isolate ' + a.name, 'A reason is <b>mandatory</b> — it is audit-logged, and members immediately see only the simple status with the alternative machine.', { required: true, placeholder: 'e.g. hydraulic leak at the carriage', ok: 'Isolate now', errMsg: 'A reason of at least 3 characters is required.' });
+  if (reason == null) { openAsset(assetId); return; }
+  const r = MS.isolate(assetId, ME_ID, reason);
+  if (r && r.error) { toast('Could not isolate: ' + r.error, true); openAsset(assetId); return; }
+  renderAll();
+  toast(a.name + ' isolated — members now see the alternative');
+  openAsset(assetId, true);
+}
+
+async function doReturnToService(assetId, thenReopen) {
+  const a = MS.assetById(assetId); if (!a) return;
+  const verifiedBy = await askText('Return ' + a.name + ' to service', 'Nothing returns to service unverified — name the person who tested it. This also records the inspection date.', { required: true, value: ME_NAME, ok: 'Verified — return to service' });
+  if (verifiedBy == null) { if (thenReopen) openAsset(assetId); return; }
+  const r = MS.returnToService(assetId, ME_ID, verifiedBy);
+  if (r && r.error) { toast('Failed: ' + r.error, true); return; }
+  renderAll();
+  toast(a.name + ' back in service · verified by ' + verifiedBy);
+  if (thenReopen) openAsset(assetId, true);
+}
+
+async function doCreateWO(assetId) {
+  const a = MS.assetById(assetId); if (!a) return;
+  const sev = await askChoice('Work order severity — ' + a.name, 'Choose <b>Safety</b> for anything that could hurt a member: the asset is auto-isolated the moment the work order is created.', [
+    { label: 'Normal — schedule the repair', value: 'normal' },
+    { label: 'Safety — auto-isolates the asset now', value: 'safety', cls: 'danger' },
+  ]);
+  if (!sev) { openAsset(assetId); return; }
+  const problem = await askText('Describe the problem', 'Goes on the work order and into the asset history.', { required: true, placeholder: 'e.g. carriage grinding under load', ok: 'Create work order' });
+  if (problem == null) { openAsset(assetId); return; }
+  const wo = MS.createWorkOrder({ assetId, problem, severity: sev.value, reporterId: ME_ID });
+  renderAll();
+  toast(woLabel(wo) + ' created' + (sev.value === 'safety' ? ' — SAFETY, asset isolated' : ''), sev.value === 'safety');
+  showSec('work');
+}
+
+async function doAdvance(woId, to) {
+  const wo = DemoData.load().workOrders.find((w) => w.id === woId); if (!wo) return;
+  const label = { in_progress: 'In progress', waiting_parts: 'Waiting for parts', done: 'Done' }[to] || to;
+  const note = await askText('Move ' + woLabel(wo) + ' → ' + label, 'Add a note for the trail (optional).', { placeholder: to === 'waiting_parts' ? 'which part is needed?' : 'what was done?', ok: 'Move to ' + label });
+  if (note == null) return;
+  const r = MS.advanceWorkOrder(woId, to, ME_ID, note || null);
+  if (r && r.error) { toast('Failed: ' + r.error, true); return; }
+  renderAll();
+  toast(woLabel(wo) + ' → ' + label.toLowerCase());
+  if (to === 'done') {
+    const a = MS.assetById(wo.assetId);
+    if (a && a.status !== 'available') {
+      const yes = await askChoice('Work order done — ' + a.name + ' is still ' + (ST_LABEL[a.status] || a.status).toLowerCase(), 'Return it to service now with a named verifier?', [
+        { label: 'Yes — run return to service', value: 'y', cls: 'solid' },
+        { label: 'Not yet — leave it offline', value: 'n' },
+      ]);
+      if (yes && yes.value === 'y') await doReturnToService(wo.assetId, false);
+    }
+  }
+}
+
+async function doRequestApproval(woId) {
+  const wo = DemoData.load().workOrders.find((w) => w.id === woId); if (!wo) return;
+  const a = MS.assetById(wo.assetId);
+  const amount = await askText('Major repair — ' + (a ? a.name : wo.assetId), 'Repairs above the threshold need the owner to approve the spend before work starts.', { number: true, placeholder: 'quoted amount in USD', ok: 'Next', errMsg: 'Enter a positive amount.' });
+  if (amount == null) return;
+  const reason = await askText('Why this repair?', 'Shown to the owner on the approvals queue.', { required: true, placeholder: 'e.g. out of warranty; distributor quote attached', ok: 'Send to owner approvals' });
+  if (reason == null) return;
+  const r = MS.requestMajorRepair(woId, Number(amount), ME_ID, reason);
+  if (r && r.error) { toast('Failed: ' + r.error, true); return; }
+  renderAll();
+  toast('Sent to owner approvals — $' + Number(amount) + ' pending');
+}
+
+async function doAddPart(woId) {
+  const name = await askText('Add part to ' + woLabel({ id: woId }), 'Local checklist on this work order (demo — real stock lives in the parts module).', { required: true, placeholder: 'e.g. drive chain RC-101', ok: 'Add part' });
+  if (name == null) return;
+  addPart(woId, name);
+  renderAll();
+  toast('Part noted on the work order');
+}
+
+async function doRecordInspection(assetId) {
+  const a = MS.assetById(assetId); if (!a || a.status !== 'out_of_service') return;
+  const verifiedBy = await askText('Record inspection — ' + a.name, 'This verifies the repair, updates the last-inspection date and returns the asset to service.', { required: true, value: ME_NAME, ok: 'Record & return to service' });
+  if (verifiedBy == null) return;
+  const r = MS.returnToService(assetId, ME_ID, verifiedBy);
+  if (r && r.error) { toast('Failed: ' + r.error, true); return; }
+  renderAll();
+  toast('Inspection recorded — ' + a.name + ' back in service');
+}
+
+/* ============================ NAV + DELEGATION ============================ */
+function showSec(sec) {
+  document.querySelectorAll('#mainSeg button').forEach((b) => b.classList.toggle('on', b.dataset.sec === sec));
+  $('secWork').classList.toggle('hidden', sec !== 'work');
+  $('secAssets').classList.toggle('hidden', sec !== 'assets');
+  $('secInspect').classList.toggle('hidden', sec !== 'inspect');
+}
+
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  const act = b.dataset.act;
+  if (act === 'sec') showSec(b.dataset.sec);
+  if (act === 'branch') { BR = b.dataset.branch; localStorage.setItem(BKEY, BR); renderAll(); }
+  if (act === 'open-asset') { e.stopPropagation(); openAsset(b.dataset.id); }
+  if (act === 'close-modal') closeOverlay();
+  if (act === 'print') { e.stopPropagation(); toast('Label ' + b.dataset.id + ' queued to print (demo)'); }
+  if (act === 'isolate') doIsolate(b.dataset.id);
+  if (act === 'rts') doReturnToService(b.dataset.id, true);
+  if (act === 'create-wo') doCreateWO(b.dataset.id);
+  if (act === 'adv') doAdvance(b.dataset.wo, b.dataset.to);
+  if (act === 'req-appr') doRequestApproval(b.dataset.wo);
+  if (act === 'add-part') doAddPart(b.dataset.wo);
+  if (act === 'record-insp') doRecordInspection(b.dataset.id);
+});
+
+/* ============================ GYMBUS ============================ */
+/* engine events from other dashboards — the instructor TRX chain lands here */
+GymBus.on((kind, ev) => {
+  if (kind !== 'event' || !ev) return;
+  if (ev.type === 'work-order') {
+    renderAll();
+    const p = ev.payload || {};
+    toast((p.severity === 'safety' ? 'SAFETY work order — ' : 'New work order — ') + (p.asset || 'asset') + (p.branch ? ' (' + p.branch + ')' : ''), p.severity === 'safety');
+  }
+  if (ev.type === 'asset-status') {
+    renderAll();
+    const p = ev.payload || {};
+    toast((p.asset || 'Asset') + ' — ' + (p.status || 'status changed') + (p.alt ? ' · alt: ' + p.alt : ''));
+  }
+  if (ev.type === 'report') ingestLegacyReport(ev, true);
+  /* settle pass — the sender tab's localStorage write may still be propagating
+     between renderer processes when the broadcast arrives */
+  if (['work-order', 'asset-status', 'report'].includes(ev.type)) setTimeout(renderAll, 400);
+});
+
+/* legacy free-text 'report' events (café, older instructor flows) — reconcile
+   them into real engine work orders, once each */
+function matchAsset(text) {
+  if (!text) return null;
+  const t = String(text).toLowerCase();
+  return MS.assets().find((a) => t.includes(a.name.toLowerCase()) || a.name.toLowerCase().includes(t)) || null;
+}
+function ingestLegacyReport(ev, live) {
   if (GymBus.isProcessed(ev.id, 'maintenance')) return;
   GymBus.markProcessed(ev.id, 'maintenance');
-  const p = ev.payload;
-  const sameAsset = (x, y) => x === y || x.startsWith(y) || y.startsWith(x);
-  const dup = M.wos.find((w) => sameAsset(w.asset, p.machine) && ['New', 'In progress', 'Waiting for parts', 'Ready for testing'].includes(w.status));
-  if (dup) {
-    dup.log.unshift({ at: now(), line: 'Duplicate report merged — ' + (p.member || 'unknown') + ' (' + (p.issue || '') + ')' });
-    audit('Duplicate report on ' + p.machine + ' merged into ' + dup.id);
-    save(); render(); toast('Duplicate report on ' + p.machine + ' — merged into ' + dup.id);
-    return;
-  }
+  const p = ev.payload || {};
+  const a = matchAsset(p.machine);
+  if (!a) { if (live) toast('Report "' + (p.machine || '?') + '" has no matching asset — log it manually', true); return; }
+  const already = DemoData.load().workOrders.some((w) => w.assetId === a.id && w.status !== 'done');
+  if (already) { if (live) toast('Duplicate report on ' + a.name + ' — merged into the open work order'); return; }
   const safety = /safety/i.test(p.issue || '');
-  const id = 'WO-' + (1043 + M.wos.length);
-  M.wos.unshift({ id, asset: p.machine, priority: safety ? 'safety' : 'normal', status: 'New', assignee: null,
-    problem: (p.issue || 'Reported issue') + ' · ' + (p.ref || ''), reporter: p.member || 'member', at: ev.at, busId: ev.id,
-    log: [{ at: ev.at, line: 'Reported by ' + (p.member || 'member') + ' via app (' + (p.ref || '') + ')' }] });
-  if (safety) setAsset(p.machine, 'Inspection required', 'Auto-isolated — safety concern from ' + (p.member || 'member'));
-  audit(id + ' created from app report — ' + p.machine);
-  save(); render(); renderAssets();
-  toast((safety ? '⚠ SAFETY: ' : 'New report: ') + p.machine + ' — ' + (p.member || 'member'));
+  MS.createWorkOrder({ assetId: a.id, problem: (p.issue || 'Reported issue') + (p.ref ? ' · ' + p.ref : ''), severity: safety ? 'safety' : 'normal', reporterId: p.member || 'member' });
+  renderAll();
+  if (live) toast((safety ? 'SAFETY: ' : 'New report: ') + a.name + ' — work order created', safety);
 }
-GymBus.on((kind, ev) => { if (kind === 'event' && ev.type === 'report') ingestReport(ev); });
-GymBus.all().forEach((ev) => { if (ev.type === 'report' && !['Repaired', 'Fixed'].includes(ev.status)) ingestReport(ev); });
 
-render(); renderAssets(); renderParts();
-/* broadcast current non-available assets so member menus stay accurate after reload */
-M.assets.filter((a) => a.status !== 'Available').forEach(pushAssetStatus);
+/* catch up on reports sent while this page was closed */
+GymBus.all().forEach((ev) => { if (ev.type === 'report' && !['Repaired', 'Fixed'].includes(ev.status)) ingestLegacyReport(ev, false); });
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { hardRefresh(); renderAll(); } });
+
+renderAll();
+showSec('work');
 </script>
 </body>
 </html>

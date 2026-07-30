@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Level Up — Owner</title>
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --paper:#f2ece0; --card:#fff; --ink:#18140f; --muted:#6f6656; --faint:#a89b83;
+    --line:#e6ddc9; --green:#1a1613; --deep:#000000; --mint:#efe6d2;
+    --amber:#a86408; --amber-soft:#fdf3ec; --red:#bb3a2a; --red-soft:#fbeaea;
+    --display:'Bricolage Grotesque',sans-serif; --body:'Instrument Sans',sans-serif; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px; }
+  .wrap { max-width:1020px; margin:0 auto; display:flex; flex-direction:column; gap:13px; }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; }
+  button:focus-visible { outline:3px solid var(--green); outline-offset:2px; }
+  @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
+  .navrow a { color:var(--green); font-weight:700; text-decoration:none; background:#fff; border-radius:999px; padding:8px 14px; box-shadow:0 3px 10px rgba(24,20,15,.05); }
+  .banner { background:var(--amber-soft); color:var(--amber); border-radius:14px; padding:11px 16px; font-weight:700; font-size:12.5px; text-align:center; }
+  .hero-h { text-align:center; padding:6px 0 2px; }
+  .hero-h .eyebrow { margin-bottom:6px; }
+  h1 { font-family:var(--display); font-weight:800; font-size:clamp(24px, 4vw, 33px); line-height:1.12; }
+  .hero-h .sub { color:var(--muted); font-size:13.5px; margin-top:7px; }
+  .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+    display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
+  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
+  .t-sub { font-size:12px; color:var(--muted); }
+  .stats { margin-left:auto; display:flex; gap:14px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
+  .stats b.warn { color:var(--amber); }
+  .stats b.bad { color:var(--red); }
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:10px 2px -4px; }
+  .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
+  .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
+  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:8px 4px; border-radius:11px; color:var(--muted); }
+  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
+  /* --- network overview --- */
+  .ov-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:9px; }
+  .ov { background:var(--paper); border-radius:14px; padding:11px 13px; }
+  .ov b { display:block; font-family:var(--display); font-weight:800; font-size:19px; }
+  .ov b.warn { color:var(--amber); }
+  .ov b.bad { color:var(--red); }
+  .ov span { font-size:11px; color:var(--muted); font-weight:600; }
+  .chips { display:flex; gap:7px; flex-wrap:wrap; margin-top:10px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:700; background:var(--mint); color:var(--deep); border-radius:999px; padding:5px 11px; }
+  .chip b { font-family:var(--display); }
+  .chip-un { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--amber-soft); color:var(--amber); border-radius:999px; padding:2px 7px; }
+  /* --- comparison table --- */
+  .tblwrap { overflow-x:auto; }
+  table { border-collapse:collapse; width:100%; min-width:780px; font-size:12.5px; }
+  th { text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:7px 9px; border-bottom:1.5px solid var(--line); white-space:nowrap; }
+  td { padding:9px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  tr:last-child td { border-bottom:none; }
+  td.b-name { font-weight:800; font-family:var(--display); }
+  td.td-best { background:var(--mint); }
+  td.td-worst { color:var(--faint); }
+  .occ { display:flex; align-items:center; gap:7px; min-width:120px; }
+  .occ-bar { flex:1; height:6px; background:#e9e2d2; border-radius:99px; overflow:hidden; min-width:56px; }
+  .occ-bar i { display:block; height:100%; background:var(--deep); border-radius:99px; }
+  .tbl-note { font-size:11px; color:var(--faint); margin-top:8px; }
+  /* --- approvals --- */
+  .apr-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; }
+  .apr { background:var(--paper); border-radius:16px; padding:13px 14px; animation:rise .3s ease both; }
+  .apr-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .apr-type { font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--deep); color:var(--mint); border-radius:999px; padding:4px 10px; }
+  .apr-type.soft { background:var(--amber-soft); color:var(--amber); }
+  .apr-age { margin-left:auto; font-size:11px; color:var(--faint); }
+  .apr-sub { font-weight:700; font-size:13.5px; margin-top:8px; }
+  .apr-amt { font-family:var(--display); font-weight:800; font-size:18px; margin-top:2px; }
+  .apr-reason { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.45; }
+  .apr-req { font-size:11.5px; color:var(--faint); margin-top:5px; }
+  .apr-note { width:100%; font-family:var(--body); font-size:12.5px; padding:9px 11px; border:1.5px solid var(--line); border-radius:11px; background:#fff; margin-top:9px; }
+  .apr-actions { display:flex; gap:7px; margin-top:8px; }
+  .apr-actions button { flex:1; font-size:12.5px; font-weight:800; padding:10px; border-radius:11px; }
+  .apr-yes { background:var(--deep); color:#fff; }
+  .apr-no { background:#fff; color:var(--red); box-shadow:inset 0 0 0 1.5px var(--red-soft); }
+  .hist { font-size:12.5px; padding:8px 0; border-bottom:1px solid var(--line); color:var(--muted); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
+  .hist:last-child { border-bottom:none; }
+  .hist b { color:var(--ink); }
+  .st { display:inline-block; font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .st-ok { background:var(--mint); color:var(--deep); }
+  .st-bad { background:var(--red-soft); color:var(--red); }
+  /* --- CRM + trainers --- */
+  .crm-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px; }
+  .mini { background:var(--paper); border-radius:16px; padding:13px 14px; }
+  .mini .eyebrow { margin-bottom:6px; }
+  .mrow { display:flex; justify-content:space-between; gap:10px; font-size:12.5px; padding:5px 0; border-bottom:1px solid var(--line); }
+  .mrow:last-child { border-bottom:none; }
+  .mrow b { font-family:var(--display); }
+  .mrow.ig { background:var(--mint); margin:0 -8px; padding:6px 8px; border-radius:10px; border-bottom:none; }
+  .bignum { font-family:var(--display); font-weight:800; font-size:26px; }
+  .bignum small { font-size:12px; color:var(--muted); font-family:var(--body); font-weight:600; display:block; }
+  .tr-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(216px, 1fr)); gap:10px; }
+  .trc { background:var(--paper); border-radius:16px; padding:13px 14px; }
+  .trc .n { font-family:var(--display); font-weight:800; font-size:15px; }
+  .trc .sp { font-size:11px; color:var(--muted); margin:2px 0 8px; }
+  .trc .mrow.rev { color:var(--muted); border-top:1px dashed var(--line); margin-top:4px; padding-top:7px; border-bottom:none; }
+  .note-line { font-size:11.5px; color:var(--faint); margin-top:9px; line-height:1.5; }
+  /* --- feed --- */
+  .ev { font-size:12px; padding:7px 0; border-bottom:1px solid var(--line); display:flex; gap:8px; align-items:baseline; }
+  .ev:last-child { border-bottom:none; }
+  .ev code { font-family:ui-monospace, monospace; font-size:10.5px; background:var(--paper); border-radius:6px; padding:2px 7px; white-space:nowrap; }
+  .ev .br { font-size:10px; font-weight:800; background:var(--mint); color:var(--deep); border-radius:999px; padding:2px 8px; white-space:nowrap; }
+  .ev .t { color:var(--faint); white-space:nowrap; margin-left:auto; }
+  .ev .d { color:var(--muted); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw; }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .empty { color:var(--faint); font-size:12.5px; }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="instructor.html">Instructor</a><a href="maintenance.html">Maintenance</a><a href="cafe.html">Fuel Bar</a><a href="index.html">Member app</a><a href="demo.html">Demo Control</a></nav>
+
+  <div class="banner">SIMULATED DEMO DATA — every figure on this page is generated by the demo engine, not real business numbers.</div>
+
+  <div class="hero-h">
+    <div class="eyebrow">Level Up OS · Owner</div>
+    <h1>The operating system behind every Level Up location.</h1>
+    <div class="sub">Hamra · Badaro · Gemmayzeh · Hazmieh — memberships, access, PT, classes, retail, maintenance and money in one live view.</div>
+  </div>
+
+  <div class="card head">
+    <div class="avatar">SK</div>
+    <div><div class="t-name">Samer K. — Owner</div><div class="t-sub">Network-wide view · every branch, every approval, one screen</div></div>
+    <div class="stats">
+      <div><b id="hInside">0</b>inside now</div>
+      <div><b id="hRev">$0</b>revenue today</div>
+      <div><b id="hAppr" class="warn">0</b>pending approvals</div>
+    </div>
+  </div>
+
+  <div class="sect-label">Network overview</div>
+  <div class="card">
+    <div class="ov-grid" id="ovGrid"></div>
+    <div class="eyebrow" style="margin:12px 0 0;">Members by home branch</div>
+    <div class="chips" id="branchChips"></div>
+  </div>
+
+  <div class="sect-label">Branch comparison</div>
+  <div class="card">
+    <div class="tblwrap"><table id="cmpTable"></table></div>
+    <div class="tbl-note">Beige cell = leading branch for that column · dimmed = trailing. Occupancy, revenue, PT and retail read high-is-good; offline equipment, renewals due and denied entries read low-is-good.</div>
+  </div>
+
+  <div class="sect-label">Approvals queue — decisions only the owner can take</div>
+  <div class="card">
+    <div class="eyebrow">Pending <span id="aprCount"></span></div>
+    <div class="apr-grid" id="aprPending"></div>
+    <div class="eyebrow" style="margin-top:14px;">Decided</div>
+    <div id="aprHistory"></div>
+  </div>
+
+  <div class="sect-label">CRM snapshot</div>
+  <div class="card">
+    <div class="crm-grid" id="crmGrid"></div>
+  </div>
+
+  <div class="sect-label">Trainer scorecards</div>
+  <div class="card">
+    <div class="tr-grid" id="trGrid"></div>
+    <div class="note-line">Delivery and retention first — never rank trainers on sales alone. Revenue is shown last on purpose.</div>
+  </div>
+
+  <div class="sect-label">Live feed — the whole network, as it happens</div>
+  <div class="seg" id="feedSeg">
+    <button class="on" data-b="">All</button>
+    <button data-b="loc_hamra">Hamra</button>
+    <button data-b="loc_badaro">Badaro</button>
+    <button data-b="loc_gemmayzeh">Gemmayzeh</button>
+    <button data-b="loc_hazmieh">Hazmieh</button>
+  </div>
+  <div class="card"><div id="feed"></div></div>
+
+  <div class="note-line" style="padding:0 8px;">
+    Every mutation above goes through the same audited service layer the staff apps use — an approval decided here
+    moves real records (a branch transfer relocates the member, a stock purchase restocks the shelf) and lands in the event log.
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="bus.js?v=3"></script>
+<script src="data.js?v=4"></script>
+<script>
+const $ = (id) => document.getElementById(id);
+const D = DemoData;
+const OWNER = 'stf_own_samer';
+const TRAINER_IDS = ['stf_tr_karim', 'stf_tr_nadim', 'stf_tr_yara', 'stf_tr_elie'];
+function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+
+const staffName = (id) => { const s = D.load().staff.find((x) => x.id === id); return s ? s.name : (id || '—'); };
+const branchName = (id) => { const b = id ? D.BranchService.byId(id) : null; return b ? b.name : ''; };
+const memberName = (id) => { const m = D.MemberService.byId(id); return m ? m.name : (id || ''); };
+const money = (n) => '$' + Number(n || 0).toLocaleString('en-US');
+const ago = (t) => { const ms = D.now() - new Date(t).getTime(); const m = Math.max(1, Math.floor(ms / 60000));
+  if (m < 60) return m + ' min ago'; const h = Math.floor(m / 60); if (h < 24) return h + ' h ago'; return Math.floor(h / 24) + ' d ago'; };
+
+/* ---------------- network overview ---------------- */
+function renderNetwork() {
+  const n = D.OwnerService.network();
+  $('hInside').textContent = n.insideNow;
+  $('hRev').textContent = money(n.revenueToday);
+  $('hAppr').textContent = n.pendingApprovals;
+  $('hAppr').className = n.pendingApprovals > 0 ? 'warn' : '';
+  const tile = (label, val, cls) => `<div class="ov"><b class="${cls || ''}">${val}</b><span>${label}</span></div>`;
+  $('ovGrid').innerHTML = [
+    tile('Active members — network', n.totalActive),
+    tile('Inside now', n.insideNow),
+    tile('Revenue today', money(n.revenueToday)),
+    tile('Revenue this month', money(n.revenueMonth)),
+    tile('New memberships · month', n.newThisMonth),
+    tile('Expiring ≤ 14 days', n.expiringSoon, n.expiringSoon > 0 ? 'warn' : ''),
+    tile('Frozen memberships', n.frozen),
+    tile('PT package revenue', money(n.ptRevenue)),
+    tile('Class attendance today', n.classAttendanceToday),
+    tile('Retail today', money(n.retailToday)),
+    tile('Open incidents', n.openIncidents, n.openIncidents > 0 ? 'bad' : ''),
+    tile('Equipment offline', n.equipmentOffline, n.equipmentOffline > 0 ? 'warn' : ''),
+    tile('Staff on shift', n.staffOnShift),
+    tile('Pending approvals', n.pendingApprovals, n.pendingApprovals > 0 ? 'warn' : ''),
+  ].join('');
+  $('branchChips').innerHTML = D.BranchService.list().map((l) =>
+    `<span class="chip">${l.name} <b>${n.membersByBranch[l.id] || 0}</b>${l.unconfirmed ? ' <span class="chip-un">unconfirmed</span>' : ''}</span>`).join('');
+}
+
+/* ---------------- branch comparison ---------------- */
+const CMP_COLS = [
+  { k: 'inside', label: 'Inside', dir: 1 },
+  { k: 'occupancyPct', label: 'Occupancy', dir: 1, occ: true },
+  { k: 'revenueToday', label: 'Revenue today', dir: 1, money: true },
+  { k: 'ptSessionsToday', label: 'PT today', dir: 1 },
+  { k: 'equipmentOffline', label: 'Equip. offline', dir: -1 },
+  { k: 'renewalsDue', label: 'Renewals due', dir: -1 },
+  { k: 'retailToday', label: 'Retail today', dir: 1, money: true },
+  { k: 'deniedToday', label: 'Denied today', dir: -1 },
+];
+function renderComparison() {
+  const rows = D.OwnerService.comparison();
+  const extremes = {};
+  CMP_COLS.forEach((c) => {
+    const vals = rows.map((r) => r[c.k]);
+    if (new Set(vals).size < 2) { extremes[c.k] = {}; return; }
+    const best = c.dir === 1 ? Math.max(...vals) : Math.min(...vals);
+    const worst = c.dir === 1 ? Math.min(...vals) : Math.max(...vals);
+    const count = (v) => vals.filter((x) => x === v).length;
+    /* only call out a branch when it is UNIQUELY leading / trailing — ties stay neutral */
+    extremes[c.k] = { best: count(best) === 1 ? best : undefined, worst: count(worst) === 1 ? worst : undefined };
+  });
+  const cell = (r, c) => {
+    const v = r[c.k];
+    const ex = extremes[c.k];
+    const cls = v === ex.best ? 'td-best' : v === ex.worst ? 'td-worst' : '';
+    if (c.occ) return `<td class="${cls}"><div class="occ"><div class="occ-bar"><i style="width:${Math.min(100, v)}%"></i></div><span>${v}%</span></div></td>`;
+    return `<td class="${cls}">${c.money ? money(v) : v}</td>`;
+  };
+  $('cmpTable').innerHTML = `<thead><tr><th>Branch</th>${CMP_COLS.map((c) => `<th>${c.label}</th>`).join('')}</tr></thead>
+    <tbody>${rows.map((r) => `<tr><td class="b-name">${r.name}${r.unconfirmed ? ' <span class="chip-un">unconfirmed</span>' : ''}</td>${CMP_COLS.map((c) => cell(r, c)).join('')}</tr>`).join('')}</tbody>`;
+}
+
+/* ---------------- approvals queue ---------------- */
+const APR_TYPES = {
+  discount_large: 'Large discount', refund: 'Refund', writeoff: 'Write-off',
+  membership_exception: 'Membership exception', free_membership: 'Free membership',
+  stock_purchase: 'Stock purchase', major_repair: 'Major repair', branch_transfer: 'Branch transfer',
+  cash_variance: 'Cash variance', incident_closure: 'Sensitive incident closure',
+};
+const APR_SOFT = ['cash_variance', 'incident_closure'];
+function renderApprovals() {
+  const pending = D.ApprovalService.list('pending');
+  const decided = D.ApprovalService.list().filter((a) => a.status !== 'pending')
+    .sort((a, b) => String(b.decidedAt).localeCompare(String(a.decidedAt))).slice(0, 8);
+  $('aprCount').textContent = pending.length ? '· ' + pending.length : '· none';
+  $('aprPending').innerHTML = pending.map((a) => `
+    <div class="apr" data-apr="${a.id}">
+      <div class="apr-top">
+        <span class="apr-type ${APR_SOFT.includes(a.type) ? 'soft' : ''}">${APR_TYPES[a.type] || a.type}</span>
+        ${a.branchId ? `<span class="chip">${branchName(a.branchId)}</span>` : ''}
+        <span class="apr-age">${ago(a.createdAt)}</span>
+      </div>
+      <div class="apr-sub">${a.subject}</div>
+      ${a.amount ? `<div class="apr-amt">${money(a.amount)}</div>` : ''}
+      <div class="apr-reason">${a.reason}</div>
+      <div class="apr-req">Requested by ${staffName(a.requestedBy)}${a.branchId ? ' · ' + branchName(a.branchId) : ''}</div>
+      <input class="apr-note" placeholder="Optional note for the decision…" aria-label="Decision note for ${a.subject}" />
+      <div class="apr-actions">
+        <button class="apr-yes" data-decide="yes" data-id="${a.id}">Approve</button>
+        <button class="apr-no" data-decide="no" data-id="${a.id}">Reject</button>
+      </div>
+    </div>`).join('')
+    || '<div class="empty">Nothing waiting on you — requests from every branch land here the moment staff raise them.</div>';
+  $('aprHistory').innerHTML = decided.map((a) => `
+    <div class="hist"><span class="st ${a.status === 'approved' ? 'st-ok' : 'st-bad'}">${a.status.toUpperCase()}</span>
+      <b>${APR_TYPES[a.type] || a.type}</b> · ${a.subject}${a.amount ? ' · ' + money(a.amount) : ''}
+      <span>— decided by ${staffName(a.decidedBy)}${a.note ? ' · “' + a.note + '”' : ''}</span></div>`).join('')
+    || '<div class="empty">No decisions recorded yet.</div>';
+}
+function decide(id, approve) {
+  const card = document.querySelector(`[data-apr="${id}"]`);
+  const note = card ? card.querySelector('.apr-note').value.trim() : '';
+  const a = D.ApprovalService.decide(id, OWNER, approve, note || null);
+  if (a.error) { toast('Could not decide: ' + a.error); return; }
+  let msg = (approve ? 'Approved' : 'Rejected') + ' — ' + a.subject;
+  /* the engine applies side effects; reflect them */
+  if (approve && a.type === 'branch_transfer' && a.meta && a.meta.memberId) {
+    const m = D.MemberService.byId(a.meta.memberId);
+    if (m) msg = 'Approved — ' + m.name + ' now belongs to ' + branchName(m.homeBranchId);
+  }
+  if (approve && a.type === 'stock_purchase' && a.meta && a.meta.itemId) {
+    const it = D.RetailService.byId(a.meta.itemId);
+    if (it) msg = 'Approved — ' + it.name + ' restocked to ' + (it.stock[a.branchId] || 0) + ' at ' + branchName(a.branchId);
+  }
+  if (approve && a.type === 'incident_closure') msg = 'Approved — sensitive incident closed with your sign-off';
+  toast(msg);
+  renderAll();
+}
+$('aprPending').addEventListener('click', (e) => {
+  const btn = e.target.closest('button[data-decide]');
+  if (btn) decide(btn.dataset.id, btn.dataset.decide === 'yes');
+});
+
+/* ---------------- CRM snapshot ---------------- */
+function renderCRM() {
+  const m = D.LeadService.metrics();
+  const branchRows = D.BranchService.list().map((l) => {
+    const b = m.byBranch[l.id] || { total: 0, won: 0 };
+    return `<div class="mrow"><span>${l.name}</span><b>${b.total} lead${b.total === 1 ? '' : 's'} · ${b.won} won</b></div>`;
+  }).join('');
+  const sources = Object.entries(m.bySource).sort((a, b) => b[1].total - a[1].total).map(([src, v]) => {
+    const pct = v.total ? Math.round((v.won / v.total) * 100) : 0;
+    const ig = src === 'Instagram';
+    return `<div class="mrow ${ig ? 'ig' : ''}"><span>${src}${ig ? ' — priority channel' : ''}</span><b>${v.won}/${v.total} won · ${pct}%</b></div>`;
+  }).join('');
+  const staffRows = Object.entries(m.salesByStaff).sort((a, b) => b[1] - a[1])
+    .map(([id, n]) => `<div class="mrow"><span>${staffName(id)}</span><b>${n} membership${n === 1 ? '' : 's'}</b></div>`).join('')
+    || '<div class="empty">No conversions in this demo state yet — run the sales-demo story.</div>';
+  const lostCounts = {};
+  m.lostReasons.forEach((r) => { lostCounts[r] = (lostCounts[r] || 0) + 1; });
+  const lostRows = Object.entries(lostCounts).sort((a, b) => b[1] - a[1]).slice(0, 4)
+    .map(([r, n]) => `<div class="mrow"><span>${r}</span><b>×${n}</b></div>`).join('')
+    || '<div class="empty">No lost leads recorded.</div>';
+  $('crmGrid').innerHTML = `
+    <div class="mini"><div class="eyebrow">Funnel health</div>
+      <div class="bignum">${m.conversion}%<small>trial → membership conversion</small></div>
+      <div class="bignum" style="margin-top:8px; ${m.overdue.length ? 'color:var(--amber);' : ''}">${m.overdue.length}<small>overdue follow-ups (network)</small></div></div>
+    <div class="mini"><div class="eyebrow">Leads by branch</div>${branchRows}</div>
+    <div class="mini"><div class="eyebrow">Conversion by source</div>${sources}</div>
+    <div class="mini"><div class="eyebrow">Sales by receptionist</div>${staffRows}
+      <div class="eyebrow" style="margin-top:10px;">Top lost reasons</div>${lostRows}</div>`;
+}
+
+/* ---------------- trainer scorecards ---------------- */
+function renderTrainers() {
+  $('trGrid').innerHTML = TRAINER_IDS.map((id) => {
+    const t = D.TrainerService.byId(id);
+    if (!t) return '';
+    const p = D.TrainerService.performance(id);
+    return `<div class="trc">
+      <div class="n">${t.name}</div>
+      <div class="sp">${(t.specialties || []).join(' · ')}</div>
+      <div class="mrow"><span>Sessions delivered</span><b>${p.delivered}</b></div>
+      <div class="mrow"><span>Active clients</span><b>${p.clients}</b></div>
+      <div class="mrow"><span>Cancellation rate</span><b>${p.cancellationRate}%</b></div>
+      <div class="mrow"><span>No-show rate</span><b>${p.noShowRate}%</b></div>
+      <div class="mrow"><span>Member confirmation</span><b>${p.confirmationRate}%</b></div>
+      <div class="mrow rev"><span>Package revenue</span><b>${money(p.revenue)}</b></div>
+    </div>`;
+  }).join('');
+}
+
+/* ---------------- live feed ---------------- */
+let FEED_BRANCH = '';
+function evDetail(ev) {
+  const p = ev.payload || {};
+  const bits = [];
+  if (ev.subjectId && String(ev.subjectId).startsWith('mbr_')) bits.push(memberName(ev.subjectId));
+  if (ev.actorId && String(ev.actorId).startsWith('stf_')) bits.push('by ' + staffName(ev.actorId));
+  if (p.reason) bits.push(p.reason);
+  if (p.amount) bits.push(money(p.amount));
+  if (p.scenario) bits.push(p.scenario);
+  return bits.join(' · ');
+}
+function renderFeed() {
+  const evs = D.events().filter((e) => !FEED_BRANCH || e.locationId === FEED_BRANCH).slice(0, 30);
+  $('feed').innerHTML = evs.map((e) => `<div class="ev">
+      ${e.locationId ? `<span class="br">${branchName(e.locationId)}</span>` : ''}
+      <code>${e.type}</code><span class="d">${evDetail(e)}</span>
+      <span class="t">${new Date(e.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span></div>`).join('')
+    || '<div class="empty">No events for this branch yet — run a scenario from the Demo Control Center.</div>';
+}
+document.querySelectorAll('#feedSeg button').forEach((b) => { b.onclick = () => {
+  document.querySelectorAll('#feedSeg button').forEach((x) => x.classList.remove('on'));
+  b.classList.add('on'); FEED_BRANCH = b.dataset.b; renderFeed();
+}; });
+
+/* ---------------- live toasts from the bus ---------------- */
+const BUS_TOASTS = {
+  'gate-entry': (p) => (p.override ? 'Override entry — ' : 'Gate — ') + (p.member || 'member') + ' entered ' + (p.branch || ''),
+  'sos': (p) => 'SOS · ' + (p.sosType || 'emergency') + ' — ' + (p.member || '') + ' · ' + (p.branch || ''),
+  'work-order': (p) => 'Work order · ' + (p.asset || '') + ' — ' + (p.branch || '') + (p.severity ? ' · ' + p.severity : ''),
+  'approval': (p) => 'Approval requested · ' + (p.what || '') + (p.amount ? ' · ' + money(p.amount) : ''),
+  'low-stock': (p) => 'Low stock · ' + (p.item || '') + ' at ' + (p.branch || '') + ' — ' + p.left + ' left',
+  'class-capacity': (p) => (p.cls || 'Class') + ' capacity ' + p.from + ' → ' + p.to + ' · ' + (p.branch || ''),
+};
+GymBus.on((kind, ev) => {
+  if (kind !== 'event' || !ev) return;
+  const f = BUS_TOASTS[ev.type];
+  if (f) toast(f(ev.payload || {}));
+});
+
+function renderAll() { renderNetwork(); renderComparison(); renderApprovals(); renderCRM(); renderTrainers(); renderFeed(); }
+renderAll();
+</script>
+</body>
+</html>

@@ -17,7 +17,6 @@
   .wrap { width:min(520px, 100%); display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
   .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; }
@@ -27,50 +26,37 @@
   .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .t-sub { font-size:12px; color:var(--muted); }
   select.status { margin-left:auto; border:1.5px solid var(--mint); border-radius:11px; padding:8px 10px;
-    font-family:var(--body); font-weight:700; font-size:12.5px; color:var(--deep); background:var(--mint); }
+    font-family:var(--body); font-weight:700; font-size:12.5px; color:var(--deep); background:var(--mint); max-width:150px; }
   .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
-  .seg button { flex:1; font-size:13px; font-weight:700; padding:9px 4px; border-radius:11px; color:var(--muted); position:relative; }
+  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:9px 2px; border-radius:11px; color:var(--muted); }
   .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
-  .seg .dot { position:absolute; top:5px; right:8px; width:8px; height:8px; border-radius:50%; background:var(--red); }
-  .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .chip { display:inline-block; font-size:10.5px; font-weight:800; background:var(--mint); color:var(--mint-ink);
+    border-radius:999px; padding:4px 10px; margin:2px 4px 2px 0; white-space:nowrap; }
+  .chip.dim { background:var(--paper); color:var(--muted); }
+  .sess { display:flex; align-items:flex-start; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
   .sess:last-child { border-bottom:none; }
-  .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; }
+  .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; padding-top:2px; }
   .sess-body { flex:1; min-width:0; }
   .sess-n { font-weight:700; font-size:14px; }
-  .sess-s { font-size:11.5px; color:var(--muted); }
+  .sess-s { font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .sess-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
+  .sess-acts button { font-size:11px; font-weight:700; padding:7px 12px; border-radius:9px; background:var(--deep); color:#fff; }
+  .sess-acts button.ghost { background:var(--paper); color:var(--ink); }
   .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
   .st-sched { background:var(--paper); color:var(--muted); }
-  .st-ingym { background:var(--mint); color:var(--deep); }
-  .st-arr { background:var(--mint); color:var(--deep); animation:pulse 1.6s infinite; }
   .st-live { background:var(--deep); color:#fff; }
   .st-wait { background:var(--amber-soft); color:var(--amber); }
   .st-ok { background:var(--mint); color:var(--deep); }
   .st-bad { background:var(--red-soft); color:var(--red); }
-  .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:9px 7px; min-height:32px; }
-  .qbar { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
-  .qbar button { font-size:11.5px; font-weight:700; padding:8px 12px; border-radius:999px; background:var(--paper); color:var(--ink); }
-  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper);
-    display:flex; align-items:center; gap:10px; animation:rise .3s ease both; flex-wrap:wrap; }
-  .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
-  .task-b { flex:1; min-width:170px; }
-  .task-t { font-weight:700; font-size:13px; } .task-s { font-size:11.5px; color:var(--muted); }
-  .task .act { display:flex; gap:6px; flex-shrink:0; }
-  .task .act button { font-size:11px; font-weight:700; padding:7px 11px; border-radius:9px; background:var(--deep); color:#fff; }
-  .task .act button.ghost { background:#fff; color:var(--ink); box-shadow:0 2px 6px rgba(24,20,15,.08); }
+  .travel { font-size:11.5px; font-weight:700; color:var(--muted); background:var(--paper);
+    border:1.5px dashed var(--line); border-radius:12px; padding:8px 12px; margin:8px 0 8px 58px; }
   .primary { background:var(--deep); color:#fff; border-radius:14px; padding:14px; font-weight:800; font-size:14.5px; width:100%; }
-  .ghosty { background:var(--paper); color:var(--muted); border-radius:14px; padding:11px; font-weight:600; font-size:13px; width:100%; }
-  .ex { border-bottom:1px solid var(--line); padding:12px 0; }
-  .ex:last-child { border-bottom:none; }
-  .ex-head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
-  .ex-n { font-weight:700; font-size:14.5px; }
-  .ex-target { font-size:12px; color:var(--muted); white-space:nowrap; }
-  .ex-prev { font-size:11.5px; color:var(--faint); margin-top:2px; }
-  .ex-inputs { display:flex; gap:8px; margin-top:8px; }
-  .ex-inputs input { flex:1; border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; font-size:13.5px; font-family:var(--body); min-width:0; }
-  .pr-flag { font-size:11px; font-weight:800; color:var(--amber); display:none; margin-top:4px; }
-  textarea, input.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px; font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
+  .ghosty { background:var(--paper); color:var(--muted); border-radius:14px; padding:11px; font-weight:700; font-size:13px; width:100%; }
+  textarea, input.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:11px 13px;
+    font-size:13.5px; font-family:var(--body); margin-top:6px; resize:vertical; }
   .banner { background:var(--mint); border-radius:16px; padding:13px 15px; font-size:13.5px; font-weight:600; color:var(--deep); animation:rise .3s ease both; }
   .banner.soft { background:var(--card); color:var(--ink); box-shadow:0 6px 18px rgba(24,20,15,.05); }
+  .banner.bad { background:var(--red-soft); color:var(--red); }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
@@ -79,55 +65,66 @@
   .hidden { display:none !important; }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:11.5px; font-weight:700;
     border-radius:999px; padding:5px 11px; margin:2px 4px 2px 0; }
-  .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
+  .hist { font-size:12.5px; padding:8px 0; border-bottom:1px solid var(--line); }
   .hist:last-child { border-bottom:none; }
   .hist b { font-size:12.5px; } .hist span { color:var(--muted); }
-  .prow { display:flex; gap:6px; align-items:center; margin-top:8px; }
-  .prow select { flex:1; min-width:0; border:1.5px solid var(--line); border-radius:10px; padding:8px; font-size:12.5px; font-family:var(--body); background:#fff; }
-  .prow input { width:46px; border:1.5px solid var(--line); border-radius:10px; padding:8px 6px; font-size:12.5px; font-family:var(--body); text-align:center; }
-  .prow .del { color:var(--red); font-weight:800; font-size:15px; padding:4px 6px; }
   .warnbox { background:var(--red-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--red); margin-top:8px; animation:rise .25s ease both; }
   .warnbox b { display:block; margin-bottom:4px; }
-  .altbtn { background:#fff; color:var(--deep); font-size:11.5px; font-weight:700; border-radius:999px; padding:6px 11px; margin:4px 4px 0 0; box-shadow:0 2px 6px rgba(24,20,15,.1); }
-  .slot { display:inline-block; font-size:12px; font-weight:700; border-radius:999px; padding:8px 13px; margin:3px 4px 3px 0; cursor:pointer; }
-  .slot.on { background:var(--mint); color:var(--deep); }
-  .slot.off { background:var(--paper); color:var(--faint); text-decoration:line-through; }
+  .okbox { background:var(--mint); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--mint-ink); font-weight:600; margin-top:8px; animation:rise .25s ease both; }
+  .notebox { background:var(--amber-soft); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--amber); font-weight:600; margin-top:8px; }
   /* clients */
-  .client { display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--line); align-items:flex-start; }
+  .client { padding:12px 0; border-bottom:1px solid var(--line); }
   .client:last-child { border-bottom:none; }
+  .cl-head { display:flex; gap:11px; align-items:flex-start; }
   .cl-b { flex:1; min-width:0; }
   .cl-n { font-weight:800; font-size:14.5px; font-family:var(--display); }
   .cl-s { font-size:12px; color:var(--muted); margin-top:1px; }
   .cl-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
-  .cl-acts button, .cl-acts a { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); text-decoration:none; display:inline-block; cursor:pointer; }
+  .cl-acts button { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); }
   .cl-acts button.solid { background:var(--deep); color:#fff; }
+  .detail { background:var(--paper); border-radius:14px; padding:12px; margin-top:10px; animation:rise .25s ease both; }
+  .d-lbl { font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:12px 0 5px; }
+  .d-lbl:first-child { margin-top:0; }
   .badge { display:inline-block; min-width:18px; text-align:center; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; border-radius:999px; padding:2px 6px; }
+  table.bct { width:100%; border-collapse:collapse; font-size:12.5px; margin-top:4px; }
+  .bct th { text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); padding:3px 6px 3px 0; font-weight:800; }
+  .bct td { padding:5px 6px 5px 0; border-top:1px solid var(--line); }
   /* messages */
-  .thread { display:flex; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); cursor:pointer; align-items:center; }
-  .thread:last-child { border-bottom:none; }
-  .msg { max-width:82%; border-radius:14px; padding:9px 12px; margin-top:8px; font-size:13.5px; }
+  .msgs { display:flex; flex-direction:column; }
+  .msg { max-width:84%; border-radius:14px; padding:9px 12px; margin-top:8px; font-size:13px; background:#fff; }
   .msg.me { background:var(--deep); color:#fff; margin-left:auto; }
-  .msg.them { background:var(--paper); }
-  .msg .meta { font-size:10.5px; opacity:.7; margin-top:3px; }
-  .msg.sys { background:var(--mint); color:var(--deep); font-size:12px; font-weight:600; max-width:100%; text-align:center; }
-  .quick { display:flex; gap:6px; flex-wrap:wrap; margin-top:10px; }
-  .quick button { font-size:11px; font-weight:700; padding:7px 11px; border-radius:999px; background:var(--paper); color:var(--deep); }
-  .chk { width:17px; height:17px; accent-color:var(--deep); }
-  /* ---- layout rhythm (matches member app home) ---- */
-  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
+  .msg .meta { font-size:10px; opacity:.65; margin-top:3px; }
+  .msgrow { display:flex; gap:6px; margin-top:8px; }
+  .msgrow input { flex:1; border:1.5px solid var(--line); border-radius:10px; padding:9px 11px; font-size:13px; font-family:var(--body); background:#fff; min-width:0; }
+  .msgrow button { font-size:12px; font-weight:800; padding:9px 14px; border-radius:10px; background:var(--deep); color:#fff; flex-shrink:0; }
+  /* slot tool */
+  .tool { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+  .tool label { font-size:10.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); display:flex; flex-direction:column; gap:4px; }
+  .tool select, .tool input { border:1.5px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13px; font-weight:400; letter-spacing:0; text-transform:none; font-family:var(--body); background:#fff; width:100%; color:var(--ink); }
+  .win { display:flex; align-items:center; gap:10px; padding:10px 0; border-bottom:1px solid var(--line); font-size:13px; }
+  .win:last-child { border-bottom:none; }
+  .win b { font-family:var(--display); }
+  /* performance */
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin-top:8px; }
+  .kpi { background:var(--paper); border-radius:14px; padding:11px 12px; }
+  .kpi b { display:block; font-family:var(--display); font-size:20px; font-weight:800; }
+  .kpi span { font-size:11px; color:var(--muted); font-weight:700; }
+  .kpi.rev { background:var(--mint); }
+  /* live session */
+  .ex { border-bottom:1px solid var(--line); padding:12px 0; }
+  .ex:last-child { border-bottom:none; }
+  .exname { border:1.5px solid var(--line); border-radius:9px; padding:7px 10px; font-size:13.5px; font-family:var(--body); font-weight:700; width:100%; background:#fff; }
+  .setrow { display:flex; gap:6px; align-items:center; margin-top:6px; font-size:12px; color:var(--muted); }
+  .setrow input { width:60px; border:1.5px solid var(--line); border-radius:9px; padding:7px 6px; font-size:12.5px; font-family:var(--body); text-align:center; background:#fff; }
+  .setrow .del { color:var(--red); font-weight:800; font-size:14px; padding:2px 7px; }
+  .mini { font-size:11px; font-weight:800; color:var(--deep); background:var(--paper); border-radius:999px; padding:6px 11px; margin-top:6px; }
+  .qadd { display:flex; gap:6px; flex-wrap:wrap; margin-top:8px; align-items:center; }
+  .qadd input { border:1.5px solid var(--line); border-radius:10px; padding:9px 10px; font-size:13px; font-family:var(--body); background:#fff; }
+  .fine { font-size:11px; color:var(--faint); margin-top:8px; line-height:1.45; }
+  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:8px 2px -6px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
-  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
-  .stack > .card { border-radius:0; box-shadow:none; border-bottom:1px solid var(--line); animation:none; }
-  .stack > .card:last-child { border-bottom:none; }
-  #secDash, #secCal, #secClients { display:flex; flex-direction:column; gap:13px; }
-  #taskList { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px; margin-top:8px; }
-  #taskList .task { margin-top:0; }
-  #clientList .client { padding:8px 0; }
-  #secDash > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
-  #secDash > :nth-child(2) { animation-delay:.05s; }
-  #secDash > :nth-child(3) { animation-delay:.1s; }
-  #secDash > :nth-child(4) { animation-delay:.15s; }
-  @media (prefers-reduced-motion: reduce) { .card, .task, .banner, .warnbox, #secDash > * { animation:none; } }
+  #secToday, #secClients, #secAvail, #secPerf { display:flex; flex-direction:column; gap:13px; }
+  @media (prefers-reduced-motion: reduce) { .card, .banner, .warnbox, .okbox, .detail { animation:none; } }
 </style>
 </head>
 <body>
@@ -135,83 +132,91 @@
   <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
 
   <div class="card head">
-    <div class="avatar">KH</div>
-    <div><div class="t-name">Karim H.</div><div class="t-sub">Strength · Rehab · ★ 4.9</div></div>
-    <select class="status" id="statusSel" aria-label="Trainer availability status">
-      <option>Available now</option><option>In session</option><option>On break</option><option>Unavailable</option>
-    </select>
+    <div class="avatar" id="tAvatar">—</div>
+    <div style="flex:1; min-width:0;">
+      <div class="t-name" id="tName">—</div>
+      <div class="t-sub" id="tSub"></div>
+      <div id="tBranches" style="margin-top:5px;"></div>
+    </div>
+    <select class="status" id="personaSel" aria-label="Switch trainer persona"></select>
   </div>
 
   <div class="seg" id="mainSeg">
-    <button class="on" data-sec="dash">Today</button>
-    <button data-sec="cal">Calendar</button>
+    <button class="on" data-sec="today">Today</button>
     <button data-sec="clients">Clients</button>
+    <button data-sec="avail">Slots</button>
+    <button data-sec="perf">Performance</button>
   </div>
 
-  <div id="arrivalBanner"></div>
+  <div id="banner"></div>
 
-  <!-- ============ DASHBOARD ============ -->
-  <div id="secDash">
-    <div class="card" id="nextCard"></div>
+  <div class="card hidden" id="liveCard"></div>
 
+  <!-- ============ TODAY ============ -->
+  <div id="secToday">
     <div class="card">
-      <div class="eyebrow">Today — schedule</div>
-      <div id="schedule"></div>
-      <div class="qbar">
-        <button id="addSess">+ Add session</button>
-        <button id="blockTime">Block time</button>
-        <button id="addBreak">Add break</button>
-      </div>
-    </div>
-
-    <div class="sect-label">Attention &amp; tasks</div>
-    <div class="stack">
-      <div class="card">
-        <div class="eyebrow">Needs attention</div>
-        <div id="queue"></div>
-      </div>
-
-      <div class="card">
-        <div class="eyebrow">My tasks today</div>
-        <div id="taskList"></div>
-        <button class="ghosty" id="addTask" style="margin-top:8px;">+ Add task</button>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ============ CALENDAR ============ -->
-  <div id="secCal" class="hidden">
-    <div class="card">
-      <div class="eyebrow">My availability — this week</div>
-      <div id="availChips"></div>
-      <div style="font-size:11.5px; color:var(--faint); margin-top:8px;">
-        Tap a slot to open or close it — members can only book slots that are on.</div>
+      <div class="eyebrow">Today — cross-branch day</div>
+      <div id="dayPlan" style="font-size:12px;"></div>
+      <div id="timeline" style="margin-top:6px;"></div>
+      <div class="fine">Sessions come from the shared engine — reception, the member app and the owner
+        dashboard all read the same records. Start a session to open the live logger.</div>
     </div>
   </div>
 
   <!-- ============ CLIENTS ============ -->
   <div id="secClients" class="hidden">
     <div class="card">
-      <div class="eyebrow">My clients</div>
-      <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
-      <div id="clientList"></div>
-      <div style="font-size:11px; color:var(--faint); margin-top:10px;" title="Phone numbers are visible only to the assigned trainer; access is logged and lists cannot be exported.">🔒 Assigned-trainer access only</div>
+      <div class="eyebrow">Client roster</div>
+      <div id="rosterList"></div>
+      <div class="fine">Role-scoped view — injuries and allergies only. Medical conditions in a member's
+        health file are visible to the nutritionist, not to trainers; the engine enforces this
+        (HealthService role scoping). Access is audit-logged.</div>
     </div>
   </div>
 
-  <div class="card hidden" id="clientCard"></div>
+  <!-- ============ AVAILABILITY + SLOT CHECK ============ -->
+  <div id="secAvail">
+    <div class="card hidden" data-availsec>
+      <div class="eyebrow">My availability — by branch</div>
+      <div id="availWins"></div>
+    </div>
+    <div class="card hidden" data-availsec>
+      <div class="eyebrow">Slot check &amp; booking</div>
+      <div class="tool">
+        <label>Client<select id="bkMember"></select></label>
+        <label>Branch<select id="bkBranch"></select></label>
+        <label>Time today<input type="time" id="bkTime" value="18:30"></label>
+        <label>Length<select id="bkDur"><option value="60">60 min</option><option value="45">45 min</option><option value="30">30 min</option></select></label>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="ghosty" id="bkCheck" style="flex:1;">Check slot</button>
+        <button class="primary" id="bkBook" style="flex:1; padding:11px;">Book</button>
+      </div>
+      <div id="bkResult"></div>
+      <div class="fine">The engine refuses physically impossible schedules: same-branch overlaps,
+        cross-branch bookings without Beirut-traffic travel time, and clashes with classes you teach.</div>
+    </div>
+  </div>
 
-  <div class="card hidden" id="liveCard">
-    <div class="eyebrow" id="liveTitle">Live session</div>
-    <div id="liveBody"></div>
+  <!-- ============ PERFORMANCE ============ -->
+  <div id="secPerf" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">
+        <div class="eyebrow" style="margin:0;">Performance — management view</div>
+        <span class="chip dim">Simulated demo data</span>
+      </div>
+      <div id="perfBody"></div>
+    </div>
   </div>
 
   <details style="background:transparent; padding:4px 8px;">
     <summary style="font-size:11.5px; font-weight:700; color:var(--faint); cursor:pointer;">? How this works</summary>
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5; margin-top:6px;">
-      Open the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> in another tab —
-      bookings, arrivals, program edits and confirmations sync live. Statuses change only by human action.</div>
+      Every record here lives in the shared demo engine (data.js). Booking, starting, ending and
+      no-showing sessions call the same service methods a real backend would expose; package credits
+      consume automatically on completion, and the member confirms each completed session in the
+      <a href="index.html" style="color:var(--green); font-weight:700;">member app</a>. Injury flags raised
+      here write to the member's single health record, role-scoped per department.</div>
   </details>
 </div>
 
@@ -219,574 +224,473 @@
 <script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const GYM_TZ = 'Asia/Beirut'; // demo runs in gym-local time; production stores UTC epochs + this zone
-const fmtT = (ms) => new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-const now = () => fmtT(Date.now());
+const D = DemoData, TS = D.TrainerService;
+const fmtT = (ms) => D.fmtTime(ms);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
-const ME = 'Karim H.';
+function showBanner(kind, msg) { $('banner').innerHTML = '<div class="banner' + (kind === 'bad' ? ' bad' : kind === 'soft' ? ' soft' : '') + '">' + msg + '</div>'; }
 
-const ARRIVAL_WINDOW = 45; // minutes before start in which check-in = "arrived for session"
-function parseTime(str) {
-  const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i); if (!m) return null;
-  let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12; return h * 60 + (+m[2]);
-}
-/* epoch ms for a clock-time TODAY in gym-local time */
-function todayAt(str) {
-  const t = parseTime(str); if (t == null) return null;
-  const d = new Date(); d.setHours(Math.floor(t / 60), t % 60, 0, 0); return d.getTime();
-}
-function minsUntil(s) {
-  const target = s.tMs != null ? s.tMs : todayAt(s.time); // timestamps first, strings as fallback
-  return target == null ? null : Math.round((target - Date.now()) / 60000);
-}
-function fmtLead(mu) { return mu >= 60 ? Math.floor(mu / 60) + ' h ' + (mu % 60) + ' min' : mu + ' min'; }
+/* ---------------- trainer persona (persisted) ---------------- */
+const PKEY = 'lu_trainer';
+let TID = (() => { const v = localStorage.getItem(PKEY); return TS.byId(v) ? v : 'stf_tr_karim'; })();
+localStorage.setItem(PKEY, TID);
+const TR = () => TS.byId(TID);
+const bName = (id) => (D.BranchService.byId(id) || { name: id }).name;
+const mById = (id) => D.MemberService.byId(id);
+const mName = (id) => (mById(id) || { name: id }).name;
+const first = (n) => String(n || '').split(' ')[0];
+const initials = (n) => String(n || '').replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).map((w) => w[0].toUpperCase()).slice(0, 2).join('');
 
-/* ---------------- trainer state ---------------- */
-const TKEY = 'gym_trainer_state';
-let T = {
-  sessions: [
-    { id: 's1', time: '4:00 PM', tMs: todayAt('4:00 PM'), member: 'Lina Saab', type: 'PT session', status: 'confirmed' },
-    { id: 's2', time: '5:00 PM', tMs: todayAt('5:00 PM'), member: 'Omar Khal', type: 'PT session', status: 'awaiting' },
-    { id: 's3', time: '6:00 PM', tMs: todayAt('6:00 PM'), member: 'Samer Khanji', type: 'PT · Push day', status: 'scheduled', pkgLeft: 3 },
-  ],
-  queue: [],
-  program: { member: 'Samer Khanji', title: 'Push day', ex: [
-    { n: 'Bench press', sets: 4, reps: 8, w: 70, prevW: 67.5, prev: '4 × 8 @ 67.5 kg' },
-    { n: 'Incline dumbbell press', sets: 3, reps: 10, w: 28, prevW: 28, prev: '3 × 10 @ 28 kg' },
-    { n: 'Overhead press', sets: 3, reps: 8, w: 50, prevW: 50, prev: '3 × 8 @ 50 kg' },
-    { n: 'Cable fly', sets: 3, reps: 12, w: 18, prevW: 18, prev: '3 × 12 @ 18 kg' },
-  ] },
-  avail: [
-    { s: 'Tue · 5:00 PM', on: true }, { s: 'Tue · 6:00 PM', on: true }, { s: 'Wed · 7:00 AM', on: true },
-    { s: 'Thu · 6:00 PM', on: false }, { s: 'Sat · 10:00 AM', on: true },
-  ],
-  tasks: [
-    { t: "Update Samer's program", done: false },
-    { t: 'Prepare assessment sheet for the 10 AM consult', done: false },
-    { t: "Review Jad's progress charts", done: false },
-  ],
+/* ---------------- trainer-owned local context (goals + message mock) ---------------- */
+const GKEY = 'lu_trainer_goals', MSGKEY = 'lu_trainer_msgs';
+const readJ = (k) => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch (e) { return {}; } };
+const GOAL_DEFAULTS = {
+  mbr_0001: 'Bench 80 kg by October — keep the right shoulder honest, press light at end range.',
+  mbr_0005: 'General strength, 2×/week — clean up squat depth before adding load.',
+  mbr_0010: 'Down 4 kg by September — functional base, conditioning twice a week.',
+  mbr_0006: 'Return from ACL rehab — pain-free squat pattern before any jumping.',
 };
-try { const s = JSON.parse(localStorage.getItem(TKEY)); if (s && s.sessions) { T = s; T.tasks = T.tasks || []; T.avail = T.avail || []; } } catch (e) {}
-function save() { localStorage.setItem(TKEY, JSON.stringify(T)); }
+const goalOf = (id) => { const g = readJ(GKEY); return g[id] != null ? g[id] : (GOAL_DEFAULTS[id] || ''); };
+const setGoal = (id, txt) => { const g = readJ(GKEY); g[id] = txt; localStorage.setItem(GKEY, JSON.stringify(g)); };
+function msgsOf(mid) {
+  const all = readJ(MSGKEY); const k = TID + '|' + mid;
+  if (!all[k]) { all[k] = [{ who: 'them', txt: 'Coach — anything I should prep before the next session?', at: 'earlier' }]; localStorage.setItem(MSGKEY, JSON.stringify(all)); }
+  return all[k];
+}
+function pushMsg(mid, who, txt) {
+  const all = readJ(MSGKEY); const k = TID + '|' + mid;
+  (all[k] = all[k] || []).push({ who, txt, at: new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) });
+  localStorage.setItem(MSGKEY, JSON.stringify(all));
+}
 
-/* ---------------- clients ---------------- */
-/* Clients are DERIVED from the shared demo-data engine — no local roster copy.
-   Members, phones and safety facts all come from one source, so a person cannot
-   exist here but be missing from reception, and an injury cannot say one thing
-   here and another in the nutritionist's file. (audit F-DQ-2 / F-SAFE-1)
-   Safety facts arrive through HealthService.visibleTo(id, 'trainer') — a trainer
-   sees injuries and allergies, not unrelated medical conditions. */
-const CLIENT_EXTRAS = {   // trainer-owned coaching context, keyed by member id
-  mbr_0001: { goals: 'Build pressing strength · 78 kg → 80 kg lean · bench 80 kg by October', goalShort: 'Bench press 80 kg', pkg: 'Strength package',
-    history: [{ when: 'Jul 25', what: 'Push day — session 7', note: 'Bench 4×8 @ 67.5, solid, no pain' },
-      { when: 'Jul 19', what: 'Push day — session 6', note: 'Shoulder tight on OHP warm-up — kept it light' },
-      { when: 'Jul 12', what: 'Assessment retest', note: 'Body fat 18.2% · added 1.1 kg lean since June' }] },
-  mbr_0005: { goals: 'General strength · 2×/week', goalShort: 'Squat form', pkg: 'Starter pack',
-    history: [{ when: 'Jul 26', what: 'Full body — session 3', note: 'Form improving on squat' }] },
-  mbr_0006: { goals: 'Return from knee rehab', goalShort: 'Pain-free squat', pkg: 'Rehab pack', history: [] },
+/* ---------------- helpers over engine data ---------------- */
+function pkgOf(s) {
+  if (s.packageId) { const p = D.PackageService.list().find((x) => x.id === s.packageId); if (p) return p; }
+  const mine = D.PackageService.forMember(s.memberId);
+  return mine.find((p) => p.used < p.total) || mine[0] || null;
+}
+const pkgLine = (s) => { const p = pkgOf(s); return p ? (p.total - p.used) + ' of ' + p.total + ' left' : 'no package'; };
+const ptZoneName = (branchId) => ((D.ZoneService.forBranch(branchId).find((z) => z.key === 'pt')) || { name: 'PT zone' }).name;
+const todaySessions = () => TS.sessionsToday(TID).slice().sort((a, b) => a.startsAt - b.startsAt);
+
+/* ---------------- header + persona switcher ---------------- */
+function renderHead() {
+  const t = TR();
+  $('tAvatar').textContent = initials(t.name);
+  $('tName').textContent = t.name;
+  $('tSub').textContent = (t.specialties || []).join(' · ');
+  $('tBranches').innerHTML = (t.availability || []).map((w) =>
+    '<span class="chip">' + esc(bName(w.branchId)) + ' ' + w.fromH + ':00–' + w.toH + ':00</span>').join('');
+  const sel = $('personaSel');
+  sel.innerHTML = TS.list().map((x) => '<option value="' + x.id + '"' + (x.id === TID ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('');
+}
+$('personaSel').onchange = () => {
+  TID = $('personaSel').value; localStorage.setItem(PKEY, TID);
+  openClient = null; justEnded = null; $('banner').innerHTML = '';
+  renderAll(); toast('Now viewing as ' + TR().name);
 };
-const FLAG_OF = (label) => /shoulder/i.test(label) ? 'shoulder' : /acl|knee/i.test(label) ? 'knee' : 'general';
-const CLIENTS = (() => {
-  const out = {};
-  if (typeof DemoData === 'undefined') return out;
-  DemoData.MemberService.list()
-    .filter((m) => m.trainerId === 'stf_0002')            // assigned clients only
-    .forEach((m) => {
-      const extra = CLIENT_EXTRAS[m.id] || { goals: '—', goalShort: '—', pkg: '—', history: [] };
-      const facts = DemoData.HealthService.visibleTo(m.id, 'trainer');
-      out[m.name] = {
-        id: m.id, phone: m.phone, email: m.email, emerg: '—', pref: 'Phone',
-        status: m.status === 'active' ? 'Active membership' : m.status,
-        pkg: extra.pkg, goals: extra.goals, goalShort: extra.goalShort,
-        injuries: facts.filter((f) => f.kind === 'injury').map((f) => ({ flag: FLAG_OF(f.label), label: f.label, note: f.note, source: f.source, recordedAt: f.recordedAt })),
-        allergies: facts.filter((f) => f.kind === 'allergy').map((f) => f.label),
-        history: extra.history.slice(),
-      };
-    });
-  return out;
-})();
-const CATALOG = [
-  { n: 'Bench press' }, { n: 'Incline dumbbell press' }, { n: 'Machine chest press' },
-  { n: 'Overhead press' }, { n: 'Cable fly' }, { n: 'Dumbbell pullover' }, { n: 'Triceps pushdown' },
-  { n: 'Landmine press', alt: ['shoulder'] }, { n: 'Low-incline dumbbell press', alt: ['shoulder'] }, { n: 'Cable Y-raise', alt: ['shoulder'] },
-  { n: 'Behind-the-neck press', risk: ['shoulder'] }, { n: 'Upright row', risk: ['shoulder'] },
-  { n: 'Box jump', risk: ['knee'] }, { n: 'Leg extension', alt: ['knee'] },
-];
-
-function pkgInfo(member) {
-  const s = T.sessions.find((x) => x.member === member && x.pkgLeft != null);
-  return s ? (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : '—';
-}
-function nextSessionOf(member) {
-  const s = T.sessions.find((x) => x.member === member && ['scheduled', 'ingym', 'arrived'].includes(x.status));
-  return s ? s.time : null;
-}
 
 /* ---------------- section nav ---------------- */
-document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
-  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
-  $('secDash').classList.toggle('hidden', b.dataset.sec !== 'dash');
-  $('secCal').classList.toggle('hidden', b.dataset.sec !== 'cal');
-  $('secClients').classList.toggle('hidden', b.dataset.sec !== 'clients');
-  if (b.dataset.sec === 'clients') renderClients();
-  if (b.dataset.sec === 'cal') renderAvail();
-}; });
+document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => showSec(b.dataset.sec); });
+function showSec(sec) {
+  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.toggle('on', x.dataset.sec === sec));
+  $('secToday').classList.toggle('hidden', sec !== 'today');
+  $('secClients').classList.toggle('hidden', sec !== 'clients');
+  document.querySelectorAll('[data-availsec]').forEach((c) => c.classList.toggle('hidden', sec !== 'avail'));
+  $('secPerf').classList.toggle('hidden', sec !== 'perf');
+}
+showSec('today');
 
-/* ---------------- schedule ---------------- */
-function labelFor(s) {
-  if (s.kind === 'block') return ['Blocked', 'st-sched'];
-  if (s.kind === 'break') return ['Break', 'st-sched'];
-  const mu = minsUntil(s);
-  if (s.status === 'scheduled') return (mu != null && mu < -10) ? ['Late — not in gym', 'st-bad'] : ['Scheduled', 'st-sched'];
-  if (s.status === 'ingym') return ['In gym — session later', 'st-ingym'];
-  if (s.status === 'arrived') return ['Arrived — waiting for trainer', 'st-arr'];
-  if (s.status === 'started') return ['In session', 'st-live'];
-  if (s.status === 'awaiting') return ['Waiting member confirm', 'st-wait'];
-  if (s.status === 'confirmed') return ['Confirmed · deducted', 'st-ok'];
-  if (s.status === 'disputed') return ['Disputed → manager', 'st-bad'];
-  if (s.status === 'noshow') return ['No-show', 'st-bad'];
+/* ---------------- TODAY: cross-branch timeline ---------------- */
+function statusChip(s) {
+  if (s.status === 'scheduled') return ['Scheduled', 'st-sched'];
+  if (s.status === 'live') return ['LIVE', 'st-live'];
+  if (s.status === 'completed') return s.memberConfirmed ? ['Confirmed ✓', 'st-ok'] : ['Awaiting member confirm', 'st-wait'];
+  if (s.status === 'no_show') return ['No-show', 'st-bad'];
   if (s.status === 'cancelled') return ['Cancelled', 'st-bad'];
-  return ['Scheduled', 'st-sched'];
+  return [s.status, 'st-sched'];
+}
+function sessRow(s) {
+  const m = mById(s.memberId) || { name: s.memberId };
+  const [lbl, cls] = statusChip(s);
+  const inGym = D.AccessService.insideNow(s.branchId).some((v) => v.memberId === s.memberId);
+  const acts = [];
+  if (s.status === 'scheduled') {
+    acts.push('<button data-start="' + s.id + '">Start session</button>');
+    acts.push('<button class="ghost" data-noshow="' + s.id + '">No-show</button>');
+  }
+  if (s.status === 'live') acts.push('<button data-openlive="' + s.id + '">Open live logger</button>');
+  return '<div class="sess">' +
+    '<div class="sess-time">' + fmtT(s.startsAt) + '</div>' +
+    '<div class="avatar sm">' + esc(initials(m.name)) + '</div>' +
+    '<div class="sess-body">' +
+      '<div class="sess-n">' + esc(m.name) + (s.smallGroup ? ' <span class="chip dim">Small group</span>' : '') + '</div>' +
+      '<div style="margin-top:3px;"><span class="chip">' + esc(bName(s.branchId)) + '</span><span class="chip dim">' + esc(ptZoneName(s.branchId)) + '</span>' + (inGym ? '<span class="chip">In the gym now</span>' : '') + '</div>' +
+      '<div class="sess-s">Package: ' + esc(pkgLine(s)) + ' · ' + s.durationMins + ' min' + (s.pb ? ' · PB: ' + esc(s.pb) : '') + '</div>' +
+      (s.status === 'no_show' && s.notes ? '<div class="sess-s">Reason: ' + esc(s.notes) + '</div>' : '') +
+      (acts.length ? '<div class="sess-acts">' + acts.join('') + '</div>' : '') +
+    '</div>' +
+    '<span class="st ' + cls + '">' + lbl + '</span>' +
+  '</div>';
+}
+function renderToday() {
+  const t = TR();
+  const wins = (t.availability || []).slice().sort((a, b) => a.fromH - b.fromH);
+  let strip = '';
+  wins.forEach((w, i) => {
+    if (i > 0 && wins[i - 1].branchId !== w.branchId) {
+      strip += '<span class="chip dim">→ ' + D.travelMinutes(wins[i - 1].branchId, w.branchId) + ' min drive</span>';
+    }
+    strip += '<span class="chip">' + esc(bName(w.branchId)) + ' ' + w.fromH + ':00–' + w.toH + ':00</span>';
+  });
+  $('dayPlan').innerHTML = strip;
+
+  const ss = todaySessions();
+  let html = '';
+  ss.forEach((s, i) => {
+    if (i > 0 && ss[i - 1].branchId !== s.branchId) {
+      const mm = D.travelMinutes(ss[i - 1].branchId, s.branchId);
+      html += '<div class="travel">' + mm + ' min ' + esc(bName(ss[i - 1].branchId)) + ' → ' + esc(bName(s.branchId)) + ' (Beirut traffic)</div>';
+    }
+    html += sessRow(s);
+  });
+  $('timeline').innerHTML = html || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No sessions today — book one from the Slots tab.</div>';
+  document.querySelectorAll('[data-start]').forEach((b) => { b.onclick = () => startSess(b.dataset.start); });
+  document.querySelectorAll('[data-noshow]').forEach((b) => { b.onclick = () => noShow(b.dataset.noshow); });
+  document.querySelectorAll('[data-openlive]').forEach((b) => { b.onclick = () => { renderLive(); $('liveCard').scrollIntoView({ behavior: 'smooth' }); }; });
 }
 
-/* next session — one obvious primary action, everything relevant in one glance */
-function renderNext() {
-  const upcoming = [...T.sessions]
-    .filter((s) => !s.kind && ['scheduled', 'ingym', 'arrived', 'started'].includes(s.status))
-    .sort((a, b) => (a.tMs || Infinity) - (b.tMs || Infinity));
-  const s = upcoming[0];
-  if (!s) {
-    $('nextCard').innerHTML = `<div class="eyebrow">Next session</div>
-      <div style="font-size:13.5px; color:var(--faint);">Nothing coming up — add a session or open a slot below.</div>`;
+/* ---------------- no-show (mandatory reason) ---------------- */
+function noShow(sid) {
+  const s = TS.sessions(TID).find((x) => x.id === sid); if (!s) return;
+  const reason = prompt('No-show reason (required — goes on ' + first(mName(s.memberId)) + "'s session record):", '');
+  if (reason === null) return;
+  const res = TS.markNoShow(sid, TID, reason);
+  if (res.error === 'reason_required') { toast('A real reason is required — nothing was saved.'); return; }
+  if (res.error) { toast('Could not mark no-show — ' + res.error); return; }
+  toast('No-show recorded — no credit consumed.');
+  renderAll();
+}
+
+/* ---------------- LIVE SESSION ---------------- */
+let justEnded = null;
+function startSess(sid) {
+  const res = TS.startSession(sid, TID);
+  if (res.error === 'session_already_live') {
+    const live = TS.sessions(TID).find((x) => x.id === res.liveId);
+    showBanner('bad', 'End your live session with ' + esc(first(mName(live ? live.memberId : ''))) +
+      ' first. Only one individual session can run at a time. Small-group sessions are the explicit exception.');
     return;
   }
-  const c = CLIENTS[s.member] || { injuries: [] };
-  const [lbl] = labelFor(s);
-  $('nextCard').innerHTML = `
-    <div class="row" style="display:flex; justify-content:space-between; align-items:baseline;">
-      <div class="eyebrow" style="margin:0;">Next session — ${s.time}</div>
-      <span class="st ${labelFor(s)[1]}">${lbl}</span></div>
-    <div style="display:flex; gap:11px; align-items:center; margin-top:9px;">
-      <div class="avatar sm">${s.member[0]}</div>
-      <div style="flex:1; min-width:0;">
-        <div style="font-weight:800; font-family:var(--display); font-size:16px;">${s.member}</div>
-        <div style="font-size:12px; color:var(--muted);">${c.phone || ''} · ${T.program && T.program.member === s.member ? T.program.title + ' program' : s.type}${s.pkgLeft != null ? ' · ' + (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : ''}</div>
-        ${c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span>`).join('')}
-      </div>
-    </div>
-    <div style="display:flex; gap:8px; margin-top:11px;">
-      <button class="primary" style="flex:1; padding:12px;" data-nextopen="${s.id}">${s.status === 'started' ? 'Back to session' : 'Start session'}</button>
-      <button class="ghosty" style="flex:0 0 auto; width:auto; padding:12px 16px;" data-nextfile="${s.member}">Client file</button>
-    </div>`;
-  document.querySelector('[data-nextopen]').onclick = () => openLive(s.id);
-  document.querySelector('[data-nextfile]').onclick = () => openFile(s.member);
-}
-
-function renderSchedule() {
-  renderNext();
-  const rows = [...T.sessions].sort((a, b) => (a.tMs || 0) - (b.tMs || 0));
-  $('schedule').innerHTML = rows.map((s) => {
-    const [lbl, cls] = labelFor(s);
-    if (s.kind) return `<div class="sess"><div class="sess-time">${s.time}</div>
-      <div class="sess-body"><div class="sess-n" style="color:var(--muted);">${s.kind === 'break' ? 'Break' : 'Blocked — ' + (s.note || 'personal')}</div></div>
-      <span class="st ${cls}">${lbl}</span><button class="mini-btn" data-del="${s.id}">✕</button></div>`;
-    const openable = ['arrived', 'started', 'scheduled', 'ingym'].includes(s.status);
-    return `<div class="sess">
-      <div class="sess-time">${s.time}</div>
-      <div class="avatar sm">${s.member[0]}</div>
-      <div class="sess-body"><div class="sess-n">${s.member}</div>
-        <div class="sess-s">${s.type}${s.pkgLeft != null ? ' · ' + (10 - s.pkgLeft) + ' used · ' + s.pkgLeft + ' remaining' : ''}${s.checkin ? ' · in gym since ' + s.checkin : ''}</div></div>
-      <span class="st ${cls}">${lbl}</span>
-      <button class="mini-btn" data-file="${s.member}">File</button>
-      ${openable ? `<button class="mini-btn" data-open="${s.id}">Open ›</button>` : ''}
-    </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px;">Nothing scheduled today — sessions you add, accept or receive from member bookings appear here. Use <b>+ Add session</b> below.</div>';
-  document.querySelectorAll('[data-open]').forEach((b) => { b.onclick = () => openLive(b.dataset.open); });
-  document.querySelectorAll('[data-file]').forEach((b) => { b.onclick = () => openFile(b.dataset.file); });
-  document.querySelectorAll('[data-del]').forEach((b) => { b.onclick = () => { T.sessions = T.sessions.filter((x) => x.id !== b.dataset.del); save(); renderSchedule(); }; });
-}
-
-/* scheduling actions */
-$('addSess').onclick = () => addSessionFlow();
-/* conflict prevention: no overlaps with sessions/blocks/breaks, no double-booking
-   the member, and only inside working hours */
-const WORK_START = 6 * 60, WORK_END = 22 * 60, SESSION_MIN = 55;
-function slotConflict(tMs, member) {
-  if (tMs == null) return 'Time not recognised — use e.g. 7:00 PM';
-  if (tMs < Date.now() - 5 * 60000) return 'That time has already passed today';
-  const mins = new Date(tMs).getHours() * 60 + new Date(tMs).getMinutes();
-  if (mins < WORK_START || mins + SESSION_MIN > WORK_END) return 'Outside working hours (6:00 AM – 10:00 PM)';
-  const clash = T.sessions.find((s) => s.tMs != null && !['cancelled', 'noshow'].includes(s.status || '')
-    && Math.abs(s.tMs - tMs) < SESSION_MIN * 60000);
-  if (clash) return 'Clashes with ' + (clash.kind ? (clash.kind === 'break' ? 'your break' : 'blocked time') : clash.member + "'s " + clash.time + ' session');
-  const dbl = T.sessions.find((s) => !s.kind && s.member === member && s.tMs != null
-    && ['scheduled', 'ingym', 'arrived', 'started'].includes(s.status) && Math.abs(s.tMs - tMs) < 12 * 3600000);
-  if (dbl) return member.split(' ')[0] + ' already has a session today (' + dbl.time + ')';
-  return null;
-}
-function addSessionFlow(presetMember) {
-  const names = Object.keys(CLIENTS);
-  const member = presetMember || prompt('Client:\n' + names.join('\n'), names[0]); if (!member) return;
-  if (!CLIENTS[member]) { toast('Unknown client — pick a name from your list'); return; }
-  const time = prompt('Time today (e.g. 9:00 AM):', '7:00 PM'); if (!time) return;
-  const tMs = todayAt(time);
-  const conflict = slotConflict(tMs, member);
-  if (conflict) { toast('Not booked — ' + conflict); return; }
-  T.sessions.push({ id: 's' + Date.now(), time, tMs, member, type: 'PT session', status: 'scheduled' });
-  save(); renderSchedule();
-  GymBus.send('pt-booked', { member, trainer: ME, slot: 'Today · ' + time }, 'trainer');
-  toast(member.split(' ')[0] + ' added at ' + time + ' — member notified, on both calendars');
-}
-$('blockTime').onclick = () => {
-  const time = prompt('Block from (e.g. 2:00 PM):', '2:00 PM'); if (!time) return;
-  const note = prompt('Reason (private):', 'personal') || 'personal';
-  T.sessions.push({ id: 'b' + Date.now(), time, tMs: todayAt(time), kind: 'block', note });
-  save(); renderSchedule(); toast('Time blocked — members cannot book over it');
-};
-$('addBreak').onclick = () => {
-  const time = prompt('Break at (e.g. 12:00 PM):', '12:00 PM'); if (!time) return;
-  T.sessions.push({ id: 'k' + Date.now(), time, tMs: todayAt(time), kind: 'break' });
-  save(); renderSchedule(); toast('Break added');
-};
-
-/* arrival-window watcher — surfaces time context; the check-in fact came from a real gate event */
-setInterval(() => {
-  let changed = false;
-  T.sessions.forEach((s) => {
-    const mu = minsUntil(s);
-    if (s.status === 'ingym' && mu != null && mu <= ARRIVAL_WINDOW) { s.status = 'arrived'; arrivalAlert(s); changed = true; }
-  });
-  if (changed) save();
-  renderSchedule();
-}, 30000);
-
-function arrivalAlert(s) {
-  $('arrivalBanner').innerHTML = `<div class="banner">✓ ${s.member} is here for the ${s.time} session (checked in ${s.checkin}).</div>`;
-  addQ({ key: 'arr-' + s.id, sid: s.id, t: s.member + ' — arrived for session', s: 'Session at ' + s.time + ' — open when ready', actions: [{ a: 'open', l: 'Open session' }] });
-  toast(s.member + ' arrived for the ' + s.time + ' session');
-}
-
-/* ---------------- queue ---------------- */
-function addQ(q) { if (T.queue.some((x) => x.key === q.key)) return; q.at = now(); T.queue.unshift(q); save(); renderQueue(); }
-function delQ(key) { T.queue = T.queue.filter((x) => x.key !== key); save(); renderQueue(); }
-function renderQueue() {
-  $('queue').innerHTML = T.queue.map((q) => `
-    <div class="task ${q.urg || ''}">
-      <div class="task-b"><div class="task-t">${q.t}</div><div class="task-s">${q.s} · ${q.at}</div></div>
-      <div class="act">${(q.actions || []).map((a) => `<button class="${a.ghost ? 'ghost' : ''}" data-qa="${q.key}" data-act="${a.a}">${a.l}</button>`).join('')}</div>
-    </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear — booking requests, arrivals, pending confirmations, disputes and renewal opportunities land here.</div>';
-  document.querySelectorAll('[data-qa]').forEach((b) => { b.onclick = () => queueAction(b.dataset.qa, b.dataset.act); });
-}
-function reqActions() { return [{ a: 'accept', l: 'Accept' }, { a: 'propose', l: 'Propose time', ghost: true }, { a: 'decline', l: 'Decline', ghost: true }]; }
-function queueAction(key, act) {
-  const q = T.queue.find((x) => x.key === key); if (!q) return;
-  if (act === 'accept') {
-    GymBus.update(q.busId, 'accepted', ME, q.slot || '');
-    T.sessions.push({ id: 's' + Date.now(), time: q.slot || 'Tomorrow 6:00 PM', tMs: null, member: q.member, type: 'PT session', status: 'scheduled' });
-    delQ(key); renderSchedule(); toast('Accepted — member notified, on both calendars');
-  }
-  if (act === 'propose') {
-    const open = T.avail.filter((a) => a.on).map((a) => a.s);
-    const alt = open.find((s) => s !== q.slot) || 'Sat · 10:00 AM';
-    GymBus.update(q.busId, 'proposed', ME, alt);
-    delQ(key); toast('Proposed ' + alt + ' — member decides');
-  }
-  if (act === 'decline') {
-    const r = prompt('Reason for declining (sent to the member):', 'Fully booked this week');
-    if (r == null) return;
-    GymBus.update(q.busId, 'declined', ME, r);
-    delQ(key); toast('Declined with reason — member notified');
-  }
-  if (act === 'reco') {
-    GymBus.send('renewal', { member: q.member, price: 300, plan: 'PT package renewal · 10 sessions · $300 ($30/session — single sessions are $35)' }, 'trainer');
-    delQ(key); toast('Recommendation sent to reception — itemized, they take payment');
-  }
-  if (act === 'open') openLive(q.sid);
-}
-
-/* ---------------- tasks ---------------- */
-function renderTasks() {
-  $('taskList').innerHTML = T.tasks.map((t, i) => `
-    <div class="task" style="background:${t.done ? 'var(--mint)' : 'var(--paper)'};">
-      <input type="checkbox" class="chk" data-tk="${i}" ${t.done ? 'checked' : ''} />
-      <div class="task-b"><div class="task-t" style="${t.done ? 'text-decoration:line-through; color:var(--muted);' : ''}">${t.t}</div></div>
-    </div>`).join('') || '<div style="color:var(--faint); font-size:13px;">No tasks.</div>';
-  document.querySelectorAll('[data-tk]').forEach((c) => { c.onchange = () => { T.tasks[Number(c.dataset.tk)].done = c.checked; save(); renderTasks(); }; });
-}
-$('addTask').onclick = () => { const t = prompt('Task:', ''); if (!t) return; T.tasks.push({ t, done: false }); save(); renderTasks(); };
-
-/* ---------------- clients directory ---------------- */
-const telHref = (phone) => 'tel:' + phone.replace(/[^\d+]/g, '');
-const waHref = (phone) => 'https://wa.me/' + phone.replace(/[^\d]/g, '');
-
-function renderClients() {
-  const q = ($('clientSearch').value || '').toLowerCase();
-  const rows = Object.keys(CLIENTS).filter((n) => {
-    const c = CLIENTS[n];
-    return !q || n.toLowerCase().includes(q) || c.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')) || (c.goalShort || '').toLowerCase().includes(q) || (c.pkg || '').toLowerCase().includes(q);
-  });
-  $('clientList').innerHTML = rows.map((n) => {
-    const c = CLIENTS[n]; const next = nextSessionOf(n);
-    return `<div class="client">
-      <div class="avatar sm">${n[0]}</div>
-      <div class="cl-b">
-        <div class="cl-n">${n}</div>
-        <div class="cl-s"><b>${c.phone}</b> · ${c.status}</div>
-        <div class="cl-s">${c.pkg} · ${pkgInfo(n)}${next ? ' · next: ' + next : ' · no upcoming session'}</div>
-        <div class="cl-s">Goal: ${c.goalShort}</div>
-        ${c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span>`).join('')}
-        <div class="cl-acts">
-          <button class="solid" data-copen="${n}">Open client</button>
-          <a href="${telHref(c.phone)}" data-clog="${n}">Call</a>
-          <a href="${waHref(c.phone)}" target="_blank" rel="noopener" data-clog="${n}">WhatsApp</a>
-          <button data-cbook="${n}">Book session</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No matches.</div>';
-  document.querySelectorAll('[data-copen]').forEach((b) => { b.onclick = () => openFile(b.dataset.copen); });
-  document.querySelectorAll('[data-clog]').forEach((b) => { b.addEventListener('click', () => logTimeline(b.dataset.clog, 'Contacted by ' + ME + ' (' + b.textContent + ')')); });
-  document.querySelectorAll('[data-cbook]').forEach((b) => { b.onclick = () => addSessionFlow(b.dataset.cbook); });
-}
-$('clientSearch').oninput = () => renderClients();
-function logTimeline(member, what) {
-  (CLIENTS[member].history = CLIENTS[member].history || []).unshift({ when: 'Today', what, note: '' });
-}
-
-/* ---------------- client profile + program builder ---------------- */
-let fileMember = null, draft = null;
-function riskFor(exName, member) {
-  const cat = CATALOG.find((c) => c.n === exName);
-  const flags = (CLIENTS[member]?.injuries || []).map((i) => i.flag);
-  if (!cat || !cat.risk) return null;
-  const hit = cat.risk.find((r) => flags.includes(r));
-  return hit ? (CLIENTS[member].injuries.find((i) => i.flag === hit)) : null;
-}
-function altsFor(flag) { return CATALOG.filter((c) => (c.alt || []).includes(flag)).map((c) => c.n); }
-
-function openFile(member) {
-  fileMember = member;
-  const c = CLIENTS[member] || { goals: '—', injuries: [], history: [] };
-  const hasProgram = T.program && T.program.member === member;
-  draft = hasProgram ? JSON.parse(JSON.stringify(T.program.ex)) : null;
-  $('clientCard').classList.remove('hidden');
-  renderFile(c, hasProgram);
-  $('clientCard').scrollIntoView({ behavior: 'smooth' });
-}
-function renderFile(c, hasProgram) {
-  const m = fileMember;
-  $('clientCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">Client — ${m}</div>
-      <button class="mini-btn" id="fileClose">Close ✕</button>
-    </div>
-    <div style="margin-top:10px;"><div class="eyebrow">Contact <span style="text-transform:none; letter-spacing:0;">(access audit-logged)</span></div>
-      <div style="font-size:13px;"><b>${c.phone || '—'}</b> · ${c.email || ''}<br>Emergency: ${c.emerg || '—'} · Prefers: ${c.pref || '—'}</div>
-      <div class="cl-acts">
-        <a href="${telHref(c.phone || '')}" data-clog="${m}">Call ${m.split(' ')[0]}</a>
-        <a href="${waHref(c.phone || '')}" target="_blank" rel="noopener" data-clog="${m}">WhatsApp</a>
-      </div>
-    </div>
-    <div style="margin-top:10px;"><div class="eyebrow">Package</div>
-      <div style="font-size:13px;">${c.pkg || '—'} · ${pkgInfo(m)}${nextSessionOf(m) ? ' · next: ' + nextSessionOf(m) : ''}</div></div>
-    <div style="margin-top:10px;"><div class="eyebrow">Goals</div><div style="font-size:13.5px;">${c.goals}</div></div>
-    <div style="margin-top:12px;"><div class="eyebrow">Injury &amp; safety flags</div>
-      ${c.injuries.length ? c.injuries.map((i) => `<span class="flag">⚠ ${i.label}</span><div style="font-size:12px; color:var(--muted); margin-top:4px;">${i.note}</div>`).join('') : '<div style="font-size:13px; color:var(--faint);">None on file.</div>'}
-    </div>
-    <div style="margin-top:12px;"><div class="eyebrow">Timeline</div>
-      ${c.history.length ? c.history.slice(0, 5).map((h) => `<div class="hist"><b>${h.when}</b> · ${h.what}${h.note ? `<br><span>“${h.note}”</span>` : ''}</div>`).join('') : '<div style="font-size:13px; color:var(--faint);">No entries yet.</div>'}
-    </div>
-    ${hasProgram ? `
-    <div style="margin-top:14px;"><div class="eyebrow">Prepared workout — ${T.program.title} <span style="text-transform:none; letter-spacing:0;">(editable)</span></div>
-      <div id="progRows"></div>
-      <div id="progWarn"></div>
-      <button class="ghosty" id="progAdd" style="margin-top:10px;">+ Add exercise</button>
-      <button class="primary" id="progSave" style="margin-top:8px;">Save &amp; sync to ${m.split(' ')[0]}'s app</button>
-    </div>` : ''}`;
-  $('fileClose').onclick = () => { $('clientCard').classList.add('hidden'); fileMember = null; };
-  document.querySelectorAll('#clientCard [data-clog]').forEach((b) => { b.addEventListener('click', () => logTimeline(m, 'Contacted by ' + ME + ' (' + b.textContent.trim() + ')')); });
-  if (hasProgram) { renderProg(); $('progAdd').onclick = () => { draft.push({ n: 'Machine chest press', sets: 3, reps: 10, w: 30, prevW: 30, prev: '—' }); renderProg(); }; $('progSave').onclick = saveProgram; }
-}
-function renderProg() {
-  $('progRows').innerHTML = draft.map((e, i) => `
-    <div class="prow">
-      <select data-pi="${i}">${CATALOG.map((c) => `<option ${c.n === e.n ? 'selected' : ''}>${c.n}</option>`).join('')}</select>
-      <input data-ps="${i}" value="${e.sets}" /> ×
-      <input data-pr="${i}" value="${e.reps}" /> @
-      <input data-pw="${i}" value="${e.w}" /> kg
-      <button class="del" data-pd="${i}">✕</button>
-    </div>`).join('');
-  document.querySelectorAll('[data-pi]').forEach((s) => { s.onchange = () => pickExercise(Number(s.dataset.pi), s.value, s); });
-  document.querySelectorAll('[data-ps]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.ps)].sets = Number(s.value) || 0; }; });
-  document.querySelectorAll('[data-pr]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pr)].reps = Number(s.value) || 0; }; });
-  document.querySelectorAll('[data-pw]').forEach((s) => { s.oninput = () => { draft[Number(s.dataset.pw)].w = Number(s.value) || 0; }; });
-  document.querySelectorAll('[data-pd]').forEach((s) => { s.onclick = () => { draft.splice(Number(s.dataset.pd), 1); renderProg(); }; });
-}
-function pickExercise(i, name, sel) {
-  const inj = riskFor(name, fileMember);
-  if (inj) {
-    const alts = altsFor(inj.flag);
-    $('progWarn').innerHTML = `<div class="warnbox">
-      <b>⚠ ${name} conflicts with an injury flag: ${inj.label}</b>
-      ${inj.note}<br>Approved alternatives:
-      <div>${alts.map((a) => `<button class="altbtn" data-alt="${a}" data-alti="${i}">${a}</button>`).join('')}
-      <button class="altbtn" data-keep="${i}" style="color:var(--red);">Keep anyway (logged)</button></div></div>`;
-    document.querySelectorAll('[data-alt]').forEach((b) => { b.onclick = () => {
-      draft[Number(b.dataset.alti)] = { ...draft[Number(b.dataset.alti)], n: b.dataset.alt, prev: '—', prevW: draft[Number(b.dataset.alti)].w };
-      $('progWarn').innerHTML = ''; renderProg(); toast('Swapped to ' + b.dataset.alt + ' — safe for ' + inj.flag);
-    }; });
-    document.querySelectorAll('[data-keep]').forEach((b) => { b.onclick = () => {
-      const why = prompt('Safety override requires a reason (permanently audited):', '');
-      if (!why || why.trim().length < 5) { toast('Override needs a real reason — not saved'); return; }
-      draft[Number(b.dataset.keep)].n = name; draft[Number(b.dataset.keep)].override = true;
-      draft[Number(b.dataset.keep)].overrideReason = why.trim();
-      logTimeline(fileMember, 'SAFETY OVERRIDE by ' + ME + ': kept ' + name + ' despite ' + inj.label + ' — "' + why.trim() + '"');
-      $('progWarn').innerHTML = ''; toast('Kept with logged override — reason recorded in the client timeline');
-    }; });
-    sel.value = draft[i].n;
-  } else {
-    draft[i] = { ...draft[i], n: name, prev: draft[i].n === name ? draft[i].prev : '—', prevW: draft[i].w };
-    $('progWarn').innerHTML = '';
-  }
-}
-function saveProgram(auditVia) {
-  const bad = draft.find((e) => riskFor(e.n, fileMember) && !e.override);
-  if (bad) { toast('Resolve the safety conflict first'); return; }
-  if (!draft.length) { toast('Program is empty'); return; }
-  T.program.ex = draft; save();
-  GymBus.send('program-update', {
-    member: fileMember, title: T.program.title, by: ME,
-    exercises: draft.map((e) => ({ name: e.n + (e.override ? ' (modified for you)' : ''), sets: e.sets + ' sets × ' + e.reps + (e.w ? ' @ ' + e.w + ' kg' : ''), last: e.prev || '—' })),
-  }, 'trainer');
-  logTimeline(fileMember, 'Program updated by ' + ME + (auditVia ? ' — ' + auditVia : ''));
-  toast('Saved — ' + fileMember.split(' ')[0] + "'s app updated instantly");
-}
-
-/* ---------------- availability ---------------- */
-function renderAvail() {
-  $('availChips').innerHTML = T.avail.map((a, i) => `<span class="slot ${a.on ? 'on' : 'off'}" data-av="${i}">${a.s}</span>`).join('');
-  document.querySelectorAll('[data-av]').forEach((c) => { c.onclick = () => {
-    const a = T.avail[Number(c.dataset.av)]; a.on = !a.on; save(); renderAvail(); publishAvail();
-    toast(a.s + (a.on ? ' opened' : ' closed') + ' — members see this immediately');
-  }; });
-}
-function publishAvail() {
-  GymBus.send('trainer-avail', { trainer: ME, slots: T.avail.filter((a) => a.on).map((a) => a.s) }, 'trainer');
-}
-
-/* ---------------- live session ---------------- */
-let liveEx = [], liveStart = null;
-function exListFor(member) {
-  if (T.program && T.program.member === member) {
-    return T.program.ex.map((e) => ({ n: e.n, target: e.sets + ' × ' + e.reps + ' @ ' + e.w + ' kg', prevW: e.prevW ?? e.w, prev: e.prev || '—' }));
-  }
-  return [{ n: 'Full-body circuit', target: '3 rounds', prevW: 0, prev: '—' }];
-}
-function openLive(sid) {
-  const s = T.sessions.find((x) => x.id === sid); if (!s) return;
-  if (['arrived', 'scheduled', 'ingym'].includes(s.status)) { s.status = 'started'; s.startAt = now(); save(); renderSchedule(); }
-  delQ('arr-' + s.id);
-  liveStart = Date.now();
-  liveEx = exListFor(s.member);
-  $('liveCard').classList.remove('hidden');
-  $('liveTitle').textContent = 'Live session — ' + s.member + (T.program && T.program.member === s.member ? ' · ' + T.program.title : '') + ' · started ' + (s.startAt || now());
-  $('liveBody').innerHTML = `
-    ${liveEx.map((e, i) => `<div class="ex">
-      <div class="ex-head"><span class="ex-n">${e.n}</span><span class="ex-target">${e.target}</span></div>
-      <div class="ex-prev">Previous: ${e.prev}</div>
-      <div class="ex-inputs">
-        <input id="reps${i}" placeholder="Reps today, e.g. 8/8/7/6" autocomplete="off" />
-        <input id="w${i}" type="number" placeholder="kg" style="max-width:80px;" />
-      </div>
-      <div class="pr-flag" id="pr${i}">★ NEW PR — beats ${e.prevW} kg</div>
-    </div>`).join('')}
-    <div class="eyebrow" style="margin-top:12px;">Session notes — required before requesting confirmation</div>
-    <textarea id="liveNotes" rows="2" placeholder="Performance, pain flags, adjustments, plan for next session…"></textarea>
-    <button class="primary" id="completeBtn" style="margin-top:12px;">Mark complete → ask ${s.member.split(' ')[0]} to confirm</button>
-    <button class="ghosty" id="noshowBtn" style="margin-top:8px;">Member no-show (no deduction)</button>`;
-  liveEx.forEach((e, i) => { $('w' + i).oninput = () => { $('pr' + i).style.display = Number($('w' + i).value) > e.prevW ? 'block' : 'none'; }; });
-  $('completeBtn').onclick = () => completeSession(s);
-  $('noshowBtn').onclick = () => { s.status = 'noshow'; save(); renderSchedule(); $('liveCard').classList.add('hidden'); toast('No-show recorded — no session deducted'); };
+  if (res.error) { toast('Cannot start — ' + res.error); return; }
+  justEnded = null; $('banner').innerHTML = '';
+  renderAll();
   $('liveCard').scrollIntoView({ behavior: 'smooth' });
 }
-function completeSession(s) {
-  const notes = $('liveNotes').value.trim();
-  if (notes.length < 5) { toast('Session notes are required first'); $('liveNotes').focus(); return; }
-  const results = liveEx.map((e, i) => ({ name: e.n, reps: $('reps' + i).value.trim(), w: Number($('w' + i).value) || null, pr: Number($('w' + i).value) > e.prevW }));
-  const done = results.filter((r) => r.reps);
-  const prs = results.filter((r) => r.pr).map((r) => ({ name: r.name, value: r.w + ' kg' }));
-  const summary = done.length ? done.map((r) => r.name + ' ' + r.reps + (r.w ? ' @ ' + r.w + ' kg' : '')).join(' · ') : 'Session completed';
-  s.status = 'awaiting'; s.notes = notes; save(); renderSchedule();
-  $('liveCard').classList.add('hidden');
-  s.busId = GymBus.send('pt-session', { member: s.member, trainer: ME, summary, notes, prs }, 'trainer');
-  save();
-  addQ({ key: 'conf-' + s.id, t: "Waiting for " + s.member.split(' ')[0] + "'s confirmation", s: 'Deducts 1 session only when the member confirms in their app', urg: 'warn', actions: [] });
-  toast('Sent — ' + s.member.split(' ')[0] + ' confirms in their app before any deduction');
+const EX_SUGGEST = ['Bench press', 'Incline dumbbell press', 'Overhead press', 'Deadlift', 'Front squat', 'Back squat', 'Romanian deadlift', 'Lat pulldown', 'Seated row', 'Cable fly', 'Landmine press', 'Leg press', 'Walking lunge', 'Plank'];
+function renderLive() {
+  const card = $('liveCard');
+  const live = TS.sessions(TID).find((s) => s.status === 'live');
+  if (!live && !justEnded) { card.classList.add('hidden'); return; }
+  card.classList.remove('hidden');
+
+  if (!live) { /* just-ended: member-confirmation state */
+    const s = TS.sessions(TID).find((x) => x.id === justEnded);
+    if (!s) { justEnded = null; card.classList.add('hidden'); return; }
+    const p = pkgOf(s);
+    card.innerHTML =
+      '<div class="eyebrow">Session complete — ' + esc(mName(s.memberId)) + '</div>' +
+      '<div style="font-size:13px;">1 credit consumed automatically' + (p ? ' — package now ' + p.used + '/' + p.total + ' used (' + (p.total - p.used) + ' left)' : '') + '.' +
+      (s.pb ? '<br>PB recorded: <b>' + esc(s.pb) + '</b>' : '') +
+      (s.flag ? '<br><span class="flag">⚠ Safety flag written to the member\'s health record: ' + esc(s.flag) + '</span>' : '') + '</div>' +
+      '<div style="margin-top:10px;"><span class="st ' + (s.memberConfirmed ? 'st-ok">Member confirmed ✓' : 'st-wait">Awaiting member confirmation') + '</span></div>' +
+      '<div style="font-size:12px; color:var(--muted); margin-top:8px;">' +
+        (s.memberConfirmed ? mName(s.memberId) + ' confirmed this session in their app.' :
+        first(mName(s.memberId)) + ' confirms this session in the member app — the record stays "unconfirmed" until they do.') + '</div>' +
+      '<div style="display:flex; gap:8px; margin-top:12px;">' +
+        '<button class="ghosty" id="confRefresh" style="flex:1;">Check for confirmation</button>' +
+        '<button class="ghosty" id="confDismiss" style="flex:1;">Dismiss</button></div>';
+    $('confRefresh').onclick = () => location.reload();
+    $('confDismiss').onclick = () => { justEnded = null; renderLive(); };
+    return;
+  }
+
+  const exHtml = live.exercises.map((e, ei) =>
+    '<div class="ex">' +
+      '<div style="display:flex; gap:6px; align-items:center;">' +
+        '<input class="exname" data-exn="' + ei + '" value="' + esc(e.name) + '" />' +
+        '<button class="setrow del" data-exdel="' + ei + '" title="Remove exercise">✕</button></div>' +
+      (e.sets || []).map((st, si) =>
+        '<div class="setrow">Set ' + (si + 1) +
+        ' <input type="number" data-ex="' + ei + '" data-set="' + si + '" data-f="reps" value="' + esc(st.reps) + '" /> reps' +
+        ' <input type="number" data-ex="' + ei + '" data-set="' + si + '" data-f="kg" value="' + esc(st.kg) + '" /> kg' +
+        ' <button class="del" data-setdel="' + ei + ':' + si + '">✕</button></div>').join('') +
+      '<button class="mini" data-addset="' + ei + '">+ set</button>' +
+    '</div>').join('');
+
+  card.innerHTML =
+    '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">' +
+      '<div class="eyebrow" style="margin:0;">Live — ' + esc(mName(live.memberId)) + ' · ' + esc(bName(live.branchId)) + '</div>' +
+      '<span class="st st-live">LIVE · started ' + (live.startedAt ? new Date(live.startedAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) : fmtT(live.startsAt)) + '</span></div>' +
+    (live.smallGroup ? '<div class="notebox">Small-group session — the one-live-session rule does not apply to it.</div>' : '') +
+    '<div style="margin-top:8px;">' + (exHtml || '<div style="font-size:12.5px; color:var(--faint);">Nothing logged yet — quick-add the first exercise below.</div>') + '</div>' +
+    '<div class="eyebrow" style="margin-top:12px;">Quick add</div>' +
+    '<div class="qadd">' +
+      '<input id="qaName" list="exList" placeholder="Exercise" style="flex:1 1 130px; min-width:0;" />' +
+      '<datalist id="exList">' + EX_SUGGEST.map((n) => '<option value="' + n + '">').join('') + '</datalist>' +
+      '<input id="qaSets" type="number" value="3" style="width:52px;" title="sets" /> ×' +
+      '<input id="qaReps" type="number" value="8" style="width:52px;" title="reps" /> @' +
+      '<input id="qaKg" type="number" value="60" style="width:60px;" title="kg" /> kg' +
+      '<button class="mini" id="qaAdd" style="margin-top:0;">Log</button></div>' +
+    '<div class="eyebrow" style="margin-top:12px;">Notes · PB · safety</div>' +
+    '<textarea id="lvNotes" rows="2" placeholder="Session notes — performance, adjustments, next time…">' + esc(live.notes || '') + '</textarea>' +
+    '<input class="txt" id="lvPB" placeholder="Personal best, e.g. Deadlift 140 kg × 3 (optional)" />' +
+    '<input class="txt" id="lvFlag" placeholder="Pain / injury flag, e.g. Left knee pain on lunges (optional)" />' +
+    '<div class="notebox">⚠ A pain/injury flag writes to the member\'s safety record (their single health file, visible role-scoped to their coaches) when you end the session.</div>' +
+    '<button class="primary" id="lvEnd" style="margin-top:12px;">End session — consumes 1 package credit</button>';
+
+  document.querySelectorAll('[data-ex][data-set]').forEach((inp) => { inp.oninput = () => {
+    const e = live.exercises[+inp.dataset.ex]; if (!e || !e.sets[+inp.dataset.set]) return;
+    e.sets[+inp.dataset.set][inp.dataset.f] = Number(inp.value) || 0; D.persist();
+  }; });
+  document.querySelectorAll('[data-exn]').forEach((inp) => { inp.onchange = () => {
+    const e = live.exercises[+inp.dataset.exn]; if (!e) return; e.name = inp.value.trim() || e.name; D.persist();
+  }; });
+  document.querySelectorAll('[data-exdel]').forEach((b) => { b.onclick = () => { live.exercises.splice(+b.dataset.exdel, 1); D.persist(); renderLive(); }; });
+  document.querySelectorAll('[data-setdel]').forEach((b) => { b.onclick = () => {
+    const [ei, si] = b.dataset.setdel.split(':').map(Number);
+    if (live.exercises[ei]) { live.exercises[ei].sets.splice(si, 1); D.persist(); renderLive(); }
+  }; });
+  document.querySelectorAll('[data-addset]').forEach((b) => { b.onclick = () => {
+    const e = live.exercises[+b.dataset.addset]; if (!e) return;
+    const lastSet = e.sets[e.sets.length - 1] || { reps: 8, kg: 0 };
+    e.sets.push({ reps: lastSet.reps, kg: lastSet.kg }); D.persist(); renderLive();
+  }; });
+  $('qaAdd').onclick = () => {
+    const name = $('qaName').value.trim(); if (!name) { toast('Name the exercise first.'); return; }
+    const n = Math.max(1, Number($('qaSets').value) || 1), reps = Number($('qaReps').value) || 0, kg = Number($('qaKg').value) || 0;
+    TS.logExercise(live.id, { name, sets: Array.from({ length: n }, () => ({ reps, kg })) });
+    renderLive(); toast(name + ' logged — ' + n + ' × ' + reps + ' @ ' + kg + ' kg (editable until you end).');
+  };
+  $('lvEnd').onclick = () => {
+    const notes = $('lvNotes').value.trim(), pb = $('lvPB').value.trim(), flag = $('lvFlag').value.trim();
+    if (flag && !confirm('The flag "' + flag + '" will be written to ' + mName(live.memberId) + "'s permanent safety record (health file). Continue?")) return;
+    const res = TS.endSession(live.id, TID, { notes, pb, flag });
+    if (res.error) { toast('Could not end — ' + res.error); return; }
+    const p = pkgOf(res);
+    toast('Session complete — 1 credit consumed' + (p ? ' (' + p.used + '/' + p.total + ' used)' : '') + '.');
+    justEnded = live.id;
+    renderAll();
+  };
 }
 
-/* ---------------- bus ---------------- */
-function ingestRequest(ev) {
-  addQ({ key: 'req-' + ev.id, busId: ev.id, member: ev.payload.member, slot: ev.payload.slot,
-    t: 'Booking request — ' + ev.payload.member, s: ev.payload.slot + ' · PT package eligible', urg: 'warn', actions: reqActions() });
+/* ---------------- CLIENT ROSTER ---------------- */
+let openClient = null;
+function historyOf(memberId) {
+  return TS.sessions(TID).filter((s) => s.memberId === memberId && ['completed', 'no_show', 'cancelled'].includes(s.status))
+    .sort((a, b) => b.startsAt - a.startsAt);
 }
+function renderRoster() {
+  const clients = TS.clientRoster(TID);
+  $('rosterList').innerHTML = clients.map((m) => {
+    const remaining = D.PackageService.remaining(m.id);
+    const missed = historyOf(m.id).filter((s) => s.status === 'no_show').length;
+    const next = todaySessions().find((s) => s.memberId === m.id && s.status === 'scheduled');
+    const facts = D.HealthService.visibleTo(m.id, 'trainer');
+    const injuries = facts.filter((f) => f.kind === 'injury');
+    return '<div class="client">' +
+      '<div class="cl-head">' +
+        '<div class="avatar sm">' + esc(initials(m.name)) + '</div>' +
+        '<div class="cl-b">' +
+          '<div class="cl-n">' + esc(m.name) + '</div>' +
+          '<div class="cl-s">' + esc(m.status === 'active' ? 'Active membership' : m.status) + ' · home ' + esc(bName(m.homeBranchId)) +
+            ' · ' + remaining + ' PT credit' + (remaining === 1 ? '' : 's') + ' left' +
+            (next ? ' · today ' + fmtT(next.startsAt) + ' (' + esc(bName(next.branchId)) + ')' : '') + '</div>' +
+          (injuries.length ? '<div style="margin-top:4px;">' + injuries.map((i) => '<span class="flag">⚠ ' + esc(i.label) + '</span>').join('') + '</div>' : '') +
+          (missed ? '<div class="cl-s" style="margin-top:3px;"><span class="badge">' + missed + '</span> missed session' + (missed === 1 ? '' : 's') + ' (no-show)</div>' : '') +
+          '<div class="cl-acts">' +
+            '<button class="solid" data-copen="' + m.id + '">' + (openClient === m.id ? 'Close file' : 'Open file') + '</button>' +
+            '<button data-cbook="' + m.id + '">Book session</button></div>' +
+        '</div>' +
+      '</div>' +
+      (openClient === m.id ? clientDetail(m) : '') +
+    '</div>';
+  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No clients yet — clients appear once they hold a PT package or session with you.</div>';
+  document.querySelectorAll('[data-copen]').forEach((b) => { b.onclick = () => { openClient = openClient === b.dataset.copen ? null : b.dataset.copen; renderRoster(); }; });
+  document.querySelectorAll('[data-cbook]').forEach((b) => { b.onclick = () => { showSec('avail'); $('bkMember').value = b.dataset.cbook; $('bkResult').innerHTML = ''; }; });
+  bindDetail();
+}
+function clientDetail(m) {
+  const facts = D.HealthService.visibleTo(m.id, 'trainer');
+  const injuries = facts.filter((f) => f.kind === 'injury');
+  const allergies = facts.filter((f) => f.kind === 'allergy');
+  const pkgs = D.PackageService.forMember(m.id);
+  const hist = historyOf(m.id);
+  const bc = D.NutritionService.bodyCompFor(m.id);
+  const msgs = msgsOf(m.id);
+  return '<div class="detail">' +
+    '<div class="d-lbl">Goals (coach\'s note — freeform)</div>' +
+    '<textarea data-goal="' + m.id + '" rows="2" style="margin-top:0; background:#fff;">' + esc(goalOf(m.id)) + '</textarea>' +
+    '<button class="mini" data-goalsave="' + m.id + '">Save goals</button>' +
+
+    '<div class="d-lbl">Injuries &amp; movement restrictions <span style="text-transform:none; letter-spacing:0;">(role-scoped view: injuries + allergies only — the engine hides medical conditions from trainers)</span></div>' +
+    (injuries.length ? injuries.map((i) => '<div style="margin-bottom:6px;"><span class="flag">⚠ ' + esc(i.label) + '</span>' +
+      '<div style="font-size:12px; color:var(--muted); margin-top:3px;">' + esc(i.note || '') + ' <i>(' + esc(i.source) + ' · ' + esc(i.recordedAt) + ')</i></div></div>').join('')
+      : '<div style="font-size:12.5px; color:var(--faint);">No injuries on file.</div>') +
+    (allergies.length ? '<div style="font-size:12.5px; margin-top:4px;">Allergies: ' + allergies.map((a) => '<b>' + esc(a.label) + '</b>').join(', ') + ' — matters for Fuel Bar recommendations.</div>' : '') +
+
+    '<div class="d-lbl">PT packages</div>' +
+    (pkgs.length ? pkgs.map((p) => '<div style="font-size:12.5px;">' + (p.total - p.used) + ' of ' + p.total + ' left · $' + p.price + ' · sold ' + esc(p.soldAt) + '</div>').join('')
+      : '<div style="font-size:12.5px; color:var(--faint);">No package — reception sells packages before booking.</div>') +
+
+    '<div class="d-lbl">Session history (notes · PBs · misses)</div>' +
+    (hist.length ? hist.map((s) => '<div class="hist"><b>' + new Date(s.startsAt).toLocaleDateString([], { month: 'short', day: 'numeric' }) + ' ' + fmtT(s.startsAt) + '</b> · ' + esc(bName(s.branchId)) + ' · ' + statusChip(s)[0] +
+      (s.exercises && s.exercises.length ? '<br><span>' + esc(s.exercises.map((e) => e.name + ' ' + (e.sets || []).map((x) => x.reps + '×' + x.kg + 'kg').join(', ')).join(' · ')) + '</span>' : '') +
+      (s.pb ? '<br><span style="color:var(--amber); font-weight:700;">★ PB: ' + esc(s.pb) + '</span>' : '') +
+      (s.notes ? '<br><span>“' + esc(s.notes) + '”</span>' : '') + '</div>').join('')
+      : '<div style="font-size:12.5px; color:var(--faint);">No past sessions yet.</div>') +
+
+    '<div class="d-lbl">Body measurements <span style="text-transform:none; letter-spacing:0;">(recorded by the nutritionist — read-only here)</span></div>' +
+    (bc.length ? '<table class="bct"><tr><th>Date</th><th>Weight</th><th>Body fat</th><th>Muscle</th></tr>' +
+      bc.map((b) => '<tr><td>' + esc(b.at) + '</td><td>' + b.weightKg + ' kg</td><td>' + b.bodyFatPct + '%</td><td>' + b.muscleKg + ' kg</td></tr>').join('') + '</table>'
+      : '<div style="font-size:12.5px; color:var(--faint);">No measurements on file — book a nutrition consult.</div>') +
+
+    '<div class="d-lbl">Messages <span style="text-transform:none; letter-spacing:0;">(demo thread — local only)</span></div>' +
+    '<div class="msgs">' + msgs.map((x) => '<div class="msg' + (x.who === 'me' ? ' me' : '') + '">' + esc(x.txt) + '<div class="meta">' + esc(x.at) + '</div></div>').join('') + '</div>' +
+    '<div class="msgrow"><input data-msgin="' + m.id + '" placeholder="Message ' + esc(first(m.name)) + '…" /><button data-msgsend="' + m.id + '">Send</button></div>' +
+  '</div>';
+}
+function bindDetail() {
+  document.querySelectorAll('[data-goalsave]').forEach((b) => { b.onclick = () => {
+    const ta = document.querySelector('[data-goal="' + b.dataset.goalsave + '"]');
+    setGoal(b.dataset.goalsave, ta.value.trim()); toast('Goals saved (coach-local note).');
+  }; });
+  document.querySelectorAll('[data-msgsend]').forEach((b) => { b.onclick = () => {
+    const inp = document.querySelector('[data-msgin="' + b.dataset.msgsend + '"]');
+    const txt = inp.value.trim(); if (!txt) return;
+    pushMsg(b.dataset.msgsend, 'me', txt); renderRoster();
+  }; });
+  document.querySelectorAll('[data-msgin]').forEach((inp) => { inp.onkeydown = (e) => {
+    if (e.key === 'Enter') { const b = document.querySelector('[data-msgsend="' + inp.dataset.msgin + '"]'); if (b) b.onclick(); }
+  }; });
+}
+
+/* ---------------- AVAILABILITY + SLOT CHECK / BOOKING ---------------- */
+function renderAvail() {
+  const t = TR();
+  const wins = (t.availability || []).slice().sort((a, b) => a.fromH - b.fromH);
+  let html = '';
+  wins.forEach((w, i) => {
+    if (i > 0 && wins[i - 1].branchId !== w.branchId) {
+      html += '<div class="travel" style="margin-left:0;">Allow ' + D.travelMinutes(wins[i - 1].branchId, w.branchId) + ' min ' + esc(bName(wins[i - 1].branchId)) + ' → ' + esc(bName(w.branchId)) + ' (Beirut traffic)</div>';
+    }
+    html += '<div class="win"><b>' + esc(bName(w.branchId)) + '</b><span style="color:var(--muted);">' + w.fromH + ':00 – ' + w.toH + ':00</span>' +
+      '<span class="chip dim" style="margin-left:auto;">' + esc(ptZoneName(w.branchId)) + '</span></div>';
+  });
+  $('availWins').innerHTML = html || '<div style="color:var(--faint); font-size:13px;">No availability windows on file.</div>';
+
+  const roster = TS.clientRoster(TID);
+  const keep = $('bkMember').value;
+  $('bkMember').innerHTML = roster.map((m) => '<option value="' + m.id + '">' + esc(m.name) + '</option>').join('') || '<option value="">— no clients —</option>';
+  if (roster.some((m) => m.id === keep)) $('bkMember').value = keep;
+  const keepB = $('bkBranch').value;
+  $('bkBranch').innerHTML = D.BranchService.list().map((l) => {
+    const mine = (TR().worksAt || []).includes(l.id);
+    return '<option value="' + l.id + '">' + esc(l.name) + (mine ? '' : ' (not your branch)') + '</option>';
+  }).join('');
+  $('bkBranch').value = (D.BranchService.byId(keepB) ? keepB : (TR().worksAt || [])[0]) || 'loc_hamra';
+}
+function slotInput() {
+  const [h, m] = ($('bkTime').value || '18:30').split(':').map(Number);
+  return { branchId: $('bkBranch').value, startsAt: D.at(h, m), dur: Number($('bkDur').value) || 60, memberId: $('bkMember').value };
+}
+function refusalText(v, branchId, startsAt) {
+  if (v.ok) return null;
+  const t = TR();
+  if (v.reason === 'trainer_not_at_branch') return esc(t.name) + ' does not work at ' + esc(bName(branchId)) + ' — covered branches: ' + (t.worksAt || []).map(bName).join(', ') + '.';
+  const c = v.conflictWith ? TS.sessions(TID).find((s) => s.id === v.conflictWith) : null;
+  if (v.reason === 'trainer_busy' && c) return 'Busy — overlaps ' + esc(first(mName(c.memberId))) + '’s ' + fmtT(c.startsAt) + ' session at ' + esc(bName(c.branchId)) + '.';
+  if (v.reason === 'travel_time_conflict' && c) {
+    const cEnd = c.startsAt + (c.durationMins || 60) * 60000;
+    const mins = v.travelMins || D.travelMinutes(c.branchId, branchId);
+    if (startsAt >= c.startsAt) return 'Travel conflict — you’re in ' + esc(bName(c.branchId)) + ' until ' + fmtT(cEnd) + '; ' + esc(bName(branchId)) + ' needs ' + mins + ' min travel (Beirut traffic). Earliest at ' + esc(bName(branchId)) + ': ' + fmtT(cEnd + mins * 60000) + '.';
+    return 'Travel conflict — you must be in ' + esc(bName(c.branchId)) + ' by ' + fmtT(c.startsAt) + ', and ' + esc(bName(branchId)) + ' → ' + esc(bName(c.branchId)) + ' takes ' + mins + ' min in Beirut traffic.';
+  }
+  if (v.reason === 'class_conflict') {
+    const cl = D.load().classes.find((x) => x.id === v.conflictWith);
+    return 'Clashes with a class you teach' + (cl ? ' — ' + esc(cl.name) + ' at ' + fmtT(cl.startsAt) + ' (' + esc(bName(cl.locationId)) + ')' : '') + '.';
+  }
+  return 'Not bookable — ' + esc(v.reason);
+}
+function windowNote(branchId, startsAt, dur) {
+  const w = (TR().availability || []).find((x) => x.branchId === branchId);
+  if (!w) return null;
+  const d0 = new Date(startsAt); const h = d0.getHours() + d0.getMinutes() / 60;
+  if (h < w.fromH || h + dur / 60 > w.toH) return 'Outside your posted window at ' + esc(bName(branchId)) + ' (' + w.fromH + ':00–' + w.toH + ':00) — bookable by the engine, but check with the member.';
+  return null;
+}
+$('bkCheck').onclick = () => {
+  const { branchId, startsAt, dur } = slotInput();
+  const v = TS.validateSlot(TID, branchId, startsAt, dur);
+  if (v.ok) {
+    const wn = windowNote(branchId, startsAt, dur);
+    $('bkResult').innerHTML = '<div class="okbox">✓ Bookable — no clashes; cross-branch travel time respected.</div>' + (wn ? '<div class="notebox">' + wn + '</div>' : '');
+  } else {
+    $('bkResult').innerHTML = '<div class="warnbox"><b>Not bookable</b>' + refusalText(v, branchId, startsAt) + '</div>';
+  }
+};
+$('bkBook').onclick = () => {
+  const { branchId, startsAt, dur, memberId } = slotInput();
+  if (!memberId) { toast('Pick a client first.'); return; }
+  const res = TS.book({ memberId, trainerId: TID, branchId, startsAt, durationMins: dur, actorId: TID });
+  if (res.error) {
+    let msg;
+    const m = mById(memberId) || { name: memberId };
+    if (res.error === 'no_pt_credits') msg = esc(first(m.name)) + ' has no PT credits left — every package is used up. Reception sells a new package first; nothing was booked.';
+    else if (res.error === 'branch_not_allowed') msg = esc(first(m.name)) + '’s plan is single-branch (home: ' + esc(bName(m.homeBranchId)) + ') — they can’t train at ' + esc(bName(branchId)) + '. Ask reception about an all-branch upgrade.';
+    else msg = refusalText({ ok: false, reason: res.error, conflictWith: res.detail && res.detail.conflictWith, travelMins: res.detail && res.detail.travelMins }, branchId, startsAt);
+    $('bkResult').innerHTML = '<div class="warnbox"><b>Not booked</b>' + msg + '</div>';
+    return;
+  }
+  $('bkResult').innerHTML = '<div class="okbox">✓ Booked — ' + esc(mName(memberId)) + ' · ' + fmtT(startsAt) + ' at ' + esc(bName(branchId)) + '. On today’s timeline; the member sees it in their app.</div>';
+  toast('Booked — ' + first(mName(memberId)) + ' at ' + fmtT(startsAt) + ' (' + bName(branchId) + ').');
+  renderToday();
+};
+
+/* ---------------- PERFORMANCE (balanced scorecard) ---------------- */
+function renderPerf() {
+  const p = TS.performance(TID);
+  $('perfBody').innerHTML =
+    '<div class="d-lbl" style="margin-top:10px;">Delivery &amp; retention</div>' +
+    '<div class="kpis">' +
+      '<div class="kpi"><b>' + p.delivered + '</b><span>Sessions delivered</span></div>' +
+      '<div class="kpi"><b>' + p.clients + '</b><span>Active clients</span></div>' +
+      '<div class="kpi"><b>' + p.confirmationRate + '%</b><span>Member-confirmed</span></div>' +
+      '<div class="kpi"><b>' + p.noShowRate + '%</b><span>No-show rate</span></div>' +
+      '<div class="kpi"><b>' + p.cancellationRate + '%</b><span>Cancellation rate</span></div>' +
+    '</div>' +
+    '<div class="d-lbl">Revenue</div>' +
+    '<div class="kpis"><div class="kpi rev"><b>$' + p.revenue + '</b><span>PT package revenue attributed</span></div></div>' +
+    '<div class="fine">Balanced scorecard — delivery and retention lead, revenue follows. Level Up policy: trainers are never ranked on sales alone.</div>';
+}
+
+/* ---------------- GymBus: gate-entry awareness (listen only) ---------------- */
 GymBus.on((kind, ev) => {
   if (kind === 'event' && ev.type === 'gate-entry') {
     if (GymBus.isProcessed(ev.id, 'trainer')) return;
-    const s = T.sessions.find((x) => x.member === ev.payload.member && x.status === 'scheduled');
-    if (!s) return;
     GymBus.markProcessed(ev.id, 'trainer');
-    s.checkin = ev.payload.time;
-    const mu = minsUntil(s);
-    if (mu != null && mu > ARRIVAL_WINDOW) {
-      s.status = 'ingym'; save(); renderSchedule();
-      $('arrivalBanner').innerHTML = `<div class="banner soft">${ev.payload.member} checked in at ${ev.payload.time} — session at ${s.time}, ${fmtLead(mu)} away. Arrival alert fires inside the ${ARRIVAL_WINDOW}-min window.</div>`;
-      toast(ev.payload.member + ' is in the gym — session later');
-    } else { s.status = 'arrived'; save(); renderSchedule(); arrivalAlert(s); }
+    const s = todaySessions().find((x) => x.memberId === ev.payload.memberId && x.status === 'scheduled');
+    if (!s) return;
+    showBanner('', '✓ ' + esc(ev.payload.member) + ' just entered ' + esc(ev.payload.branch) + ' — your ' + fmtT(s.startsAt) + ' client.');
+    toast(ev.payload.member + ' just entered ' + ev.payload.branch + ' — your ' + fmtT(s.startsAt) + ' client.');
+    renderToday();
   }
-  if (kind === 'event' && ev.type === 'pt-request') {
-    if (GymBus.isProcessed(ev.id, 'trainer')) return; GymBus.markProcessed(ev.id, 'trainer');
-    ingestRequest(ev); toast('New booking request — ' + ev.payload.member);
-  }
-  if (kind === 'update' && ev.type === 'pt-request') {
-    const last = ev.history[ev.history.length - 1] || {};
-    if (ev.status === 'accepted' && last.by !== ME) {
-      if (GymBus.isProcessed(ev.id + ':accepted', 'trainer')) return; GymBus.markProcessed(ev.id + ':accepted', 'trainer');
-      T.sessions.push({ id: 's' + Date.now(), time: last.note || 'Sat · 10:00 AM', tMs: null, member: ev.payload.member, type: 'PT session', status: 'scheduled' });
-      save(); renderSchedule(); toast(ev.payload.member + ' accepted the proposed time');
-    }
-  }
-  if (kind === 'update' && ev.type === 'pt-session') {
-    const s = T.sessions.find((x) => x.busId === ev.id); if (!s) return;
-    const last = ev.history[ev.history.length - 1] || {};
-    if (ev.status === 'confirmed') {
-      if (s.status === 'confirmed' || GymBus.isProcessed(ev.id + ':confirmed', 'trainer')) return;
-      GymBus.markProcessed(ev.id + ':confirmed', 'trainer');
-      s.status = 'confirmed'; if (s.pkgLeft != null) s.pkgLeft -= 1;
-      delQ('conf-' + s.id); save(); renderSchedule();
-      toast('✓ ' + s.member.split(' ')[0] + ' confirmed — 1 session deducted' + (s.pkgLeft != null ? ' · ' + s.pkgLeft + ' remaining' : ''));
-      if (s.pkgLeft != null && s.pkgLeft <= 3) {
-        addQ({ key: 'reco-' + s.id, member: s.member, t: 'Package nearly finished — ' + s.member,
-          s: s.pkgLeft + ' sessions remaining · recommend the 10-pack ($300, reception takes payment)', actions: [{ a: 'reco', l: 'Recommend 10-pack' }] });
-      }
-    }
-    if (ev.status === 'disputed') {
-      if (GymBus.isProcessed(ev.id + ':disputed', 'trainer')) return; GymBus.markProcessed(ev.id + ':disputed', 'trainer');
-      s.status = 'disputed'; delQ('conf-' + s.id); save(); renderSchedule();
-      addQ({ key: 'disp-' + s.id, urg: 'urgent', t: 'Session disputed — ' + s.member,
-        s: '"' + (last.note || '') + '" · manager review with entry records — the deduction cannot be forced', actions: [] });
-    }
-  }
+  if (kind === 'event' && ev.type === 'pt-booked') renderToday();
 });
 
-/* catch-up */
-GymBus.all().forEach((ev) => {
-  if (ev.type === 'pt-request' && ev.status === 'open' && !GymBus.isProcessed(ev.id, 'trainer')) {
-    GymBus.markProcessed(ev.id, 'trainer'); ingestRequest(ev);
-  }
-});
-
-$('statusSel').onchange = () => toast('Status: ' + $('statusSel').value + ' — members only see genuinely bookable slots');
-renderSchedule(); renderQueue(); renderTasks(); renderAvail(); publishAvail();
+/* ---------------- boot ---------------- */
+function renderAll() { renderHead(); renderToday(); renderRoster(); renderAvail(); renderPerf(); renderLive(); }
+renderAll();
 </script>
 </body>
 </html>

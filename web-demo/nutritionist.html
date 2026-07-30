@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Level Up — Nutritionist</title>
+<title>Level Up — Nutrition</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -17,7 +17,6 @@
   .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
   .card { background:var(--card); border-radius:22px; padding:16px; box-shadow:0 6px 18px rgba(24,20,15,.05); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; }
@@ -26,26 +25,25 @@
   .avatar.sm { width:32px; height:32px; font-size:12px; background:var(--mint); color:var(--deep); }
   .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .t-sub { font-size:12px; color:var(--muted); }
-  .seg { display:flex; gap:6px; background:#e9e2d2; border-radius:14px; padding:4px; }
-  .seg button { flex:1; font-size:13px; font-weight:700; padding:9px 4px; border-radius:11px; color:var(--muted); }
-  .seg button.on { background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(24,20,15,.08); }
-  .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .scopenote { font-size:12.5px; color:var(--ink); line-height:1.5; background:var(--paper); border-radius:12px; padding:10px 12px; }
+  .tiers { display:flex; flex-direction:column; gap:6px; margin-top:9px; }
+  .tier { display:flex; flex-direction:column; border-radius:12px; padding:8px 11px; background:var(--paper); }
+  .tier b { font-size:12px; }
+  .tier span { font-size:11.5px; color:var(--muted); }
+  .tier.on { background:var(--mint); }
+  .tier.refer { background:var(--amber-soft); }
+  .tier.refer b { color:var(--amber); }
+  .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .sess:last-child { border-bottom:none; }
-  .sess-time { width:58px; font-weight:800; font-family:var(--display); font-size:13.5px; flex-shrink:0; }
-  .sess-body { flex:1; min-width:0; }
+  .sess-time { width:74px; font-weight:800; font-family:var(--display); font-size:12.5px; flex-shrink:0; line-height:1.25; }
+  .sess-body { flex:1; min-width:140px; }
   .sess-n { font-weight:700; font-size:14px; }
   .sess-s { font-size:11.5px; color:var(--muted); }
   .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
   .st-sched { background:var(--paper); color:var(--muted); }
-  .st-in { background:var(--mint); color:var(--deep); animation:pulse 1.6s infinite; }
   .st-ok { background:var(--mint); color:var(--deep); }
-  .st-warn { background:var(--amber-soft); color:var(--amber); }
-  .st-bad { background:var(--red-soft); color:var(--red); }
+  .bchip { display:inline-block; font-size:10px; font-weight:800; border-radius:999px; padding:3px 8px; background:var(--mint); color:var(--deep); }
   .mini-btn { font-size:11px; font-weight:800; color:var(--deep); flex-shrink:0; padding:9px 7px; min-height:32px; }
-  .task { border-radius:14px; padding:11px 12px; margin-top:8px; background:var(--paper); animation:rise .3s ease both; }
-  .task.urgent { background:var(--red-soft); } .task.warn { background:var(--amber-soft); }
-  .task b { display:block; font-size:13px; } .task span { font-size:11.5px; color:var(--muted); }
-  .task button { margin-top:7px; font-size:11.5px; font-weight:800; padding:8px 12px; border-radius:9px; background:var(--deep); color:#fff; }
   .primary { background:var(--deep); color:#fff; border-radius:14px; padding:13px; font-weight:800; font-size:14px; width:100%; }
   .ghosty { background:var(--paper); color:var(--muted); border-radius:14px; padding:11px; font-weight:600; font-size:13px; width:100%; }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:11.5px; font-weight:700;
@@ -53,27 +51,16 @@
   .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
   .hist:last-child { border-bottom:none; }
   .hist b { font-size:12.5px; } .hist span { color:var(--muted); }
-  .client { display:flex; gap:11px; padding:13px 0; border-bottom:1px solid var(--line); align-items:flex-start; }
+  .client { display:flex; gap:11px; padding:11px 0; border-bottom:1px solid var(--line); align-items:center; }
   .client:last-child { border-bottom:none; }
   .cl-b { flex:1; min-width:0; }
   .cl-n { font-weight:800; font-size:14.5px; font-family:var(--display); }
   .cl-s { font-size:12px; color:var(--muted); margin-top:1px; }
-  .cl-acts { display:flex; gap:6px; flex-wrap:wrap; margin-top:7px; }
-  .cl-acts button, .cl-acts a { font-size:11px; font-weight:700; padding:6px 11px; border-radius:9px; background:var(--paper); color:var(--deep); text-decoration:none; display:inline-block; cursor:pointer; }
-  .cl-acts button.solid { background:var(--deep); color:#fff; }
-  input.txt, textarea.txt, select.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13.5px; font-family:var(--body); margin-top:6px; background:#fff; }
-  .meal { border:1.5px solid var(--line); border-radius:14px; padding:12px; margin-top:10px; }
-  .meal-h { display:flex; justify-content:space-between; align-items:baseline; }
-  .meal-n { font-weight:800; font-family:var(--display); font-size:14px; }
-  .meal-t { font-size:11.5px; color:var(--faint); }
-  .item { display:flex; gap:6px; align-items:center; margin-top:7px; font-size:12.5px; }
-  .item select { flex:1; min-width:0; border:1.5px solid var(--line); border-radius:9px; padding:7px; font-size:12px; font-family:var(--body); background:#fff; }
-  .item input { width:64px; border:1.5px solid var(--line); border-radius:9px; padding:7px 6px; font-size:12px; font-family:var(--body); text-align:center; }
-  .item .del { color:var(--red); font-weight:800; padding:4px 6px; min-height:30px; }
-  .totals { font-size:12px; color:var(--muted); margin-top:8px; font-weight:600; }
-  .warnbox { background:var(--red-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--red); margin-top:8px; animation:rise .25s ease both; }
+  input.txt, textarea.txt, select.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13.5px; font-family:var(--body); margin-top:6px; background:#fff; color:var(--ink); }
+  .formrow { display:flex; gap:8px; }
+  .formrow > * { flex:1; min-width:0; }
+  .warnbox { background:var(--amber-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--amber); margin-top:8px; animation:rise .25s ease both; }
   .warnbox b { display:block; margin-bottom:4px; }
-  .altbtn { background:#fff; color:var(--deep); font-size:11.5px; font-weight:700; border-radius:999px; padding:6px 11px; margin:4px 4px 0 0; box-shadow:0 2px 6px rgba(24,20,15,.1); cursor:pointer; }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff;
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
@@ -82,83 +69,89 @@
   .hidden { display:none !important; }
   .vchip { display:inline-block; font-size:10.5px; font-weight:800; border-radius:999px; padding:4px 10px; margin:4px 4px 0 0; background:var(--paper); color:var(--muted); }
   .vchip.on { background:var(--mint); color:var(--deep); }
-  .adh { display:flex; gap:4px; margin-top:6px; }
-  .adh span { flex:1; height:8px; border-radius:4px; background:#e9e2d2; }
-  .adh span.g { background:var(--green); } .adh span.y { background:var(--amber); } .adh span.r { background:var(--red); }
-  /* ---- layout rhythm (matches member app home) ---- */
+  .bc-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
+  .bc-row:last-child { border-bottom:none; }
+  .bc-l { width:82px; font-weight:700; flex-shrink:0; }
+  .bc-v { width:96px; flex-shrink:0; } .bc-v b { font-family:var(--display); font-size:14px; }
+  .bc-d { font-size:11px; font-weight:800; }
+  .bc-d.down { color:var(--green); } .bc-d.up { color:var(--amber); }
+  .supp { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line); }
+  .supp:last-child { border-bottom:none; }
+  .supp img { width:38px; height:38px; border-radius:9px; background:var(--paper); flex-shrink:0; }
+  .supp b { font-size:13px; display:block; }
+  .supp span { font-size:11.5px; color:var(--muted); }
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:rgba(24,20,15,.08); }
-  .stack { background:var(--card); border-radius:22px; box-shadow:0 6px 18px rgba(24,20,15,.05); overflow:hidden; }
-  .stack > .card { border-radius:0; box-shadow:none; animation:none; }
-  .stack > .card + .card { border-top:1px solid var(--line); }
-  .stack:not(:has(> .card:not(.hidden))) { display:none; }
-  #secDash, #secClients { display:flex; flex-direction:column; gap:13px; }
-  #queue { display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:8px; }
-  #queue .task { margin-top:0; }
-  #clientList .client { padding:8px 0; }
-  #clientCard, #planCard { animation:rise .3s ease both; }
   .wrap > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
-  .wrap > .stack { animation:none; }
   .wrap > *:nth-child(2) { animation-delay:.05s; }
   .wrap > *:nth-child(3) { animation-delay:.1s; }
   .wrap > *:nth-child(4) { animation-delay:.15s; }
-  .wrap > *:nth-child(7) { animation-delay:.2s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .task, .warnbox, #clientCard, #planCard { animation:none; } }
+  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .warnbox { animation:none; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Café</a><a href="index.html">Member app</a></nav>
+  <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Fuel Bar</a><a href="index.html">Member app</a></nav>
 
   <div class="card head">
     <div class="avatar">RD</div>
-    <div><div class="t-name">Rima D. — Nutrition</div><div class="t-sub">Licensed dietitian · consultations &amp; meal plans</div></div>
+    <div><div class="t-name">Rima D. — Nutrition</div><div class="t-sub">Licensed dietitian · based Hamra · covers all branches by appointment</div></div>
   </div>
 
-  <div class="seg" id="mainSeg">
-    <button class="on" data-sec="dash">Dashboard</button>
-    <button data-sec="clients">Clients</button>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div id="secDash">
-    <div class="eyebrow sect-label">Today — consultations</div>
-    <div class="stack">
-      <div class="card">
-        <div id="schedule"></div>
-        <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;">
-          <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addAppt">+ Add appointment</button>
-          <button class="ghosty" style="width:auto; padding:9px 13px; font-size:11.5px;" id="addBreakN">Add break</button>
-        </div>
-      </div>
-      <div class="card">
-        <div class="eyebrow">Needs attention</div>
-        <div id="queue"></div>
-      </div>
+  <div class="card">
+    <div class="eyebrow">Scope of service</div>
+    <div class="scopenote">Qualified nutrition consultation — <b>not</b> medical nutrition therapy. Trainer nutrition guidance is separate and non-clinical.</div>
+    <div class="tiers">
+      <div class="tier"><b>Trainer guidance</b><span>General, non-clinical tips inside training sessions — no plans, no prescriptions.</span></div>
+      <div class="tier on"><b>Nutrition consultation — this service</b><span>Consultations, body-composition tracking and meal-plan files by a licensed dietitian.</span></div>
+      <div class="tier refer"><b>Medical nutrition therapy</b><span>Diagnosis-led care is referred out — beyond gym scope.</span></div>
     </div>
   </div>
 
-  <!-- CLIENTS -->
-  <div id="secClients" class="hidden">
-    <div class="card">
-      <div class="eyebrow">My clients</div>
-      <input class="txt" id="clientSearch" placeholder="Search name, phone, goal…" autocomplete="off" />
-      <div id="clientList"></div>
-      <div style="font-size:11px; color:var(--faint); margin-top:10px;" title="Phones visible for assigned/referred clients only; access logged. Health details stay inside the nutrition service.">🔒 Assigned-client access only</div>
-    </div>
+  <div class="sect-label">Schedule</div>
+  <div class="card">
+    <div class="eyebrow">Consultations &amp; follow-ups</div>
+    <div id="schedule"></div>
   </div>
 
-  <div class="stack">
-    <div class="card hidden" id="clientCard"></div>
-    <div class="card hidden" id="planCard"></div>
+  <div class="card" id="bookCard">
+    <div class="eyebrow">Book a consult</div>
+    <div class="formrow">
+      <select class="txt" id="bkMember" aria-label="Member"></select>
+      <select class="txt" id="bkBranch" aria-label="Branch"></select>
+    </div>
+    <div class="formrow">
+      <input class="txt" id="bkTime" type="time" value="17:00" aria-label="Time today" />
+      <select class="txt" id="bkKind" aria-label="Kind">
+        <option value="consultation">Consultation</option>
+        <option value="follow_up">Follow-up</option>
+      </select>
+    </div>
+    <button class="primary" id="bkGo" style="margin-top:9px;">Book for today</button>
+  </div>
+
+  <div class="sect-label">Clients</div>
+  <div class="card">
+    <div class="eyebrow">Client view</div>
+    <input class="txt" id="clientSearch" placeholder="Search any member — name, phone, ID…" autocomplete="off" style="margin-top:0;" />
+    <div id="clientList"></div>
+    <div style="font-size:11px; color:var(--faint); margin-top:10px;">🔒 One shared health record per member; access is role-scoped and audit-logged.</div>
+  </div>
+
+  <div class="card hidden" id="clientCard"></div>
+
+  <div class="card">
+    <div class="eyebrow">Supplement guidance — display only</div>
+    <div id="suppList"></div>
+    <div class="scopenote" style="margin-top:10px;">Recommendations stay within retail supplements sold at the Fuel Bar; anything clinical is referred out.</div>
   </div>
 
   <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
     <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-      <span>Plans go to the <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> for
-      acknowledgment; logs and discomfort reports come back live. Plan versions are never overwritten.</span></details>
-      <div style="margin-top:4px;">Gym nutrition guidance — not medical care. <a href="#" style="color:var(--green);" onclick="return false;">Policy</a></div></div>
+      Lightweight consultation service — Level Up's scope unless an employed nutrition team is confirmed.
+      Bookings, body-comp records and meal-plan files live in the shared engine, so reception and the
+      <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> see the same state.
+    </div>
   </div>
 </div>
 
@@ -166,479 +159,229 @@
 <script src="data.js?v=4"></script>
 <script>
 const $ = (id) => document.getElementById(id);
-const now = () => new Date().toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
-const ME = 'Rima D.';
-function todayAt(str) {
-  const m = String(str).match(/(\d+):(\d+)\s*(AM|PM)/i); if (!m) return null;
-  let h = (+m[1]) % 12; if (/pm/i.test(m[3])) h += 12;
-  const d = new Date(); d.setHours(h, +m[2], 0, 0); return d.getTime();
+const D = DemoData;
+const RIMA = 'stf_nu_rima';        /* engine v3 id — Rima D., licensed dietitian */
+const GOALS_KEY = 'levelup_nutri_goals';
+const goals = (() => { try { return JSON.parse(localStorage.getItem(GOALS_KEY)) || {}; } catch (e) { return {}; } })();
+const saveGoals = () => localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+
+const memberName = (id) => (D.MemberService.byId(id) || { name: id }).name;
+const branchName = (id) => (D.BranchService.byId(id) || { name: '—' }).name;
+const kindLabel = (k) => (k === 'follow_up' ? 'Follow-up' : 'Consultation');
+function fmtWhen(ms) {
+  const t = D.fmtTime(ms);
+  return D.isToday(ms) ? 'Today\n' + t : new Date(ms).toLocaleDateString([], { month: 'short', day: 'numeric' }) + '\n' + t;
 }
 
-/* ---------------- state ---------------- */
-const NKEY = 'gym_nutri_state';
-let N = {
-  appts: [
-    { id: 'a1', time: '9:00 AM', tMs: todayAt('9:00 AM'), member: 'Samer Khanji', type: 'Follow-up', status: 'done' },
-    { id: 'a2', time: '10:00 AM', tMs: todayAt('10:00 AM'), member: 'Maya Haddad', type: 'Initial assessment', status: 'done' },
-    { id: 'a3', time: '5:00 PM', tMs: todayAt('5:00 PM'), member: 'Jad Rahal', type: 'Plan review', status: 'scheduled' },
-  ],
-  plans: {},   // member → [versions]
-  logs: {},    // member → [{at, followed, total, water, note}]
-  inside: {},  // member → checked-in time (from gate events)
-  queue: [],
-};
-try { const s = JSON.parse(localStorage.getItem(NKEY)); if (s && s.appts) { N = s; N.plans = N.plans || {}; N.logs = N.logs || {}; N.inside = N.inside || {}; N.queue = N.queue || []; } } catch (e) {}
-function save() { localStorage.setItem(NKEY, JSON.stringify(N)); }
-
-/* clients — nutrition profiles (Samer's declared allergy matches his member app profile) */
-/* Clients are DERIVED from the shared demo-data engine — one member table, one
-   health record. The nutritionist sees the FULL safety record (allergies,
-   intolerances and conditions) via HealthService.visibleTo(id, 'nutritionist');
-   every fact carries its source and recorded date, and conflicts resolve by
-   precedence rather than by whichever page was opened. (audit F-DQ-2 / F-SAFE-1) */
-const NUTRI_EXTRAS = {   // nutrition-owned context, keyed by member id
-  mbr_0001: { goal: 'Fat loss with strength maintenance', target: '80 kg lean by October', pattern: 'High-protein · 3 meals + post-training shake', dislikes: 'Mushrooms', budget: 'Normal', assessed: true,
-    history: [{ when: 'Jul 21', what: 'Follow-up consultation', note: 'Down 0.8 kg · adherence good · keep protein at 190 g' }, { when: 'Jul 12', what: 'Assessment', note: 'Body fat 18.2% · 78.4 kg' }] },
-  mbr_0007: { goal: 'General wellness', target: '—', pattern: 'Vegetarian', dislikes: '—', budget: 'Tight', assessed: false, intolerances: ['gluten (mild)'],
-    history: [{ when: 'Today', what: 'Initial assessment started', note: 'Allergy details incomplete — finish before planning' }] },
-  mbr_0008: { goal: 'Weight loss', target: '-6 kg by September', pattern: 'No restrictions', dislikes: 'Fish', budget: 'Normal', assessed: true,
-    history: [{ when: 'Jul 20', what: 'Plan v1 sent', note: 'No food log for 7 days — follow up' }] },
-};
-const CLIENTS = (() => {
-  const out = {};
-  if (typeof DemoData === 'undefined') return out;
-  const staffName = (id) => (DemoData.load().staff.find((s) => s.id === id) || {}).name || '—';
-  Object.keys(NUTRI_EXTRAS).forEach((id) => {
-    const m = DemoData.MemberService.byId(id); if (!m) return;
-    const x = NUTRI_EXTRAS[id];
-    const facts = DemoData.HealthService.visibleTo(id, 'nutritionist');
-    const conditions = facts.filter((f) => f.kind === 'condition');
-    out[m.name] = {
-      id, phone: m.phone, email: m.email, emerg: '—', pref: 'Phone', trainer: staffName(m.trainerId),
-      goal: x.goal, target: x.target, pattern: x.pattern, dislikes: x.dislikes, budget: x.budget,
-      allergies: facts.filter((f) => f.kind === 'allergy').map((f) => f.label),
-      intolerances: x.intolerances || [],
-      medical: conditions.length ? conditions.map((c) => c.label + ' (' + c.source.replace(/_/g, ' ') + ')').join(', ') : 'None disclosed',
-      clearance: conditions.length ? 'Professional guidance on file' : 'Not required',
-      safetyFacts: facts,
-      trainingDays: m.trainerId ? 'Shared by ' + staffName(m.trainerId) + ' (member-consented)' : '—',
-      assessed: x.assessed, history: x.history.slice(),
-    };
-  });
-  return out;
-})();
-
-/* food catalog with per-portion macros, allergens and approved alternatives */
-const FOODS = [
-  { n: 'Oats', qty: '80 g', kcal: 300, p: 10, c: 54, f: 6 },
-  { n: 'Whole-grain toast', qty: '2 slices', kcal: 160, p: 6, c: 28, f: 2 },
-  { n: 'Whey protein', qty: '1 scoop', kcal: 120, p: 24, c: 3, f: 2, allerg: 'milk' },
-  { n: 'Vegan protein', qty: '1 scoop', kcal: 115, p: 22, c: 4, f: 2, altFor: ['milk'] },
-  { n: 'Greek yogurt', qty: '170 g', kcal: 100, p: 17, c: 6, f: 1, allerg: 'milk' },
-  { n: 'Eggs', qty: '3', kcal: 210, p: 18, c: 2, f: 15 },
-  { n: 'Banana', qty: '1 medium', kcal: 105, p: 1, c: 27, f: 0 },
-  { n: 'Almonds', qty: '15 g', kcal: 90, p: 3, c: 3, f: 8, allerg: 'nuts' },
-  { n: 'Peanut butter', qty: '15 g', kcal: 90, p: 4, c: 3, f: 8, allerg: 'peanuts' },
-  { n: 'Tahini', qty: '15 g', kcal: 89, p: 3, c: 3, f: 8, altFor: ['peanuts', 'nuts'] },
-  { n: 'Grilled chicken', qty: '150 g', kcal: 250, p: 46, c: 0, f: 6 },
-  { n: 'Salmon', qty: '150 g', kcal: 310, p: 34, c: 0, f: 18, allerg: 'fish' },
-  { n: 'Lentils', qty: '150 g cooked', kcal: 170, p: 12, c: 29, f: 1, altFor: ['fish'] },
-  { n: 'Rice', qty: '150 g cooked', kcal: 195, p: 4, c: 42, f: 1 },
-  { n: 'Mixed salad + olive oil', qty: '1 bowl', kcal: 140, p: 2, c: 8, f: 11 },
-];
-const food = (n) => FOODS.find((f) => f.n === n);
-
-/* ---------------- nav ---------------- */
-document.querySelectorAll('#mainSeg button').forEach((b) => { b.onclick = () => {
-  document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.remove('on')); b.classList.add('on');
-  $('secDash').classList.toggle('hidden', b.dataset.sec !== 'dash');
-  $('secClients').classList.toggle('hidden', b.dataset.sec !== 'clients');
-  if (b.dataset.sec === 'clients') renderClients();
-}; });
-
-/* ---------------- schedule ---------------- */
+/* ---------------- schedule: NutritionService.consults ---------------- */
+let completeOpen = null;
 function renderSchedule() {
-  const rows = [...N.appts].sort((a, b) => (a.tMs || 0) - (b.tMs || 0));
-  $('schedule').innerHTML = rows.map((a) => {
-    const inGym = !!N.inside[a.member];
-    const cls = a.status === 'done' ? ['Done', 'st-ok'] : inGym ? ['In the gym now', 'st-in'] : ['Scheduled', 'st-sched'];
-    if (a.kind === 'break') return `<div class="sess"><div class="sess-time">${a.time}</div><div class="sess-body"><div class="sess-n" style="color:var(--muted);">Break</div></div><button class="mini-btn" data-del="${a.id}">✕</button></div>`;
-    return `<div class="sess">
-      <div class="sess-time">${a.time}</div>
-      <div class="avatar sm">${a.member[0]}</div>
-      <div class="sess-body"><div class="sess-n">${a.member}</div><div class="sess-s">${a.type}${inGym ? ' · checked in ' + N.inside[a.member] : ''}</div></div>
-      <span class="st ${cls[1]}">${cls[0]}</span>
-      <button class="mini-btn" data-copen="${a.member}">Open ›</button>
+  const all = D.NutritionService.consults(RIMA).slice();
+  const sched = all.filter((c) => c.status === 'scheduled').sort((a, b) => a.startsAt - b.startsAt);
+  const done = all.filter((c) => c.status === 'completed').sort((a, b) => b.startsAt - a.startsAt).slice(0, 4);
+  const row = (c) => `
+    <div class="sess">
+      <div class="sess-time" style="white-space:pre-line;">${fmtWhen(c.startsAt)}</div>
+      <div class="avatar sm">${memberName(c.memberId)[0]}</div>
+      <div class="sess-body">
+        <div class="sess-n">${memberName(c.memberId)}</div>
+        <div class="sess-s">${kindLabel(c.kind)} · <span class="bchip">${branchName(c.branchId)}</span></div>
+        ${c.status === 'completed' && c.notes ? `<div class="sess-s" style="margin-top:2px;">“${c.notes}”</div>` : ''}
+      </div>
+      <span class="st ${c.status === 'completed' ? 'st-ok' : 'st-sched'}">${c.status === 'completed' ? 'Done' : 'Scheduled'}</span>
+      <button class="mini-btn" data-copen="${c.memberId}">Open ›</button>
+      ${c.status === 'scheduled' ? `<button class="mini-btn" data-done="${c.id}" style="background:var(--deep); color:#fff; border-radius:9px; padding:8px 11px;">Complete</button>` : ''}
+      ${completeOpen === c.id ? `
+        <div style="flex-basis:100%;">
+          <textarea class="txt" id="cnotes" rows="2" placeholder="Consult notes — what was agreed, next check-in…"></textarea>
+          <div style="display:flex; gap:6px; margin-top:6px;">
+            <button class="primary" style="flex:1;" data-savedone="${c.id}">Save &amp; complete</button>
+            <button class="ghosty" style="width:auto; padding:11px 14px;" data-canceldone="1">Cancel</button>
+          </div>
+        </div>` : ''}
     </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px;">No consultations today — bookings from the member app and reception land here. Use <b>+ Add appointment</b>.</div>';
+  $('schedule').innerHTML =
+    (sched.map(row).join('') || '<div style="color:var(--faint); font-size:13px; padding:6px 0;">Nothing scheduled — book below; member-app bookings land here too.</div>')
+    + (done.length ? `<div class="eyebrow" style="margin:12px 0 0;">Recently completed</div>` + done.map(row).join('') : '');
   document.querySelectorAll('#schedule [data-copen]').forEach((b) => { b.onclick = () => openClient(b.dataset.copen); });
-  document.querySelectorAll('#schedule [data-del]').forEach((b) => { b.onclick = () => { N.appts = N.appts.filter((x) => x.id !== b.dataset.del); save(); renderSchedule(); }; });
+  document.querySelectorAll('#schedule [data-done]').forEach((b) => { b.onclick = () => { completeOpen = b.dataset.done; renderSchedule(); $('cnotes') && $('cnotes').focus(); }; });
+  document.querySelectorAll('#schedule [data-canceldone]').forEach((b) => { b.onclick = () => { completeOpen = null; renderSchedule(); }; });
+  document.querySelectorAll('#schedule [data-savedone]').forEach((b) => { b.onclick = () => {
+    const notes = ($('cnotes').value || '').trim();
+    const r = D.NutritionService.complete(b.dataset.savedone, RIMA, notes);
+    if (r && r.error) { toast('Could not complete: ' + r.error); return; }
+    completeOpen = null; renderSchedule(); renderClients();
+    toast('Consult completed' + (notes ? ' — notes saved' : ''));
+  }; });
 }
-$('addAppt').onclick = () => {
-  const names = Object.keys(CLIENTS);
-  const member = prompt('Client:\n' + names.join('\n'), names[0]); if (!member || !CLIENTS[member]) return;
-  const time = prompt('Time today (e.g. 3:00 PM):', '3:00 PM'); if (!time) return;
-  const tMs = todayAt(time);
-  if (tMs == null) { toast('Time not recognised'); return; }
-  if (tMs < Date.now() - 5 * 60000) { toast('That time has already passed'); return; }
-  if (N.appts.some((a) => a.tMs != null && Math.abs(a.tMs - tMs) < 40 * 60000)) { toast('Clashes with an existing appointment'); return; }
-  N.appts.push({ id: 'a' + Date.now(), time, tMs, member, type: 'Consultation', status: 'scheduled' });
-  save(); renderSchedule();
-  GymBus.send('nutri-booked', { member, slot: 'Today · ' + time, by: ME }, 'nutritionist');
-  toast(member.split(' ')[0] + ' booked at ' + time + ' — member notified');
-};
-$('addBreakN').onclick = () => {
-  const time = prompt('Break at:', '12:00 PM'); if (!time) return;
-  N.appts.push({ id: 'b' + Date.now(), time, tMs: todayAt(time), kind: 'break' });
-  save(); renderSchedule();
-};
 
-/* ---------------- needs attention ---------------- */
-function addQ(q) { if (N.queue.some((x) => x.key === q.key)) return; q.at = now(); N.queue.unshift(q); save(); renderQueue(); }
-function delQ(key) { N.queue = N.queue.filter((x) => x.key !== key); save(); renderQueue(); }
-function renderQueue() {
-  const items = [...N.queue.map((q) => ({ ...q, stored: true }))];
-  Object.keys(CLIENTS).forEach((m) => {
-    const c = CLIENTS[m];
-    const plans = N.plans[m] || [];
-    const active = plans.find((p) => p.status === 'active');
-    const sent = plans.find((p) => p.status === 'sent');
-    if (!c.assessed) items.push({ key: 'as-' + m, urg: 'warn', t: 'Assessment incomplete — ' + m, s: (c.allergies.length ? '' : 'Allergy details missing · ') + 'finish before planning', act: 'open', member: m, l: 'Open client' });
-    if (sent) items.push({ key: 'ack-' + m, urg: 'warn', t: 'Plan awaiting acknowledgment — ' + m, s: 'v' + sent.v + ' sent ' + sent.created + ' · member has not confirmed', act: 'open', member: m, l: 'View' });
-    if (active && !(N.logs[m] || []).length) items.push({ key: 'log-' + m, t: 'No food log yet — ' + m, s: 'Plan v' + active.v + ' active · nothing logged', act: 'open', member: m, l: 'Open client' });
-  });
-  $('queue').innerHTML = items.map((q) => `
-    <div class="task ${q.urg || ''}">
-      <b>${q.t}</b><span>${q.s}${q.at ? ' · ' + q.at : ''}</span>
-      ${q.act ? `<br><button data-qact="${q.key}" data-m="${q.member}">${q.l || 'Open'}</button>` : ''}
-    </div>`).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">All clear — incomplete assessments, unacknowledged plans, missing logs and discomfort reports land here.</div>';
-  document.querySelectorAll('[data-qact]').forEach((b) => { b.onclick = () => { openClient(b.dataset.m); if (b.dataset.qact.startsWith('disc-')) delQ(b.dataset.qact); }; });
+/* ---------------- booking form: NutritionService.book ---------------- */
+function fillBookForm() {
+  $('bkMember').innerHTML = D.MemberService.list().map((m) => `<option value="${m.id}">${m.name}</option>`).join('');
+  $('bkBranch').innerHTML = D.BranchService.list().map((l) => `<option value="${l.id}">${l.name}${l.unconfirmed ? ' (unconfirmed)' : ''}</option>`).join('');
 }
+$('bkGo').onclick = () => {
+  const [h, mi] = ($('bkTime').value || '').split(':').map(Number);
+  if (isNaN(h)) { toast('Pick a time'); return; }
+  const startsAt = D.at(h, mi || 0);
+  if (startsAt < D.now() - 5 * 60000) { toast('That time has already passed today'); return; }
+  const c = D.NutritionService.book({ memberId: $('bkMember').value, staffId: RIMA, branchId: $('bkBranch').value, startsAt, kind: $('bkKind').value });
+  if (c && c.error) { toast('Could not book: ' + c.error); return; }
+  renderSchedule();
+  toast(memberName(c.memberId).split(' ')[0] + ' · ' + kindLabel(c.kind) + ' booked — ' + branchName(c.branchId) + ' at ' + D.fmtTime(startsAt));
+};
 
 /* ---------------- clients ---------------- */
-const telHref = (p) => 'tel:' + (p || '').replace(/[^\d+]/g, '');
-const waHref = (p) => 'https://wa.me/' + (p || '').replace(/[^\d]/g, '');
-function planStateOf(m) {
-  const plans = N.plans[m] || [];
-  const active = plans.find((p) => p.status === 'active');
-  const sent = plans.find((p) => p.status === 'sent');
-  const draft = plans.find((p) => p.status === 'draft');
-  if (active) return 'Active · v' + active.v;
-  if (sent) return 'Sent · awaiting acknowledgment';
-  if (draft) return 'Draft in progress';
-  return 'No active plan';
+function nutritionClientIds() {
+  const db = D.load();
+  const ids = new Set();
+  db.consults.forEach((c) => ids.add(c.memberId));
+  db.bodyComp.forEach((b) => ids.add(b.memberId));
+  db.mealPlans.forEach((m) => ids.add(m.memberId));
+  return [...ids].map((id) => D.MemberService.byId(id)).filter(Boolean);
 }
 function renderClients() {
-  const q = ($('clientSearch').value || '').toLowerCase();
-  const rows = Object.keys(CLIENTS).filter((n) => {
-    const c = CLIENTS[n];
-    return !q || n.toLowerCase().includes(q) || c.phone.replace(/\s/g, '').includes(q.replace(/\s/g, '')) || c.goal.toLowerCase().includes(q);
-  });
-  $('clientList').innerHTML = rows.map((n) => {
-    const c = CLIENTS[n];
+  const q = ($('clientSearch').value || '').trim();
+  const rows = q ? D.MemberService.search(q) : nutritionClientIds();
+  $('clientList').innerHTML = rows.map((m) => {
+    const facts = D.HealthService.visibleTo(m.id, 'nutritionist');
+    const allergies = facts.filter((f) => f.kind === 'allergy');
+    const bc = D.NutritionService.bodyCompFor(m.id);
     return `<div class="client">
-      <div class="avatar sm">${n[0]}</div>
+      <div class="avatar sm">${m.name[0]}</div>
       <div class="cl-b">
-        <div class="cl-n">${n}</div>
-        <div class="cl-s"><b>${c.phone}</b>${c.trainer !== '—' ? ' · trainer: ' + c.trainer : ''}</div>
-        <div class="cl-s">Goal: ${c.goal}</div>
-        <div class="cl-s">Plan: ${planStateOf(n)}</div>
-        ${c.allergies.map((a) => `<span class="flag">⚠ ${a} allergy</span>`).join('')}
-        ${c.medical !== 'None disclosed' ? `<span class="flag" style="background:var(--amber-soft); color:var(--amber);">⚕ health review</span>` : ''}
-        <div class="cl-acts">
-          <button class="solid" data-copen="${n}">Open client</button>
-          <a href="${telHref(c.phone)}">Call</a>
-          <a href="${waHref(c.phone)}" target="_blank" rel="noopener">WhatsApp</a>
-          <button data-cplan="${n}">${(N.plans[n] || []).length ? 'Plans' : 'Create plan'}</button>
-        </div>
+        <div class="cl-n">${m.name}</div>
+        <div class="cl-s"><span class="bchip">${branchName(m.homeBranchId)}</span> · ${bc.length ? bc.length + ' body-comp record' + (bc.length > 1 ? 's' : '') : 'no body comp yet'}</div>
+        ${allergies.map((a) => `<span class="flag">⚠ ${a.label}</span>`).join('')}
       </div>
+      <button class="mini-btn" data-copen="${m.id}">Open ›</button>
     </div>`;
   }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No matches.</div>';
   document.querySelectorAll('#clientList [data-copen]').forEach((b) => { b.onclick = () => openClient(b.dataset.copen); });
-  document.querySelectorAll('#clientList [data-cplan]').forEach((b) => { b.onclick = () => openPlan(b.dataset.cplan); });
 }
 $('clientSearch').oninput = () => renderClients();
-function logHist(m, what, note) { CLIENTS[m].history.unshift({ when: 'Today', what, note: note || '' }); }
 
-/* ---------------- client dashboard ---------------- */
+/* ---------------- client view ---------------- */
 let clientOpen = null;
-function adherencePct(m) {
-  const logs = N.logs[m] || [];
-  if (!logs.length) return null;
-  const f = logs.reduce((s, l) => s + l.followed, 0), t = logs.reduce((s, l) => s + l.total, 0);
-  return t ? Math.round((f / t) * 100) : null;
+function spark(vals, w, h) {
+  w = w || 110; h = h || 26;
+  if (vals.length < 2) return `<span style="color:var(--faint); font-size:11px;">— need 2+ records</span>`;
+  const min = Math.min(...vals), max = Math.max(...vals), r = (max - min) || 1;
+  const pts = vals.map((v, i) => `${((i / (vals.length - 1)) * (w - 4) + 2).toFixed(1)},${(h - 3 - ((v - min) / r) * (h - 6)).toFixed(1)}`).join(' ');
+  return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
-function openClient(m) {
-  clientOpen = m;
-  const c = CLIENTS[m];
-  const adh = adherencePct(m);
-  const logs = N.logs[m] || [];
+function trendRow(label, unit, series) {
+  const latest = series[series.length - 1], prev = series[series.length - 2];
+  const delta = prev != null ? +(latest - prev).toFixed(1) : null;
+  return `<div class="bc-row">
+    <div class="bc-l">${label}</div>
+    <div class="bc-v"><b>${latest}</b> ${unit}${delta != null ? ` <span class="bc-d ${delta <= 0 ? 'down' : 'up'}">${delta > 0 ? '+' : ''}${delta}</span>` : ''}</div>
+    ${spark(series)}
+  </div>`;
+}
+function openClient(id) {
+  clientOpen = id;
+  const m = D.MemberService.byId(id);
+  if (!m) { toast('Unknown member'); return; }
+  const facts = D.HealthService.visibleTo(id, 'nutritionist');
+  const allergies = facts.filter((f) => f.kind === 'allergy');
+  const conditions = facts.filter((f) => f.kind === 'condition');
+  const other = facts.filter((f) => f.kind !== 'allergy' && f.kind !== 'condition');
+  const bc = D.NutritionService.bodyCompFor(id).slice().reverse();   /* chronological */
+  const plans = D.NutritionService.mealPlansFor(id);
+  const inside = D.AccessService.insideNow().some((v) => v.memberId === id);
   $('clientCard').classList.remove('hidden');
   $('clientCard').innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">Client — ${m}${N.inside[m] ? ' · <span style="color:var(--green);">in the gym now</span>' : ''}</div>
+      <div class="eyebrow" style="margin:0;">Client — ${m.name} · <span class="bchip">${branchName(m.homeBranchId)}</span>${inside ? ' · <span style="color:var(--green); font-weight:800;">in the gym now</span>' : ''}</div>
       <button class="mini-btn" id="ccClose">Close ✕</button></div>
-    <div style="margin-top:9px;"><div class="eyebrow">Contact <span style="text-transform:none; letter-spacing:0;">(access audit-logged)</span></div>
-      <div style="font-size:13px;"><b>${c.phone}</b> · ${c.email}<br>Emergency: ${c.emerg} · Prefers: ${c.pref}${c.trainer !== '—' ? ' · Trainer: ' + c.trainer : ''}</div>
-      <div class="cl-acts"><a href="${telHref(c.phone)}">Call ${m.split(' ')[0]}</a><a href="${waHref(c.phone)}" target="_blank" rel="noopener">WhatsApp</a></div></div>
-    <div style="margin-top:10px;"><div class="eyebrow">Nutrition profile</div>
-      <div style="font-size:13px;">Goal: <b>${c.goal}</b>${c.target !== '—' ? ' · ' + c.target : ''}<br>
-      Pattern: ${c.pattern} · Dislikes: ${c.dislikes} · Budget: ${c.budget}<br>Training: ${c.trainingDays}</div></div>
-    <div style="margin-top:10px;"><div class="eyebrow">Safety</div>
-      ${c.allergies.map((a) => `<span class="flag">⚠ ${a} allergy</span>`).join('') || '<span class="vchip on">No allergies on file</span>'}
-      ${c.intolerances.map((a) => `<span class="flag" style="background:var(--amber-soft); color:var(--amber);">${a}</span>`).join('')}
-      <div style="font-size:12px; color:var(--muted); margin-top:4px;">${c.medical} · Clearance: ${c.clearance}</div>
-      ${c.medical !== 'None disclosed' ? '<div class="warnbox" style="margin-top:6px;"><b>⚕ Health review flag</b>Plans for this client need conservative targets and professional guidance — anything clinical is referred out, not treated here.</div>' : ''}</div>
-    ${!c.assessed ? `
-    <div style="margin-top:10px;"><div class="eyebrow">Intake assessment — incomplete</div>
-      <input class="txt" id="asGoal" placeholder="Primary goal + target date" value="${c.goal !== 'General wellness' ? c.goal : ''}" />
-      <input class="txt" id="asLife" placeholder="Lifestyle: work hours, sleep, cooking ability" />
-      <input class="txt" id="asAllerg" placeholder="Allergies (comma-separated) — REQUIRED" value="${c.allergies.join(', ')}" />
-      <button class="primary" id="asSave" style="margin-top:8px;">Save assessment</button>
-      <div style="font-size:11px; color:var(--faint); margin-top:4px;">Saved as draft until allergies are confirmed. Scope: gym nutrition guidance, not medical treatment.</div></div>` : ''}
-    <div style="margin-top:10px;"><div class="eyebrow">Adherence${adh != null ? ' — ' + adh + '% this week' : ''}</div>
-      ${logs.length ? logs.slice(0, 5).map((l) => `<div class="hist"><b>${l.at}</b> · ${l.followed} of ${l.total} meals followed${l.water ? ' · water ✓' : ''}${l.note ? `<br><span>“${l.note}”</span>` : ''}</div>`).join('')
-        : '<div style="font-size:12.5px; color:var(--faint);">No logs yet — the member logs meals from their app once a plan is active.</div>'}</div>
-    <div style="margin-top:10px;"><div class="eyebrow">Timeline</div>
-      ${c.history.slice(0, 5).map((h) => `<div class="hist"><b>${h.when}</b> · ${h.what}${h.note ? `<br><span>“${h.note}”</span>` : ''}</div>`).join('')}</div>
-    <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
-      <button class="primary" style="flex:1; min-width:150px;" id="ccPlan">${(N.plans[m] || []).length ? 'Open meal plans' : 'Create meal plan'}</button>
-      <button class="ghosty" style="flex:0 0 auto; width:auto; padding:12px 14px;" id="ccReco">Recommend café item</button>
-      <button class="ghosty" style="flex:0 0 auto; width:auto; padding:12px 14px;" id="ccFollow">Schedule follow-up</button>
-    </div>`;
+
+    <div style="margin-top:9px;"><div class="eyebrow">Health record — full view</div>
+      ${allergies.map((a) => `<span class="flag">⚠ ${a.label} allergy · ${a.severity}</span>`).join('') || '<span class="vchip on">No declared allergies</span>'}
+      ${other.map((f) => `<div class="hist"><b>${f.kind}</b> · ${f.label}<br><span>${f.source.replace(/_/g, ' ')} · ${f.recordedAt}${f.note ? ' · ' + f.note : ''}</span></div>`).join('')}
+      <div style="font-size:11px; color:var(--faint); margin-top:5px;">The nutritionist sees the complete record by design — trainers, instructors and the Fuel Bar each get narrower, role-scoped slices.</div>
+      ${conditions.length ? `<div class="warnbox"><b>Refer out — beyond gym scope</b>
+        ${conditions.map((c) => `${c.label} <span style="font-weight:600;">(${c.source.replace(/_/g, ' ')} · ${c.recordedAt})</span>`).join('<br>')}
+        <div style="margin-top:5px; font-weight:600;">Condition facts are stored and visible here, but this service is non-clinical — refer to the member's physician; no protocols are offered.</div></div>` : ''}
+    </div>
+
+    <div style="margin-top:12px;"><div class="eyebrow">Body composition</div>
+      ${bc.length ? `
+        ${trendRow('Weight', 'kg', bc.map((b) => b.weightKg))}
+        ${trendRow('Body fat', '%', bc.map((b) => b.bodyFatPct))}
+        ${trendRow('Muscle', 'kg', bc.map((b) => b.muscleKg))}
+        <div style="font-size:11px; color:var(--faint); margin-top:5px;">${bc.map((b) => b.at).join(' → ')}</div>`
+        : '<div style="font-size:12.5px; color:var(--faint);">No records yet.</div>'}
+      <div class="formrow" style="margin-top:4px;">
+        <input class="txt" id="bcW" type="number" step="0.1" placeholder="Weight kg" aria-label="Weight kg" />
+        <input class="txt" id="bcF" type="number" step="0.1" placeholder="Body fat %" aria-label="Body fat percent" />
+        <input class="txt" id="bcM" type="number" step="0.1" placeholder="Muscle kg" aria-label="Muscle kg" />
+      </div>
+      <button class="ghosty" id="bcSave" style="margin-top:7px; color:var(--deep); font-weight:800;">Record body comp</button>
+    </div>
+
+    <div style="margin-top:12px;"><div class="eyebrow">Goals</div>
+      <textarea class="txt" id="goalTxt" rows="2" placeholder="Free-text goal — e.g. 80 kg lean by October, protein 1.8 g/kg">${goals[id] || ''}</textarea>
+      <button class="ghosty" id="goalSave" style="margin-top:7px;">Save goal</button>
+    </div>
+
+    <div style="margin-top:12px;"><div class="eyebrow">Meal plans — uploaded files</div>
+      ${plans.map((p) => `<div class="hist"><b>${p.filename}</b><br><span>uploaded ${p.uploadedAt} · Rima D.</span></div>`).join('') || '<div style="font-size:12.5px; color:var(--faint);">No files yet.</div>'}
+      <div class="formrow" style="align-items:center;">
+        <input class="txt" id="mpName" placeholder="filename-to-upload.pdf" />
+        <button class="ghosty" id="mpUp" style="flex:0 0 auto; width:auto; padding:10px 14px; margin-top:6px; color:var(--deep); font-weight:800;">Upload</button>
+      </div>
+      <div style="font-size:11px; color:var(--faint); margin-top:4px;">Mock uploader — filename only in the demo; the real build stores the file.</div>
+    </div>
+
+    <button class="primary" id="ccFollow" style="margin-top:12px;">Book follow-up for ${m.name.split(' ')[0]}</button>`;
   $('ccClose').onclick = () => { $('clientCard').classList.add('hidden'); clientOpen = null; };
-  $('ccPlan').onclick = () => openPlan(m);
-  $('ccReco').onclick = () => sendReco(m);
-  $('ccFollow').onclick = () => {
-    const time = prompt('Follow-up time today (e.g. 6:30 PM):', '6:30 PM'); if (!time) return;
-    N.appts.push({ id: 'a' + Date.now(), time, tMs: todayAt(time), member: m, type: 'Follow-up', status: 'scheduled' });
-    logHist(m, 'Follow-up scheduled — ' + time + ' (' + ME + ')');
-    GymBus.send('nutri-booked', { member: m, slot: 'Today · ' + time, by: ME }, 'nutritionist');
-    save(); renderSchedule(); toast('Follow-up booked — member notified');
+  $('bcSave').onclick = () => {
+    const w = parseFloat($('bcW').value), f = parseFloat($('bcF').value), mu = parseFloat($('bcM').value);
+    if (isNaN(w) || isNaN(f) || isNaN(mu)) { toast('Fill weight, body fat and muscle first'); return; }
+    if (w <= 0 || w > 400 || f <= 0 || f >= 80 || mu <= 0 || mu > 150) { toast('Those numbers look off — double-check'); return; }
+    D.NutritionService.recordBodyComp({ memberId: id, weightKg: w, bodyFatPct: f, muscleKg: mu, staffId: RIMA });
+    openClient(id); renderClients();
+    toast('Body comp recorded — ' + w + ' kg · ' + f + '%');
   };
-  const as = $('asSave');
-  if (as) as.onclick = () => {
-    const allerg = ($('asAllerg').value || '').split(',').map((x) => x.trim()).filter(Boolean);
-    if (!allerg.length && !confirm('No allergies listed — confirm the client explicitly declared none?')) return;
-    c.allergies = allerg.filter((a) => a.toLowerCase() !== 'none');
-    if ($('asGoal').value.trim()) c.goal = $('asGoal').value.trim();
-    c.assessed = true;
-    logHist(m, 'Intake assessment completed by ' + ME, ($('asLife').value || '').slice(0, 60));
-    save(); renderQueue(); openClient(m); toast('Assessment saved');
+  $('goalSave').onclick = () => { goals[id] = ($('goalTxt').value || '').trim(); saveGoals(); toast('Goal saved'); };
+  $('mpUp').onclick = () => {
+    const fn = ($('mpName').value || '').trim();
+    if (!fn) { toast('Type a filename first'); return; }
+    D.NutritionService.uploadMealPlan({ memberId: id, filename: fn, staffId: RIMA });
+    openClient(id);
+    toast('Meal plan uploaded — ' + fn);
+  };
+  $('ccFollow').onclick = () => {
+    $('bkMember').value = id;
+    $('bkBranch').value = m.homeBranchId;
+    $('bkKind').value = 'follow_up';
+    $('bookCard').scrollIntoView({ behavior: 'smooth' });
+    toast('Form pre-filled — pick a time and book');
   };
   $('clientCard').scrollIntoView({ behavior: 'smooth' });
 }
 
-function sendReco(m) {
-  const items = [['Grilled Chicken Bowl', '540 kcal · 45 g protein · suitable lunch replacement'], ['Whey Protein Shake', '220 kcal · 32 g protein · post-training'], ['Salmon & Quinoa', '610 kcal · 38 g protein · recovery']];
-  const c = CLIENTS[m];
-  const safe = items.filter(([n]) => !(c.allergies.includes('fish') && n.includes('Salmon')));
-  const pick = prompt('Recommend which café item?\n' + safe.map(([n]) => n).join('\n'), safe[0][0]);
-  if (!pick) return;
-  const it = items.find(([n]) => n === pick); if (!it) return;
-  GymBus.send('nutri-reco', { member: m, item: it[0], note: it[1] + ' · check ingredients against your declared allergies', by: ME }, 'nutritionist');
-  logHist(m, 'Café recommendation sent — ' + it[0]);
-  save(); toast('Sent — the member decides whether to order; nothing is charged');
+/* ---------------- supplement guidance (display only) ---------------- */
+const SUPP_NOTES = {
+  rtl_whey: 'Post-training protein top-up when food protein falls short. Contains milk — cross-check declared allergies.',
+  rtl_creatine: '3–5 g daily, any time — the best-evidenced retail supplement for strength work.',
+  rtl_preworkout: 'Check caffeine tolerance first; avoid within 6 hours of sleep.',
+};
+function renderSupps() {
+  const items = D.RetailService.catalog().filter((i) => i.cat === 'Supplements');
+  $('suppList').innerHTML = items.map((i) => `
+    <div class="supp"><img src="${i.img}" alt="" />
+      <div><b>${i.name} · $${i.price}</b><span>${SUPP_NOTES[i.id] || 'Sold at the Fuel Bar.'}</span></div>
+    </div>`).join('');
 }
 
-/* ---------------- meal-plan builder (structured + versioned) ---------------- */
-let planMember = null, planDraft = null;
-function plansOf(m) { return N.plans[m] = N.plans[m] || []; }
-function newDraft(m, base) {
-  const plans = plansOf(m);
-  const v = plans.length + 1;
-  return base ? { ...JSON.parse(JSON.stringify(base)), v, status: 'draft', created: now(), changelog: '' } : {
-    v, status: 'draft', created: now(), by: ME, goal: CLIENTS[m].goal, kcalT: 2400, pT: 190,
-    review: 'in 2 weeks', changelog: 'Initial plan',
-    meals: [
-      { name: 'Breakfast', time: '8:00 AM', items: [{ f: 'Oats' }, { f: 'Whey protein' }, { f: 'Banana' }] },
-      { name: 'Lunch', time: '1:00 PM', items: [{ f: 'Grilled chicken' }, { f: 'Rice' }, { f: 'Mixed salad + olive oil' }] },
-      { name: 'Dinner', time: '8:00 PM', items: [{ f: 'Eggs' }, { f: 'Whole-grain toast' }] },
-    ],
-  };
-}
-function mealTotals(meal) {
-  return meal.items.reduce((s, i) => { const fd = food(i.f) || { kcal: 0, p: 0, c: 0, f: 0 }; return { kcal: s.kcal + fd.kcal, p: s.p + fd.p, c: s.c + fd.c, f: s.f + fd.f }; }, { kcal: 0, p: 0, c: 0, f: 0 });
-}
-function planTotals(p) { return p.meals.reduce((s, m) => { const t = mealTotals(m); return { kcal: s.kcal + t.kcal, p: s.p + t.p }; }, { kcal: 0, p: 0 }); }
-function conflictIn(p, m) {
-  const al = CLIENTS[m].allergies;
-  const bad = [];
-  p.meals.forEach((meal) => meal.items.forEach((i) => { const fd = food(i.f); if (fd && fd.allerg && al.includes(fd.allerg)) bad.push(i.f + ' (' + fd.allerg + ')'); }));
-  return bad;
-}
-function openPlan(m) {
-  planMember = m;
-  const plans = plansOf(m);
-  planDraft = plans.find((p) => p.status === 'draft') || null;
-  renderPlan();
-  $('planCard').classList.remove('hidden');
-  $('planCard').scrollIntoView({ behavior: 'smooth' });
-}
-function renderPlan() {
-  const m = planMember;
-  const plans = plansOf(m);
-  const c = CLIENTS[m];
-  const versions = plans.map((p) => `<span class="vchip ${p.status === 'active' ? 'on' : ''}">v${p.v} · ${p.status}</span>`).join('');
-  let body = '';
-  if (planDraft) {
-    const conflicts = conflictIn(planDraft, m);
-    const tot = planTotals(planDraft);
-    const kcalOff = planDraft.kcalT && Math.abs(tot.kcal - planDraft.kcalT) > planDraft.kcalT * 0.2;
-    const lowWarn = planDraft.kcalT && planDraft.kcalT < 1200;
-    body = `
-      <div style="font-size:12.5px; color:var(--muted); margin-top:4px;">Draft v${planDraft.v} · by ${ME} · targets:</div>
-      <div style="display:flex; gap:8px;">
-        <input class="txt" id="pKcal" type="number" value="${planDraft.kcalT}" aria-label="Daily calorie target" style="flex:1;" />
-        <input class="txt" id="pProt" type="number" value="${planDraft.pT}" aria-label="Protein target g" style="flex:1;" />
-      </div>
-      ${lowWarn ? '<div class="warnbox"><b>⚠ Unsafe calorie target</b>Below 1200 kcal needs professional review — raise it or refer.</div>' : ''}
-      ${planDraft.meals.map((meal, mi) => {
-        const t = mealTotals(meal);
-        return `<div class="meal">
-        <div class="meal-h"><span class="meal-n">${meal.name}</span><span class="meal-t">${meal.time}</span></div>
-        ${meal.items.map((it, ii) => {
-          const fd = food(it.f) || {};
-          return `<div class="item">
-            <select data-mi="${mi}" data-ii="${ii}">${FOODS.map((x) => `<option ${x.n === it.f ? 'selected' : ''}>${x.n}</option>`).join('')}</select>
-            <span style="color:var(--faint); font-size:11px; width:72px;">${fd.qty || ''}</span>
-            <span style="color:var(--muted); font-size:11px; width:56px;">${fd.kcal || 0} kcal</span>
-            <button class="del" data-di="${mi}-${ii}">✕</button></div>`;
-        }).join('')}
-        <button class="altbtn" data-add="${mi}">+ Add food</button>
-        <div class="totals">${t.kcal} kcal · ${t.p} g protein · ${t.c} g carbs · ${t.f} g fat</div>
-      </div>`; }).join('')}
-      <div id="planWarn">${conflicts.length ? `<div class="warnbox"><b>⚠ Allergy conflict — cannot send</b>${conflicts.join(', ')} conflicts with ${m.split(' ')[0]}'s declared allergies. Approved alternatives:
-        ${FOODS.filter((f2) => (f2.altFor || []).some((a) => c.allergies.includes(a))).map((f2) => `<button class="altbtn" data-swap="${f2.n}">${f2.n}</button>`).join('')}</div>` : ''}</div>
-      <div class="totals" style="${kcalOff ? 'color:var(--amber); font-weight:800;' : ''}">Day total: ${tot.kcal} kcal · ${tot.p} g protein${kcalOff ? ' — more than 20% off the ' + planDraft.kcalT + ' kcal target' : ''}</div>
-      <input class="txt" id="pChange" placeholder="What changed & why (version history)" value="${planDraft.changelog || ''}" />
-      <button class="primary" id="pSend" style="margin-top:9px;" ${conflicts.length ? 'disabled style="opacity:.5;"' : ''}>Send v${planDraft.v} to ${m.split(' ')[0]} for acknowledgment</button>
-      <button class="ghosty" id="pSave" style="margin-top:6px;">Save draft</button>`;
-  } else {
-    const active = plans.find((p) => p.status === 'active');
-    const sent = plans.find((p) => p.status === 'sent');
-    const shown = active || sent;
-    body = shown ? `
-      <div style="font-size:13px; margin-top:6px;">v${shown.v} · <b>${shown.status}</b> · created ${shown.created} by ${shown.by} · review ${shown.review}</div>
-      ${shown.meals.map((meal) => { const t = mealTotals(meal); return `<div class="meal"><div class="meal-h"><span class="meal-n">${meal.name}</span><span class="meal-t">${meal.time}</span></div>
-        <div style="font-size:12.5px; margin-top:5px;">${meal.items.map((i) => { const fd = food(i.f) || {}; return i.f + ' — ' + (fd.qty || ''); }).join('<br>')}</div>
-        <div class="totals">${t.kcal} kcal · ${t.p} g protein</div></div>`; }).join('')}
-      <button class="primary" id="pAdjust" style="margin-top:10px;">Adjust — creates v${plans.length + 1} (v${shown.v} stays in history)</button>`
-      : `<div style="font-size:13px; color:var(--faint); margin-top:6px;">No plan yet for ${m.split(' ')[0]}.${CLIENTS[m].assessed ? '' : ' Finish the intake assessment first —'} versions are never overwritten.</div>
-      <button class="primary" id="pNew" style="margin-top:10px;" ${CLIENTS[m].assessed ? '' : 'disabled style="opacity:.5;"'}>Start plan v1 (draft)</button>`;
-  }
-  $('planCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-      <div class="eyebrow" style="margin:0;">Meal plans — ${m}</div>
-      <button class="mini-btn" id="pClose">Close ✕</button></div>
-    <div>${versions || ''}</div>
-    ${c.allergies.map((a) => `<span class="flag">⚠ ${a} allergy — conflicting foods are blocked</span>`).join('')}
-    ${body}`;
-  $('pClose').onclick = () => { $('planCard').classList.add('hidden'); planMember = null; planDraft = null; };
-  const pNew = $('pNew'); if (pNew) pNew.onclick = () => { planDraft = newDraft(m); plansOf(m).push(planDraft); save(); renderPlan(); };
-  const pAdjust = $('pAdjust'); if (pAdjust) pAdjust.onclick = () => {
-    const base = plansOf(m).find((p) => p.status === 'active') || plansOf(m).find((p) => p.status === 'sent');
-    planDraft = newDraft(m, base); plansOf(m).push(planDraft); save(); renderPlan();
-  };
-  document.querySelectorAll('#planCard [data-mi]').forEach((s) => { s.onchange = () => {
-    const fd = food(s.value);
-    if (fd && fd.allerg && c.allergies.includes(fd.allerg)) { toast('Blocked — ' + s.value + ' contains ' + fd.allerg + ' (declared allergy). Pick an alternative.'); renderPlan(); return; }
-    planDraft.meals[Number(s.dataset.mi)].items[Number(s.dataset.ii)].f = s.value; save(); renderPlan();
-  }; });
-  document.querySelectorAll('#planCard [data-di]').forEach((b) => { b.onclick = () => {
-    const [mi, ii] = b.dataset.di.split('-').map(Number);
-    planDraft.meals[mi].items.splice(ii, 1); save(); renderPlan();
-  }; });
-  document.querySelectorAll('#planCard [data-add]').forEach((b) => { b.onclick = () => {
-    planDraft.meals[Number(b.dataset.add)].items.push({ f: 'Mixed salad + olive oil' }); save(); renderPlan();
-  }; });
-  document.querySelectorAll('#planCard [data-swap]').forEach((b) => { b.onclick = () => {
-    const alt = b.dataset.swap;
-    planDraft.meals.forEach((meal) => meal.items.forEach((i) => { const fd = food(i.f); if (fd && fd.allerg && c.allergies.includes(fd.allerg)) i.f = alt; }));
-    save(); renderPlan(); toast('Swapped conflicting foods to ' + alt);
-  }; });
-  const pSave = $('pSave'); if (pSave) pSave.onclick = () => {
-    planDraft.kcalT = Number($('pKcal').value) || planDraft.kcalT;
-    planDraft.pT = Number($('pProt').value) || planDraft.pT;
-    planDraft.changelog = $('pChange').value;
-    save(); toast('Draft saved — v' + planDraft.v);
-  };
-  const pSend = $('pSend'); if (pSend) pSend.onclick = () => {
-    if (conflictIn(planDraft, m).length) { toast('Resolve the allergy conflict first'); return; }
-    planDraft.kcalT = Number($('pKcal').value) || planDraft.kcalT;
-    if (planDraft.kcalT < 1200) { toast('Calorie target below 1200 needs professional review — not sent'); return; }
-    planDraft.changelog = $('pChange').value || planDraft.changelog;
-    planDraft.status = 'sent'; planDraft.by = ME;
-    /* replacing an older active plan happens only when the member acknowledges the new one */
-    planDraft.busId = GymBus.send('meal-plan', {
-      member: m, v: planDraft.v, by: ME, goal: planDraft.goal, kcalT: planDraft.kcalT, pT: planDraft.pT,
-      review: planDraft.review, changelog: planDraft.changelog,
-      meals: planDraft.meals.map((meal) => ({ name: meal.name, time: meal.time, items: meal.items.map((i) => { const fd = food(i.f) || {}; return { n: i.f, qty: fd.qty || '', kcal: fd.kcal || 0 }; }), totals: mealTotals(meal) })),
-    }, 'nutritionist');
-    logHist(m, 'Plan v' + planDraft.v + ' sent by ' + ME, planDraft.changelog);
-    const d = planDraft; planDraft = null;
-    save(); renderPlan(); renderQueue();
-    toast('v' + d.v + ' sent — becomes active when ' + m.split(' ')[0] + ' acknowledges it');
-  };
-}
-
-/* ---------------- bus ---------------- */
-GymBus.on((kind, ev) => {
-  if (kind === 'event' && ev.type === 'gate-entry') {
-    if (GymBus.isProcessed(ev.id, 'nutritionist')) return; GymBus.markProcessed(ev.id, 'nutritionist');
-    if (CLIENTS[ev.payload.member]) { N.inside[ev.payload.member] = ev.payload.time; save(); renderSchedule(); toast(ev.payload.member + ' is in the gym'); }
-  }
-  if (kind === 'event' && ev.type === 'nutri-consult') {
-    if (GymBus.isProcessed(ev.id, 'nutritionist')) return; GymBus.markProcessed(ev.id, 'nutritionist');
-    N.appts.push({ id: 'a' + Date.now(), time: ev.payload.slot || 'Thu · 5:00 PM', tMs: null, member: ev.payload.member, type: 'Consultation (booked in app)', status: 'scheduled' });
-    save(); renderSchedule(); toast('New consultation — ' + ev.payload.member);
-  }
-  if (kind === 'event' && ev.type === 'nutri-log') {
-    if (GymBus.isProcessed(ev.id, 'nutritionist')) return; GymBus.markProcessed(ev.id, 'nutritionist');
-    const p = ev.payload;
-    (N.logs[p.member] = N.logs[p.member] || []).unshift({ at: ev.at, followed: p.followed, total: p.total, water: p.water, note: p.note || '' });
-    save(); if (clientOpen === p.member) openClient(p.member);
-    toast(p.member.split(' ')[0] + ' logged ' + p.followed + '/' + p.total + ' meals');
-  }
-  if (kind === 'event' && ev.type === 'nutri-issue') {
-    if (GymBus.isProcessed(ev.id, 'nutritionist')) return; GymBus.markProcessed(ev.id, 'nutritionist');
-    addQ({ key: 'disc-' + ev.id, urg: 'urgent', t: 'Discomfort reported — ' + ev.payload.member, s: '"' + ev.payload.text + '" · adjust the plan as a new version', act: 'open', member: ev.payload.member, l: 'Open client' });
-    logHist(ev.payload.member, 'Discomfort reported', ev.payload.text);
-    save(); toast('⚠ ' + ev.payload.member.split(' ')[0] + ' reported discomfort');
-  }
-  if (kind === 'update' && ev.type === 'meal-plan' && ev.status === 'acknowledged') {
-    if (GymBus.isProcessed(ev.id + ':ack', 'nutritionist')) return; GymBus.markProcessed(ev.id + ':ack', 'nutritionist');
-    const m = ev.payload.member;
-    const plans = plansOf(m);
-    const p = plans.find((x) => x.busId === ev.id);
-    if (p) {
-      plans.forEach((x) => { if (x.status === 'active') { x.status = 'replaced'; } });
-      p.status = 'active'; p.effective = now();
-      logHist(m, 'Plan v' + p.v + ' acknowledged by ' + m + ' — now active');
-      save(); renderQueue(); if (planMember === m) renderPlan();
-      toast(m.split(' ')[0] + ' acknowledged v' + p.v + ' — active');
-    }
-  }
-});
-/* catch-up */
-GymBus.all().forEach((ev) => {
-  if (ev.type === 'nutri-consult' && !GymBus.isProcessed(ev.id, 'nutritionist')) {
-    GymBus.markProcessed(ev.id, 'nutritionist');
-    N.appts.push({ id: 'a' + Date.now() + Math.random().toString(36).slice(2, 5), time: ev.payload.slot || 'Thu · 5:00 PM', tMs: null, member: ev.payload.member, type: 'Consultation (booked in app)', status: 'scheduled' });
-  }
-  if (ev.type === 'nutri-log' && !GymBus.isProcessed(ev.id, 'nutritionist')) {
-    GymBus.markProcessed(ev.id, 'nutritionist');
-    const p = ev.payload;
-    (N.logs[p.member] = N.logs[p.member] || []).unshift({ at: ev.at, followed: p.followed, total: p.total, water: p.water, note: p.note || '' });
-  }
-  if (ev.type === 'nutri-issue' && !GymBus.isProcessed(ev.id, 'nutritionist')) {
-    GymBus.markProcessed(ev.id, 'nutritionist');
-    addQ({ key: 'disc-' + ev.id, urg: 'urgent', t: 'Discomfort reported — ' + ev.payload.member, s: '"' + ev.payload.text + '"', act: 'open', member: ev.payload.member, l: 'Open client' });
-  }
-});
-save();
-renderSchedule(); renderQueue();
+/* ---------------- init ---------------- */
+fillBookForm();
+renderSchedule();
+renderClients();
+renderSupps();
 </script>
 </body>
 </html>
