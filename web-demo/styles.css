@@ -127,8 +127,50 @@ button { font-family: var(--body); color: inherit; }
 }
 #c-home > *:nth-child(2), #c-train > *:nth-child(2), #c-gym > *:nth-child(2), #c-food > *:nth-child(2), #c-account > *:nth-child(2) { animation-delay: 0.05s; }
 #c-home > *:nth-child(3), #c-train > *:nth-child(3), #c-gym > *:nth-child(3), #c-food > *:nth-child(3), #c-account > *:nth-child(3) { animation-delay: 0.1s; }
-#c-home > *:nth-child(4), #c-train > *:nth-child(4), #c-gym > *:nth-child(4), #c-food > *:nth-child(4), #c-account > *:nth-child(4) { animation-delay: 0.14s; }
-#c-home > *:nth-child(n+5), #c-train > *:nth-child(n+5), #c-gym > *:nth-child(n+5), #c-food > *:nth-child(n+5), #c-account > *:nth-child(n+5) { animation-delay: 0.18s; }
+#c-home > *:nth-child(4), #c-train > *:nth-child(4), #c-gym > *:nth-child(4), #c-food > *:nth-child(4), #c-account > *:nth-child(4) { animation-delay: 0.15s; }
+#c-home > *:nth-child(5), #c-train > *:nth-child(5), #c-gym > *:nth-child(5), #c-food > *:nth-child(5), #c-account > *:nth-child(5) { animation-delay: 0.2s; }
+#c-home > *:nth-child(6), #c-train > *:nth-child(6), #c-gym > *:nth-child(6), #c-food > *:nth-child(6), #c-account > *:nth-child(6) { animation-delay: 0.25s; }
+#c-home > *:nth-child(n+7), #c-train > *:nth-child(n+7), #c-gym > *:nth-child(n+7), #c-food > *:nth-child(n+7), #c-account > *:nth-child(n+7) { animation-delay: 0.3s; }
+
+/* ---------- grouped surfaces (kills the wall-of-identical-cards) ----------
+   Related cards fuse into ONE surface with internal hairlines: wrap them in
+   .stack and each child .card flattens into a row of the group. */
+.stack {
+  background: var(--card); border-radius: var(--r-lg); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.stack > .card { border-radius: 0; box-shadow: none; border-bottom: 1px solid var(--line); }
+.stack > .card:last-child { border-bottom: none; }
+
+/* a label that sits on the paper BETWEEN groups — gives the page rhythm */
+.sect-label {
+  display: flex; align-items: center; gap: 10px;
+  color: var(--muted); font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin: 6px 2px -4px;
+}
+.sect-label::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+
+/* quiet footer row — content directly on paper, no box */
+.flat-row {
+  display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+  padding: 4px 6px 0; color: var(--muted); font-size: 13.5px;
+}
+.flat-row b { color: var(--ink); font-size: 14px; }
+.flat-row .book-btn { margin-left: auto; }
+
+/* peak bars grow up from the baseline, one after another */
+.peak-bar { transform-origin: bottom; animation: grow 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
+@keyframes grow { from { transform: scaleY(0); } }
+
+/* animated fills (challenge / package bars) */
+.bar .fill { transition: width 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .view.active > *, #c-home > *, #c-train > *, #c-gym > *, #c-food > *, #c-account > *,
+  #c-notifs > *, #c-visitdetail > *, .peak-bar { animation: none !important; }
+  .bar .fill { transition: none; }
+}
 
 /* ---------- header ---------- */
 .app-header { display: flex; justify-content: space-between; align-items: center; }

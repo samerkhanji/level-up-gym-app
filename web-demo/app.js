@@ -593,6 +593,31 @@ const tabbar = document.getElementById('tabbar');
 let segTrain = 'workouts';
 let segFood = 'cafe';
 
+/* bring numbers to life when a tab opens: stats count up, bars fill in.
+   Runs only on tab entry (not on every re-render) so live updates stay calm. */
+const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+function animateCounts(root) {
+  if (!root || REDUCED_MOTION) return;
+  root.querySelectorAll('[data-countup]').forEach((el) => {
+    const target = parseFloat(el.dataset.countup);
+    if (!isFinite(target) || target <= 0) return;
+    const prefix = el.dataset.prefix || '';
+    const finalText = el.textContent;          // exact formatting wins at the end
+    const from = Math.floor(target * 0.4);
+    const t0 = performance.now(), dur = 520;
+    (function tick(t) {
+      const p = Math.min(1, (t - t0) / dur);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = p >= 1 ? finalText : prefix + Math.round(from + (target - from) * eased);
+      if (p < 1) requestAnimationFrame(tick);
+    })(t0);
+  });
+  root.querySelectorAll('[data-fillto]').forEach((el) => {
+    el.style.width = '0%';
+    requestAnimationFrame(() => requestAnimationFrame(() => { el.style.width = el.dataset.fillto; }));
+  });
+}
+
 function show(view) {
   views.forEach((v) => document.getElementById('view-' + v).classList.toggle('active', v === view));
   tabbar.classList.toggle('hidden', !tabViews.includes(view));
@@ -605,6 +630,7 @@ function show(view) {
   if (view === 'notifications') renderNotifs();
   if (view === 'pass') openPass();
   if (view !== 'pass') stopPass();
+  animateCounts(document.getElementById('c-' + view));
   document.getElementById('simLeave').hidden = !state.checkedIn;
 }
 
@@ -699,39 +725,6 @@ function renderHome() {
 
     ${entry}
 
-    ${next ? `
-    <button class="card" data-action="goto-train" style="width:100%; text-align:left; display:block;">
-      <div class="row">${eyebrow(next.ic, 'Next')}<span class="dim small">${next.w}</span></div>
-      <div style="font-weight:800; font-size:16px; font-family:var(--display,inherit);">${next.t}</div>
-      <div class="dim small">${next.s}</div>
-    </button>` : ''}
-
-    <div class="card">
-      ${eyebrow('clock', 'Gym right now')}
-      <div class="occupancy-row">
-        <div class="occupancy-count">${inside}</div>
-        <div>
-          <div class="occupancy-level ${level[1]}">${level[0]}</div>
-          <div class="dim small">members inside · capacity ${cap}</div>
-        </div>
-      </div>
-      <div class="peak">
-        ${peakHours.map((p, i) => `
-          <div class="peak-col">
-            <div class="peak-bar ${i === nowIdx ? 'now' : ''}" style="height:${Math.round((p.v / maxPeak) * 44) + 6}px"></div>
-            <div class="peak-label">${p.label}</div>
-          </div>`).join('')}
-      </div>
-      <div class="dim small">Typical day — usually busiest 6–8 PM</div>
-    </div>
-
-    ${state.order ? `
-      <div class="card">
-        ${eyebrow('bowl', 'Café order')}
-        <div class="row"><b>${state.order.items}</b><b class="accent">$${state.order.total}</b></div>
-        <div class="dim small">${state.order.status}</div>
-      </div>` : ''}
-
     ${attention.length ? `
       <div class="card" style="border-left:4px solid var(--amber);">
         ${eyebrow('alert', 'Needs your attention')}
@@ -742,18 +735,16 @@ function renderHome() {
           </button>`).join('')}
       </div>` : ''}
 
-    <div class="duo">
-      <button class="mini-card" data-action="goto-account">
-        <div class="mini-top">${icon('wallet', 17)}<span>Wallet</span></div>
-        <div class="mini-value">$${state.wallet}</div>
-      </button>
-      <button class="mini-card" data-action="goto-account">
-        <div class="mini-top">${icon('star', 17)}<span>Points</span></div>
-        <div class="mini-value">${state.points}</div>
-      </button>
-    </div>
-
-    ${rest.length ? `
+    ${next || rest.length || state.order ? `
+    <div class="sect-label">Today</div>
+    <div class="stack">
+      ${next ? `
+      <button class="card" data-action="goto-train" style="width:100%; text-align:left; display:block;">
+        <div class="row">${eyebrow(next.ic, 'Next')}<span class="dim small">${next.w}</span></div>
+        <div style="font-weight:800; font-size:16px; font-family:var(--display,inherit);">${next.t}</div>
+        <div class="dim small">${next.s}</div>
+      </button>` : ''}
+      ${rest.length ? `
       <div class="card">
         ${eyebrow('calendar', 'Also coming up')}
         ${rest.map((u) => `
@@ -763,11 +754,50 @@ function renderHome() {
             <span class="dim small">${u.w}</span>
           </div>`).join('')}
       </div>` : ''}
+      ${state.order ? `
+      <div class="card">
+        ${eyebrow('bowl', 'Café order')}
+        <div class="row"><b>${state.order.items}</b><b class="accent">$${state.order.total}</b></div>
+        <div class="dim small">${state.order.status}</div>
+      </div>` : ''}
+    </div>` : ''}
+
+    <div class="sect-label">The floor</div>
+    <div class="card">
+      ${eyebrow('clock', 'Gym right now')}
+      <div class="occupancy-row">
+        <div class="occupancy-count" data-countup="${inside}">${inside}</div>
+        <div>
+          <div class="occupancy-level ${level[1]}">${level[0]}</div>
+          <div class="dim small">members inside · capacity ${cap}</div>
+        </div>
+      </div>
+      <div class="peak">
+        ${peakHours.map((p, i) => `
+          <div class="peak-col">
+            <div class="peak-bar ${i === nowIdx ? 'now' : ''}" style="height:${Math.round((p.v / maxPeak) * 44) + 6}px; animation-delay:${(0.12 + i * 0.045).toFixed(3)}s"></div>
+            <div class="peak-label">${p.label}</div>
+          </div>`).join('')}
+      </div>
+      <div class="dim small">Typical day — usually busiest 6–8 PM</div>
+    </div>
+
+    <div class="sect-label">Balance</div>
+    <div class="duo">
+      <button class="mini-card" data-action="goto-account">
+        <div class="mini-top">${icon('wallet', 17)}<span>Wallet</span></div>
+        <div class="mini-value" data-countup="${state.wallet}" data-prefix="$">$${state.wallet}</div>
+      </button>
+      <button class="mini-card" data-action="goto-account">
+        <div class="mini-top">${icon('star', 17)}<span>Points</span></div>
+        <div class="mini-value" data-countup="${state.points}">${state.points}</div>
+      </button>
+    </div>
 
     <div class="card challenge">
       <div class="row">${eyebrow('flame', state.challenge.name + ' challenge')}
         <b class="accent">${state.challenge.done}/${state.challenge.target}</b></div>
-      <div class="bar pkg-bar"><div class="fill" style="width:${(state.challenge.done / state.challenge.target) * 100}%"></div></div>
+      <div class="bar pkg-bar"><div class="fill" data-fillto="${(state.challenge.done / state.challenge.target) * 100}%" style="width:${(state.challenge.done / state.challenge.target) * 100}%"></div></div>
       <div class="dim small">Visit ${state.challenge.target} times this month → ${state.challenge.reward}</div>
     </div>
 
@@ -777,6 +807,7 @@ function renderHome() {
         <div style="font-size:14.5px;">${CONFIG.announcement}</div>
       </div>` : ''}
 
+    <div class="sect-label">Quick actions</div>
     <div class="quick-grid">
       <button class="quick" data-action="goto-gym">${icon('locker', 20)}<b>Locker</b><span>${state.locker ? `${state.locker.locked ? 'Locked' : 'Open'} · #${state.locker.number}` : 'Assigned at check-in'}</span></button>
       <button class="quick" data-action="goto-gym">${icon('guest', 20)}<b>Guest pass</b><span>${state.guestPass ? 'Active' : 'Invite a friend'}</span></button>
@@ -784,12 +815,10 @@ function renderHome() {
       <button class="quick sos" data-action="sos">${icon('alert', 20)}<b>Help / SOS</b><span>Hold-safe · staff alerted</span></button>
     </div>
 
-    <div class="card">
-      <div class="li">
-        <div class="li-ic">${icon('bell', 17)}</div>
-        <div class="li-body"><b>Need anything?</b><div class="dim small">Reception answers in the app — every request gets a ticket.</div></div>
-        <button class="book-btn" data-action="support">Contact</button>
-      </div>
+    <div class="flat-row">
+      ${icon('bell', 16)}
+      <div><b>Need anything?</b> Reception answers in the app — every request gets a ticket.</div>
+      <button class="book-btn" data-action="support">Contact</button>
     </div>`;
 }
 
