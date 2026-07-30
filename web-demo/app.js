@@ -667,7 +667,10 @@ function renderClasses() {
         ${err ? `<div class="err-line">${esc(err)}</div>` : ''}
         ${cta}
       </div>`;
-  }).join('') || '<div class="card dim small">No classes at this branch today.</div>';
+  }).join('') || (UI.clsBranch === 'all'
+    ? '<div class="card dim small">No classes scheduled anywhere today — check back tomorrow.</div>'
+    : `<div class="card dim small">No classes at this branch today.
+        <button class="ghost-btn" style="margin-top:10px" data-action="cls-branch" data-b="all">See every branch instead</button></div>`);
 
   document.getElementById('c-classes').innerHTML = `
     <header class="app-header"><div class="greeting">Classes</div><span></span></header>
@@ -739,7 +742,7 @@ function renderAccount() {
   const payRows = payments.map((p) => `<div class="inv">
       <span>${esc(p.what)}<br/><span class="dim" style="font-size:12px">${new Date(p.at).toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${esc(p.method)} · ${esc(branchName(p.locationId))}</span></span>
       <b>$${p.amount}</b>
-    </div>`).join('') || '<div class="dim small">No payments yet.</div>';
+    </div>`).join('') || '<div class="dim small">No payments yet — your membership, PT packages, and Fuel Bar purchases will show up here.</div>';
 
   const freezeUI = m.status === 'frozen'
     ? `<button class="accent-btn slim" data-action="acct-unfreeze">Unfreeze membership</button>`
