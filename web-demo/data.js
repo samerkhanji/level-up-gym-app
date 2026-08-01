@@ -19,7 +19,7 @@
    real packages must come from Level Up, not be invented here.
    ========================================================================== */
 const DemoData = (() => {
-  const DB_KEY = 'levelup_demo_db_v3';
+  const DB_KEY = 'levelup_demo_db_v4';
   const CLOCK_KEY = 'levelup_demo_clock';   // optional simulated-time offset (ms)
 
   /* ---------- clock: one time source every page can share ---------- */
@@ -253,12 +253,146 @@ const DemoData = (() => {
       { id: 'gst_0001', hostMemberId: 'mbr_0001', guestName: 'Walid R.', branchId: 'loc_hamra', fee: 10, status: 'expected', createdAt: iso(now() - 36e5), redeemedAt: null },
     ];
 
+    /* ---------- Train: exercise library, machine-aware ---------- */
+    const exerciseLibrary = [
+      { id: 'ex_bench', name: 'Barbell Bench Press', muscles: ['Chest', 'Triceps', 'Shoulders'], equipment: 'Barbell', category: 'Strength', instructions: 'Lie flat, grip slightly wider than shoulders, lower to chest, press up.', machineAssetIds: [], altExerciseIds: ['ex_dbbench'] },
+      { id: 'ex_dbbench', name: 'Dumbbell Bench Press', muscles: ['Chest', 'Triceps', 'Shoulders'], equipment: 'Dumbbells + bench', category: 'Strength', instructions: 'Press dumbbells from chest level to lockout, controlled descent.', machineAssetIds: [], altExerciseIds: ['ex_bench'] },
+      { id: 'ex_squat', name: 'Back Squat', muscles: ['Quads', 'Glutes', 'Hamstrings'], equipment: 'Barbell + rack', category: 'Strength', instructions: 'Bar on upper back, feet shoulder-width, squat to depth, drive up.', machineAssetIds: [], altExerciseIds: ['ex_legpress', 'ex_hacksquat'] },
+      { id: 'ex_frontsquat', name: 'Front Squat', muscles: ['Quads', 'Core'], equipment: 'Barbell + rack', category: 'Strength', instructions: 'Bar racked on front delts, elbows high, squat to depth.', machineAssetIds: [], altExerciseIds: ['ex_legpress'] },
+      { id: 'ex_deadlift', name: 'Deadlift', muscles: ['Back', 'Glutes', 'Hamstrings'], equipment: 'Barbell', category: 'Strength', instructions: 'Hinge at hips, flat back, drive through the floor to lockout.', machineAssetIds: [] },
+      { id: 'ex_legpress', name: 'Leg Press', muscles: ['Quads', 'Glutes'], equipment: 'Leg Press machine', category: 'Strength', instructions: 'Feet shoulder-width on platform, lower to 90°, press back up.', machineAssetIds: ['ast_0001'], altExerciseIds: ['ex_hacksquat', 'ex_squat'] },
+      { id: 'ex_hacksquat', name: 'Hack Squat', muscles: ['Quads'], equipment: 'Hack Squat machine', category: 'Strength', instructions: 'Shoulders under pads, feet forward, squat within the sled.', machineAssetIds: ['ast_0002'], altExerciseIds: ['ex_legpress', 'ex_squat'] },
+      { id: 'ex_cablerow', name: 'Seated Cable Row', muscles: ['Back', 'Biceps'], equipment: 'Cable machine', category: 'Strength', instructions: 'Sit tall, pull handle to torso, squeeze shoulder blades.', machineAssetIds: ['ast_0003'], altExerciseIds: ['ex_latpulldown'] },
+      { id: 'ex_latpulldown', name: 'Lat Pulldown', muscles: ['Back', 'Biceps'], equipment: 'Cable machine', category: 'Strength', instructions: 'Wide grip, pull bar to upper chest, control the return.', machineAssetIds: [], altExerciseIds: ['ex_cablerow', 'ex_pullup'] },
+      { id: 'ex_ohp', name: 'Overhead Press', muscles: ['Shoulders', 'Triceps'], equipment: 'Barbell', category: 'Strength', instructions: 'Press bar from shoulders to lockout overhead, ribs down.', machineAssetIds: [], altExerciseIds: ['ex_dbshoulderpress'] },
+      { id: 'ex_dbshoulderpress', name: 'Dumbbell Shoulder Press', muscles: ['Shoulders', 'Triceps'], equipment: 'Dumbbells', category: 'Strength', instructions: 'Press dumbbells overhead from shoulder height, controlled path.', machineAssetIds: [], altExerciseIds: ['ex_ohp'] },
+      { id: 'ex_pullup', name: 'Pull-Up', muscles: ['Back', 'Biceps'], equipment: 'Bodyweight', category: 'Strength', instructions: 'Dead hang to chin over bar, control the descent.', machineAssetIds: [] },
+      { id: 'ex_dbcurl', name: 'Dumbbell Bicep Curl', muscles: ['Biceps'], equipment: 'Dumbbells', category: 'Isolation', instructions: 'Elbows pinned, curl to shoulder, controlled lowering.', machineAssetIds: [] },
+      { id: 'ex_tricepext', name: 'Triceps Pushdown', muscles: ['Triceps'], equipment: 'Cable machine', category: 'Isolation', instructions: 'Elbows pinned to sides, extend to lockout, control the return.', machineAssetIds: ['ast_0003'] },
+      { id: 'ex_legcurl', name: 'Leg Curl', muscles: ['Hamstrings'], equipment: 'Leg Curl machine', category: 'Isolation', instructions: 'Curl heels to glutes, controlled negative.', machineAssetIds: [] },
+      { id: 'ex_legext', name: 'Leg Extension', muscles: ['Quads'], equipment: 'Leg Extension machine', category: 'Isolation', instructions: 'Extend knees to lockout, pause, controlled return.', machineAssetIds: [] },
+      { id: 'ex_plank', name: 'Plank', muscles: ['Core'], equipment: 'Bodyweight', category: 'Core', instructions: 'Forearms + toes, straight line head to heels, brace.', machineAssetIds: [] },
+      { id: 'ex_treadmill', name: 'Treadmill Run', muscles: ['Cardio'], equipment: 'Treadmill', category: 'Cardio', instructions: 'Steady-state or intervals per program.', machineAssetIds: ['ast_0004', 'ast_0005'] },
+      { id: 'ex_rowerg', name: 'Rowing Machine', muscles: ['Cardio', 'Back'], equipment: 'Rower', category: 'Cardio', instructions: 'Legs-back-arms drive, reverse the sequence on the return.', machineAssetIds: ['ast_0101'] },
+      { id: 'ex_spinbike', name: 'Spin Bike', muscles: ['Cardio', 'Legs'], equipment: 'Spin Bike', category: 'Cardio', instructions: 'Cadence + resistance per program.', machineAssetIds: ['ast_0102'] },
+      { id: 'ex_trxrow', name: 'TRX Row', muscles: ['Back', 'Core'], equipment: 'TRX', category: 'Functional', instructions: 'Lean back, pull chest to hands, controlled return.', machineAssetIds: ['ast_0201', 'ast_0202', 'ast_0203'] },
+      { id: 'ex_battlerope', name: 'Battle Ropes', muscles: ['Shoulders', 'Core', 'Cardio'], equipment: 'Battle Ropes', category: 'Functional', instructions: 'Alternating or double waves for the interval duration.', machineAssetIds: ['ast_0204'] },
+      { id: 'ex_bulgariansplit', name: 'Bulgarian Split Squat', muscles: ['Quads', 'Glutes'], equipment: 'Dumbbells + bench', category: 'Strength', instructions: 'Rear foot elevated, front leg does the work, controlled descent.', machineAssetIds: [], altExerciseIds: ['ex_reverselunge'] },
+      { id: 'ex_reverselunge', name: 'Reverse Lunge', muscles: ['Quads', 'Glutes'], equipment: 'Dumbbells', category: 'Strength', instructions: 'Step back, both knees to 90°, drive through the front heel.', machineAssetIds: [], altExerciseIds: ['ex_bulgariansplit'] },
+    ];
+
+    /* Trainer-assigned programs — versioned, never overwritten. Version 2 shows
+       a real before/after tied to Samer's shoulder-impingement health fact. */
+    const programs = [
+      {
+        id: 'prg_0001', memberId: 'mbr_0001', trainerId: 'stf_tr_karim', name: 'Upper / Lower Strength Split', status: 'active', currentVersion: 2,
+        versions: [
+          {
+            version: 1, at: '2026-06-01', changedBy: 'stf_tr_karim', reason: 'Initial program', changeSummary: null,
+            days: [
+              { name: 'Upper Body Strength', exercises: [
+                { exerciseId: 'ex_bench', targetSets: 4, targetReps: 8 }, { exerciseId: 'ex_cablerow', targetSets: 3, targetReps: 10 },
+                { exerciseId: 'ex_ohp', targetSets: 3, targetReps: 8 }, { exerciseId: 'ex_dbcurl', targetSets: 3, targetReps: 12 },
+                { exerciseId: 'ex_tricepext', targetSets: 3, targetReps: 12 },
+              ] },
+              { name: 'Lower Body Strength', exercises: [
+                { exerciseId: 'ex_squat', targetSets: 4, targetReps: 6 }, { exerciseId: 'ex_legcurl', targetSets: 3, targetReps: 12 },
+                { exerciseId: 'ex_legext', targetSets: 3, targetReps: 12 }, { exerciseId: 'ex_plank', targetSets: 3, targetReps: 45 },
+              ] },
+            ],
+          },
+          {
+            version: 2, at: '2026-07-19', changedBy: 'stf_tr_karim',
+            reason: 'Right shoulder impingement — avoid overhead pressing at end range',
+            changeSummary: 'Overhead Press replaced with Dumbbell Shoulder Press (partial range); Bench Press sets reduced 4 -> 3.',
+            days: [
+              { name: 'Upper Body Strength', exercises: [
+                { exerciseId: 'ex_bench', targetSets: 3, targetReps: 8, notes: 'Stop on any pinch — partial range if needed.' }, { exerciseId: 'ex_cablerow', targetSets: 3, targetReps: 10 },
+                { exerciseId: 'ex_dbshoulderpress', targetSets: 3, targetReps: 10, notes: 'Partial range, no lockout overhead.' }, { exerciseId: 'ex_dbcurl', targetSets: 3, targetReps: 12 },
+                { exerciseId: 'ex_tricepext', targetSets: 3, targetReps: 12 },
+              ] },
+              { name: 'Lower Body Strength', exercises: [
+                { exerciseId: 'ex_squat', targetSets: 4, targetReps: 6 }, { exerciseId: 'ex_legcurl', targetSets: 3, targetReps: 12 },
+                { exerciseId: 'ex_legext', targetSets: 3, targetReps: 12 }, { exerciseId: 'ex_plank', targetSets: 3, targetReps: 45 },
+              ] },
+            ],
+          },
+        ],
+      },
+    ];
+
+    /* logged workout instances — separate from ptSessions (trainer time-slot
+       records); a workout can happen solo, from an assigned program, or
+       alongside a PT session (optional ptSessionId link) */
+    const workoutSessions = [
+      {
+        id: 'wko_0001', memberId: 'mbr_0001', programId: 'prg_0001', dayName: 'Upper Body Strength', trainerId: 'stf_tr_karim',
+        branchId: 'loc_hamra', ptSessionId: null, status: 'completed',
+        assignedFor: iso(now() - 864e5 * 8).slice(0, 10), startedAt: iso(now() - 864e5 * 8), endedAt: iso(now() - 864e5 * 8 + 39e5),
+        readiness: { energy: 'normal', soreness: ['Shoulders'], pain: null },
+        exercises: [
+          { exerciseId: 'ex_bench', targetSets: 3, targetReps: 8, sets: [
+            { type: 'warmup', targetWeight: 40, targetReps: 10, actualWeight: 40, actualReps: 10, rpe: null, status: 'completed' },
+            { type: 'normal', targetWeight: 72.5, targetReps: 10, actualWeight: 70, actualReps: 10, rpe: 8, status: 'completed' },
+            { type: 'normal', targetWeight: 72.5, targetReps: 10, actualWeight: 70, actualReps: 9, rpe: 9, status: 'completed' },
+            { type: 'normal', targetWeight: 72.5, targetReps: 8, actualWeight: 70, actualReps: 8, rpe: 9, status: 'completed' },
+          ] },
+          { exerciseId: 'ex_cablerow', targetSets: 3, targetReps: 10, sets: [
+            { type: 'normal', targetWeight: 55, targetReps: 10, actualWeight: 55, actualReps: 10, rpe: 7, status: 'completed' },
+            { type: 'normal', targetWeight: 55, targetReps: 10, actualWeight: 55, actualReps: 10, rpe: 7, status: 'completed' },
+            { type: 'normal', targetWeight: 55, targetReps: 10, actualWeight: 57.5, actualReps: 9, rpe: 8, status: 'completed' },
+          ] },
+          { exerciseId: 'ex_dbshoulderpress', targetSets: 3, targetReps: 10, sets: [
+            { type: 'normal', targetWeight: 16, targetReps: 10, actualWeight: 16, actualReps: 10, rpe: 6, status: 'completed' },
+            { type: 'normal', targetWeight: 16, targetReps: 10, actualWeight: 16, actualReps: 10, rpe: 7, status: 'completed' },
+            { type: 'normal', targetWeight: 16, targetReps: 10, actualWeight: 16, actualReps: 10, rpe: 7, status: 'completed' },
+          ] },
+        ],
+        totalVolumeKg: 70 * 27 + 55 * 20 + 57.5 * 9 + 16 * 30 + 40 * 10,
+        prsHit: [], notes: 'Shoulder felt fine at partial range.',
+        trainerFeedback: { summary: 'Good session — bench holding steady, shoulder pain-free at this range.', difficulty: 7, enjoyment: 8, pain: 'None reported', homework: 'Band pull-aparts, 2x15, before next session.', nextTarget: 'ex_bench 72.5kg x10 for all 3 sets', visibility: 'shared' },
+      },
+      {
+        id: 'wko_0002', memberId: 'mbr_0001', programId: 'prg_0001', dayName: 'Upper Body Strength', trainerId: 'stf_tr_karim',
+        branchId: 'loc_hamra', ptSessionId: null, status: 'assigned',
+        assignedFor: iso(now()).slice(0, 10), startedAt: null, endedAt: null,
+        readiness: null,
+        exercises: [
+          { exerciseId: 'ex_bench', targetSets: 3, targetReps: 10, sets: [] },
+          { exerciseId: 'ex_cablerow', targetSets: 3, targetReps: 10, sets: [] },
+          { exerciseId: 'ex_dbshoulderpress', targetSets: 3, targetReps: 10, sets: [] },
+          { exerciseId: 'ex_dbcurl', targetSets: 3, targetReps: 12, sets: [] },
+          { exerciseId: 'ex_tricepext', targetSets: 3, targetReps: 12, sets: [] },
+        ],
+        totalVolumeKg: 0, prsHit: [], notes: '', trainerFeedback: null,
+      },
+    ];
+
+    const personalRecords = [
+      { id: 'pr_0001', memberId: 'mbr_0001', exerciseId: 'ex_deadlift', kind: 'max_weight', valueKg: 140, reps: 3, achievedAt: iso(now() - 864e5 * 2).slice(0, 10), sessionId: null, source: 'pt_session:pts_0003' },
+      { id: 'pr_0002', memberId: 'mbr_0001', exerciseId: 'ex_bench', kind: 'max_weight', valueKg: 70, reps: 10, achievedAt: iso(now() - 864e5 * 8).slice(0, 10), sessionId: 'wko_0001' },
+    ];
+
+    /* broader body tracking (weight/measurements/photos) — distinct from the
+       nutritionist's clinical bodyComp; recorded by member, trainer, reception,
+       or a connected scale/InBody, each entry keeps who recorded it */
+    const bodyLogs = [
+      { id: 'bl_0001', memberId: 'mbr_0001', at: iso(now() - 864e5 * 30).slice(0, 10), recordedBy: 'stf_tr_karim', recordedByRole: 'trainer', weightKg: 84.0, measurements: { waist: 86, chest: 104, arms: 37, hips: 98, thighs: 60, calves: 39, neck: 40 }, photoNote: null, source: 'trainer' },
+      { id: 'bl_0002', memberId: 'mbr_0001', at: iso(now() - 864e5 * 2).slice(0, 10), recordedBy: 'mbr_0001', recordedByRole: 'member', weightKg: 82.4, measurements: { waist: 83, chest: 105, arms: 38, hips: 97, thighs: 61, calves: 39, neck: 40 }, photoNote: 'front + side, gym mirror', source: 'member' },
+    ];
+
+    const goals = [
+      { id: 'gl_0001', memberId: 'mbr_0001', kind: 'lift', label: 'Bench Press 80 kg x 5', exerciseId: 'ex_bench', startValue: 70, targetValue: 80, unit: 'kg', targetDate: iso(now() + 864e5 * 56).slice(0, 10), trainerApproved: true, createdAt: iso(now() - 864e5 * 20).slice(0, 10), status: 'active', milestones: [{ at: iso(now() - 864e5 * 8).slice(0, 10), note: 'Hit 70kg x10 — on track.' }] },
+      { id: 'gl_0002', memberId: 'mbr_0001', kind: 'frequency', label: 'Train 4x weekly', startValue: 2, targetValue: 4, unit: 'sessions/wk', targetDate: iso(now() + 864e5 * 30).slice(0, 10), trainerApproved: true, createdAt: iso(now() - 864e5 * 40).slice(0, 10), status: 'active', milestones: [] },
+    ];
+
     return {
-      version: 3, createdAt: iso(now()), scenario: 'normal-day', healthRecords,
+      version: 4, createdAt: iso(now()), scenario: 'normal-day', healthRecords,
       organizations: [{ id: 'org_01', name: 'Level Up' }],
       locations, zones, rooms,
       plans, members, staff, assets, classes, bookings, packages, ptSessions,
       retailItems, leads, approvals, shifts, consults, bodyComp, mealPlans, guestPasses,
+      exerciseLibrary, programs, workoutSessions, personalRecords, bodyLogs, goals,
       visits: [], entryAttempts: [], orders: [], payments: [], incidents: [], workOrders: [], tasks: [], notifications: [], events: [],
     };
   }
@@ -640,6 +774,24 @@ const DemoData = (() => {
         cancellationRate: ss.length ? Math.round((cancelled / ss.length) * 100) : 0,
         noShowRate: ss.length ? Math.round((noShow / ss.length) * 100) : 0,
         confirmationRate: done ? Math.round((confirmed / done) * 100) : 0 };
+    },
+    /* everything a trainer needs to see at a glance — feeds the "My Trainer"
+       side of the coaching relationship back to the trainer's own dashboard */
+    clientDashboard(trainerId) {
+      const d = load();
+      const clients = TrainerService.clientRoster(trainerId);
+      const todaysWorkouts = d.workoutSessions.filter((w) => w.trainerId === trainerId && w.assignedFor === iso(now()).slice(0, 10));
+      const completed = todaysWorkouts.filter((w) => w.status === 'completed').map((w) => w.memberId);
+      const missed = todaysWorkouts.filter((w) => w.status === 'assigned' && w.assignedFor < iso(now()).slice(0, 10)).map((w) => w.memberId);
+      const painFlags = d.workoutSessions.filter((w) => w.trainerId === trainerId && w.status === 'completed' && w.trainerFeedback && w.trainerFeedback.pain && !/none/i.test(w.trainerFeedback.pain))
+        .map((w) => ({ memberId: w.memberId, sessionId: w.id, pain: w.trainerFeedback.pain, at: w.endedAt }));
+      const recentPRs = d.personalRecords.filter((p) => clients.some((c) => c.id === p.memberId) && p.achievedAt >= iso(now() - 864e5 * 14).slice(0, 10));
+      const lowCredits = clients.filter((c) => PackageService.remaining(c.id) <= 2 && PackageService.remaining(c.id) > 0);
+      const staleClients = clients.filter((c) => {
+        const last = d.workoutSessions.filter((w) => w.memberId === c.id && w.status === 'completed').sort((a, b) => (b.endedAt || '').localeCompare(a.endedAt || ''))[0];
+        return !last || (now() - Date.parse(last.endedAt)) > 12 * 864e5;
+      });
+      return { todaysClients: todaysWorkouts.map((w) => ({ memberId: w.memberId, status: w.status, workoutId: w.id })), completed, missed, painFlags, recentPRs, lowCredits, staleClients };
     },
   };
 
@@ -1149,6 +1301,214 @@ const DemoData = (() => {
     },
   };
 
+  /* ---------- Train: exercise library ---------- */
+  const ExerciseService = {
+    list: (category) => load().exerciseLibrary.filter((e) => !category || e.category === category),
+    byId: (id) => load().exerciseLibrary.find((e) => e.id === id) || null,
+    /* est. 1RM via Epley formula */
+    estOneRepMax: (weightKg, reps) => reps <= 1 ? weightKg : Math.round(weightKg * (1 + reps / 30) * 10) / 10,
+    /* is any of this exercise's machines available at this branch? if not, suggest
+       an alternative — checked one level deep only (an alt's OWN direct machine
+       availability), never recursing into the alt's alternatives. Two exercises
+       that list each other as alternates would otherwise bounce forever. */
+    availabilityAt(exerciseId, branchId) {
+      const ex = ExerciseService.byId(exerciseId); if (!ex) return { ok: false, reason: 'unknown_exercise' };
+      const directCheck = (exercise) => {
+        if (!exercise.machineAssetIds || !exercise.machineAssetIds.length) return { ok: true, machine: null }; // bodyweight/free-weight, always available
+        const assets = exercise.machineAssetIds.map((id) => MaintenanceService.assetById(id)).filter(Boolean).filter((a) => a.locationId === branchId);
+        if (!assets.length) return { ok: false, reason: 'not_at_branch' };
+        const available = assets.find((a) => a.status === 'available');
+        if (!available) return { ok: false, reason: 'machine_down', machine: assets[0] };
+        return { ok: true, machine: available };
+      };
+      const result = directCheck(ex);
+      if (result.ok) return result;
+      const alt = (ex.altExerciseIds || []).map((id) => ExerciseService.byId(id)).find((a) => a && directCheck(a).ok);
+      return Object.assign({}, result, { suggestion: alt || null });
+    },
+    /* every set of this exercise this member has ever logged, most recent first */
+    historyFor(memberId, exerciseId) {
+      const sessions = load().workoutSessions.filter((w) => w.memberId === memberId && w.status === 'completed').sort((a, b) => (b.endedAt || '').localeCompare(a.endedAt || ''));
+      const rows = [];
+      sessions.forEach((w) => {
+        const ex = w.exercises.find((e) => e.exerciseId === exerciseId);
+        if (ex) rows.push({ sessionId: w.id, at: w.endedAt, branchId: w.branchId, sets: ex.sets.filter((s) => s.status === 'completed' && s.actualWeight != null) });
+      });
+      return rows;
+    },
+    lastPerformance(memberId, exerciseId) {
+      const rows = ExerciseService.historyFor(memberId, exerciseId);
+      return rows.length ? rows[0] : null;
+    },
+  };
+
+  /* ---------- Train: programs — versioned, never overwritten ---------- */
+  const ProgramService = {
+    list: (memberId) => load().programs.filter((p) => p.memberId === memberId),
+    byId: (id) => load().programs.find((p) => p.id === id) || null,
+    current: (memberId) => load().programs.find((p) => p.memberId === memberId && p.status === 'active') || null,
+    currentVersion(program) { return program ? program.versions.find((v) => v.version === program.currentVersion) : null; },
+    assign({ memberId, trainerId, name, days, reason }) {
+      if (requireReason(reason)) return { error: 'reason_required' };
+      const d = load();
+      const p = { id: nextId('prg', 'programs'), memberId, trainerId, name, status: 'active', currentVersion: 1, versions: [{ version: 1, at: iso(now()), changedBy: trainerId, reason, changeSummary: null, days }] };
+      d.programs.push(p); persist();
+      emit('program.assigned', { programId: p.id, name }, trainerId, memberId);
+      return p;
+    },
+    /* pushes a NEW version — old versions stay intact, forming a real changelog */
+    update(programId, { days, reason, changeSummary, changedBy }) {
+      if (requireReason(reason)) return { error: 'reason_required' };
+      const p = ProgramService.byId(programId); if (!p) return { error: 'unknown_program' };
+      const version = p.currentVersion + 1;
+      p.versions.push({ version, at: iso(now()), changedBy, reason, changeSummary: changeSummary || null, days });
+      p.currentVersion = version; persist();
+      emit('program.updated', { programId, version, reason }, changedBy, p.memberId);
+      return p;
+    },
+    versionHistory: (programId) => { const p = ProgramService.byId(programId); return p ? p.versions.slice().reverse() : []; },
+  };
+
+  /* ---------- Train: workout logging — the core daily-use loop ---------- */
+  const WorkoutService = {
+    todaysAssigned: (memberId) => load().workoutSessions.find((w) => w.memberId === memberId && w.assignedFor === iso(now()).slice(0, 10) && w.status !== 'completed') || null,
+    byId: (id) => load().workoutSessions.find((w) => w.id === id) || null,
+    history: (memberId) => load().workoutSessions.filter((w) => w.memberId === memberId && w.status === 'completed').sort((a, b) => (b.endedAt || '').localeCompare(a.endedAt || '')),
+    upcoming: (memberId) => load().workoutSessions.filter((w) => w.memberId === memberId && w.status === 'assigned' && w.assignedFor >= iso(now()).slice(0, 10)),
+    streak(memberId) {
+      const done = WorkoutService.history(memberId).map((w) => w.endedAt.slice(0, 10));
+      let streak = 0; let cursor = new Date(now());
+      for (;;) {
+        const key = cursor.toISOString().slice(0, 10);
+        if (done.includes(key)) { streak++; cursor.setDate(cursor.getDate() - 1); continue; }
+        cursor.setDate(cursor.getDate() - 1);
+        const yKey = cursor.toISOString().slice(0, 10);
+        if (streak === 0 && done.includes(yKey)) continue; // allow "today not yet trained" to not break a streak that ended yesterday
+        break;
+      }
+      return streak;
+    },
+    /* build an ad-hoc session (Quick Workout / repeat-last / from-program-day) */
+    startAdHoc({ memberId, branchId, dayExercises, programId, dayName, trainerId, readiness }) {
+      const d = load();
+      const w = { id: nextId('wko', 'workoutSessions'), memberId, programId: programId || null, dayName: dayName || 'Quick Workout', trainerId: trainerId || null,
+        branchId, ptSessionId: null, status: 'in_progress', assignedFor: iso(now()).slice(0, 10), startedAt: iso(now()), endedAt: null,
+        readiness: readiness || null, exercises: dayExercises.map((e) => ({ exerciseId: e.exerciseId, targetSets: e.targetSets || 3, targetReps: e.targetReps || 10, sets: [] })),
+        totalVolumeKg: 0, prsHit: [], notes: '', trainerFeedback: null };
+      d.workoutSessions.unshift(w); persist();
+      emit('workout.started', { workoutId: w.id }, memberId, memberId, branchId);
+      return w;
+    },
+    start(sessionId, readiness) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      w.status = 'in_progress'; w.startedAt = iso(now()); if (readiness) w.readiness = readiness; persist();
+      emit('workout.started', { workoutId: sessionId }, w.memberId, w.memberId, w.branchId);
+      return w;
+    },
+    /* logs one set and auto-saves immediately — closing the screen never loses data */
+    logSet(sessionId, exerciseIndex, setIndex, patch) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      const ex = w.exercises[exerciseIndex]; if (!ex) return { error: 'unknown_exercise_row' };
+      if (!ex.sets[setIndex]) ex.sets[setIndex] = { type: 'normal', status: 'upcoming' };
+      Object.assign(ex.sets[setIndex], patch, { status: 'completed' });
+      if (ex.sets[setIndex + 1]) ex.sets[setIndex + 1].status = 'current';
+      persist();
+      return w;
+    },
+    addSet(sessionId, exerciseIndex, set) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      w.exercises[exerciseIndex].sets.push(Object.assign({ type: 'normal', status: 'upcoming' }, set)); persist();
+      return w;
+    },
+    removeSet(sessionId, exerciseIndex, setIndex) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      w.exercises[exerciseIndex].sets.splice(setIndex, 1); persist();
+      return w;
+    },
+    finish(sessionId, { notes } = {}) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      w.status = 'completed'; w.endedAt = iso(now()); if (notes) w.notes = notes;
+      let totalVolume = 0; const prsHit = [];
+      w.exercises.forEach((ex) => {
+        ex.sets.filter((s) => s.status === 'completed' && s.actualWeight != null).forEach((s) => {
+          totalVolume += (s.actualWeight || 0) * (s.actualReps || 0);
+          const pr = PersonalRecordService.checkAndRecord(w.memberId, ex.exerciseId, s.actualWeight, s.actualReps, w.id);
+          if (pr.isNewPR) prsHit.push({ exerciseId: ex.exerciseId, kind: pr.kind, valueKg: s.actualWeight });
+        });
+      });
+      w.totalVolumeKg = Math.round(totalVolume); w.prsHit = prsHit; persist();
+      emit('workout.completed', { workoutId: sessionId, totalVolumeKg: w.totalVolumeKg, prs: prsHit.length, __bus: { type: 'workout-completed', payload: { memberId: w.memberId, prs: prsHit.length } } }, w.memberId, w.memberId, w.branchId);
+      return w;
+    },
+    trainerFeedback(sessionId, feedback, trainerId) {
+      const w = WorkoutService.byId(sessionId); if (!w) return { error: 'unknown_workout' };
+      w.trainerFeedback = Object.assign({ visibility: 'shared' }, feedback); persist();
+      emit('workout.feedback_added', { workoutId: sessionId }, trainerId, w.memberId, w.branchId);
+      return w;
+    },
+  };
+
+  const PersonalRecordService = {
+    forMember: (memberId) => load().personalRecords.filter((p) => p.memberId === memberId),
+    forExercise: (memberId, exerciseId) => load().personalRecords.filter((p) => p.memberId === memberId && p.exerciseId === exerciseId),
+    checkAndRecord(memberId, exerciseId, weightKg, reps, sessionId) {
+      const d = load();
+      const existing = d.personalRecords.find((p) => p.memberId === memberId && p.exerciseId === exerciseId && p.kind === 'max_weight');
+      if (!existing || weightKg > existing.valueKg) {
+        if (existing) { existing.valueKg = weightKg; existing.reps = reps; existing.achievedAt = iso(now()).slice(0, 10); existing.sessionId = sessionId; }
+        else d.personalRecords.push({ id: nextId('pr', 'personalRecords'), memberId, exerciseId, kind: 'max_weight', valueKg: weightKg, reps, achievedAt: iso(now()).slice(0, 10), sessionId, source: null });
+        persist();
+        emit('workout.pr', { exerciseId, weightKg, reps, __bus: { type: 'pr', payload: { memberId, exerciseId, weightKg } } }, memberId, memberId);
+        return { isNewPR: true, kind: 'max_weight' };
+      }
+      return { isNewPR: false };
+    },
+  };
+
+  const BodyLogService = {
+    forMember: (memberId) => load().bodyLogs.filter((b) => b.memberId === memberId).sort((a, b) => b.at.localeCompare(a.at)),
+    record({ memberId, weightKg, measurements, photoNote, recordedBy, recordedByRole }) {
+      const d = load();
+      const b = { id: nextId('bl', 'bodyLogs'), memberId, at: iso(now()).slice(0, 10), recordedBy, recordedByRole: recordedByRole || 'member', weightKg: weightKg || null, measurements: measurements || {}, photoNote: photoNote || null, source: recordedByRole || 'member' };
+      d.bodyLogs.unshift(b); persist();
+      emit('body.logged', { memberId }, recordedBy, memberId);
+      return b;
+    },
+  };
+
+  const GoalService = {
+    forMember: (memberId) => load().goals.filter((g) => g.memberId === memberId),
+    create({ memberId, kind, label, exerciseId, startValue, targetValue, unit, targetDate, trainerApproved }) {
+      const d = load();
+      const g = { id: nextId('gl', 'goals'), memberId, kind, label, exerciseId: exerciseId || null, startValue, targetValue, unit, targetDate, trainerApproved: !!trainerApproved, createdAt: iso(now()).slice(0, 10), status: 'active', milestones: [] };
+      d.goals.push(g); persist();
+      emit('goal.created', { goalId: g.id, label }, memberId, memberId);
+      return g;
+    },
+    progress(goal) {
+      if (!goal) return 0;
+      const span = goal.targetValue - goal.startValue;
+      if (span === 0) return 100;
+      let current = goal.startValue;
+      if (goal.kind === 'lift' && goal.exerciseId) {
+        const last = ExerciseService.lastPerformance(goal.memberId, goal.exerciseId);
+        if (last && last.sets.length) current = Math.max(...last.sets.map((s) => s.actualWeight || 0));
+      }
+      return Math.max(0, Math.min(100, Math.round(((current - goal.startValue) / span) * 100)));
+    },
+    addMilestone(goalId, note) {
+      const g = load().goals.find((x) => x.id === goalId); if (!g) return { error: 'unknown_goal' };
+      g.milestones.push({ at: iso(now()).slice(0, 10), note }); persist();
+      return g;
+    },
+    complete(goalId) {
+      const g = load().goals.find((x) => x.id === goalId); if (!g) return { error: 'unknown_goal' };
+      g.status = 'done'; persist();
+      emit('goal.completed', { goalId }, g.memberId, g.memberId);
+      return g;
+    },
+  };
+
   /* ---------- scenarios: deterministic demo states ---------- */
   const SCENARIOS = {
     'normal-day': () => {
@@ -1226,6 +1586,7 @@ const DemoData = (() => {
     TrainerService, PackageService, BookingService, InstructorService, MaintenanceService,
     IncidentService, PaymentService, RetailService, LeadService, ApprovalService, ShiftService,
     GuestService, NutritionService, OwnerService, NotificationService,
+    /* train */ ExerciseService, ProgramService, WorkoutService, PersonalRecordService, BodyLogService, GoalService,
     /* demo  */ scenarios: () => Object.keys(SCENARIOS), runScenario: (n) => reset(n),
   };
 })();
