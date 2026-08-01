@@ -343,6 +343,8 @@ function renderHome() {
         <div class="lc-cell"><span>Renews</span><b>${fmtDate(m.subEnds)}</b></div>
         <div class="lc-cell"><span>PT credits</span><b>${credits}</b></div>
         <div class="lc-cell"><span>Pass</span><b>QR v${m.qrVersion}</b></div>
+        <div class="lc-cell"><span>Wallet</span><b>$${(m.wallet || 0).toFixed(2).replace(/\.00$/, '')}</b></div>
+        <div class="lc-cell"><span>Points</span><b>${m.points || 0}</b></div>
       </div>
     </div>
 
