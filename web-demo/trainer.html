@@ -78,6 +78,13 @@
   .warnbox b { display:block; margin-bottom:4px; }
   .okbox { background:var(--mint); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--mint-ink); font-weight:600; margin-top:8px; animation:rise .25s ease both; }
   .notebox { background:var(--amber-soft); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--amber); font-weight:600; margin-top:8px; }
+  .privatebox { background:var(--deep); border-radius:12px; padding:2px 12px 12px; margin-top:6px; }
+  .privatebox .d-lbl { color:#c9bfa8; }
+  .privatebox textarea { background:#241f18; border-color:#3a3327; color:#f2ece0; }
+  .privatebox textarea::placeholder { color:#8d8266; }
+  .safetybox { background:var(--red-soft); border-radius:12px; padding:2px 12px 12px; margin-top:8px; }
+  .safetybox .d-lbl { color:var(--red); }
+  .safetybox textarea { border-color:#e3b6ae; }
   /* clients */
   .client { padding:12px 0; border-bottom:1px solid var(--line); }
   .client:last-child { border-bottom:none; }
@@ -150,6 +157,7 @@
   <div class="seg" id="mainSeg">
     <button class="on" data-sec="today">Today</button>
     <button data-sec="clients">Clients</button>
+    <button data-sec="train">Train</button>
     <button data-sec="avail">Slots</button>
     <button data-sec="perf">Performance</button>
   </div>
@@ -177,6 +185,20 @@
       <div class="fine">Role-scoped view — injuries and allergies only. Medical conditions in a member's
         health file are visible to the nutritionist, not to trainers; the engine enforces this
         (HealthService role scoping). Access is audit-logged.</div>
+    </div>
+  </div>
+
+  <!-- ============ TRAIN — coaching dashboard ============ -->
+  <div id="secTrain" class="hidden">
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px; flex-wrap:wrap;">
+        <div class="eyebrow" style="margin:0;">Train — what needs your attention</div>
+        <span class="chip dim">Live from the shared engine</span>
+      </div>
+      <div id="trainBody"></div>
+      <div class="fine">Programs are versioned — updating a client's program never overwrites the old one; every
+        change keeps its reason and a readable changelog. Open a client's file in the Clients tab to manage their
+        program and workout history.</div>
     </div>
   </div>
 
@@ -269,6 +291,12 @@ function pushMsg(mid, who, txt) {
   localStorage.setItem(MSGKEY, JSON.stringify(all));
 }
 
+/* ---------------- Train: trainer-private / safety notes (never sent to the engine's
+   shared feedback object, never member-visible — local to this device only) ---------------- */
+const PRIVKEY = 'lu_trainer_private';
+const privOf = (sid) => { const all = readJ(PRIVKEY); return all[sid] || {}; };
+function savePriv(sid, obj) { const all = readJ(PRIVKEY); all[sid] = obj; localStorage.setItem(PRIVKEY, JSON.stringify(all)); }
+
 /* ---------------- helpers over engine data ---------------- */
 function pkgOf(s) {
   if (s.packageId) { const p = D.PackageService.list().find((x) => x.id === s.packageId); if (p) return p; }
@@ -293,6 +321,7 @@ function renderHead() {
 $('personaSel').onchange = () => {
   TID = $('personaSel').value; localStorage.setItem(PKEY, TID);
   openClient = null; justEnded = null; $('banner').innerHTML = '';
+  progBuilder = null; progHistOpen = {}; openWorkout = {}; feedbackOpen = {}; exHistOpen = null;
   renderAll(); toast('Now viewing as ' + TR().name);
 };
 
@@ -302,6 +331,7 @@ function showSec(sec) {
   document.querySelectorAll('#mainSeg button').forEach((x) => x.classList.toggle('on', x.dataset.sec === sec));
   $('secToday').classList.toggle('hidden', sec !== 'today');
   $('secClients').classList.toggle('hidden', sec !== 'clients');
+  $('secTrain').classList.toggle('hidden', sec !== 'train');
   document.querySelectorAll('[data-availsec]').forEach((c) => c.classList.toggle('hidden', sec !== 'avail'));
   $('secPerf').classList.toggle('hidden', sec !== 'perf');
 }
@@ -492,6 +522,12 @@ function renderLive() {
 
 /* ---------------- CLIENT ROSTER ---------------- */
 let openClient = null;
+/* Train: per-client program builder + workout-history UI state (local only) */
+let progBuilder = null;      // { mode:'new'|'update', memberId, programId, days, reason, changeSummary, name }
+let progHistOpen = {};       // programId -> bool
+let openWorkout = {};        // workoutId -> bool
+let feedbackOpen = {};       // workoutId -> bool
+let exHistOpen = null;       // { memberId, exerciseId } | null
 function historyOf(memberId) {
   return TS.sessions(TID).filter((s) => s.memberId === memberId && ['completed', 'no_show', 'cancelled'].includes(s.status))
     .sort((a, b) => b.startsAt - a.startsAt);
@@ -564,6 +600,9 @@ function clientDetail(m) {
     '<div class="d-lbl">Messages <span style="text-transform:none; letter-spacing:0;">(demo thread — local only)</span></div>' +
     '<div class="msgs">' + msgs.map((x) => '<div class="msg' + (x.who === 'me' ? ' me' : '') + '">' + esc(x.txt) + '<div class="meta">' + esc(x.at) + '</div></div>').join('') + '</div>' +
     '<div class="msgrow"><input data-msgin="' + m.id + '" placeholder="Message ' + esc(first(m.name)) + '…" /><button data-msgsend="' + m.id + '">Send</button></div>' +
+
+    renderProgramSection(m) +
+    renderWorkoutHistorySection(m) +
   '</div>';
 }
 function bindDetail() {
@@ -578,6 +617,277 @@ function bindDetail() {
   }; });
   document.querySelectorAll('[data-msgin]').forEach((inp) => { inp.onkeydown = (e) => {
     if (e.key === 'Enter') { const b = document.querySelector('[data-msgsend="' + inp.dataset.msgin + '"]'); if (b) b.onclick(); }
+  }; });
+  bindProgram();
+  bindWorkoutHistory();
+}
+
+/* ---------------- TRAIN: program management (per client) ---------------- */
+function renderProgramSection(m) {
+  const program = D.ProgramService.current(m.id);
+  let html = '<div class="d-lbl">Training program <span style="text-transform:none; letter-spacing:0;">(Train — versioned, never overwritten)</span></div>';
+  if (program) {
+    const cv = D.ProgramService.currentVersion(program);
+    html += '<div style="font-weight:800; font-size:14px; font-family:var(--display);">' + esc(program.name) + ' <span class="chip">v' + program.currentVersion + '</span></div>';
+    html += (cv.days || []).map((day) =>
+      '<div style="margin-top:6px;"><b style="font-size:12.5px;">' + esc(day.name) + '</b><div style="margin-top:3px;">' +
+      (day.exercises || []).map((e) => {
+        const ex = D.ExerciseService.byId(e.exerciseId);
+        return '<span class="chip dim">' + esc(ex ? ex.name : e.exerciseId) + ' ' + e.targetSets + '×' + e.targetReps + '</span>';
+      }).join('') + '</div></div>'
+    ).join('');
+    html += '<div class="cl-acts" style="margin-top:8px;">' +
+      '<button class="solid" data-progupdate="' + program.id + '">Update program</button>' +
+      '<button data-proghist="' + program.id + '">' + (progHistOpen[program.id] ? 'Hide version history' : 'Version history (' + program.versions.length + ')') + '</button>' +
+    '</div>';
+    if (progHistOpen[program.id]) {
+      html += '<div class="detail" style="margin-top:8px;">' +
+        D.ProgramService.versionHistory(program.id).map((v) =>
+          '<div class="hist"><b>Version ' + v.version + '</b> · <span>' + esc(v.at) + '</span> · <span>' + esc(v.changedBy) + '</span>' +
+          '<div style="margin-top:2px;">Reason: ' + esc(v.reason) + '</div>' +
+          (v.changeSummary ? '<div style="color:var(--muted);">Change: ' + esc(v.changeSummary) + '</div>' : '') +
+          '</div>'
+        ).join('') +
+      '</div>';
+    }
+  } else {
+    html += '<div style="font-size:12.5px; color:var(--faint);">No program assigned yet.</div>' +
+      '<button class="mini" data-prognew="' + m.id + '">New program</button>';
+  }
+  if (progBuilder && progBuilder.memberId === m.id) html += renderProgBuilder(progBuilder);
+  return html;
+}
+function renderProgBuilder(pb) {
+  const exList = D.ExerciseService.list();
+  const dayHtml = pb.days.map((day, di) =>
+    '<div class="detail" style="margin-top:8px; background:#fff; border:1.5px solid var(--line); padding:10px;">' +
+      '<div style="display:flex; gap:6px; align-items:center;">' +
+        '<input class="txt" style="margin-top:0; flex:1;" data-pbday="' + di + '" value="' + esc(day.name) + '" placeholder="Day name" />' +
+        '<button class="exdel" data-pbdaydel="' + di + '" title="Remove day">✕</button>' +
+      '</div>' +
+      (day.exercises || []).map((ex, ei) =>
+        '<div class="setrow" style="justify-content:space-between; flex-wrap:wrap;">' +
+          '<select data-pbex="' + di + ':' + ei + '" style="flex:1 1 130px; min-width:0; border:1.5px solid var(--line); border-radius:9px; padding:6px 8px; font-size:12.5px; font-family:var(--body); background:#fff; color:var(--ink);">' +
+            exList.map((x) => '<option value="' + x.id + '"' + (x.id === ex.exerciseId ? ' selected' : '') + '>' + esc(x.name) + '</option>').join('') +
+          '</select>' +
+          '<input type="number" data-pbsets="' + di + ':' + ei + '" value="' + ex.targetSets + '" style="width:46px;" title="target sets" />×' +
+          '<input type="number" data-pbreps="' + di + ':' + ei + '" value="' + ex.targetReps + '" style="width:46px;" title="target reps" />' +
+          '<button class="del" data-pbexdel="' + di + ':' + ei + '">✕</button>' +
+        '</div>'
+      ).join('') +
+      '<button class="mini" data-pbaddex="' + di + '">+ exercise</button>' +
+    '</div>'
+  ).join('');
+  return '<div class="detail" style="margin-top:10px; border:1.5px dashed var(--faint);">' +
+    '<div class="eyebrow" style="margin:0 0 6px;">' + (pb.mode === 'new' ? 'New program' : 'Update program — this pushes a new version, the old one stays on file') + '</div>' +
+    (pb.mode === 'new' ? '<div class="d-lbl" style="margin-top:0;">Program name</div><input class="txt" id="pbName" style="margin-top:0;" value="' + esc(pb.name || '') + '" placeholder="e.g. Upper / Lower Strength Split" />' : '') +
+    dayHtml +
+    '<button class="ghosty" id="pbAddDay" style="margin-top:8px;">+ day</button>' +
+    '<div class="d-lbl">Reason <span style="color:var(--red); text-transform:none;">(required)</span></div>' +
+    '<textarea id="pbReason" rows="2" placeholder="Why this program / change?">' + esc(pb.reason || '') + '</textarea>' +
+    (pb.mode === 'update' ? '<div class="d-lbl">Change summary <span style="color:var(--red); text-transform:none;">(required)</span></div>' +
+      '<textarea id="pbSummary" rows="2" placeholder="What changed, in plain terms">' + esc(pb.changeSummary || '') + '</textarea>' : '') +
+    '<div style="display:flex; gap:8px; margin-top:10px;">' +
+      '<button class="primary" id="pbSave" style="flex:1;">' + (pb.mode === 'new' ? 'Assign program' : 'Save new version') + '</button>' +
+      '<button class="ghosty" id="pbCancel" style="flex:1;">Cancel</button>' +
+    '</div>' +
+  '</div>';
+}
+function bindProgram() {
+  document.querySelectorAll('[data-prognew]').forEach((b) => { b.onclick = () => {
+    progBuilder = { mode: 'new', memberId: b.dataset.prognew, programId: null, days: [{ name: 'Day 1', exercises: [] }], reason: '', name: '' };
+    renderRoster();
+  }; });
+  document.querySelectorAll('[data-progupdate]').forEach((b) => { b.onclick = () => {
+    const program = D.ProgramService.byId(b.dataset.progupdate); if (!program) return;
+    const cv = D.ProgramService.currentVersion(program);
+    progBuilder = { mode: 'update', memberId: program.memberId, programId: program.id, days: JSON.parse(JSON.stringify(cv.days)), reason: '', changeSummary: '' };
+    renderRoster();
+  }; });
+  document.querySelectorAll('[data-proghist]').forEach((b) => { b.onclick = () => {
+    progHistOpen[b.dataset.proghist] = !progHistOpen[b.dataset.proghist]; renderRoster();
+  }; });
+  bindProgBuilder();
+}
+function bindProgBuilder() {
+  const pb = progBuilder; if (!pb) return;
+  document.querySelectorAll('[data-pbday]').forEach((inp) => { inp.oninput = () => { pb.days[+inp.dataset.pbday].name = inp.value; }; });
+  document.querySelectorAll('[data-pbdaydel]').forEach((b) => { b.onclick = () => { pb.days.splice(+b.dataset.pbdaydel, 1); renderRoster(); }; });
+  const addDay = $('pbAddDay'); if (addDay) addDay.onclick = () => { pb.days.push({ name: 'Day ' + (pb.days.length + 1), exercises: [] }); renderRoster(); };
+  document.querySelectorAll('[data-pbex]').forEach((sel) => { sel.onchange = () => {
+    const [di, ei] = sel.dataset.pbex.split(':').map(Number); pb.days[di].exercises[ei].exerciseId = sel.value;
+  }; });
+  document.querySelectorAll('[data-pbsets]').forEach((inp) => { inp.oninput = () => {
+    const [di, ei] = inp.dataset.pbsets.split(':').map(Number); pb.days[di].exercises[ei].targetSets = Math.max(1, Number(inp.value) || 1);
+  }; });
+  document.querySelectorAll('[data-pbreps]').forEach((inp) => { inp.oninput = () => {
+    const [di, ei] = inp.dataset.pbreps.split(':').map(Number); pb.days[di].exercises[ei].targetReps = Math.max(1, Number(inp.value) || 1);
+  }; });
+  document.querySelectorAll('[data-pbexdel]').forEach((b) => { b.onclick = () => {
+    const [di, ei] = b.dataset.pbexdel.split(':').map(Number); pb.days[di].exercises.splice(ei, 1); renderRoster();
+  }; });
+  document.querySelectorAll('[data-pbaddex]').forEach((b) => { b.onclick = () => {
+    const di = +b.dataset.pbaddex; const first = D.ExerciseService.list()[0];
+    pb.days[di].exercises.push({ exerciseId: first.id, targetSets: 3, targetReps: 10 }); renderRoster();
+  }; });
+  const rEl = $('pbReason'); if (rEl) rEl.oninput = () => { pb.reason = rEl.value; };
+  const sEl = $('pbSummary'); if (sEl) sEl.oninput = () => { pb.changeSummary = sEl.value; };
+  const nEl = $('pbName'); if (nEl) nEl.oninput = () => { pb.name = nEl.value; };
+  const saveEl = $('pbSave'); if (saveEl) saveEl.onclick = savePB;
+  const cancelEl = $('pbCancel'); if (cancelEl) cancelEl.onclick = () => { progBuilder = null; renderRoster(); };
+}
+function savePB() {
+  const pb = progBuilder; if (!pb) return;
+  const reason = ($('pbReason').value || '').trim();
+  if (!reason) { toast('A reason is required — nothing was saved.'); return; }
+  if (!pb.days.length || pb.days.some((d) => !d.name.trim())) { toast('Every day needs a name.'); return; }
+  if (pb.days.some((d) => !d.exercises.length)) { toast('Add at least one exercise to each day.'); return; }
+  if (pb.mode === 'new') {
+    const name = ($('pbName').value || pb.name || '').trim();
+    if (!name) { toast('Name the program first.'); return; }
+    const res = D.ProgramService.assign({ memberId: pb.memberId, trainerId: TID, name, days: pb.days, reason });
+    if (res.error) { toast('Could not assign — ' + res.error); return; }
+    toast('Program assigned — ' + name + '.');
+  } else {
+    const changeSummary = ($('pbSummary').value || '').trim();
+    if (!changeSummary) { toast('A change summary is required — nothing was saved.'); return; }
+    const res = D.ProgramService.update(pb.programId, { days: pb.days, reason, changeSummary, changedBy: TID });
+    if (res.error) { toast('Could not save — ' + res.error); return; }
+    toast('New version ' + res.currentVersion + ' saved — the old version stays on file.');
+  }
+  progBuilder = null; renderRoster();
+}
+
+/* ---------------- TRAIN: workout history + exercise view (per client) ---------------- */
+function trainerWorkoutsFor(memberId) { return D.WorkoutService.history(memberId).filter((w) => w.trainerId === TID); }
+function renderWorkoutHistorySection(m) {
+  const workouts = trainerWorkoutsFor(m.id);
+  let html = '<div class="d-lbl">Workout history <span style="text-transform:none; letter-spacing:0;">(Train — sessions you assigned)</span></div>';
+  if (!workouts.length) {
+    html += '<div style="font-size:12.5px; color:var(--faint);">No completed Train workouts yet.</div>';
+  } else {
+    html += workouts.map((w) => {
+      const priv = privOf(w.id);
+      const open = !!openWorkout[w.id];
+      return '<div class="hist">' +
+        '<div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">' +
+          '<div><b>' + esc(w.dayName) + '</b><br><span>' + esc(new Date(w.endedAt).toLocaleDateString([], { month: 'short', day: 'numeric' })) + '</span></div>' +
+          '<button class="mini" data-wopen="' + w.id + '" style="margin-top:0;">' + (open ? 'Close' : 'Open') + '</button>' +
+        '</div>' +
+        '<div style="margin-top:4px;">' +
+          '<span class="chip dim">' + w.totalVolumeKg + ' kg volume</span>' +
+          (w.prsHit && w.prsHit.length ? '<span class="chip">🏆 ' + w.prsHit.length + ' PR' + (w.prsHit.length > 1 ? 's' : '') + '</span>' : '') +
+          (w.trainerFeedback ? '<span class="chip dim">Feedback shared</span>' : '<span class="chip dim">No feedback yet</span>') +
+          ((priv.privateNote || priv.safetyNote) ? '<span class="chip dim">🔒 Private notes on file</span>' : '') +
+        '</div>' +
+        (open ? renderWorkoutOpen(m, w) : '') +
+      '</div>';
+    }).join('');
+  }
+  if (exHistOpen && exHistOpen.memberId === m.id) html += renderExerciseHistory(m, exHistOpen.exerciseId);
+  return html;
+}
+function renderWorkoutOpen(m, w) {
+  const priv = privOf(w.id);
+  let html = '<div class="detail" style="margin-top:8px;">';
+  html += '<div class="d-lbl" style="margin-top:0;">Exercises &amp; sets logged</div>';
+  html += w.exercises.map((e) => {
+    const ex = D.ExerciseService.byId(e.exerciseId);
+    const rows = (e.sets || []).filter((s) => s.status === 'completed').map((s) =>
+      '<tr><td>' + (s.type === 'warmup' ? 'Warmup' : 'Work') + '</td><td>' + (s.actualWeight != null ? s.actualWeight + ' kg' : '—') +
+      '</td><td>' + (s.actualReps != null ? s.actualReps : '—') + '</td><td>' + (s.rpe != null ? s.rpe : '—') + '</td></tr>'
+    ).join('');
+    return '<div style="margin-bottom:8px;">' +
+      '<button class="mini" data-exopen="' + m.id + '|' + e.exerciseId + '" style="margin-top:0;">' + esc(ex ? ex.name : e.exerciseId) + ' — view across sessions ↗</button>' +
+      '<table class="bct"><tr><th>Set</th><th>Weight</th><th>Reps</th><th>RPE</th></tr>' + (rows || '<tr><td colspan="4" style="color:var(--faint);">No sets logged.</td></tr>') + '</table>' +
+    '</div>';
+  }).join('');
+
+  const fb = w.trainerFeedback; const fOpen = !!feedbackOpen[w.id];
+  html += '<div class="d-lbl">Feedback shared with the member</div>';
+  if (fb && !fOpen) {
+    html += '<div style="font-size:12.5px;">' + esc(fb.summary || '') + '</div>' +
+      '<div style="margin-top:4px;"><span class="chip dim">Difficulty ' + esc(fb.difficulty) + '/10</span><span class="chip dim">Enjoyment ' + esc(fb.enjoyment) + '/10</span>' +
+      (fb.pain ? '<span class="chip dim">Pain: ' + esc(fb.pain) + '</span>' : '') + '</div>' +
+      (fb.homework ? '<div style="font-size:12px; color:var(--muted); margin-top:4px;">Homework: ' + esc(fb.homework) + '</div>' : '') +
+      (fb.nextTarget ? '<div style="font-size:12px; color:var(--muted);">Next target: ' + esc(fb.nextTarget) + '</div>' : '') +
+      '<button class="mini" data-fbedit="' + w.id + '">Edit feedback</button>';
+  } else {
+    html += renderFeedbackForm(w);
+  }
+
+  html += '<div class="privatebox">' +
+    '<div class="d-lbl">🔒 Trainer-private note <span style="text-transform:none; letter-spacing:0; color:#c9bfa8;">— never shown to the member, saved on this device only</span></div>' +
+    '<textarea data-privnote="' + w.id + '" rows="2" placeholder="Private note — your eyes only">' + esc(priv.privateNote || '') + '</textarea>' +
+  '</div>' +
+  '<div class="safetybox">' +
+    '<div class="d-lbl">🔒 Safety note <span style="text-transform:none; letter-spacing:0; color:var(--red);">— management / safety only, never shown to the member</span></div>' +
+    '<textarea data-safenote="' + w.id + '" rows="2" placeholder="Safety-relevant note, e.g. a pain pattern to escalate">' + esc(priv.safetyNote || '') + '</textarea>' +
+  '</div>' +
+  '<button class="mini" data-privsave="' + w.id + '">Save private + safety notes</button>' +
+  '</div>';
+  return html;
+}
+function renderFeedbackForm(w) {
+  const fb = w.trainerFeedback || {};
+  return '<div style="margin-top:2px;">' +
+    '<textarea data-fbsummary="' + w.id + '" rows="2" placeholder="Summary — shared with the member">' + esc(fb.summary || '') + '</textarea>' +
+    '<div class="tool">' +
+      '<label>Difficulty (1–10)<input type="number" min="1" max="10" data-fbdiff="' + w.id + '" value="' + (fb.difficulty || 5) + '" /></label>' +
+      '<label>Enjoyment (1–10)<input type="number" min="1" max="10" data-fbenjoy="' + w.id + '" value="' + (fb.enjoyment || 5) + '" /></label>' +
+    '</div>' +
+    '<input class="txt" data-fbpain="' + w.id + '" placeholder="Pain (e.g. None reported)" value="' + esc(fb.pain || '') + '" />' +
+    '<input class="txt" data-fbhw="' + w.id + '" placeholder="Homework before next session" value="' + esc(fb.homework || '') + '" />' +
+    '<input class="txt" data-fbtarget="' + w.id + '" placeholder="Next target" value="' + esc(fb.nextTarget || '') + '" />' +
+    '<button class="primary" data-fbsave="' + w.id + '" style="margin-top:8px;">Share feedback with member</button>' +
+  '</div>';
+}
+function renderExerciseHistory(m, exerciseId) {
+  const ex = D.ExerciseService.byId(exerciseId);
+  const rows = D.ExerciseService.historyFor(m.id, exerciseId);
+  const pr = D.PersonalRecordService.forMember(m.id).find((p) => p.exerciseId === exerciseId);
+  return '<div class="detail" style="margin-top:10px; border:1.5px solid var(--line);">' +
+    '<div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px;">' +
+      '<div class="eyebrow" style="margin:0;">Exercise history — ' + esc(ex ? ex.name : exerciseId) + '</div>' +
+      '<button class="mini" data-exclose style="margin-top:0;">Close</button>' +
+    '</div>' +
+    (pr ? '<div class="okbox">🏆 Current PR: ' + pr.valueKg + ' kg × ' + pr.reps + ' (' + esc(pr.achievedAt) + ')</div>' : '') +
+    (rows.length ? rows.map((r) =>
+      '<div class="hist"><b>' + esc(new Date(r.at).toLocaleDateString([], { month: 'short', day: 'numeric' })) + '</b><br>' +
+      r.sets.map((s) => '<span class="chip dim">' + s.actualWeight + ' kg × ' + s.actualReps + (s.rpe != null ? ' @RPE ' + s.rpe : '') +
+        ' — est. 1RM ' + D.ExerciseService.estOneRepMax(s.actualWeight, s.actualReps) + ' kg</span>').join('') +
+      '</div>'
+    ).join('') : '<div style="font-size:12.5px; color:var(--faint);">No logged sets for this exercise yet.</div>') +
+  '</div>';
+}
+function bindWorkoutHistory() {
+  document.querySelectorAll('[data-wopen]').forEach((b) => { b.onclick = () => { openWorkout[b.dataset.wopen] = !openWorkout[b.dataset.wopen]; renderRoster(); }; });
+  document.querySelectorAll('[data-exopen]').forEach((b) => { b.onclick = () => {
+    const [mid, exId] = b.dataset.exopen.split('|'); exHistOpen = { memberId: mid, exerciseId: exId }; renderRoster();
+  }; });
+  document.querySelectorAll('[data-exclose]').forEach((b) => { b.onclick = () => { exHistOpen = null; renderRoster(); }; });
+  document.querySelectorAll('[data-fbedit]').forEach((b) => { b.onclick = () => { feedbackOpen[b.dataset.fbedit] = true; renderRoster(); }; });
+  document.querySelectorAll('[data-fbsave]').forEach((b) => { b.onclick = () => {
+    const wid = b.dataset.fbsave;
+    const summary = (document.querySelector('[data-fbsummary="' + wid + '"]').value || '').trim();
+    if (!summary) { toast('Add a summary before sharing feedback.'); return; }
+    const difficulty = Number(document.querySelector('[data-fbdiff="' + wid + '"]').value) || 5;
+    const enjoyment = Number(document.querySelector('[data-fbenjoy="' + wid + '"]').value) || 5;
+    const pain = (document.querySelector('[data-fbpain="' + wid + '"]').value || '').trim();
+    const homework = (document.querySelector('[data-fbhw="' + wid + '"]').value || '').trim();
+    const nextTarget = (document.querySelector('[data-fbtarget="' + wid + '"]').value || '').trim();
+    D.WorkoutService.trainerFeedback(wid, { summary, difficulty, enjoyment, pain, homework, nextTarget, visibility: 'shared' }, TID);
+    feedbackOpen[wid] = false;
+    toast('Feedback shared with the member.');
+    renderRoster();
+  }; });
+  document.querySelectorAll('[data-privsave]').forEach((b) => { b.onclick = () => {
+    const wid = b.dataset.privsave;
+    const privateNote = (document.querySelector('[data-privnote="' + wid + '"]').value || '').trim();
+    const safetyNote = (document.querySelector('[data-safenote="' + wid + '"]').value || '').trim();
+    savePriv(wid, { privateNote, safetyNote });
+    toast('Private notes saved — trainer-only, this device.');
+    renderRoster();
   }; });
 }
 
@@ -680,6 +990,49 @@ function renderPerf() {
     '<div class="fine">Balanced scorecard — delivery and retention lead, revenue follows. Level Up policy: trainers are never ranked on sales alone.</div>';
 }
 
+/* ---------------- TRAIN dashboard (what needs the trainer's attention now) ---------------- */
+function renderTrain() {
+  const dash = TS.clientDashboard(TID);
+  let html = '';
+
+  html += '<div class="d-lbl" style="margin-top:0;">⚠ Pain flags — needs attention</div>';
+  html += dash.painFlags.length ? dash.painFlags.map((f) =>
+    '<div class="hist"><span class="flag">⚠ ' + esc(mName(f.memberId)) + ' — ' + esc(f.pain) + '</span>' +
+    '<div style="font-size:11.5px; color:var(--muted); margin-top:3px;">' + esc(new Date(f.at).toLocaleDateString([], { month: 'short', day: 'numeric' })) + '</div>' +
+    '<button class="mini" data-jumpclient="' + f.memberId + '">Open client file</button></div>'
+  ).join('') : '<div style="font-size:12.5px; color:var(--faint);">No pain flags reported — nothing to escalate.</div>';
+
+  html += '<div class="d-lbl">Stale clients — 12+ days without a completed workout</div>';
+  html += dash.staleClients.length ? dash.staleClients.map((c) =>
+    '<div class="hist"><b>' + esc(c.name) + '</b> <span class="flag">Retention risk</span>' +
+    '<div><button class="mini" data-jumpclient="' + c.id + '">Open client file</button></div></div>'
+  ).join('') : '<div style="font-size:12.5px; color:var(--faint);">Everyone has trained within the last 12 days.</div>';
+
+  html += '<div class="d-lbl">🏆 Recent PRs — celebrate these</div>';
+  html += dash.recentPRs.length ? dash.recentPRs.map((p) => {
+    const ex = D.ExerciseService.byId(p.exerciseId);
+    return '<div class="okbox pop">🏆 ' + esc(mName(p.memberId)) + ' — ' + esc(ex ? ex.name : p.exerciseId) + ' ' + p.valueKg + ' kg × ' + p.reps + ' <span style="opacity:.75;">(' + esc(p.achievedAt) + ')</span></div>';
+  }).join('') : '<div style="font-size:12.5px; color:var(--faint);">No PRs in the last 14 days.</div>';
+
+  html += '<div class="d-lbl">Low PT credits — upsell opportunity</div>';
+  html += dash.lowCredits.length ? dash.lowCredits.map((c) =>
+    '<div class="hist"><b>' + esc(c.name) + '</b> — ' + D.PackageService.remaining(c.id) + ' credit' + (D.PackageService.remaining(c.id) === 1 ? '' : 's') + ' left' +
+    '<div><button class="mini" data-jumpclient="' + c.id + '">Open client file</button></div></div>'
+  ).join('') : '<div style="font-size:12.5px; color:var(--faint);">No one is running low right now.</div>';
+
+  html += '<div class="d-lbl">Today’s Train workouts</div>';
+  html += dash.todaysClients.length ? dash.todaysClients.map((t) => {
+    const cls = t.status === 'completed' ? 'st-ok' : t.status === 'in_progress' ? 'st-live' : 'st-sched';
+    const lbl = t.status === 'completed' ? 'Completed' : t.status === 'in_progress' ? 'In progress' : 'Assigned — not started';
+    return '<div class="win"><b>' + esc(mName(t.memberId)) + '</b><span class="st ' + cls + '" style="margin-left:auto;">' + lbl + '</span></div>';
+  }).join('') : '<div style="font-size:12.5px; color:var(--faint);">No Train workouts assigned for today.</div>';
+
+  $('trainBody').innerHTML = html;
+  document.querySelectorAll('[data-jumpclient]').forEach((b) => { b.onclick = () => {
+    openClient = b.dataset.jumpclient; showSec('clients'); renderRoster();
+  }; });
+}
+
 /* ---------------- GymBus: gate-entry awareness (listen only) ---------------- */
 GymBus.on((kind, ev) => {
   if (kind === 'event' && ev.type === 'gate-entry') {
@@ -695,7 +1048,7 @@ GymBus.on((kind, ev) => {
 });
 
 /* ---------------- boot ---------------- */
-function renderAll() { renderHead(); renderToday(); renderRoster(); renderAvail(); renderPerf(); renderLive(); }
+function renderAll() { renderHead(); renderToday(); renderRoster(); renderTrain(); renderAvail(); renderPerf(); renderLive(); }
 renderAll();
 </script>
 </body>

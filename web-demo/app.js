@@ -38,6 +38,11 @@ const PATHS = {
   check: '<path d="M4.5 12.5 10 18 19.5 7"/>',
   card: '<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 15h4"/>',
   leaf: '<path d="M4.5 19.5c0-9 7-15 15-15 0 8-6 15-15 15z"/><path d="M4.5 19.5C8 14 12 10.5 16.5 8"/>',
+  flame: '<path d="M12 3c1 3-3 4-3 8a3 3 0 0 0 6 0c0-1.4-.6-2-.6-2s1.6.9 1.6 3a4 4 0 0 1-8 0c0-4.5 4-5.5 4-9z"/>',
+  trophy: '<path d="M7 4h10v3a5 5 0 0 1-10 0V4z"/><path d="M7 5H4v1a4 4 0 0 0 3.5 4M17 5h3v1a4 4 0 0 1-3.5 4M12 12v4M9 20h6M9 20c0-2 1-3 3-3s3 1 3 3"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.7"/><circle cx="12" cy="12" r="1"/>',
+  chart: '<path d="M4 21V11M10 21V6M16 21v-8M21 21H3"/>',
+  repeat: '<path d="M17 2.5 21 6.5 17 10.5"/><path d="M3 12v-1a4 4 0 0 1 4-4h14"/><path d="M7 21.5 3 17.5l4-4"/><path d="M21 12v1a4 4 0 0 1-4 4H3"/>',
 };
 function icon(name, size = 18) {
   return `<svg class="ic" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${PATHS[name] || ''}</svg>`;
@@ -146,6 +151,16 @@ const UI = {
   freezeOpen: false, guestBranch: null, transferTo: null,
   gate: null,
   ob: { step: 0, planId: null, branchId: null },
+  train: {
+    seg: 'today',              // 'today' | 'workouts' | 'history' | 'trainer'
+    loggerSessionId: null,     // set while the Live Workout Logger is showing
+    pending: null,             // what the readiness check should start: {type:'assigned'|'adhoc', ...}
+    historyDetail: null,       // sessionId being viewed in History
+    histSeg: 'history',        // 'history' | 'exercise' | 'progress'
+    exercisePick: null,
+    showVersions: false,
+    qw: { picked: [] },        // quick-workout builder selection
+  },
 };
 
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -179,6 +194,7 @@ const RENDERERS = {
 function show(view) {
   UI.view = view;
   closeModal();
+  stopRest();
   views.forEach((v) => document.getElementById('view-' + v).classList.toggle('active', v === view));
   tabbar.classList.toggle('hidden', !tabViews.includes(view));
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === view));
@@ -475,28 +491,415 @@ function ptErrorText(res, trainer, branchId, hour) {
   return 'Could not book: ' + res.error;
 }
 
+function todayStr() { return new Date(D.now()).toISOString().slice(0, 10); }
+
+function nextPtSession(m) {
+  return D.load().ptSessions
+    .filter((s) => s.memberId === m.id && ['scheduled', 'live'].includes(s.status))
+    .sort((a, b) => a.startsAt - b.startsAt)[0] || null;
+}
+
+function estWorkoutMinutes(w) {
+  const restMin = w.exercises.reduce((t, e) => t + Math.max(0, (e.targetSets || 3) - 1), 0) * 1.5;
+  return Math.round(w.exercises.length * 10 + restMin);
+}
+
+function lastCompletedForDay(m, w) {
+  return D.WorkoutService.history(m.id).find((h) => h.id !== w.id && h.programId === w.programId && h.dayName === w.dayName) || null;
+}
+
+function daysAgo(iso) { return Math.max(0, Math.round((D.now() - Date.parse(iso)) / 864e5)); }
+
+function trainSegHtml(active) {
+  const segs = [['today', 'Today'], ['workouts', 'Workouts'], ['history', 'History'], ['trainer', 'My Trainer']];
+  return `<div class="seg">${segs.map(([k, l]) => `<button class="seg-btn${active === k ? ' active' : ''}" data-action="train-seg" data-seg="${k}">${l}</button>`).join('')}</div>`;
+}
+
+function sparklineSvg(points) {
+  if (!points.length) return '<div class="dim small">Not enough data yet.</div>';
+  const w = 280, h = 56, pad = 6;
+  const max = Math.max(...points), min = Math.min(...points);
+  const span = max - min || 1;
+  const step = points.length > 1 ? (w - pad * 2) / (points.length - 1) : 0;
+  const coords = points.map((p, i) => `${pad + i * step},${h - pad - ((p - min) / span) * (h - pad * 2)}`).join(' ');
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:56px;display:block" preserveAspectRatio="none">
+      <polyline points="${coords}" fill="none" stroke="var(--green-deep)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`;
+}
+
+/* ================= TRAIN — router ================= */
+
 function renderTrain() {
   const m = me(); if (!m) { show('login'); return; }
+  if (UI.train.loggerSessionId) { renderLogger(); return; }
+  const seg = UI.train.seg || 'today';
+  if (seg === 'workouts') renderTrainWorkouts();
+  else if (seg === 'history') renderTrainHistory();
+  else if (seg === 'trainer') renderTrainMyTrainer();
+  else renderTrainToday();
+}
+
+/* ---------- 1. Today ---------- */
+
+function renderTrainToday() {
+  const m = me();
+  const w = D.WorkoutService.todaysAssigned(m.id);
+  const streak = D.WorkoutService.streak(m.id);
+  const history = D.WorkoutService.history(m.id);
+  const lastDone = history[0] || null;
+  const nextPt = nextPtSession(m);
+  const freqGoal = D.GoalService.forMember(m.id).find((g) => g.kind === 'frequency' && g.status === 'active');
+
+  let card;
+  if (w) {
+    const resuming = w.status === 'in_progress';
+    const trainerLabel = w.trainerId ? `Assigned by ${esc(staffName(w.trainerId))}` : 'Self-guided';
+    const estMin = estWorkoutMinutes(w);
+    const prior = lastCompletedForDay(m, w);
+    const priorLine = prior ? `Last completed ${daysAgo(prior.endedAt)} day${daysAgo(prior.endedAt) === 1 ? '' : 's'} ago` : 'First time on this workout';
+    card = `<div class="card" style="box-shadow:var(--shadow-float)">
+        ${eyebrow('dumbbell', resuming ? 'In progress' : "Today's workout")}
+        <div style="font-family:var(--display);font-weight:800;font-size:20px">${esc(w.dayName)}</div>
+        <div class="dim small">${trainerLabel} · ${w.exercises.length} exercises · ~${estMin} min</div>
+        <div class="dim small">${esc(priorLine)}</div>
+        <button class="accent-btn" data-action="${resuming ? 'today-resume' : 'today-start'}" data-s="${w.id}">${resuming ? 'Resume workout' : 'Start workout'}</button>
+      </div>`;
+  } else {
+    card = `<div class="card">
+        ${eyebrow('dumbbell', 'Today')}
+        <div style="font-family:var(--display);font-weight:800;font-size:18px">No workout assigned today</div>
+        <div class="dim small">Build a quick workout or repeat your last session.</div>
+        <button class="accent-btn" data-action="train-seg" data-seg="workouts">Go to Workouts</button>
+      </div>`;
+  }
+
+  const ptRow = nextPt ? `<div class="li">
+      <div class="li-ic">${icon('dumbbell', 18)}</div>
+      <div class="li-body"><b>PT with ${esc(staffName(nextPt.trainerId))}</b><div class="meta">${fmtT(nextPt.startsAt)} · ${nextPt.durationMins} min</div></div>
+      ${branchChip(nextPt.branchId)}
+    </div>` : '';
+  const lastRow = lastDone ? `<div class="li">
+      <div class="li-ic">${icon('chart', 18)}</div>
+      <div class="li-body"><b>${esc(lastDone.dayName)}</b><div class="meta">${fmtDate(lastDone.endedAt.slice(0, 10))} · ${lastDone.totalVolumeKg}kg volume${lastDone.prsHit.length ? ` · ${lastDone.prsHit.length} PR` : ''}</div></div>
+    </div>` : '';
+
+  let goalBlock = '';
+  if (freqGoal) {
+    const weekStart = D.now() - 6 * 864e5;
+    const thisWeek = history.filter((h) => Date.parse(h.endedAt) >= weekStart).length;
+    const pct = Math.min(100, Math.round((thisWeek / freqGoal.targetValue) * 100));
+    goalBlock = `<div class="card">
+        ${eyebrow('target', 'This week')}
+        <div class="row"><b>${esc(freqGoal.label)}</b><span class="dim small">${thisWeek}/${freqGoal.targetValue} sessions</span></div>
+        <div class="occ-track"><div class="occ-fill" data-fillto="${pct}%" style="width:${pct}%"></div></div>
+      </div>`;
+  }
+
+  document.getElementById('c-train').innerHTML = `
+    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    ${trainSegHtml('today')}
+    ${card}
+    <div class="duo">
+      <div class="mini-card" style="cursor:default">
+        <div class="mini-top">${icon('flame', 15)} Streak</div>
+        <div class="mini-value">${streak}</div>
+        <div class="dim" style="font-size:11.5px">day${streak === 1 ? '' : 's'} in a row</div>
+      </div>
+      <div class="mini-card" style="cursor:default">
+        <div class="mini-top">${icon('trophy', 15)} PRs</div>
+        <div class="mini-value">${D.PersonalRecordService.forMember(m.id).length}</div>
+        <div class="dim" style="font-size:11.5px">personal records</div>
+      </div>
+    </div>
+    ${(ptRow || lastRow) ? `<div class="card">${eyebrow('clock', 'Up next & recent')}${[ptRow, lastRow].filter(Boolean).join('<div class="divider"></div>')}</div>` : ''}
+    ${goalBlock}`;
+}
+
+/* ---------- 2. Workouts (library) ---------- */
+
+function renderTrainWorkouts() {
+  const m = me();
+  const continuing = D.load().workoutSessions.find((w) => w.memberId === m.id && w.status === 'in_progress');
+  const program = D.ProgramService.current(m.id);
+  const version = program ? D.ProgramService.currentVersion(program) : null;
+  const today = todayStr();
+  const history = D.WorkoutService.history(m.id);
+
+  const continueCard = continuing ? `<div class="card" style="box-shadow:var(--shadow-float)">
+      ${eyebrow('dumbbell', 'Continue')}
+      <div class="row"><b style="font-size:16px">${esc(continuing.dayName)}</b>${branchChip(continuing.branchId)}</div>
+      <div class="dim small">Started ${fmtT(Date.parse(continuing.startedAt))} · ${continuing.exercises.length} exercises</div>
+      <button class="accent-btn slim" data-action="today-resume" data-s="${continuing.id}">Resume workout</button>
+    </div>` : '';
+
+  const dayCards = version ? version.days.map((day) => {
+    const already = D.load().workoutSessions.find((w) => w.memberId === m.id && w.dayName === day.name && w.assignedFor === today);
+    let cta;
+    if (already && already.status === 'completed') cta = `<div class="done-line">${icon('check', 15)} Completed today</div>`;
+    else if (already) cta = `<button class="accent-btn slim" data-action="today-resume" data-s="${already.id}">Resume</button>`;
+    else cta = `<button class="accent-btn slim" data-action="workout-start-day" data-day="${esc(day.name)}">Start</button>`;
+    const names = day.exercises.map((e) => (D.ExerciseService.byId(e.exerciseId) || {}).name).filter(Boolean);
+    return `<div class="card">
+        <div class="row"><b style="font-size:15.5px">${esc(day.name)}</b></div>
+        <div class="dim small">${day.exercises.length} exercises · ${esc(names.slice(0, 3).join(', '))}${names.length > 3 ? '…' : ''}</div>
+        ${cta}
+      </div>`;
+  }).join('') : '<div class="card dim small">No active program — your trainer hasn’t assigned one yet.</div>';
+
+  const picked = UI.train.qw.picked;
+  const cats = ['Strength', 'Isolation', 'Core', 'Cardio', 'Functional'];
+  const qwGroups = cats.map((cat) => {
+    const items = D.ExerciseService.list(cat);
+    if (!items.length) return '';
+    return `<div class="sect-label">${cat}</div>
+      <div class="slot-row">${items.map((e) => `<button class="slot${picked.includes(e.id) ? ' sel' : ''}" data-action="qw-toggle" data-e="${e.id}">${esc(e.name)}</button>`).join('')}</div>`;
+  }).join('');
+
+  const repeat = history[0];
+  const repeatCard = repeat ? `<div class="card">
+      ${eyebrow('repeat', 'Repeat last workout')}
+      <div class="row"><b>${esc(repeat.dayName)}</b><span class="dim small">${fmtDate(repeat.endedAt.slice(0, 10))}</span></div>
+      <div class="dim small">${repeat.exercises.length} exercises · ${repeat.totalVolumeKg}kg volume</div>
+      <button class="ghost-btn slim" data-action="workout-repeat" data-s="${repeat.id}">Repeat this workout</button>
+    </div>` : '';
+
+  document.getElementById('c-train').innerHTML = `
+    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    ${trainSegHtml('workouts')}
+    ${continueCard}
+    <div class="sect-label">Trainer-assigned${program ? ` · v${program.currentVersion}` : ''}</div>
+    ${dayCards}
+    <div class="card">
+      ${eyebrow('dumbbell', 'Quick workout')}
+      <div class="dim small">Pick 3–6 exercises — we’ll build the session.</div>
+      ${qwGroups}
+      <button class="accent-btn" data-action="qw-start" ${picked.length < 3 || picked.length > 6 ? 'disabled style="opacity:.4"' : ''}>Start quick workout (${picked.length})</button>
+    </div>
+    ${repeatCard}`;
+}
+
+/* ---------- 4. History & Progress ---------- */
+
+function renderTrainHistory() {
+  const seg = UI.train.histSeg || 'history';
+  let body;
+  if (UI.train.historyDetail) body = renderHistoryDetail(UI.train.historyDetail);
+  else if (seg === 'exercise') body = renderExerciseHistoryPane();
+  else if (seg === 'progress') body = renderProgressPane();
+  else body = renderHistoryList();
+
+  document.getElementById('c-train').innerHTML = `
+    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    ${trainSegHtml('history')}
+    ${!UI.train.historyDetail ? `<div class="seg">${[['history', 'History'], ['exercise', 'Exercises'], ['progress', 'Progress']].map(([k, l]) => `<button class="seg-btn${seg === k ? ' active' : ''}" data-action="hist-seg" data-seg="${k}">${l}</button>`).join('')}</div>` : ''}
+    ${body}`;
+}
+
+function renderHistoryList() {
+  const m = me();
+  const rows = D.WorkoutService.history(m.id).map((w) => {
+    const dur = w.startedAt && w.endedAt ? Math.round((Date.parse(w.endedAt) - Date.parse(w.startedAt)) / 60000) : null;
+    return `<button class="card" data-action="hist-open" data-s="${w.id}" style="text-align:left;border:none;cursor:pointer;width:100%">
+        <div class="row"><b>${esc(w.dayName)}</b>${branchChip(w.branchId)}</div>
+        <div class="dim small">${fmtDate(w.endedAt.slice(0, 10))}${dur ? ` · ${fmtDur(dur)}` : ''} · ${w.totalVolumeKg}kg${w.prsHit.length ? ` · ${w.prsHit.length} PR` : ''}</div>
+      </button>`;
+  }).join('');
+  return rows || '<div class="card dim small">No completed workouts yet — finish one from Today or Workouts.</div>';
+}
+
+function renderHistoryDetail(sessionId) {
+  const w = D.WorkoutService.byId(sessionId);
+  if (!w) { UI.train.historyDetail = null; return renderHistoryList(); }
+  const dur = w.startedAt && w.endedAt ? Math.round((Date.parse(w.endedAt) - Date.parse(w.startedAt)) / 60000) : null;
+  const exRows = w.exercises.map((ex) => {
+    const exo = D.ExerciseService.byId(ex.exerciseId);
+    const sets = ex.sets.filter((s) => s.status === 'completed').map((s) => `${s.actualWeight}kg×${s.actualReps}${s.rpe ? ` @RPE${s.rpe}` : ''}`).join(' · ');
+    return `<div class="exercise"><span>${esc(exo ? exo.name : ex.exerciseId)}</span><span class="dim" style="text-align:right">${esc(sets) || '—'}</span></div>`;
+  }).join('');
+  const fb = w.trainerFeedback;
+  return `<button class="ghost-btn slim" data-action="hist-back" style="width:auto">‹ Back</button>
+    <div class="card">
+      <div class="row"><b style="font-size:17px">${esc(w.dayName)}</b>${branchChip(w.branchId)}</div>
+      <div class="dim small">${fmtDate(w.endedAt.slice(0, 10))}${dur ? ` · ${fmtDur(dur)}` : ''} · ${w.totalVolumeKg}kg volume${w.prsHit.length ? ` · ${w.prsHit.length} PR` : ''}</div>
+      ${exRows}
+      ${w.notes ? `<div class="dim small">“${esc(w.notes)}”</div>` : ''}
+    </div>
+    ${fb && fb.visibility === 'shared' ? `<div class="card">
+        ${eyebrow('clipboard', 'Trainer feedback')}
+        <div class="small">${esc(fb.summary || '')}</div>
+        ${fb.homework ? `<div class="row small"><span class="dim">Homework</span><b>${esc(fb.homework)}</b></div>` : ''}
+        ${fb.nextTarget ? `<div class="row small"><span class="dim">Next target</span><b>${esc(fb.nextTarget)}</b></div>` : ''}
+      </div>` : ''}`;
+}
+
+function renderExerciseHistoryPane() {
+  const m = me();
+  const done = D.WorkoutService.history(m.id);
+  const idsSeen = [];
+  done.forEach((w) => w.exercises.forEach((e) => { if (e.sets.some((s) => s.status === 'completed') && !idsSeen.includes(e.exerciseId)) idsSeen.push(e.exerciseId); }));
+  if (!idsSeen.length) return '<div class="card dim small">Log a workout to see exercise history here.</div>';
+  const picked = idsSeen.includes(UI.train.exercisePick) ? UI.train.exercisePick : idsSeen[0];
+  const chips = idsSeen.map((id) => {
+    const exo = D.ExerciseService.byId(id);
+    return `<button class="slot${picked === id ? ' sel' : ''}" data-action="ex-pick" data-e="${id}">${esc(exo ? exo.name : id)}</button>`;
+  }).join('');
+
+  const rows = D.ExerciseService.historyFor(m.id, picked);
+  const pr = D.PersonalRecordService.forExercise(m.id, picked)[0];
+  const exo = D.ExerciseService.byId(picked);
+  const points = rows.slice().reverse().map((r) => Math.max(0, ...r.sets.map((s) => s.actualWeight || 0)));
+  const list = rows.map((r) => {
+    const top = r.sets.reduce((best, s) => ((s.actualWeight || 0) > (best.actualWeight || 0) ? s : best), r.sets[0] || {});
+    const orm = top.actualWeight ? D.ExerciseService.estOneRepMax(top.actualWeight, top.actualReps) : null;
+    return `<div class="row small"><span>${fmtDate(r.at.slice(0, 10))} · ${esc(branchName(r.branchId))}</span><span><b>${top.actualWeight || '—'}kg×${top.actualReps || '—'}</b>${orm ? ` · ~${orm}kg 1RM` : ''}</span></div>`;
+  }).join('<div class="divider"></div>');
+
+  return `<div class="slot-row">${chips}</div>
+    <div class="card">
+      ${eyebrow('chart', esc(exo ? exo.name : ''))}
+      ${sparklineSvg(points)}
+      ${pr ? `<div class="row"><span class="dim small">Current PR</span><b>${pr.valueKg}kg × ${pr.reps}</b></div>` : ''}
+      <div class="divider"></div>
+      ${list}
+    </div>`;
+}
+
+function renderProgressPane() {
+  const m = me();
+  const logs = D.BodyLogService.forMember(m.id);
+  const goals = D.GoalService.forMember(m.id);
+  const history = D.WorkoutService.history(m.id);
+
+  const bodyRows = logs.map((b, i) => {
+    const prev = logs[i + 1];
+    const delta = prev && b.weightKg && prev.weightKg ? +(b.weightKg - prev.weightKg).toFixed(1) : null;
+    return `<div class="row small"><span>${fmtDate(b.at)} · ${esc(b.recordedByRole)}</span><span><b>${b.weightKg ? b.weightKg + 'kg' : '—'}</b>${delta != null ? ` <span class="dim">(${delta > 0 ? '+' : ''}${delta}kg)</span>` : ''}</span></div>`;
+  }).join('<div class="divider"></div>');
+
+  const goalRows = goals.map((g) => {
+    let live;
+    if (g.kind === 'frequency') {
+      const weekStart = D.now() - 6 * 864e5;
+      const thisWeek = history.filter((h) => Date.parse(h.endedAt) >= weekStart).length;
+      live = Math.min(100, Math.round((thisWeek / g.targetValue) * 100));
+    } else live = D.GoalService.progress(g);
+    return `<div style="margin-bottom:2px">
+        <div class="row"><b style="font-size:14px">${esc(g.label)}</b><span class="dim small">${g.status === 'done' ? 'Done' : fmtDate(g.targetDate)}</span></div>
+        <div class="occ-track" style="margin:5px 0"><div class="occ-fill" data-fillto="${live}%" style="width:${live}%"></div></div>
+        <div class="dim small">${g.startValue}${g.unit === 'kg' ? 'kg' : ''} → ${g.targetValue}${g.unit === 'kg' ? 'kg' : ' ' + esc(g.unit)}</div>
+      </div>`;
+  }).join('<div class="divider"></div>');
+
+  const insights = [];
+  if (history.length >= 2) {
+    const [a, b] = history;
+    const diff = a.totalVolumeKg - b.totalVolumeKg;
+    const pct = b.totalVolumeKg ? Math.round((diff / b.totalVolumeKg) * 100) : 0;
+    insights.push(`Your last session moved ${Math.abs(pct)}% ${diff >= 0 ? 'more' : 'less'} volume (${a.totalVolumeKg}kg) than the one before (${b.totalVolumeKg}kg).`);
+  }
+  const liftGoal = goals.find((g) => g.kind === 'lift' && g.status === 'active');
+  if (liftGoal) {
+    const last = D.ExerciseService.lastPerformance(m.id, liftGoal.exerciseId);
+    const current = last && last.sets.length ? Math.max(...last.sets.map((s) => s.actualWeight || 0)) : liftGoal.startValue;
+    const remaining = +(liftGoal.targetValue - current).toFixed(1);
+    const daysLeft = Math.max(0, Math.round((new Date(liftGoal.targetDate + 'T12:00:00').getTime() - D.now()) / 864e5));
+    const exName = (D.ExerciseService.byId(liftGoal.exerciseId) || {}).name || 'your lift';
+    insights.push(remaining > 0
+      ? `${current}kg on ${esc(exName)} — ${remaining}kg to your ${liftGoal.targetValue}kg goal, ${daysLeft} days left.`
+      : `Goal reached — ${current}kg on ${esc(exName)}!`);
+  }
+  if (logs.length >= 2 && logs[0].weightKg && logs[logs.length - 1].weightKg) {
+    const total = +(logs[0].weightKg - logs[logs.length - 1].weightKg).toFixed(1);
+    insights.push(`Body weight ${total <= 0 ? 'down' : 'up'} ${Math.abs(total)}kg since your first logged entry.`);
+  }
+
+  return `
+    ${insights.length ? `<div class="card">${eyebrow('chart', 'Insights')}${insights.map((t) => `<div class="small">${t}</div>`).join('')}</div>` : ''}
+    <div class="card">
+      ${eyebrow('target', 'Goals')}
+      ${goalRows || '<div class="dim small">No goals yet.</div>'}
+    </div>
+    <div class="card">
+      ${eyebrow('chart', 'Body log')}
+      ${bodyRows || '<div class="dim small">No entries yet.</div>'}
+      <div class="divider"></div>
+      <div class="dim small">Add today’s numbers</div>
+      <input class="input slim" id="blWeight" type="number" inputmode="decimal" placeholder="Weight (kg)" />
+      <div class="btn-row">
+        <input class="input slim" id="blWaist" type="number" inputmode="decimal" placeholder="Waist (cm)" style="flex:1" />
+        <input class="input slim" id="blChest" type="number" inputmode="decimal" placeholder="Chest (cm)" style="flex:1" />
+      </div>
+      <button class="accent-btn slim" data-action="bl-save">Save body log</button>
+    </div>`;
+}
+
+/* ---------- 5. My Trainer ---------- */
+
+function renderTrainMyTrainer() {
+  const m = me();
+  const program = D.ProgramService.current(m.id);
+  const trainerId = (program && program.trainerId) || m.trainerId;
+  const trainer = trainerId ? D.TrainerService.byId(trainerId) : null;
   const credits = D.PackageService.remaining(m.id);
   const pkgs = D.PackageService.forMember(m.id);
-  const sessions = D.load().ptSessions.filter((s) => s.memberId === m.id);
-  const upcoming = sessions.filter((s) => ['scheduled', 'live'].includes(s.status)).sort((a, b) => a.startsAt - b.startsAt);
-  const history = sessions.filter((s) => ['completed', 'no_show', 'cancelled'].includes(s.status)).sort((a, b) => b.startsAt - a.startsAt);
-  const trainers = D.TrainerService.list();
+  const allTrainers = D.TrainerService.list();
 
-  /* booking panel */
+  const profileCard = trainer ? `<div class="card">
+      ${eyebrow('dumbbell', 'Your trainer')}
+      <div class="trainer" style="box-shadow:none;padding:0">
+        <div class="avatar sm tone-1">${esc(trainer.name[0])}</div>
+        <div class="info">
+          <div class="n">${esc(trainer.name)}</div>
+          <div class="meta">${esc((trainer.specialties || []).join(' · '))}</div>
+          <div class="meta">${branchChip((trainer.worksAt || [trainer.locationId])[0])}</div>
+        </div>
+      </div>
+      <div class="row small"><span class="dim">PT credits remaining</span><b>${credits}</b></div>
+    </div>` : `<div class="card dim small">No trainer assigned yet.</div>`;
+
+  const programCard = program ? `<div class="card">
+      ${eyebrow('clipboard', 'Current program')}
+      <div class="row"><b>${esc(program.name)}</b><span class="chip chip-ok">v${program.currentVersion}</span></div>
+      <button class="ghost-btn slim" data-action="prog-versions">${UI.train.showVersions ? 'Hide' : 'View'} past versions</button>
+      ${UI.train.showVersions ? D.ProgramService.versionHistory(program.id).map((v) => `<div class="row small" style="align-items:flex-start"><span class="dim">v${v.version} · ${fmtDate(v.at.slice(0, 10))}</span><span style="text-align:right;max-width:210px">${esc(v.reason || '')}</span></div>`).join('<div class="divider"></div>') : ''}
+    </div>` : '';
+
+  const items = [];
+  D.WorkoutService.history(m.id).filter((w) => w.trainerId).forEach((w) => items.push({ at: w.endedAt, kind: 'workout', data: w }));
+  if (program) D.ProgramService.versionHistory(program.id).forEach((v) => items.push({ at: v.at.length === 10 ? v.at + 'T12:00:00' : v.at, kind: 'program', data: v }));
+  items.sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
+
+  const tl = items.map((it, i) => {
+    const rail = `<div class="tl-rail"><div class="tl-dot"></div>${i < items.length - 1 ? '<div class="tl-line"></div>' : ''}</div>`;
+    if (it.kind === 'workout') {
+      const w = it.data;
+      return `<div class="tl-item">${rail}<div class="tl-body">
+          <div class="tl-time">${fmtDate(w.endedAt.slice(0, 10))}</div>
+          <div class="tl-title">${esc(w.dayName)} — ${w.totalVolumeKg}kg${w.prsHit.length ? ` · ${w.prsHit.length} PR` : ''}</div>
+          ${w.trainerFeedback && w.trainerFeedback.visibility === 'shared' ? `<div class="tl-sub">“${esc(w.trainerFeedback.summary || '')}”</div>` : ''}
+        </div></div>`;
+    }
+    const v = it.data;
+    return `<div class="tl-item">${rail}<div class="tl-body">
+        <div class="tl-time">${fmtDate((v.at || '').slice(0, 10))}</div>
+        <div class="tl-title">Program updated — v${v.version}</div>
+        <div class="tl-sub">${esc(v.reason || '')}${v.changeSummary ? ` · ${esc(v.changeSummary)}` : ''}</div>
+      </div></div>`;
+  }).join('');
+
+  /* ---- book more sessions (kept from the original PT-booking flow) ---- */
   let panel = '';
   if (UI.pt) {
     const t = D.TrainerService.byId(UI.pt.trainerId);
     const branches = (t.worksAt || [t.locationId]);
     const windows = (t.availability || []).filter((a) => a.branchId === UI.pt.branchId);
     const hours = [];
-    windows.forEach((w) => { for (let h = w.fromH; h < w.toH; h++) hours.push(h); });
+    windows.forEach((wnd) => { for (let h = wnd.fromH; h < wnd.toH; h++) hours.push(h); });
     panel = `<div class="card" style="box-shadow:var(--shadow-float)">
         ${eyebrow('dumbbell', 'Book a session · ' + esc(t.name))}
         <div class="dim small">Where?</div>
         <div class="slot-row">${branches.map((b) => `<button class="slot${UI.pt.branchId === b ? ' sel' : ''}" data-action="pt-branch" data-b="${b}">${esc(branchName(b))}</button>`).join('')}</div>
-        <div class="dim small">When? <span style="font-size:11.5px">(${esc(t.name.split(' ')[0])} at ${esc(branchName(UI.pt.branchId))}: ${windows.map((w) => w.fromH + ':00–' + w.toH + ':00').join(', ') || 'no hours today'})</span></div>
+        <div class="dim small">When? <span style="font-size:11.5px">(${esc(t.name.split(' ')[0])} at ${esc(branchName(UI.pt.branchId))}: ${windows.map((wnd) => wnd.fromH + ':00–' + wnd.toH + ':00').join(', ') || 'no hours today'})</span></div>
         <div class="slot-row">${hours.map((h) => `<button class="slot${UI.pt.hour === h ? ' sel' : ''}" data-action="pt-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No availability at this branch.</span>'}</div>
         ${UI.pt.err ? `<div class="err-line">${esc(UI.pt.err)}</div>` : ''}
         <div class="btn-row">
@@ -506,13 +909,13 @@ function renderTrain() {
       </div>`;
   }
 
-  const trainerCards = trainers.map((t, i) => {
+  const trainerCards = allTrainers.map((t, i) => {
     const wa = (t.worksAt || [t.locationId]);
     const avail = (t.availability || []).map((a) => `${branchName(a.branchId)} ${a.fromH}:00–${a.toH}:00`).join(' · ');
     return `<div class="trainer">
         <div class="avatar sm tone-${(i % 3) + 1}">${esc(t.name[0])}</div>
         <div class="info">
-          <div class="n">${esc(t.name)}${t.id === m.trainerId ? ' <span class="bonus">your coach</span>' : ''}</div>
+          <div class="n">${esc(t.name)}${t.id === trainerId ? ' <span class="bonus">your coach</span>' : ''}</div>
           <div class="meta">${esc((t.specialties || []).join(' · '))}</div>
           <div class="meta" style="margin-top:3px">${wa.map((b) => branchChip(b)).join(' ')}</div>
           <div class="status off" style="font-weight:600">${esc(avail)}</div>
@@ -520,6 +923,10 @@ function renderTrain() {
         <button class="book-btn" data-action="pt-open" data-t="${t.id}">Book</button>
       </div>`;
   }).join('');
+
+  const sessions = D.load().ptSessions.filter((s) => s.memberId === m.id);
+  const upcoming = sessions.filter((s) => ['scheduled', 'live'].includes(s.status)).sort((a, b) => a.startsAt - b.startsAt);
+  const historyPt = sessions.filter((s) => ['completed', 'no_show', 'cancelled'].includes(s.status)).sort((a, b) => b.startsAt - a.startsAt);
 
   const upcomingRows = upcoming.map((s) => {
     let actions = `<div class="btn-row">
@@ -536,7 +943,7 @@ function renderTrain() {
       const t = D.TrainerService.byId(s.trainerId);
       const windows = ((t && t.availability) || []).filter((a) => a.branchId === s.branchId);
       const hours = [];
-      windows.forEach((w) => { for (let h = w.fromH; h < w.toH; h++) hours.push(h); });
+      windows.forEach((wnd) => { for (let h = wnd.fromH; h < wnd.toH; h++) hours.push(h); });
       actions = `<div class="dim small">Pick a new time at ${esc(branchName(s.branchId))}:</div><div class="slot-row">
           ${hours.map((h) => `<button class="slot" data-action="pt-res-hour" data-s="${s.id}" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('')}
           <button class="slot" data-action="pt-abort">Never mind</button>
@@ -549,14 +956,11 @@ function renderTrain() {
       </div>`;
   }).join('');
 
-  const historyRows = history.slice(0, 6).map((s) => {
+  const historyRows = historyPt.slice(0, 4).map((s) => {
     const statusTxt = s.status === 'completed' ? 'Completed' : s.status === 'no_show' ? 'Missed' : 'Cancelled';
-    const ex = (s.exercises || []).map((e) => `<div class="exercise"><span>${esc(e.name)}</span><span class="dim">${(e.sets || []).map((x) => `${x.reps}×${x.kg}kg`).join(' · ')}</span></div>`).join('');
     return `<div class="card">
         <div class="row"><b>${esc(staffName(s.trainerId))} · ${statusTxt}</b>${branchChip(s.branchId)}</div>
         <div class="dim small">${fmtT(s.startsAt)}${s.pb ? ` · <span class="ok" style="font-weight:700">PB: ${esc(s.pb)}</span>` : ''}</div>
-        ${ex}
-        ${s.notes ? `<div class="dim small">“${esc(s.notes)}”</div>` : ''}
         ${s.status === 'completed' && !s.memberConfirmed
           ? `<button class="accent-btn slim" data-action="pt-confirm-session" data-s="${s.id}">Confirm session — deducts 1 credit</button>`
           : s.status === 'completed' ? `<div class="done-line">${icon('check', 15)} Confirmed by you</div>` : ''}
@@ -567,30 +971,19 @@ function renderTrain() {
 
   document.getElementById('c-train').innerHTML = `
     <header class="app-header"><div class="greeting">Train</div><span></span></header>
-
-    <div class="duo">
-      <div class="mini-card">
-        <div class="mini-top">${icon('zap', 15)} PT credits</div>
-        <div class="mini-value" data-countup="${credits}">${credits}</div>
-        <div class="dim" style="font-size:11.5px">${pkgs.map((p) => `${p.total - p.used}/${p.total} with ${staffName(p.trainerId).split(' ')[0]}`).join(' · ') || 'no package yet'}</div>
-      </div>
-      <div class="mini-card">
-        <div class="mini-top">${icon('clock', 15)} Next session</div>
-        <div class="mini-value" style="font-size:17px;line-height:1.3">${upcoming[0] ? fmtT(upcoming[0].startsAt) : '—'}</div>
-        <div class="dim" style="font-size:11.5px">${upcoming[0] ? esc(staffName(upcoming[0].trainerId)) + ' · ' + esc(branchName(upcoming[0].branchId)) : 'book below'}</div>
-      </div>
-    </div>
+    ${trainSegHtml('trainer')}
+    ${profileCard}
+    ${programCard}
+    <div class="sect-label">Relationship timeline</div>
+    ${tl ? `<div class="card"><div class="tl">${tl}</div></div>` : '<div class="card dim small">No shared history yet.</div>'}
 
     ${panel}
-
-    <div class="card">
-      <div class="row">${eyebrow('dumbbell', 'Personal trainers')}<img class="svc-thumb" src="img/service-pt.svg" alt="" style="width:40px;height:40px"/></div>
-      <div class="stack" style="box-shadow:none">${trainerCards}</div>
-    </div>
+    <div class="sect-label">Book more sessions</div>
+    <div class="stack">${trainerCards}</div>
 
     <div class="card">
       ${eyebrow('gift', 'PT packages')}
-      <div class="dim small">Buy once, train at any branch your plan covers. Credits are deducted when you confirm a completed session.</div>
+      <div class="dim small">${credits} credit${credits === 1 ? '' : 's'} remaining · ${pkgs.map((p) => `${p.total - p.used}/${p.total} with ${staffName(p.trainerId).split(' ')[0]}`).join(' · ') || 'no package yet'}</div>
       <div class="slot-row">
         <button class="slot${UI.pkgMethod === 'wallet' ? ' sel' : ''}" data-action="pkg-method" data-m="wallet">Pay from wallet ($${(m.wallet || 0).toFixed(0)})</button>
         <button class="slot${UI.pkgMethod === 'card' ? ' sel' : ''}" data-action="pkg-method" data-m="card">Card</button>
@@ -601,8 +994,8 @@ function renderTrain() {
       </div>
     </div>
 
-    ${upcomingRows ? `<div class="sect-label">Upcoming sessions</div>${upcomingRows}` : ''}
-    ${historyRows ? `<div class="sect-label">History</div>${historyRows}` : ''}
+    ${upcomingRows ? `<div class="sect-label">Upcoming PT sessions</div>${upcomingRows}` : ''}
+    ${historyRows ? `<div class="sect-label">PT session history</div>${historyRows}` : ''}
 
     <div class="card">
       <div class="li">
@@ -614,6 +1007,177 @@ function renderTrain() {
         ${consult ? `<span class="chip chip-ok">Booked</span>` : `<button class="book-btn" data-action="consult-book">Book</button>`}
       </div>
     </div>`;
+}
+
+/* ---------- 3. Live Workout Logger ---------- */
+
+function materializeTargets(sessionId) {
+  const w = D.WorkoutService.byId(sessionId); if (!w) return;
+  w.exercises.forEach((ex, ei) => {
+    const n = Math.max(1, ex.targetSets || 3);
+    while (ex.sets.length < n) D.WorkoutService.addSet(sessionId, ei, { type: 'normal', status: 'upcoming' });
+  });
+}
+
+function enterLogger(sessionId) {
+  materializeTargets(sessionId);
+  UI.train.loggerSessionId = sessionId;
+  stopRest();
+  renderTrain();
+}
+
+function renderLogger() {
+  const w = D.WorkoutService.byId(UI.train.loggerSessionId);
+  if (!w) { UI.train.loggerSessionId = null; renderTrain(); return; }
+  const exCards = w.exercises.map((ex, ei) => renderExerciseCard(w, ex, ei)).join('');
+
+  document.getElementById('c-train').innerHTML = `
+    <header class="app-header">
+      <button class="back" data-action="logger-back">‹</button>
+      <div class="greeting" style="font-size:19px">${esc(w.dayName)}</div>
+      <span></span>
+    </header>
+    <div class="dim small" style="margin-top:-8px">${esc(branchName(w.branchId))} · started ${w.startedAt ? fmtT(Date.parse(w.startedAt)) : '—'}</div>
+    <div class="rest-wrap idle" id="restWrap">
+      <div class="rest-info" id="restTxt">Rest timer</div>
+      <div class="rest-track"><div class="rest-fill" id="restBar"></div></div>
+      <div class="btn-row" style="margin-top:8px">
+        <button class="ghost-btn slim" data-action="rest-start" style="flex:1">Start rest · 90s</button>
+        <button class="ghost-btn slim" data-action="rest-skip" style="flex:1">Skip</button>
+      </div>
+    </div>
+    ${exCards}
+    <div class="cart-bar">
+      <button class="accent-btn" data-action="logger-finish">Finish workout</button>
+    </div>`;
+  updateRestUI();
+}
+
+function renderExerciseCard(w, ex, ei) {
+  const exo = D.ExerciseService.byId(ex.exerciseId) || { name: ex.exerciseId, muscles: [] };
+  const last = D.ExerciseService.lastPerformance(w.memberId, ex.exerciseId);
+  const lastLine = last && last.sets.length ? `Last time: ${last.sets.map((s) => `${s.actualWeight}×${s.actualReps}`).join(', ')}` : 'No previous data for this exercise';
+  const needsMachine = exo.machineAssetIds && exo.machineAssetIds.length;
+  const avail = needsMachine ? D.ExerciseService.availabilityAt(ex.exerciseId, w.branchId) : { ok: true };
+  const availWarn = !avail.ok ? `<div class="warn-banner">${icon('alert', 15)}<div><b>${avail.reason === 'machine_down' ? 'Machine under maintenance' : 'Not available at this branch'}</b>${avail.suggestion ? `Try ${esc(avail.suggestion.name)} instead.` : ''}</div></div>` : '';
+  const rows = ex.sets.map((s, si) => renderSetRow(ei, s, si, ex, last)).join('');
+
+  return `<div class="card">
+      <div class="row" style="align-items:flex-start">
+        <div>
+          <div style="font-weight:800;font-size:16px">${esc(exo.name)}</div>
+          <div style="margin-top:4px">${(exo.muscles || []).map((mu) => `<span class="mchip">${esc(mu)}</span>`).join('')}</div>
+        </div>
+        <button class="ghost-btn slim" style="width:auto;flex:0;padding:8px 12px" data-action="copy-last" data-ei="${ei}">Copy last</button>
+      </div>
+      <div class="dim small">${esc(lastLine)}</div>
+      ${availWarn}
+      <div class="set-table">${rows}</div>
+      <div class="btn-row">
+        <button class="ghost-btn slim" data-action="set-add" data-ei="${ei}" style="flex:1">+ Add set</button>
+        <button class="ghost-btn slim" data-action="set-remove" data-ei="${ei}" style="flex:1" ${ex.sets.length <= 1 ? 'disabled' : ''}>− Remove set</button>
+      </div>
+    </div>`;
+}
+
+function renderSetRow(ei, s, si, ex, last) {
+  const lastSet = last && last.sets[si] ? `${last.sets[si].actualWeight}×${last.sets[si].actualReps}` : '—';
+  const done = s.status === 'completed';
+  const wt = s.actualWeight != null ? s.actualWeight : '';
+  const reps = s.actualReps != null ? s.actualReps : '';
+  const rpe = s.rpe != null ? s.rpe : '';
+  const types = [['warmup', 'Warm'], ['normal', 'Set'], ['dropset', 'Drop'], ['failure', 'Fail'], ['amrap', 'AMRAP']];
+  return `<div class="set-row${done ? ' done' : ''}" data-ei="${ei}" data-si="${si}">
+      <div class="set-row-top">
+        <select class="set-type" data-ei="${ei}" data-si="${si}">
+          ${types.map(([v, l]) => `<option value="${v}" ${s.type === v ? 'selected' : ''}>${l}</option>`).join('')}
+        </select>
+        <span class="set-meta">Last ${lastSet} · Target ${ex.targetReps || 10} reps</span>
+        <button class="set-log${done ? ' done' : ''}" data-action="set-log" data-ei="${ei}" data-si="${si}">${done ? icon('check', 14) : 'Log'}</button>
+      </div>
+      <div class="set-row-bottom">
+        <div class="wt-group">
+          <button class="wt-adj" data-action="wt-adj" data-d="-5">−5</button>
+          <input type="number" inputmode="decimal" class="set-inp set-wt" value="${wt}" placeholder="kg" />
+          <button class="wt-adj" data-action="wt-adj" data-d="2.5">+2.5</button>
+          <button class="wt-adj" data-action="wt-adj" data-d="5">+5</button>
+        </div>
+        <input type="number" inputmode="numeric" class="set-inp set-reps" value="${reps}" placeholder="reps" />
+        <select class="set-inp set-rpe">
+          <option value="">RPE</option>
+          ${Array.from({ length: 10 }, (_, i) => i + 1).map((n) => `<option value="${n}" ${Number(rpe) === n ? 'selected' : ''}>${n}</option>`).join('')}
+        </select>
+      </div>
+    </div>`;
+}
+
+/* ---- readiness check ---- */
+
+function openReadinessModal() {
+  const soreOpts = ['Chest', 'Back', 'Shoulders', 'Arms', 'Quads', 'Hamstrings', 'Core'];
+  openModal(`
+    <h3>Quick readiness check</h3>
+    <div class="dim small">Three taps, then go.</div>
+    <div class="sect-label" style="margin-top:4px">Energy</div>
+    <div class="slot-row">${['low', 'normal', 'high'].map((v) => `<button class="slot${v === 'normal' ? ' sel' : ''}" data-action="rc-energy" data-v="${v}">${v[0].toUpperCase()}${v.slice(1)}</button>`).join('')}</div>
+    <div class="sect-label">Soreness (optional)</div>
+    <div class="slot-row">${soreOpts.map((s) => `<button class="slot" data-action="rc-soreness" data-v="${s}">${s}</button>`).join('')}</div>
+    <div class="sect-label">Pain (optional)</div>
+    <input class="input slim" id="rcPain" placeholder="Anything hurting today?" autocomplete="off" />
+    <button class="accent-btn" data-action="rc-go" style="margin-top:8px">Start workout</button>
+    <button class="ghost-btn" data-action="modal-close">Cancel</button>`);
+}
+
+/* ---- rest timer (pure client-side, no backend) ---- */
+
+let restTimer = { active: false, secondsLeft: 0, total: 90, intervalId: null };
+function startRest(seconds) {
+  stopRest();
+  restTimer = { active: true, secondsLeft: seconds || 90, total: seconds || 90, intervalId: null };
+  restTimer.intervalId = setInterval(() => {
+    restTimer.secondsLeft--;
+    updateRestUI();
+    if (restTimer.secondsLeft <= 0) stopRest();
+  }, 1000);
+  updateRestUI();
+}
+function stopRest() {
+  if (restTimer.intervalId) clearInterval(restTimer.intervalId);
+  restTimer = { active: false, secondsLeft: 0, total: 90, intervalId: null };
+  updateRestUI();
+}
+function updateRestUI() {
+  const wrap = document.getElementById('restWrap');
+  if (!wrap) return;
+  const bar = document.getElementById('restBar');
+  const txt = document.getElementById('restTxt');
+  wrap.classList.toggle('idle', !restTimer.active);
+  if (txt) txt.textContent = restTimer.active ? `Resting · ${restTimer.secondsLeft}s` : 'Rest timer';
+  if (bar) bar.style.width = restTimer.active ? Math.max(0, (restTimer.secondsLeft / restTimer.total) * 100) + '%' : '0%';
+}
+
+/* ---- finish celebration — the peak moment ---- */
+
+function showFinishCelebration(w) {
+  const durMin = w.startedAt && w.endedAt ? Math.max(1, Math.round((Date.parse(w.endedAt) - Date.parse(w.startedAt)) / 60000)) : null;
+  const prHtml = w.prsHit.length ? `<div class="finish-prs">${w.prsHit.map((pr) => {
+      const exo = D.ExerciseService.byId(pr.exerciseId);
+      return `<div class="finish-pr-chip">${icon('trophy', 16)} New PR · ${esc(exo ? exo.name : pr.exerciseId)} — ${pr.valueKg}kg</div>`;
+    }).join('')}</div>` : '';
+  const el = document.createElement('div');
+  el.className = 'finish-cele';
+  el.innerHTML = `
+    <div class="fc-big">${w.prsHit.length ? '🏆' : '💪'}</div>
+    <div class="fc-title">Workout complete!</div>
+    <div class="fc-sub">${esc(w.dayName)}${durMin ? ` · ${fmtDur(durMin)}` : ''}</div>
+    <div class="fc-stats">
+      <div class="fc-stat"><b>${(w.totalVolumeKg || 0).toLocaleString()}</b><span>kg lifted</span></div>
+      <div class="fc-stat"><b>${w.exercises.length}</b><span>exercises</span></div>
+      <div class="fc-stat"><b>${w.prsHit.length}</b><span>PRs</span></div>
+    </div>
+    ${prHtml}
+    <button class="accent-btn" data-action="fc-done" style="max-width:280px">Done</button>`;
+  document.getElementById('screen').appendChild(el);
 }
 
 /* ================= CLASSES ================= */
@@ -1098,6 +1662,163 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     D.NutritionService.book({ memberId: m.id, staffId: 'stf_nu_rima', branchId: m.homeBranchId, startsAt: D.at(15, 0), kind: 'consultation' });
     pushNotif('Nutrition consult booked', 'Rima D. · today ' + fmtT(D.at(15, 0)) + ' · ' + branchName(m.homeBranchId));
     toast('Consult booked with Rima D.');
+    renderTrain();
+    return;
+  }
+
+  /* TRAIN — sub-nav */
+  if (a === 'train-seg') { UI.train.seg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
+  if (a === 'hist-seg') { UI.train.histSeg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
+  if (a === 'hist-open') { UI.train.historyDetail = el.dataset.s; renderTrain(); return; }
+  if (a === 'hist-back') { UI.train.historyDetail = null; renderTrain(); return; }
+  if (a === 'ex-pick') { UI.train.exercisePick = el.dataset.e; renderTrain(); return; }
+  if (a === 'prog-versions') { UI.train.showVersions = !UI.train.showVersions; renderTrain(); return; }
+
+  /* TRAIN — starting a workout (today's assigned / program day / quick / repeat) */
+  if (a === 'today-start') { UI.train.pending = { type: 'assigned', sessionId: el.dataset.s }; openReadinessModal(); return; }
+  if (a === 'today-resume') { enterLogger(el.dataset.s); return; }
+  if (a === 'workout-start-day') {
+    const program = D.ProgramService.current(m.id);
+    const version = program ? D.ProgramService.currentVersion(program) : null;
+    const day = version ? (version.days || []).find((d) => d.name === el.dataset.day) : null;
+    if (!day) return;
+    UI.train.pending = { type: 'adhoc', payload: { branchId: m.homeBranchId, dayExercises: day.exercises, programId: program.id, dayName: day.name, trainerId: program.trainerId } };
+    openReadinessModal();
+    return;
+  }
+  if (a === 'qw-toggle') {
+    const id = el.dataset.e;
+    const idx = UI.train.qw.picked.indexOf(id);
+    if (idx === -1) { if (UI.train.qw.picked.length >= 6) { toast('Max 6 exercises'); return; } UI.train.qw.picked.push(id); }
+    else UI.train.qw.picked.splice(idx, 1);
+    renderTrain();
+    return;
+  }
+  if (a === 'qw-start') {
+    if (UI.train.qw.picked.length < 3) { toast('Pick at least 3 exercises'); return; }
+    const dayExercises = UI.train.qw.picked.map((id) => ({ exerciseId: id, targetSets: 3, targetReps: 10 }));
+    UI.train.pending = { type: 'adhoc', payload: { branchId: m.homeBranchId, dayExercises, dayName: 'Quick Workout' } };
+    UI.train.qw.picked = [];
+    openReadinessModal();
+    return;
+  }
+  if (a === 'workout-repeat') {
+    const src = D.WorkoutService.byId(el.dataset.s);
+    const dayExercises = src.exercises.map((e) => ({ exerciseId: e.exerciseId, targetSets: e.targetSets, targetReps: e.targetReps }));
+    UI.train.pending = { type: 'adhoc', payload: { branchId: src.branchId, dayExercises, dayName: 'Repeat · ' + src.dayName, programId: src.programId || null, trainerId: src.trainerId || null } };
+    openReadinessModal();
+    return;
+  }
+
+  /* TRAIN — readiness check */
+  if (a === 'rc-energy') { document.querySelectorAll('[data-action="rc-energy"]').forEach((b) => b.classList.remove('sel')); el.classList.add('sel'); return; }
+  if (a === 'rc-soreness') { el.classList.toggle('sel'); return; }
+  if (a === 'rc-go') {
+    const energySel = document.querySelector('[data-action="rc-energy"].sel');
+    const energy = energySel ? energySel.dataset.v : 'normal';
+    const soreness = Array.from(document.querySelectorAll('[data-action="rc-soreness"].sel')).map((b) => b.dataset.v);
+    const painEl = document.getElementById('rcPain');
+    const pain = painEl && painEl.value.trim() ? painEl.value.trim() : null;
+    const readiness = { energy, soreness, pain };
+    const pending = UI.train.pending;
+    closeModal();
+    if (!pending) return;
+    let sessionId = null;
+    if (pending.type === 'assigned') { D.WorkoutService.start(pending.sessionId, readiness); sessionId = pending.sessionId; }
+    else if (pending.type === 'adhoc') { const nw = D.WorkoutService.startAdHoc(Object.assign({}, pending.payload, { memberId: m.id, readiness })); sessionId = nw.id; }
+    UI.train.pending = null;
+    if (sessionId) enterLogger(sessionId);
+    return;
+  }
+
+  /* TRAIN — Live Workout Logger */
+  if (a === 'logger-back') { stopRest(); UI.train.loggerSessionId = null; UI.train.seg = 'today'; renderTrain(); return; }
+  if (a === 'copy-last') {
+    const ei = Number(el.dataset.ei);
+    const w = D.WorkoutService.byId(UI.train.loggerSessionId);
+    const ex = w.exercises[ei];
+    const last = D.ExerciseService.lastPerformance(w.memberId, ex.exerciseId);
+    if (!last || !last.sets.length) { toast('No previous data for this exercise'); return; }
+    const target = last.sets[last.sets.length - 1];
+    const openIdx = ex.sets.findIndex((s) => s.status !== 'completed');
+    const si = openIdx === -1 ? ex.sets.length - 1 : openIdx;
+    const row = document.querySelector(`.set-row[data-ei="${ei}"][data-si="${si}"]`);
+    if (row) { row.querySelector('.set-wt').value = target.actualWeight; row.querySelector('.set-reps').value = target.actualReps; }
+    toast('Copied — tap Log to save');
+    return;
+  }
+  if (a === 'wt-adj') {
+    const row = el.closest('.set-row');
+    const inp = row.querySelector('.set-wt');
+    const cur = parseFloat(inp.value) || 0;
+    const d = parseFloat(el.dataset.d);
+    inp.value = Math.max(0, Math.round((cur + d) * 10) / 10);
+    return;
+  }
+  if (a === 'set-log') {
+    const ei = Number(el.dataset.ei), si = Number(el.dataset.si);
+    const row = el.closest('.set-row');
+    const type = row.querySelector('.set-type').value;
+    const wtV = row.querySelector('.set-wt').value;
+    const repsV = row.querySelector('.set-reps').value;
+    const rpeV = row.querySelector('.set-rpe').value;
+    if (!wtV || !repsV) { toast('Enter weight and reps first'); return; }
+    D.WorkoutService.logSet(UI.train.loggerSessionId, ei, si, { type, actualWeight: parseFloat(wtV), actualReps: parseInt(repsV, 10), rpe: rpeV ? Number(rpeV) : null });
+    startRest(90);
+    renderLogger();
+    return;
+  }
+  if (a === 'set-add') { D.WorkoutService.addSet(UI.train.loggerSessionId, Number(el.dataset.ei), { type: 'normal', status: 'upcoming' }); renderLogger(); return; }
+  if (a === 'set-remove') {
+    const ei = Number(el.dataset.ei);
+    const w = D.WorkoutService.byId(UI.train.loggerSessionId);
+    const ex = w.exercises[ei];
+    if (ex.sets.length <= 1) return;
+    D.WorkoutService.removeSet(UI.train.loggerSessionId, ei, ex.sets.length - 1);
+    renderLogger();
+    return;
+  }
+  if (a === 'rest-start') { startRest(90); return; }
+  if (a === 'rest-skip') { stopRest(); return; }
+  if (a === 'logger-finish') {
+    openModal(`<h3>Finish workout</h3>
+      <div class="dim small">Add a note for yourself (optional).</div>
+      <textarea class="input" id="finishNotes" rows="3" placeholder="How did it feel?" style="resize:vertical"></textarea>
+      <button class="accent-btn" data-action="logger-finish-confirm">Finish &amp; save</button>
+      <button class="ghost-btn" data-action="modal-close">Keep going</button>`);
+    return;
+  }
+  if (a === 'logger-finish-confirm') {
+    const notesEl = document.getElementById('finishNotes');
+    const notes = notesEl ? notesEl.value.trim() : '';
+    const sessionId = UI.train.loggerSessionId;
+    const w = D.WorkoutService.finish(sessionId, { notes });
+    closeModal();
+    stopRest();
+    UI.train.loggerSessionId = null;
+    UI.train.seg = 'today';
+    showFinishCelebration(w);
+    return;
+  }
+  if (a === 'fc-done') {
+    const fcEl = document.querySelector('.finish-cele');
+    if (fcEl) fcEl.remove();
+    renderTrain();
+    return;
+  }
+
+  /* TRAIN — Progress: add a body log entry */
+  if (a === 'bl-save') {
+    const wtEl = document.getElementById('blWeight');
+    const waistEl = document.getElementById('blWaist');
+    const chestEl = document.getElementById('blChest');
+    const weightKg = wtEl && wtEl.value ? parseFloat(wtEl.value) : null;
+    if (!weightKg) { toast('Enter a weight first'); return; }
+    const measurements = {};
+    if (waistEl && waistEl.value) measurements.waist = parseFloat(waistEl.value);
+    if (chestEl && chestEl.value) measurements.chest = parseFloat(chestEl.value);
+    D.BodyLogService.record({ memberId: m.id, weightKg, measurements, recordedBy: m.id, recordedByRole: 'member' });
+    toast('Body log saved');
     renderTrain();
     return;
   }
