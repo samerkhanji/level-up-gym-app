@@ -16,13 +16,23 @@
  * screen-reader reachability.
  *
  * Output: test-results/phase-1-2-2b/member-report.json + screenshots
+ *
+ * NOTE: the "targeted outcome machines" block below (T2/T3/T6/T7/T8) predates
+ * the multi-branch/Train engine rewrite — it manipulates a flat
+ * `gym_demo_state_v3` shape (checkedIn/locker/frozen/booking/recoveryBookings)
+ * that no longer exists; the current engine persists a relational store under
+ * `levelup_demo_db_v4` (see data.js DB_KEY) and has no Recovery-booking
+ * feature at all (descoped). Rewriting those machines against the current
+ * engine is a separate undertaking from the inventory/click-sweep above,
+ * which IS current (TABS + hidden-view ids updated for the Home/Train/Book/
+ * Club/Account nav).
  */
 const { test, expect } = require('@playwright/test');
 const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, 'audit-reports', 'phase-1-2-2b');
-const TABS = ['home', 'train', 'gym', 'food', 'account'];
+const TABS = ['home', 'train', 'book', 'club', 'account'];
 
 async function freeze(page) {
   await page.evaluate(() => {
@@ -79,7 +89,7 @@ test('member app A-to-Z audit', async ({ page, context, baseURL }) => {
   /* hidden-view reachability: inactive views must be display:none (not SR-exposed) */
   report.hiddenViews = await page.evaluate(() => {
     const out = {};
-    ['view-train', 'view-gym', 'view-pass', 'view-notifications'].forEach((id) => {
+    ['view-train', 'view-book', 'view-club', 'view-pass', 'view-notifications'].forEach((id) => {
       out[id] = getComputedStyle(document.getElementById(id)).display;
     });
     return { displays: out, allHidden: Object.values(out).every((d) => d === 'none') };
