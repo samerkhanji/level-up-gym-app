@@ -876,6 +876,14 @@ const DemoData = (() => {
       if (requireReason(reason)) return { error: 'reason_required' };
       const cls = BookingService.classById(classId); if (!cls) return { error: 'unknown_class' };
       cls.status = 'cancelled'; persist();
+      const affected = load().bookings.filter((b) => b.classId === classId && b.state === 'booked');
+      affected.forEach((b) => NotificationService.push({
+        memberId: b.memberId,
+        title: 'Class cancelled',
+        body: `${cls.name} — cancelled by the studio. ${reason}`,
+        type: 'booking',
+        cta: { label: 'View my classes', view: 'book', seg: 'classes' },
+      }));
       emit('class.cancelled', { classId, reason, __bus: { type: 'class-cancelled', payload: { cls: cls.name, reason } } }, actorId, classId, cls.locationId);
       return cls;
     },
@@ -1293,11 +1301,22 @@ const DemoData = (() => {
 
   const NotificationService = {
     forMember(memberId) { return load().notifications.filter((n) => n.memberId === memberId); },
-    push({ memberId, title, body, channel, cta }) {
+    push({ memberId, title, body, channel, cta, type }) {
       const d = load();
-      const n = { id: nextId('ntf', 'notifications'), memberId, title, body, channel: channel || 'push', at: iso(now()), read: false, cta: cta || null };
+      /* duplicate prevention: a repeat of the same title for the same member within
+         a short window collapses into the existing entry instead of a new row */
+      const dup = d.notifications.find((x) => x.memberId === memberId && x.title === title && (now() - Date.parse(x.at)) < 5000);
+      if (dup) return dup;
+      const n = { id: nextId('ntf', 'notifications'), memberId, title, body, channel: channel || 'push', type: type || 'general', at: iso(now()), read: false, cta: cta || null };
       d.notifications.unshift(n); persist();
       return n;
+    },
+    delete(notifId) {
+      const d = load();
+      const i = d.notifications.findIndex((x) => x.id === notifId);
+      if (i < 0) return { error: 'unknown_notification' };
+      d.notifications.splice(i, 1); persist();
+      return { ok: true };
     },
   };
 

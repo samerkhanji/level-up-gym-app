@@ -74,9 +74,13 @@ function toast(msg) {
   document.getElementById('screen').appendChild(el);
   setTimeout(() => el.remove(), 2700);
 }
-function pushNotif(title, body, cta) {
+function pushNotif(title, body, cta, type) {
   const id = myId(); if (!id) return;
-  D.NotificationService.push({ memberId: id, title, body, cta });
+  D.NotificationService.push({ memberId: id, title, body, cta, type });
+}
+function notifBell() {
+  const unread = unreadCount();
+  return `<button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>`;
 }
 function unreadCount() {
   const id = myId(); if (!id) return 0;
@@ -193,6 +197,11 @@ const RENDERERS = {
   home: renderHome, train: renderTrain, book: renderBook, club: renderClub,
   account: renderAccount, notifications: renderNotifs, onboard: renderOnboard,
 };
+const LAST_VIEW_KEY = 'levelup_last_view_v1';
+function persistLastView() {
+  if (!tabViews.includes(UI.view)) return;
+  try { localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ view: UI.view, book: UI.book.seg, club: UI.club.seg, train: UI.train.seg })); } catch (e) {}
+}
 function show(view) {
   UI.view = view;
   closeModal();
@@ -201,6 +210,7 @@ function show(view) {
   tabbar.classList.toggle('hidden', !tabViews.includes(view));
   if (scanFab) scanFab.classList.toggle('hidden', !tabViews.includes(view));
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === view));
+  persistLastView();
   if (RENDERERS[view]) RENDERERS[view]();
   if (view === 'pass') openPass(); else stopPass();
   animateCounts(document.getElementById('c-' + view));
@@ -483,7 +493,7 @@ function renderClubBranches() {
   }).join('');
 
   document.getElementById('c-club').innerHTML = `
-    <header class="app-header"><div class="greeting">Club</div><span></span></header>
+    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
     ${clubSegHtml('branches')}
     <div class="dim small" style="margin-top:-8px">One membership, four doors — live occupancy from the same engine reception sees.</div>
     ${cards}
@@ -628,7 +638,7 @@ function renderTrainToday() {
   }
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
     ${trainSegHtml('today')}
     ${card}
     <div class="duo">
@@ -696,7 +706,7 @@ function renderTrainWorkouts() {
     </div>` : '';
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
     ${trainSegHtml('workouts')}
     ${continueCard}
     <div class="sect-label">Trainer-assigned${program ? ` · v${program.currentVersion}` : ''}</div>
@@ -721,7 +731,7 @@ function renderTrainHistory() {
   else body = renderHistoryList();
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
     ${trainSegHtml('history')}
     ${!UI.train.historyDetail ? `<div class="seg">${[['history', 'History'], ['exercise', 'Exercises'], ['progress', 'Progress']].map(([k, l]) => `<button class="seg-btn${seg === k ? ' active' : ''}" data-action="hist-seg" data-seg="${k}">${l}</button>`).join('')}</div>` : ''}
     ${body}`;
@@ -964,7 +974,7 @@ function renderTrainMyTrainer() {
   const consult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div><span></span></header>
+    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
     ${trainSegHtml('trainer')}
     ${profileCard}
     ${programCard}
@@ -1231,7 +1241,7 @@ function renderBookClasses() {
         <button class="ghost-btn" style="margin-top:10px" data-action="cls-branch" data-b="all">See every branch instead</button></div>`);
 
   document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
     ${bookSegHtml('classes')}
     <div class="dim small" style="margin-top:-8px">Same class name can run at two branches — the branch tag on each card is the one that counts.</div>
     <div class="slot-row">${filters}</div>
@@ -1282,7 +1292,7 @@ function renderBookPT() {
   }).join('');
 
   document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
     ${bookSegHtml('pt')}
     <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
       <div class="dim small">PT credits remaining</div>
@@ -1314,7 +1324,7 @@ function renderBookNutrition() {
     </div>`;
 
   document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
     ${bookSegHtml('nutrition')}
     <div class="card">
       <div class="li">
@@ -1367,7 +1377,7 @@ function renderClubFuel() {
   }).join('');
 
   document.getElementById('c-club').innerHTML = `
-    <header class="app-header"><div class="greeting">Club</div><span></span></header>
+    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
     ${clubSegHtml('fuel')}
     ${warn}
     <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
@@ -1405,7 +1415,7 @@ function renderAccount() {
       : `<button class="ghost-btn slim" data-action="acct-freeze-open">Freeze membership</button>`;
 
   document.getElementById('c-account').innerHTML = `
-    <header class="app-header"><div class="greeting">Account</div><span></span></header>
+    <header class="app-header"><div class="greeting">Account</div>${notifBell()}</header>
 
     <div class="card member-card">
       ${eyebrow('card', 'My plan')}
@@ -1463,17 +1473,32 @@ function renderAccount() {
 
 /* ================= NOTIFICATIONS ================= */
 
+const NOTIF_TYPE_META = {
+  booking: { icon: 'calendar', label: 'Booking' },
+  access: { icon: 'pin', label: 'Access' },
+  billing: { icon: 'card', label: 'Billing' },
+  account: { icon: 'user', label: 'Account' },
+  system: { icon: 'tool', label: 'System' },
+  general: { icon: 'bell', label: 'General' },
+};
+
 function renderNotifs() {
   const m = me(); if (!m) { show('login'); return; }
   const list = D.NotificationService.forMember(m.id);
   document.getElementById('c-notifs').innerHTML = `
     ${list.length ? `<button class="ghost-btn slim" data-action="notif-readall">Mark all read</button>` : ''}
-    ${list.map((n) => `<div class="notif${n.read ? '' : ' unread'}">
-        <div class="nt">${esc(n.title)}</div>
+    ${list.map((n) => {
+      const meta = NOTIF_TYPE_META[n.type] || NOTIF_TYPE_META.general;
+      return `<div class="notif${n.read ? '' : ' unread'}">
+        <div class="row" style="align-items:flex-start">
+          <div class="nt">${icon(meta.icon, 14)} ${esc(n.title)}</div>
+          <button class="ghost-btn slim" data-action="notif-delete" data-id="${esc(n.id)}" style="padding:2px 8px;font-size:12px" aria-label="Delete notification">✕</button>
+        </div>
         <div class="nb">${esc(n.body)}</div>
-        <div class="nd">${new Date(n.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
-        ${n.cta ? `<button class="ghost-btn slim" data-action="notif-cta" data-view="${esc(n.cta.view)}"${n.cta.seg ? ` data-seg="${esc(n.cta.seg)}"` : ''} style="margin-top:8px">${esc(n.cta.label)}</button>` : ''}
-      </div>`).join('') || '<div class="card dim small">Nothing yet — booking confirmations and gym alerts land here.</div>'}`;
+        <div class="nd">${meta.label} · ${new Date(n.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
+        ${n.cta ? `<button class="ghost-btn slim" data-action="notif-cta" data-id="${esc(n.id)}" data-view="${esc(n.cta.view)}"${n.cta.seg ? ` data-seg="${esc(n.cta.seg)}"` : ''} style="margin-top:8px">${esc(n.cta.label)}</button>` : ''}
+      </div>`;
+    }).join('') || '<div class="card dim small">Nothing yet — booking confirmations and gym alerts land here.</div>'}`;
 }
 
 /* ================= ENTRY PASS + QR ================= */
@@ -1559,6 +1584,7 @@ function showDenied(reason) {
   const denied = document.getElementById('passDenied');
   denied.hidden = false;
   document.getElementById('deniedReason').textContent = denialText(reason);
+  pushNotif('Entry denied', denialText(reason), null, 'access');
   const cta = document.getElementById('deniedCta');
   const setCta = (label, onclick) => { cta.textContent = label; cta.onclick = onclick; };
   switch (reason) {
@@ -1592,7 +1618,7 @@ document.getElementById('gateBtn').onclick = () => {
     result.hidden = false;
     result.innerHTML = `<div class="big">👋</div><div>Gate opened — see you soon!</div>
       <div class="sub">Checked out of ${esc(branchName(res.visit.locationId))} · ${fmtDur(mins)}</div>`;
-    pushNotif('Visit recorded', `${branchName(res.visit.locationId)} · ${fmtDur(mins)}. See you next time.`);
+    pushNotif('Visit recorded', `${branchName(res.visit.locationId)} · ${fmtDur(mins)}. See you next time.`, null, 'access');
     setTimeout(() => { result.hidden = true; show('home'); toast('Checked out · ' + fmtDur(mins)); }, 1500);
     return;
   }
@@ -1680,6 +1706,8 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'inbox') { show('notifications'); return; }
   if (a === 'notif-cta') {
     const view = el.dataset.view, seg = el.dataset.seg;
+    const n = D.NotificationService.forMember(m.id).find((x) => x.id === el.dataset.id);
+    if (n) { n.read = true; D.persist(); }
     if (seg) {
       if (view === 'book') UI.book.seg = seg;
       else if (view === 'club') UI.club.seg = seg;
@@ -1688,12 +1716,17 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     show(view);
     return;
   }
+  if (a === 'notif-delete') {
+    D.NotificationService.delete(el.dataset.id);
+    renderNotifs();
+    return;
+  }
   if (a === 'goto-account') { show('account'); return; }
   if (a === 'goto-train') { show('train'); return; }
   if (a === 'goto-club') { UI.club.seg = 'branches'; show('club'); return; }
   if (a === 'goto-book') { if (el.dataset.branch) UI.clsBranch = el.dataset.branch; UI.book.seg = 'classes'; show('book'); return; }
-  if (a === 'book-seg') { UI.book.seg = el.dataset.seg; renderBook(); return; }
-  if (a === 'club-seg') { UI.club.seg = el.dataset.seg; renderClub(); return; }
+  if (a === 'book-seg') { UI.book.seg = el.dataset.seg; persistLastView(); renderBook(); return; }
+  if (a === 'club-seg') { UI.club.seg = el.dataset.seg; persistLastView(); renderClub(); return; }
   if (a === 'modal-close') { closeModal(); return; }
   if (a === 'logout') { setSession(null); UI.pt = null; show('login'); return; }
 
@@ -1709,7 +1742,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'sos-send') {
     D.IncidentService.raiseSOS({ memberId: m.id, type: el.dataset.t, zone: 'Gym floor', branchId: el.dataset.b });
     closeModal();
-    pushNotif('SOS sent', 'Staff at ' + branchName(el.dataset.b) + ' have been alerted. Stay where you are.');
+    pushNotif('SOS sent', 'Staff at ' + branchName(el.dataset.b) + ' have been alerted. Stay where you are.', null, 'system');
     toast('Staff alerted — help is on the way');
     return;
   }
@@ -1721,7 +1754,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const severity = el.dataset.t === 'Safety concern' ? 'safety' : 'normal';
     D.MaintenanceService.createWorkOrder({ assetId: el.dataset.a, problem: el.dataset.t + ' (member report)', severity, reporterId: m.id });
     closeModal();
-    pushNotif('Report received', 'Maintenance has been notified. You’ll see the machine flagged until it’s fixed.');
+    pushNotif('Report received', 'Maintenance has been notified. You’ll see the machine flagged until it’s fixed.', null, 'system');
     toast('Reported — maintenance notified');
     return;
   }
@@ -1741,7 +1774,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const t = D.TrainerService.byId(UI.pt.trainerId);
     const res = D.TrainerService.book({ memberId: m.id, trainerId: UI.pt.trainerId, branchId: UI.pt.branchId, startsAt: D.at(UI.pt.hour, 0), actorId: m.id });
     if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderBook(); return; }
-    pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`, { label: 'View in Train', view: 'train', seg: 'trainer' });
+    pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`, { label: 'View in Train', view: 'train', seg: 'trainer' }, 'booking');
     UI.pt = null; renderBook();
     toast('Session booked with ' + t.name);
     return;
@@ -1752,7 +1785,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const res = D.TrainerService.cancel(el.dataset.s, m.id, el.dataset.r);
     UI.ptCancel = null;
     if (res.error) toast('Could not cancel: ' + res.error);
-    else { toast('Session cancelled'); pushNotif('PT session cancelled', 'Reason: ' + el.dataset.r + '. No credit deducted.'); }
+    else { toast('Session cancelled'); pushNotif('PT session cancelled', 'Reason: ' + el.dataset.r + '. No credit deducted.', null, 'booking'); }
     renderTrain();
     return;
   }
@@ -1783,7 +1816,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     if (UI.pkgMethod === 'wallet' && !debitWallet(price)) { toast('Wallet balance too low — pay by card instead'); return; }
     const trainerId = (UI.pt && UI.pt.trainerId) || m.trainerId || (D.TrainerService.list()[0] || {}).id;
     D.PackageService.sell({ memberId: m.id, trainerId, total, price, staffId: m.id, branchId: m.homeBranchId, method: UI.pkgMethod });
-    pushNotif('PT package added', `${total} sessions with ${staffName(trainerId)} — $${price} (${UI.pkgMethod}).`);
+    pushNotif('PT package added', `${total} sessions with ${staffName(trainerId)} — $${price} (${UI.pkgMethod}).`, null, 'billing');
     toast(`${total}-session package added`);
     renderTrain();
     return;
@@ -1797,7 +1830,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const branchId = UI.book.nutBranch || m.homeBranchId;
     const startsAt = D.at(UI.book.nutHour, 0);
     D.NutritionService.book({ memberId: m.id, staffId: 'stf_nu_rima', branchId, startsAt, kind: 'consultation' });
-    pushNotif('Nutrition consult booked', 'Rima D. · ' + fmtT(startsAt) + ' · ' + branchName(branchId));
+    pushNotif('Nutrition consult booked', 'Rima D. · ' + fmtT(startsAt) + ' · ' + branchName(branchId), null, 'booking');
     toast('Consult booked with Rima D.');
     UI.book.nutHour = null;
     renderBook();
@@ -1812,17 +1845,21 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'renew-method') { UI.renewMethod = el.dataset.m; openRenewModal(); return; }
   if (a === 'renew-confirm') {
     const plan = myPlan(); if (!plan) return;
-    if (UI.renewMethod === 'wallet' && !debitWallet(plan.price)) { toast('Wallet balance too low — pay by card instead'); return; }
+    if (UI.renewMethod === 'wallet' && !debitWallet(plan.price)) {
+      toast('Wallet balance too low — pay by card instead');
+      pushNotif('Payment failed', `Wallet balance too low for ${plan.name} renewal ($${plan.price}). Try card instead.`, null, 'billing');
+      return;
+    }
     const res = D.MemberService.renew(m.id, m.id, UI.renewMethod);
     closeModal();
-    pushNotif('Membership renewed', `${plan.name} — renewed through ${fmtDate(res.subEnds)}.`);
+    pushNotif('Membership renewed', `${plan.name} — renewed through ${fmtDate(res.subEnds)}.`, null, 'billing');
     toast('Renewed through ' + fmtDate(res.subEnds));
     rerender();
     return;
   }
 
   /* TRAIN — sub-nav */
-  if (a === 'train-seg') { UI.train.seg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
+  if (a === 'train-seg') { UI.train.seg = el.dataset.seg; UI.train.historyDetail = null; persistLastView(); renderTrain(); return; }
   if (a === 'hist-seg') { UI.train.histSeg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
   if (a === 'hist-open') { UI.train.historyDetail = el.dataset.s; renderTrain(); return; }
   if (a === 'hist-back') { UI.train.historyDetail = null; renderTrain(); return; }
@@ -1985,8 +2022,8 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const res = D.BookingService.bookClass(m.id, el.dataset.c);
     UI.clsErr = null;
     if (res.error) UI.clsErr = { id: el.dataset.c, msg: classBookErrorText(res.error, c) };
-    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`, { label: 'View my classes', view: 'book', seg: 'classes' }); }
-    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`, { label: 'View my classes', view: 'book', seg: 'classes' }); }
+    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`, { label: 'View my classes', view: 'book', seg: 'classes' }, 'booking'); }
+    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`, { label: 'View my classes', view: 'book', seg: 'classes' }, 'booking'); }
     renderBookClasses();
     return;
   }
@@ -2023,7 +2060,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const res = D.MemberService.freeze(m.id, m.id, el.dataset.r);
     UI.freezeOpen = false;
     if (res.error) toast('Could not freeze: ' + res.error);
-    else { toast('Membership frozen — your renewal date shifts accordingly'); pushNotif('Membership frozen', 'Reason: ' + el.dataset.r + '. Unfreeze any time from Account.', { label: 'Unfreeze', view: 'account' }); }
+    else { toast('Membership frozen — your renewal date shifts accordingly'); pushNotif('Membership frozen', 'Reason: ' + el.dataset.r + '. Unfreeze any time from Account.', { label: 'Unfreeze', view: 'account' }, 'account'); }
     renderAccount();
     return;
   }
@@ -2041,7 +2078,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     if (!guestName) { toast('Enter your guest’s name first'); return; }
     if (!debitWallet(10)) { toast('Wallet balance too low for the $10 pass'); return; }
     D.GuestService.create({ hostMemberId: m.id, guestName, branchId: UI.guestBranch });
-    pushNotif('Guest pass ready', `${guestName} is expected at ${branchName(UI.guestBranch)} — reception has the pass.`, { label: 'View pass', view: 'account' });
+    pushNotif('Guest pass ready', `${guestName} is expected at ${branchName(UI.guestBranch)} — reception has the pass.`, { label: 'View pass', view: 'account' }, 'access');
     toast('Guest pass created · $10 wallet');
     renderAccount();
     return;
@@ -2051,7 +2088,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     if (!UI.transferTo) { toast('Pick a branch first'); return; }
     const res = D.MemberService.requestBranchTransfer(m.id, UI.transferTo, m.id, 'Member requested from app');
     if (res.error) toast('Could not request: ' + res.error);
-    else { toast('Request sent to the owner for approval'); pushNotif('Transfer requested', `Home branch change to ${branchName(UI.transferTo)} — the owner approves these; we’ll notify you.`); }
+    else { toast('Request sent to the owner for approval'); pushNotif('Transfer requested', `Home branch change to ${branchName(UI.transferTo)} — the owner approves these; we’ll notify you.`, null, 'account'); }
     UI.transferTo = null;
     renderAccount();
     return;
@@ -2078,7 +2115,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const nm = D.MemberService.sell({ name, phone, planId: UI.ob.planId, homeBranchId: UI.ob.branchId, staffId: 'stf_rc_lara', method: 'card' });
     if (nm.error) { toast('Could not join: ' + nm.error); return; }
     setSession(nm.id);
-    pushNotif('Welcome to Level Up!', `${(D.PlanService.byId(UI.ob.planId) || {}).name} · home branch ${branchName(UI.ob.branchId)}. Your QR pass is ready.`, { label: 'Open my pass', view: 'pass' });
+    pushNotif('Welcome to Level Up!', `${(D.PlanService.byId(UI.ob.planId) || {}).name} · home branch ${branchName(UI.ob.branchId)}. Your QR pass is ready.`, { label: 'Open my pass', view: 'pass' }, 'account');
     UI.ob = { step: 0, planId: null, branchId: null };
     show('home');
     toast('Welcome to Level Up, ' + name.split(' ')[0] + '!');
@@ -2161,4 +2198,17 @@ if (typeof GymBus !== 'undefined') {
   const db = D.load();
   if (!db.visits.length && !db.payments.length && !db.events.length) D.reset('normal-day');
 })();
-show(me() ? 'home' : 'login');
+if (me()) {
+  let lastView = null;
+  try { lastView = JSON.parse(localStorage.getItem(LAST_VIEW_KEY) || 'null'); } catch (e) {}
+  if (lastView && tabViews.includes(lastView.view)) {
+    if (lastView.book) UI.book.seg = lastView.book;
+    if (lastView.club) UI.club.seg = lastView.club;
+    if (lastView.train) UI.train.seg = lastView.train;
+    show(lastView.view);
+  } else {
+    show('home');
+  }
+} else {
+  show('login');
+}
