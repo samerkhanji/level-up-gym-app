@@ -478,7 +478,16 @@ function renderClubBranches() {
     <header class="app-header"><div class="greeting">Club</div><span></span></header>
     ${clubSegHtml('branches')}
     <div class="dim small" style="margin-top:-8px">One membership, four doors — live occupancy from the same engine reception sees.</div>
-    ${cards}`;
+    ${cards}
+    <details class="more-stub">
+      <summary>More services (not enabled for Level Up)</summary>
+      <ul>
+        <li>Pool lane reservations</li>
+        <li>Recovery &amp; spa bookings</li>
+        <li>Meal-plan food ordering with kitchen workflow</li>
+      </ul>
+      <div style="margin-top:7px">The platform supports these modules per gym — Level Up’s configuration keeps them off, so the app hides them rather than showing dead ends.</div>
+    </details>`;
 }
 
 /* ================= TRAIN (PT first) ================= */
@@ -1438,16 +1447,6 @@ function renderAccount() {
       </div>
       <div class="dim" style="font-size:12px">GDPR-style stubs — the real platform serves these from the backend with identity checks.</div>
     </div>
-
-    <details class="more-stub">
-      <summary>More services (not enabled for Level Up)</summary>
-      <ul>
-        <li>Pool lane reservations</li>
-        <li>Recovery &amp; spa bookings</li>
-        <li>Meal-plan food ordering with kitchen workflow</li>
-      </ul>
-      <div style="margin-top:7px">The platform supports these modules per gym — Level Up’s configuration keeps them off, so the app hides them rather than showing dead ends.</div>
-    </details>
 
     <button class="ghost-btn" data-action="logout">Log out</button>`;
 }
