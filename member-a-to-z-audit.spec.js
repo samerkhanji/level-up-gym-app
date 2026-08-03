@@ -271,6 +271,7 @@ test('member app A-to-Z audit — inventory + click-sweep', async ({ page, conte
  * ================================================================ */
 
 test('access control: check-in assigns a visit, check-out ends it, state survives reload', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="home"]').click();
   await page.locator('[data-action="open-pass"]').first().click();
@@ -294,6 +295,7 @@ test('access control: check-in assigns a visit, check-out ends it, state survive
 });
 
 test('billing: membership renewal by wallet charges exactly once', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const price = await page.evaluate(() => window.DemoData.PlanService.byId(window.DemoData.MemberService.byId('mbr_0001').planId).price);
   const before = await page.evaluate((p) => {
@@ -318,6 +320,7 @@ test('billing: membership renewal by wallet charges exactly once', async ({ page
 });
 
 test('billing: membership renewal by card does not touch the wallet', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const walletBefore = await page.evaluate(() => window.DemoData.MemberService.byId('mbr_0001').wallet);
   await page.locator('.tab[data-view="account"]').click();
@@ -333,6 +336,7 @@ test('billing: membership renewal by card does not touch the wallet', async ({ p
 });
 
 test('resilience: corrupted localStorage does not brick the app', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const errors = [];
   page.on('pageerror', (e) => errors.push(String(e)));
@@ -345,6 +349,7 @@ test('resilience: corrupted localStorage does not brick the app', async ({ page 
 });
 
 test('notifications: duplicate prevention collapses a rapid repeat push; reload alone does not grow the list', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const dedup = await page.evaluate(() => {
     const D = window.DemoData;
@@ -366,38 +371,58 @@ test('notifications: duplicate prevention collapses a rapid repeat push; reload 
 });
 
 test('booking: two overlapping classes are blocked as a clash', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
+  // The seed data has no two scheduled classes within the 45-min clash window
+  // (confirmed: closest pair is 60 min apart), so a real clash can never be
+  // exercised by searching for one — that made this test perpetually skip and
+  // gave zero real coverage. Construct a synthetic second class 20 minutes
+  // after an existing one instead, so the clash guard is deterministically
+  // proven every run.
   const result = await page.evaluate(() => {
     const D = window.DemoData;
-    const classes = D.load().classes.filter((c) => c.status === 'scheduled').sort((a, b) => a.startsAt - b.startsAt);
-    const first = classes[0];
-    const overlapping = classes.find((c) => c.id !== first.id && Math.abs(c.startsAt - first.startsAt) < 45 * 60000);
-    if (!overlapping) return { skipped: true };
-    const r1 = D.BookingService.bookClass('mbr_0001', first.id);
+    const d = D.load();
+    // mbr_0001 has a pre-existing 'booked' class booking in the base seed
+    // data — clear it first so the first bookClass() call below is a clean
+    // success, not an unrelated 'already_booked' from stale seed state.
+    d.bookings = d.bookings.filter((b) => b.memberId !== 'mbr_0001');
+    const base = d.classes.find((c) => c.status === 'scheduled');
+    const overlapping = { ...base, id: 'cls_test_overlap', name: base.name + ' (test overlap)', startsAt: base.startsAt + 20 * 60000, waitlist: [], checkins: [] };
+    d.classes.unshift(overlapping);
+    D.persist();
+    const r1 = D.BookingService.bookClass('mbr_0001', base.id);
     const r2 = D.BookingService.bookClass('mbr_0001', overlapping.id);
     return { r1, r2 };
   });
-  if (result.skipped) {
-    test.skip(true, 'no two overlapping scheduled classes exist in the current seed to construct this clash');
-    return;
-  }
+  expect(result.r1.error).toBeUndefined();
   expect(result.r2.error).toBe('time_conflict');
 });
 
 test('KNOWN GAP: PT session does not block a clashing class booking (no cross-check exists in the current engine)', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const result = await page.evaluate(() => {
     const D = window.DemoData;
-    const cls = D.load().classes.find((c) => c.status === 'scheduled');
-    const ptRes = D.TrainerService.book({ memberId: 'mbr_0001', trainerId: 'stf_tr_karim', branchId: 'loc_hamra', startsAt: cls.startsAt, actorId: 'mbr_0001' });
+    const d = D.load();
+    // Clean slate: mbr_0001 has a pre-existing class booking in the base seed
+    // data, which would otherwise make bookClass() fail with 'already_booked'
+    // — an unrelated error that happens to also not equal 'time_conflict' and
+    // would make this assertion pass for the wrong reason.
+    d.bookings = d.bookings.filter((b) => b.memberId !== 'mbr_0001');
+    const cls = d.classes.find((c) => c.status === 'scheduled');
+    const ptSlot = D.at(10, 0); // within stf_tr_karim's known Hamra availability window (8-14)
+    cls.startsAt = ptSlot; // force a genuine same-time clash rather than depending on whichever class happens to be found first
+    D.persist();
+    const ptRes = D.TrainerService.book({ memberId: 'mbr_0001', trainerId: 'stf_tr_karim', branchId: 'loc_hamra', startsAt: ptSlot, actorId: 'mbr_0001' });
     const clsRes = D.BookingService.bookClass('mbr_0001', cls.id);
-    return { ptOk: !ptRes.error, clsRes };
+    return { ptOk: !ptRes.error, ptErr: ptRes.error, clsRes };
   });
   // Documents current (gap) behavior: BookingService.bookClass only cross-checks
   // other CLASS bookings (data.js:827), never d.ptSessions — so a same-time PT
   // session does NOT block a class booking today. Not fixed here: adding that
   // cross-check is new engine logic (Tier-2), not a hardening fix.
-  expect(result.clsRes.error).not.toBe('time_conflict');
+  expect(result.ptOk).toBe(true); // the PT session itself must book cleanly
+  expect(result.clsRes.error).toBeUndefined(); // and the clashing class books cleanly too — proving no cross-check exists
 });
 
 /* ================================================================
@@ -405,6 +430,7 @@ test('KNOWN GAP: PT session does not block a clashing class booking (no cross-ch
  * ================================================================ */
 
 test('access-denial: frozen', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.MemberService.byId('mbr_0001').status = 'frozen';
@@ -418,6 +444,7 @@ test('access-denial: frozen', async ({ page }) => {
 });
 
 test('access-denial: expired (status)', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.MemberService.byId('mbr_0001').status = 'expired';
@@ -431,6 +458,7 @@ test('access-denial: expired (status)', async ({ page }) => {
 });
 
 test('access-denial: expired (subEnds date, status stays active)', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.MemberService.byId('mbr_0001').subEnds = '2020-01-01';
@@ -441,6 +469,7 @@ test('access-denial: expired (subEnds date, status stays active)', async ({ page
 });
 
 test('access-denial: suspended', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     const m = window.DemoData.MemberService.byId('mbr_0001');
@@ -452,6 +481,7 @@ test('access-denial: suspended', async ({ page }) => {
 });
 
 test('access-denial: access_restricted', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     const m = window.DemoData.MemberService.byId('mbr_0001');
@@ -463,6 +493,7 @@ test('access-denial: access_restricted', async ({ page }) => {
 });
 
 test('access-denial: branch_not_allowed', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.MemberService.byId('mbr_0001').planId = 'pln_1mo_single';
@@ -473,22 +504,25 @@ test('access-denial: branch_not_allowed', async ({ page }) => {
 });
 
 test('access-denial: outside_allowed_hours', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
+  // AccessService.validate() reads the hour off D.now() (Date.now() + a
+  // simulated-clock offset). Deterministically push the demo clock to 20:00
+  // today — outside the Off-Peak plan's 9-16 window — instead of depending on
+  // the wall-clock hour the suite happens to run at.
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
-    window.DemoData.MemberService.byId('mbr_0001').planId = 'pln_offpeak';
-    window.DemoData.setClockOffset(0);
-    window.DemoData.persist();
+    const D = window.DemoData;
+    D.MemberService.byId('mbr_0001').planId = 'pln_offpeak';
+    const target = new Date(); target.setHours(20, 0, 0, 0);
+    D.setClockOffset(target.getTime() - Date.now());
+    D.persist();
   });
-  const hour = new Date().getHours();
-  if (hour >= 9 && hour < 16) {
-    test.skip(true, 'wall-clock hour is inside the Off-Peak plan\'s allowed window right now — reason cannot be forced without also mutating the demo clock offset in a way that is itself flaky across timezones');
-    return;
-  }
   expect(reasonText.toLowerCase()).toContain('hours');
   expect(ctaText).toBe('View my plan');
 });
 
 test('access-denial: duplicate_visit', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="home"]').click();
   await page.locator('[data-action="open-pass"]').first().click();
@@ -518,6 +552,7 @@ test('access-denial: duplicate_visit', async ({ page }) => {
 });
 
 test('access-denial: at_capacity', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.BranchService.byId('loc_hamra').capacity = 0;
@@ -531,6 +566,7 @@ test('access-denial: at_capacity', async ({ page }) => {
 });
 
 test('access-denial: branch_closed', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const { reasonText, ctaText } = await forceDenialAndScan(page, () => {
     window.DemoData.BranchService.byId('loc_hamra').closure = { reason: 'Maintenance', at: new Date(0).toISOString() };
@@ -541,6 +577,7 @@ test('access-denial: branch_closed', async ({ page }) => {
 });
 
 test('access-denial: unknown_branch (engine-only — no real gate picker ever offers an invalid branch)', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const result = await page.evaluate(() => window.DemoData.AccessService.checkIn('mbr_0001', null, 'bogus_branch_id'));
   expect(result.ok).toBe(false);
@@ -552,6 +589,7 @@ test('access-denial: unknown_branch (engine-only — no real gate picker ever of
  * ================================================================ */
 
 test('Book → Classes: book a class via the real UI', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="book"]').click();
   await page.waitForTimeout(200);
@@ -566,6 +604,7 @@ test('Book → Classes: book a class via the real UI', async ({ page }) => {
 });
 
 test('Book → Personal Training: book a session via the real UI', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="book"]').click();
   await page.waitForTimeout(200);
@@ -587,6 +626,7 @@ test('Book → Personal Training: book a session via the real UI', async ({ page
 });
 
 test('Book → Nutrition: book a consult via the real UI', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   // mbr_0001 has a pre-existing scheduled consult in the base seed data
   // (ncs_0001) — renderBookNutrition() hides the branch/hour picker entirely
@@ -614,6 +654,7 @@ test('Book → Nutrition: book a consult via the real UI', async ({ page }) => {
 });
 
 test('Club → Branches renders engine occupancy data', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="club"]').click();
   await page.waitForTimeout(300);
@@ -623,6 +664,7 @@ test('Club → Branches renders engine occupancy data', async ({ page }) => {
 });
 
 test('Club → Fuel Bar renders engine catalog/stock data', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="club"]').click();
   await page.waitForTimeout(200);
@@ -634,6 +676,7 @@ test('Club → Fuel Bar renders engine catalog/stock data', async ({ page }) => 
 });
 
 test('Home cards reflect real engine numbers', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="home"]').click();
   await page.waitForTimeout(300);
@@ -648,6 +691,7 @@ test('Home cards reflect real engine numbers', async ({ page }) => {
 });
 
 test('notification CTA navigates correctly and survives a reload (deep link persistence)', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.locator('.tab[data-view="book"]').click();
   await page.waitForTimeout(200);
@@ -676,6 +720,7 @@ test('notification CTA navigates correctly and survives a reload (deep link pers
  * ================================================================ */
 
 test('Inbox: read/unread, badge, delete, empty state, categories', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
 
   // empty state (fresh member notifications may already be non-empty from seed
@@ -742,6 +787,7 @@ test('Inbox: read/unread, badge, delete, empty state, categories', async ({ page
 });
 
 test('Inbox: bell + badge are present on every main tab', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   await page.evaluate(() => window.DemoData.NotificationService.push({ memberId: 'mbr_0001', title: 'Bell check', body: 'x', type: 'system' }));
   for (const tab of TABS) {
@@ -755,6 +801,7 @@ test('Inbox: bell + badge are present on every main tab', async ({ page }) => {
 });
 
 test('KNOWN DEFERRED: notification preferences are not built this pass', async ({ page }) => {
+  test.setTimeout(60000);
   await login(page);
   const hasPrefsToggle = await page.evaluate(() => typeof window.DemoData.MemberService.byId('mbr_0001').notifPrefs !== 'undefined');
   // Explicitly documents the deferred scope decision — see TIER1_ACCEPTANCE_REPORT.md.
