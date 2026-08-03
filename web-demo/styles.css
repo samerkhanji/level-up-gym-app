@@ -492,6 +492,12 @@ select.input { appearance: auto; }
 }
 @keyframes peakGlow { 0% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
 .gate-result .sub { color: var(--muted); font-size: 15px; font-weight: 500; font-family: var(--body); }
+.gate-result .gr-extra {
+  width: 100%; max-width: 300px; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; text-align: left; font-family: var(--body); font-weight: 600; font-size: 14px; color: var(--ink);
+}
+.gate-result .gr-extra .meta { color: var(--muted); font-weight: 500; font-size: 12.5px; margin-top: 2px; }
+.gate-result .accent-btn { width: 100%; max-width: 300px; margin-top: 4px; }
 @media (prefers-reduced-motion: reduce) {
   .gate-result .big, .gate-result .big::before { animation: none; }
 }

@@ -149,7 +149,7 @@ const UI = {
   pkgMethod: 'wallet',
   clsBranch: 'all',
   fuelBranch: null, fuelWarn: null,
-  freezeOpen: false, guestBranch: null, transferTo: null,
+  freezeOpen: false, guestBranch: null, transferTo: null, renewMethod: 'wallet',
   gate: null,
   ob: { step: 0, planId: null, branchId: null },
   train: {
@@ -1411,12 +1411,14 @@ function renderAccount() {
       ${eyebrow('card', 'My plan')}
       <div class="row"><b style="font-size:16.5px">${esc(plan.name || '—')}</b><span class="chip ${m.status === 'active' ? 'chip-ok' : 'chip-warn'}">${esc(m.status)}</span></div>
       <div class="row small"><span class="dim">Branch access</span><b>${plan.branchAccess === 'all' ? 'All branches' : 'Home branch only (' + esc(branchName(m.homeBranchId)) + ')'}</b></div>
+      ${plan.accessHours ? `<div class="row small"><span class="dim">Access hours</span><b>${plan.accessHours.from}:00–${plan.accessHours.to}:00</b></div>` : ''}
       <div class="row small"><span class="dim">Group classes</span><b>${plan.classesIncluded ? 'Included' : 'Not included'}</b></div>
       <div class="row small"><span class="dim">Freeze allowance</span><b>${plan.freezeDays || 0} days / term</b></div>
       <div class="row small"><span class="dim">Guest passes</span><b>${plan.guestsPerMonth || 0} / month (${guestsUsed} used)</b></div>
       <div class="row small"><span class="dim">Renews</span><b>${fmtDate(m.subEnds)}</b></div>
       <div class="row small"><span class="dim">Member since</span><b>${fmtDate(m.memberSince)}</b></div>
       <div class="row small"><span class="dim">Wallet</span><b>$${(m.wallet || 0).toFixed(2)}</b></div>
+      <button class="ghost-btn slim" data-action="renew-open" style="margin-top:6px">Renew membership</button>
       ${freezeUI}
     </div>
 
@@ -1551,15 +1553,30 @@ document.getElementById('closePass').onclick = () => show('home');
 document.getElementById('closePassDenied').onclick = () => show('home');
 
 function showDenied(reason) {
+  const m = me();
   document.getElementById('passOk').hidden = true;
   const denied = document.getElementById('passDenied');
   denied.hidden = false;
   document.getElementById('deniedReason').textContent = denialText(reason);
   const cta = document.getElementById('deniedCta');
-  if (reason === 'frozen') { cta.textContent = 'Unfreeze in Account'; cta.onclick = () => show('account'); }
-  else if (reason === 'branch_not_allowed') { cta.textContent = 'See my plan'; cta.onclick = () => show('account'); }
-  else if (reason === 'at_capacity') { cta.textContent = 'Check other branches'; cta.onclick = () => { UI.club.seg = 'branches'; show('club'); }; }
-  else { cta.textContent = 'OK'; cta.onclick = () => show('home'); }
+  const setCta = (label, onclick) => { cta.textContent = label; cta.onclick = onclick; };
+  switch (reason) {
+    case 'frozen': setCta('Unfreeze in Account', () => show('account')); break;
+    case 'expired': setCta('Renew now', () => openRenewModal()); break;
+    case 'suspended':
+    case 'access_restricted': {
+      const b = m ? branch(m.homeBranchId) : null;
+      setCta(b ? `Call ${b.name}` : 'Call reception', () => toast(b ? 'Calling ' + b.phone + '…' : 'See reception'));
+      break;
+    }
+    case 'branch_not_allowed': setCta('See my plan', () => show('account')); break;
+    case 'outside_allowed_hours': setCta('View my plan', () => show('account')); break;
+    case 'duplicate_visit': setCta('Check out now', () => openPass()); break;
+    case 'at_capacity': setCta('Check other branches', () => { UI.club.seg = 'branches'; show('club'); }); break;
+    case 'branch_closed': setCta('See other branches', () => { UI.club.seg = 'branches'; show('club'); }); break;
+    case 'unknown_branch': setCta('Pick a gate', () => { denied.hidden = true; document.getElementById('passOk').hidden = false; renderGatePicker(); }); break;
+    default: setCta('OK', () => show('home'));
+  }
 }
 
 document.getElementById('gateBtn').onclick = () => {
@@ -1581,11 +1598,38 @@ document.getElementById('gateBtn').onclick = () => {
 
   const res = D.AccessService.checkIn(m.id, null, UI.gate);
   if (!res.ok) { showDenied(res.reason); return; }
+  const branchId = res.visit.locationId;
+  const todaysWorkout = D.WorkoutService.todaysAssigned(m.id);
+  const fuelItems = D.RetailService.catalog()
+    .map((i) => ({ i, stock: D.RetailService.stockAt(i.id, branchId) }))
+    .filter((x) => x.stock > 0)
+    .slice(0, 2);
   result.hidden = false;
-  result.innerHTML = `<div class="big">✅</div><div>Welcome to ${esc(branchName(res.visit.locationId))}!</div>
-    <div class="sub">Checked in · ${fmtT(Date.parse(res.visit.enteredAt))} · gate opened</div>`;
-  setTimeout(() => { result.hidden = true; show('home'); toast('Checked in · ' + branchName(res.visit.locationId)); }, 1500);
+  result.innerHTML = `<div class="big">✅</div><div>Welcome to ${esc(branchName(branchId))}!</div>
+    <div class="sub">Checked in · ${fmtT(Date.parse(res.visit.enteredAt))} · gate opened</div>
+    ${todaysWorkout ? `<div class="gr-extra">${esc(todaysWorkout.dayName)}<div class="meta">Today’s workout · ${todaysWorkout.exercises.length} exercises</div></div>` : ''}
+    ${fuelItems.length ? `<div class="gr-extra">Fuel Bar<div class="meta">${fuelItems.map((x) => esc(x.i.name)).join(' · ')} in stock</div></div>` : ''}
+    <button class="accent-btn" id="gateResultContinue">Continue</button>`;
+  document.getElementById('gateResultContinue').onclick = () => { result.hidden = true; show('home'); toast('Checked in · ' + branchName(branchId)); };
 };
+
+/* ================= renew membership ================= */
+
+function openRenewModal() {
+  const m = me(); if (!m) return;
+  const plan = myPlan();
+  if (!plan) { toast('No plan on file — see reception'); return; }
+  openModal(`
+    <h3>Renew membership</h3>
+    <div class="dim small">${esc(plan.name)} · $${plan.price}${plan.months ? ' / ' + plan.months + ' mo' : ''}</div>
+    <div class="dim small">Extends from ${m.status === 'expired' || new Date(m.subEnds + 'T23:59:59').getTime() < D.now() ? 'today' : fmtDate(m.subEnds)}.</div>
+    <div class="slot-row" style="margin-top:10px">
+      <button class="slot${UI.renewMethod === 'wallet' ? ' sel' : ''}" data-action="renew-method" data-m="wallet">Pay from wallet ($${(m.wallet || 0).toFixed(0)})</button>
+      <button class="slot${UI.renewMethod === 'card' ? ' sel' : ''}" data-action="renew-method" data-m="card">Card</button>
+    </div>
+    <button class="accent-btn" data-action="renew-confirm" style="margin-top:12px">Renew · $${plan.price}</button>
+    <button class="ghost-btn" data-action="modal-close">Cancel</button>`);
+}
 
 /* ================= SOS + equipment report ================= */
 
@@ -1751,6 +1795,20 @@ document.getElementById('screen').addEventListener('click', (ev) => {
 
   /* Book → Train handoff */
   if (a === 'goto-train-trainer') { UI.train.seg = 'trainer'; show('train'); return; }
+
+  /* renew membership */
+  if (a === 'renew-open') { openRenewModal(); return; }
+  if (a === 'renew-method') { UI.renewMethod = el.dataset.m; openRenewModal(); return; }
+  if (a === 'renew-confirm') {
+    const plan = myPlan(); if (!plan) return;
+    if (UI.renewMethod === 'wallet' && !debitWallet(plan.price)) { toast('Wallet balance too low — pay by card instead'); return; }
+    const res = D.MemberService.renew(m.id, m.id, UI.renewMethod);
+    closeModal();
+    pushNotif('Membership renewed', `${plan.name} — renewed through ${fmtDate(res.subEnds)}.`);
+    toast('Renewed through ' + fmtDate(res.subEnds));
+    rerender();
+    return;
+  }
 
   /* TRAIN — sub-nav */
   if (a === 'train-seg') { UI.train.seg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
