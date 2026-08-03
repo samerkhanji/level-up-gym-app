@@ -74,9 +74,9 @@ function toast(msg) {
   document.getElementById('screen').appendChild(el);
   setTimeout(() => el.remove(), 2700);
 }
-function pushNotif(title, body) {
+function pushNotif(title, body, cta) {
   const id = myId(); if (!id) return;
-  D.NotificationService.push({ memberId: id, title, body });
+  D.NotificationService.push({ memberId: id, title, body, cta });
 }
 function unreadCount() {
   const id = myId(); if (!id) return 0;
@@ -1472,6 +1472,7 @@ function renderNotifs() {
         <div class="nt">${esc(n.title)}</div>
         <div class="nb">${esc(n.body)}</div>
         <div class="nd">${new Date(n.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div>
+        ${n.cta ? `<button class="ghost-btn slim" data-action="notif-cta" data-view="${esc(n.cta.view)}"${n.cta.seg ? ` data-seg="${esc(n.cta.seg)}"` : ''} style="margin-top:8px">${esc(n.cta.label)}</button>` : ''}
       </div>`).join('') || '<div class="card dim small">Nothing yet — booking confirmations and gym alerts land here.</div>'}`;
 }
 
@@ -1677,6 +1678,16 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   /* navigation */
   if (a === 'open-pass') { show('pass'); return; }
   if (a === 'inbox') { show('notifications'); return; }
+  if (a === 'notif-cta') {
+    const view = el.dataset.view, seg = el.dataset.seg;
+    if (seg) {
+      if (view === 'book') UI.book.seg = seg;
+      else if (view === 'club') UI.club.seg = seg;
+      else if (view === 'train') UI.train.seg = seg;
+    }
+    show(view);
+    return;
+  }
   if (a === 'goto-account') { show('account'); return; }
   if (a === 'goto-train') { show('train'); return; }
   if (a === 'goto-club') { UI.club.seg = 'branches'; show('club'); return; }
@@ -1730,7 +1741,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const t = D.TrainerService.byId(UI.pt.trainerId);
     const res = D.TrainerService.book({ memberId: m.id, trainerId: UI.pt.trainerId, branchId: UI.pt.branchId, startsAt: D.at(UI.pt.hour, 0), actorId: m.id });
     if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderBook(); return; }
-    pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`);
+    pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`, { label: 'View in Train', view: 'train', seg: 'trainer' });
     UI.pt = null; renderBook();
     toast('Session booked with ' + t.name);
     return;
@@ -1974,8 +1985,8 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const res = D.BookingService.bookClass(m.id, el.dataset.c);
     UI.clsErr = null;
     if (res.error) UI.clsErr = { id: el.dataset.c, msg: classBookErrorText(res.error, c) };
-    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`); }
-    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`); }
+    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`, { label: 'View my classes', view: 'book', seg: 'classes' }); }
+    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`, { label: 'View my classes', view: 'book', seg: 'classes' }); }
     renderBookClasses();
     return;
   }
@@ -2012,7 +2023,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const res = D.MemberService.freeze(m.id, m.id, el.dataset.r);
     UI.freezeOpen = false;
     if (res.error) toast('Could not freeze: ' + res.error);
-    else { toast('Membership frozen — your renewal date shifts accordingly'); pushNotif('Membership frozen', 'Reason: ' + el.dataset.r + '. Unfreeze any time from Account.'); }
+    else { toast('Membership frozen — your renewal date shifts accordingly'); pushNotif('Membership frozen', 'Reason: ' + el.dataset.r + '. Unfreeze any time from Account.', { label: 'Unfreeze', view: 'account' }); }
     renderAccount();
     return;
   }
@@ -2030,7 +2041,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     if (!guestName) { toast('Enter your guest’s name first'); return; }
     if (!debitWallet(10)) { toast('Wallet balance too low for the $10 pass'); return; }
     D.GuestService.create({ hostMemberId: m.id, guestName, branchId: UI.guestBranch });
-    pushNotif('Guest pass ready', `${guestName} is expected at ${branchName(UI.guestBranch)} — reception has the pass.`);
+    pushNotif('Guest pass ready', `${guestName} is expected at ${branchName(UI.guestBranch)} — reception has the pass.`, { label: 'View pass', view: 'account' });
     toast('Guest pass created · $10 wallet');
     renderAccount();
     return;
@@ -2067,7 +2078,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const nm = D.MemberService.sell({ name, phone, planId: UI.ob.planId, homeBranchId: UI.ob.branchId, staffId: 'stf_rc_lara', method: 'card' });
     if (nm.error) { toast('Could not join: ' + nm.error); return; }
     setSession(nm.id);
-    pushNotif('Welcome to Level Up!', `${(D.PlanService.byId(UI.ob.planId) || {}).name} · home branch ${branchName(UI.ob.branchId)}. Your QR pass is ready.`);
+    pushNotif('Welcome to Level Up!', `${(D.PlanService.byId(UI.ob.planId) || {}).name} · home branch ${branchName(UI.ob.branchId)}. Your QR pass is ready.`, { label: 'Open my pass', view: 'pass' });
     UI.ob = { step: 0, planId: null, branchId: null };
     show('home');
     toast('Welcome to Level Up, ' + name.split(' ')[0] + '!');

@@ -1293,9 +1293,9 @@ const DemoData = (() => {
 
   const NotificationService = {
     forMember(memberId) { return load().notifications.filter((n) => n.memberId === memberId); },
-    push({ memberId, title, body, channel }) {
+    push({ memberId, title, body, channel, cta }) {
       const d = load();
-      const n = { id: nextId('ntf', 'notifications'), memberId, title, body, channel: channel || 'push', at: iso(now()), read: false };
+      const n = { id: nextId('ntf', 'notifications'), memberId, title, body, channel: channel || 'push', at: iso(now()), read: false, cta: cta || null };
       d.notifications.unshift(n); persist();
       return n;
     },
