@@ -277,16 +277,18 @@ function renderHome() {
         .filter((o) => o.branchId !== m.homeBranchId && !o.closure && !(branch(o.branchId) || {}).unconfirmed && o.pct < mine.pct - 15)
         .sort((a, b) => a.pct - b.pct)[0];
       if (alt) {
-        nudge = `<button class="card" data-action="goto-club" style="text-align:left;border:none;cursor:pointer">
-            ${eyebrow('pin', 'Beat the crowd')}
-            <div class="small" style="line-height:1.55"><b>${esc(mine.name)} is busy right now</b> (${mine.pct}% full).
-            ${esc(alt.name)} has lower occupancy (${alt.pct}%). Your membership gives you access to both.</div>
+        nudge = `<button class="li" data-action="goto-club" style="background:none;border:none;text-align:left;cursor:pointer;padding:0;width:100%">
+            <div class="li-ic">${icon('pin', 18)}</div>
+            <div class="li-body"><b style="font-size:14.5px">${esc(mine.name)} is busy right now</b> (${mine.pct}% full)
+              <div class="meta">${esc(alt.name)} has lower occupancy (${alt.pct}%) — your membership covers both</div></div>
+            ${icon('chev', 16)}
           </button>`;
       }
     }
   }
 
   /* --- up next --- */
+  const todaysWorkout = D.WorkoutService.todaysAssigned(m.id);
   const nextPt = D.load().ptSessions
     .filter((s) => s.memberId === m.id && ['scheduled', 'live'].includes(s.status))
     .sort((a, b) => a.startsAt - b.startsAt)[0];
@@ -296,6 +298,12 @@ function renderHome() {
     .sort((a, b) => a.startsAt - b.startsAt);
   const nextCls = myBookings[0];
   const upnext = [];
+  if (todaysWorkout) upnext.push(`<button class="li" data-action="goto-train" style="background:none;border:none;text-align:left;cursor:pointer;padding:0;width:100%">
+      <div class="li-ic">${icon('dumbbell', 18)}</div>
+      <div class="li-body"><b>${esc(todaysWorkout.dayName)}</b>
+        <div class="meta">Today’s workout · ${todaysWorkout.exercises.length} exercises</div></div>
+      ${icon('chev', 16)}
+    </button>`);
   if (nextPt) upnext.push(`<div class="li">
       <div class="li-ic">${icon('dumbbell', 18)}</div>
       <div class="li-body"><b>PT with ${esc(staffName(nextPt.trainerId))}</b>
@@ -369,7 +377,13 @@ function renderHome() {
 
     ${hero}
     ${eligibility}
-    ${nudge}
+
+    <div class="card">
+      ${eyebrow('pin', 'Live across branches')}
+      ${occRows}
+      ${nudge ? `<div class="divider"></div>${nudge}` : ''}
+      <button class="ghost-btn slim" data-action="goto-club" style="margin-top:4px">Explore branches</button>
+    </div>
 
     ${upnext.length ? `<div class="card">${eyebrow('clock', 'Up next')}${upnext.join('<div class="divider"></div>')}</div>` : ''}
 
@@ -385,12 +399,6 @@ function renderHome() {
       <button class="quick" data-action="report-open">${icon('tool', 20)}<b>Report equipment</b><span>Broken or unsafe?</span></button>
       <button class="quick" data-action="goto-account">${icon('guest', 20)}<b>Guest pass</b><span>Bring a friend</span></button>
       <button class="quick" data-action="inbox">${icon('bell', 20)}<b>Inbox</b><span>${unread ? unread + ' unread' : 'All read'}</span></button>
-    </div>
-
-    <div class="card">
-      ${eyebrow('pin', 'Live across branches')}
-      ${occRows}
-      <button class="ghost-btn slim" data-action="goto-branches" style="margin-top:4px">Explore branches</button>
     </div>`;
 }
 
