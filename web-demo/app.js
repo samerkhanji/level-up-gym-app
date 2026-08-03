@@ -136,9 +136,10 @@ function denialText(reason) {
 
 /* ================= routing ================= */
 
-const views = ['login', 'onboard', 'home', 'branches', 'train', 'classes', 'fuel', 'account', 'notifications', 'pass'];
-const tabViews = ['home', 'branches', 'train', 'classes', 'fuel', 'account'];
+const views = ['login', 'onboard', 'home', 'train', 'book', 'club', 'account', 'notifications', 'pass'];
+const tabViews = ['home', 'train', 'book', 'club', 'account'];
 const tabbar = document.getElementById('tabbar');
+const scanFab = document.getElementById('scanFab');
 
 /* in-memory UI state — deliberately NOT persisted (visual only) */
 const UI = {
@@ -161,6 +162,8 @@ const UI = {
     showVersions: false,
     qw: { picked: [] },        // quick-workout builder selection
   },
+  book: { seg: 'classes', nutBranch: null, nutHour: null },   // 'classes' | 'pt' | 'nutrition'
+  club: { seg: 'branches' },  // 'branches' | 'fuel'
 };
 
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -187,9 +190,8 @@ function animateCounts(root) {
 }
 
 const RENDERERS = {
-  home: renderHome, branches: renderBranches, train: renderTrain,
-  classes: renderClasses, fuel: renderFuel, account: renderAccount,
-  notifications: renderNotifs, onboard: renderOnboard,
+  home: renderHome, train: renderTrain, book: renderBook, club: renderClub,
+  account: renderAccount, notifications: renderNotifs, onboard: renderOnboard,
 };
 function show(view) {
   UI.view = view;
@@ -197,6 +199,7 @@ function show(view) {
   stopRest();
   views.forEach((v) => document.getElementById('view-' + v).classList.toggle('active', v === view));
   tabbar.classList.toggle('hidden', !tabViews.includes(view));
+  if (scanFab) scanFab.classList.toggle('hidden', !tabViews.includes(view));
   document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('active', t.dataset.view === view));
   if (RENDERERS[view]) RENDERERS[view]();
   if (view === 'pass') openPass(); else stopPass();
@@ -274,7 +277,7 @@ function renderHome() {
         .filter((o) => o.branchId !== m.homeBranchId && !o.closure && !(branch(o.branchId) || {}).unconfirmed && o.pct < mine.pct - 15)
         .sort((a, b) => a.pct - b.pct)[0];
       if (alt) {
-        nudge = `<button class="card" data-action="goto-branches" style="text-align:left;border:none;cursor:pointer">
+        nudge = `<button class="card" data-action="goto-club" style="text-align:left;border:none;cursor:pointer">
             ${eyebrow('pin', 'Beat the crowd')}
             <div class="small" style="line-height:1.55"><b>${esc(mine.name)} is busy right now</b> (${mine.pct}% full).
             ${esc(alt.name)} has lower occupancy (${alt.pct}%). Your membership gives you access to both.</div>
@@ -317,10 +320,10 @@ function renderHome() {
   const unconfirmed = D.load().ptSessions.filter((s) => s.memberId === m.id && s.status === 'completed' && !s.memberConfirmed);
   if (unconfirmed.length) alerts.push({ t: 'Confirm your completed PT session', s: 'Review your trainer’s notes in Train → History', a: 'goto-train' });
   D.load().classes.filter((c) => (c.waitlist || []).includes(m.id)).forEach((c) => {
-    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-classes' });
+    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-book' });
   });
   const offlineHome = D.MaintenanceService.offline(m.homeBranchId).length;
-  if (offlineHome) alerts.push({ t: `${offlineHome} machine${offlineHome === 1 ? '' : 's'} under maintenance at ${branchName(m.homeBranchId)}`, s: 'Alternatives posted — details in Branches', a: 'goto-branches' });
+  if (offlineHome) alerts.push({ t: `${offlineHome} machine${offlineHome === 1 ? '' : 's'} under maintenance at ${branchName(m.homeBranchId)}`, s: 'Alternatives posted — details in Club', a: 'goto-club' });
 
   /* --- branch occupancy snapshot --- */
   const occRows = D.BranchService.occupancy().map((o) => {
@@ -393,7 +396,18 @@ function renderHome() {
 
 /* ================= BRANCHES ================= */
 
-function renderBranches() {
+function clubSegHtml(active) {
+  const segs = [['branches', 'Branches'], ['fuel', 'Fuel Bar']];
+  return `<div class="seg">${segs.map(([k, l]) => `<button class="seg-btn${active === k ? ' active' : ''}" data-action="club-seg" data-seg="${k}">${l}</button>`).join('')}</div>`;
+}
+function renderClub() {
+  const m = me(); if (!m) { show('login'); return; }
+  const seg = UI.club.seg || 'branches';
+  if (seg === 'fuel') renderClubFuel();
+  else renderClubBranches();
+}
+
+function renderClubBranches() {
   const m = me(); if (!m) { show('login'); return; }
   const plan = myPlan() || {};
   const occ = D.BranchService.occupancy();
@@ -455,13 +469,14 @@ function renderBranches() {
         <div class="btn-row">
           <button class="ghost-btn slim" data-action="call-branch" data-phone="${esc(l.phone)}" style="flex:1">Call</button>
           <button class="ghost-btn slim" data-action="directions" data-addr="${esc(l.address)}" style="flex:1">Directions</button>
-          <button class="accent-btn slim" data-action="goto-classes" data-branch="${l.id}" style="flex:1">Classes</button>
+          <button class="accent-btn slim" data-action="goto-book" data-branch="${l.id}" style="flex:1">Classes</button>
         </div>
       </div>`;
   }).join('');
 
-  document.getElementById('c-branches').innerHTML = `
-    <header class="app-header"><div class="greeting">Branches</div><span></span></header>
+  document.getElementById('c-club').innerHTML = `
+    <header class="app-header"><div class="greeting">Club</div><span></span></header>
+    ${clubSegHtml('branches')}
     <div class="dim small" style="margin-top:-8px">One membership, four doors — live occupancy from the same engine reception sees.</div>
     ${cards}`;
 }
@@ -842,7 +857,6 @@ function renderTrainMyTrainer() {
   const trainer = trainerId ? D.TrainerService.byId(trainerId) : null;
   const credits = D.PackageService.remaining(m.id);
   const pkgs = D.PackageService.forMember(m.id);
-  const allTrainers = D.TrainerService.list();
 
   const profileCard = trainer ? `<div class="card">
       ${eyebrow('dumbbell', 'Your trainer')}
@@ -885,43 +899,6 @@ function renderTrainMyTrainer() {
         <div class="tl-title">Program updated — v${v.version}</div>
         <div class="tl-sub">${esc(v.reason || '')}${v.changeSummary ? ` · ${esc(v.changeSummary)}` : ''}</div>
       </div></div>`;
-  }).join('');
-
-  /* ---- book more sessions (kept from the original PT-booking flow) ---- */
-  let panel = '';
-  if (UI.pt) {
-    const t = D.TrainerService.byId(UI.pt.trainerId);
-    const branches = (t.worksAt || [t.locationId]);
-    const windows = (t.availability || []).filter((a) => a.branchId === UI.pt.branchId);
-    const hours = [];
-    windows.forEach((wnd) => { for (let h = wnd.fromH; h < wnd.toH; h++) hours.push(h); });
-    panel = `<div class="card" style="box-shadow:var(--shadow-float)">
-        ${eyebrow('dumbbell', 'Book a session · ' + esc(t.name))}
-        <div class="dim small">Where?</div>
-        <div class="slot-row">${branches.map((b) => `<button class="slot${UI.pt.branchId === b ? ' sel' : ''}" data-action="pt-branch" data-b="${b}">${esc(branchName(b))}</button>`).join('')}</div>
-        <div class="dim small">When? <span style="font-size:11.5px">(${esc(t.name.split(' ')[0])} at ${esc(branchName(UI.pt.branchId))}: ${windows.map((wnd) => wnd.fromH + ':00–' + wnd.toH + ':00').join(', ') || 'no hours today'})</span></div>
-        <div class="slot-row">${hours.map((h) => `<button class="slot${UI.pt.hour === h ? ' sel' : ''}" data-action="pt-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No availability at this branch.</span>'}</div>
-        ${UI.pt.err ? `<div class="err-line">${esc(UI.pt.err)}</div>` : ''}
-        <div class="btn-row">
-          <button class="ghost-btn slim" data-action="pt-close" style="flex:1">Close</button>
-          <button class="accent-btn slim" data-action="pt-confirm" style="flex:2;${UI.pt.hour == null ? 'opacity:.45' : ''}" ${UI.pt.hour == null ? 'disabled' : ''}>Confirm booking</button>
-        </div>
-      </div>`;
-  }
-
-  const trainerCards = allTrainers.map((t, i) => {
-    const wa = (t.worksAt || [t.locationId]);
-    const avail = (t.availability || []).map((a) => `${branchName(a.branchId)} ${a.fromH}:00–${a.toH}:00`).join(' · ');
-    return `<div class="trainer">
-        <div class="avatar sm tone-${(i % 3) + 1}">${esc(t.name[0])}</div>
-        <div class="info">
-          <div class="n">${esc(t.name)}${t.id === trainerId ? ' <span class="bonus">your coach</span>' : ''}</div>
-          <div class="meta">${esc((t.specialties || []).join(' · '))}</div>
-          <div class="meta" style="margin-top:3px">${wa.map((b) => branchChip(b)).join(' ')}</div>
-          <div class="status off" style="font-weight:600">${esc(avail)}</div>
-        </div>
-        <button class="book-btn" data-action="pt-open" data-t="${t.id}">Book</button>
-      </div>`;
   }).join('');
 
   const sessions = D.load().ptSessions.filter((s) => s.memberId === m.id);
@@ -977,10 +954,6 @@ function renderTrainMyTrainer() {
     <div class="sect-label">Relationship timeline</div>
     ${tl ? `<div class="card"><div class="tl">${tl}</div></div>` : '<div class="card dim small">No shared history yet.</div>'}
 
-    ${panel}
-    <div class="sect-label">Book more sessions</div>
-    <div class="stack">${trainerCards}</div>
-
     <div class="card">
       ${eyebrow('gift', 'PT packages')}
       <div class="dim small">${credits} credit${credits === 1 ? '' : 's'} remaining · ${pkgs.map((p) => `${p.total - p.used}/${p.total} with ${staffName(p.trainerId).split(' ')[0]}`).join(' · ') || 'no package yet'}</div>
@@ -992,21 +965,11 @@ function renderTrainMyTrainer() {
         <button class="ghost-btn slim" data-action="pkg-buy" data-total="4" data-price="140" style="flex:1">4 sessions · $140</button>
         <button class="accent-btn slim" data-action="pkg-buy" data-total="10" data-price="300" style="flex:1">10 sessions · $300</button>
       </div>
+      <button class="ghost-btn slim" data-action="goto-book-pt" style="margin-top:8px">Book more sessions</button>
     </div>
 
     ${upcomingRows ? `<div class="sect-label">Upcoming PT sessions</div>${upcomingRows}` : ''}
-    ${historyRows ? `<div class="sect-label">PT session history</div>${historyRows}` : ''}
-
-    <div class="card">
-      <div class="li">
-        <img class="svc-thumb" src="img/service-nutrition.svg" alt="" />
-        <div class="li-body">
-          <b>Nutrition consult · Rima D.</b>
-          <div class="meta">${consult ? 'Booked — today ' + fmtT(consult.startsAt) + ' · ' + esc(branchName(consult.branchId)) : 'Licensed dietitian — covers all branches by appointment'}</div>
-        </div>
-        ${consult ? `<span class="chip chip-ok">Booked</span>` : `<button class="book-btn" data-action="consult-book">Book</button>`}
-      </div>
-    </div>`;
+    ${historyRows ? `<div class="sect-label">PT session history</div>${historyRows}` : ''}`;
 }
 
 /* ---------- 3. Live Workout Logger ---------- */
@@ -1194,7 +1157,19 @@ function classBookErrorText(err, c) {
   }
 }
 
-function renderClasses() {
+function bookSegHtml(active) {
+  const segs = [['classes', 'Classes'], ['pt', 'Personal Training'], ['nutrition', 'Nutrition']];
+  return `<div class="seg">${segs.map(([k, l]) => `<button class="seg-btn${active === k ? ' active' : ''}" data-action="book-seg" data-seg="${k}">${l}</button>`).join('')}</div>`;
+}
+function renderBook() {
+  const m = me(); if (!m) { show('login'); return; }
+  const seg = UI.book.seg || 'classes';
+  if (seg === 'pt') renderBookPT();
+  else if (seg === 'nutrition') renderBookNutrition();
+  else renderBookClasses();
+}
+
+function renderBookClasses() {
   const m = me(); if (!m) { show('login'); return; }
   const all = D.load().classes.slice().sort((a, b) =>
     (a.status === 'scheduled' ? 0 : 1) - (b.status === 'scheduled' ? 0 : 1) || a.startsAt - b.startsAt);
@@ -1238,16 +1213,108 @@ function renderClasses() {
     : `<div class="card dim small">No classes at this branch today.
         <button class="ghost-btn" style="margin-top:10px" data-action="cls-branch" data-b="all">See every branch instead</button></div>`);
 
-  document.getElementById('c-classes').innerHTML = `
-    <header class="app-header"><div class="greeting">Classes</div><span></span></header>
+  document.getElementById('c-book').innerHTML = `
+    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    ${bookSegHtml('classes')}
     <div class="dim small" style="margin-top:-8px">Same class name can run at two branches — the branch tag on each card is the one that counts.</div>
     <div class="slot-row">${filters}</div>
     ${cards}`;
 }
 
+function renderBookPT() {
+  const m = me(); if (!m) { show('login'); return; }
+  const program = D.ProgramService.current(m.id);
+  const trainerId = (program && program.trainerId) || m.trainerId;
+  const credits = D.PackageService.remaining(m.id);
+  const allTrainers = D.TrainerService.list();
+
+  let panel = '';
+  if (UI.pt) {
+    const t = D.TrainerService.byId(UI.pt.trainerId);
+    const branches = (t.worksAt || [t.locationId]);
+    const windows = (t.availability || []).filter((a) => a.branchId === UI.pt.branchId);
+    const hours = [];
+    windows.forEach((wnd) => { for (let h = wnd.fromH; h < wnd.toH; h++) hours.push(h); });
+    panel = `<div class="card" style="box-shadow:var(--shadow-float)">
+        ${eyebrow('dumbbell', 'Book a session · ' + esc(t.name))}
+        <div class="dim small">Where?</div>
+        <div class="slot-row">${branches.map((b) => `<button class="slot${UI.pt.branchId === b ? ' sel' : ''}" data-action="pt-branch" data-b="${b}">${esc(branchName(b))}</button>`).join('')}</div>
+        <div class="dim small">When? <span style="font-size:11.5px">(${esc(t.name.split(' ')[0])} at ${esc(branchName(UI.pt.branchId))}: ${windows.map((wnd) => wnd.fromH + ':00–' + wnd.toH + ':00').join(', ') || 'no hours today'})</span></div>
+        <div class="slot-row">${hours.map((h) => `<button class="slot${UI.pt.hour === h ? ' sel' : ''}" data-action="pt-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No availability at this branch.</span>'}</div>
+        ${UI.pt.err ? `<div class="err-line">${esc(UI.pt.err)}</div>` : ''}
+        <div class="btn-row">
+          <button class="ghost-btn slim" data-action="pt-close" style="flex:1">Close</button>
+          <button class="accent-btn slim" data-action="pt-confirm" style="flex:2;${UI.pt.hour == null ? 'opacity:.45' : ''}" ${UI.pt.hour == null ? 'disabled' : ''}>Confirm booking</button>
+        </div>
+      </div>`;
+  }
+
+  const trainerCards = allTrainers.map((t, i) => {
+    const wa = (t.worksAt || [t.locationId]);
+    const avail = (t.availability || []).map((a) => `${branchName(a.branchId)} ${a.fromH}:00–${a.toH}:00`).join(' · ');
+    return `<div class="trainer">
+        <div class="avatar sm tone-${(i % 3) + 1}">${esc(t.name[0])}</div>
+        <div class="info">
+          <div class="n">${esc(t.name)}${t.id === trainerId ? ' <span class="bonus">your coach</span>' : ''}</div>
+          <div class="meta">${esc((t.specialties || []).join(' · '))}</div>
+          <div class="meta" style="margin-top:3px">${wa.map((b) => branchChip(b)).join(' ')}</div>
+          <div class="status off" style="font-weight:600">${esc(avail)}</div>
+        </div>
+        <button class="book-btn" data-action="pt-open" data-t="${t.id}">Book</button>
+      </div>`;
+  }).join('');
+
+  document.getElementById('c-book').innerHTML = `
+    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    ${bookSegHtml('pt')}
+    <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
+      <div class="dim small">PT credits remaining</div>
+      <b>${credits}</b>
+    </div>
+    <button class="ghost-btn slim" data-action="goto-train-trainer">Manage packages in Train → My Trainer</button>
+    ${panel}
+    <div class="sect-label">Trainers</div>
+    <div class="stack">${trainerCards}</div>`;
+}
+
+function renderBookNutrition() {
+  const m = me(); if (!m) { show('login'); return; }
+  if (!UI.book.nutBranch) UI.book.nutBranch = m.homeBranchId;
+  const consult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
+  const branch = D.BranchService.byId ? D.BranchService.byId(UI.book.nutBranch) : D.BranchService.list().find((l) => l.id === UI.book.nutBranch);
+  const openH = branch && branch.opens ? Number(branch.opens.split(':')[0]) : 9;
+  const closeH = branch && branch.closes ? Number(branch.closes.split(':')[0]) : 21;
+  const hourGrid = [9, 11, 13, 15, 17, 19].filter((h) => h >= openH && h < closeH);
+
+  const picker = consult ? '' : `<div class="card">
+      ${eyebrow('leaf', 'Book a consult · Rima D.')}
+      <div class="dim small">Where?</div>
+      <div class="slot-row">${D.BranchService.list().filter((l) => !l.unconfirmed).map((l) =>
+        `<button class="slot${UI.book.nutBranch === l.id ? ' sel' : ''}" data-action="nut-branch" data-b="${l.id}">${esc(l.name)}</button>`).join('')}</div>
+      <div class="dim small">When?</div>
+      <div class="slot-row">${hourGrid.map((h) => `<button class="slot${UI.book.nutHour === h ? ' sel' : ''}" data-action="nut-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No slots today.</span>'}</div>
+      <button class="accent-btn slim" data-action="consult-book" style="margin-top:10px;${UI.book.nutHour == null ? 'opacity:.45' : ''}" ${UI.book.nutHour == null ? 'disabled' : ''}>Confirm booking</button>
+    </div>`;
+
+  document.getElementById('c-book').innerHTML = `
+    <header class="app-header"><div class="greeting">Book</div><span></span></header>
+    ${bookSegHtml('nutrition')}
+    <div class="card">
+      <div class="li">
+        <img class="svc-thumb" src="img/service-nutrition.svg" alt="" />
+        <div class="li-body">
+          <b>Nutrition consult · Rima D.</b>
+          <div class="meta">${consult ? 'Booked — ' + fmtT(consult.startsAt) + ' · ' + esc(branchName(consult.branchId)) : 'Licensed dietitian — covers all branches by appointment'}</div>
+        </div>
+        ${consult ? `<span class="chip chip-ok">Booked</span>` : ''}
+      </div>
+    </div>
+    ${picker}`;
+}
+
 /* ================= FUEL BAR & RETAIL ================= */
 
-function renderFuel() {
+function renderClubFuel() {
   const m = me(); if (!m) { show('login'); return; }
   if (!UI.fuelBranch) {
     const v = insideVisit();
@@ -1282,8 +1349,9 @@ function renderFuel() {
     return grid ? `<div class="sect-label">${cat}</div><div class="menu-grid">${grid}</div>` : '';
   }).join('');
 
-  document.getElementById('c-fuel').innerHTML = `
-    <header class="app-header"><div class="greeting">Fuel Bar</div><span></span></header>
+  document.getElementById('c-club').innerHTML = `
+    <header class="app-header"><div class="greeting">Club</div><span></span></header>
+    ${clubSegHtml('fuel')}
     ${warn}
     <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
       <div>${eyebrow('wallet', 'Wallet')}<div class="big-number">$${(m.wallet || 0).toFixed(2)}</div></div>
@@ -1483,7 +1551,7 @@ function showDenied(reason) {
   const cta = document.getElementById('deniedCta');
   if (reason === 'frozen') { cta.textContent = 'Unfreeze in Account'; cta.onclick = () => show('account'); }
   else if (reason === 'branch_not_allowed') { cta.textContent = 'See my plan'; cta.onclick = () => show('account'); }
-  else if (reason === 'at_capacity') { cta.textContent = 'Check other branches'; cta.onclick = () => show('branches'); }
+  else if (reason === 'at_capacity') { cta.textContent = 'Check other branches'; cta.onclick = () => { UI.club.seg = 'branches'; show('club'); }; }
   else { cta.textContent = 'OK'; cta.onclick = () => show('home'); }
 }
 
@@ -1560,8 +1628,10 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'inbox') { show('notifications'); return; }
   if (a === 'goto-account') { show('account'); return; }
   if (a === 'goto-train') { show('train'); return; }
-  if (a === 'goto-branches') { show('branches'); return; }
-  if (a === 'goto-classes') { if (el.dataset.branch) UI.clsBranch = el.dataset.branch; show('classes'); return; }
+  if (a === 'goto-club') { UI.club.seg = 'branches'; show('club'); return; }
+  if (a === 'goto-book') { if (el.dataset.branch) UI.clsBranch = el.dataset.branch; UI.book.seg = 'classes'; show('book'); return; }
+  if (a === 'book-seg') { UI.book.seg = el.dataset.seg; renderBook(); return; }
+  if (a === 'club-seg') { UI.club.seg = el.dataset.seg; renderClub(); return; }
   if (a === 'modal-close') { closeModal(); return; }
   if (a === 'logout') { setSession(null); UI.pt = null; show('login'); return; }
 
@@ -1594,23 +1664,23 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     return;
   }
 
-  /* PT booking */
+  /* PT booking (discovery — lives in Book → Personal Training) */
   if (a === 'pt-open') {
     const t = D.TrainerService.byId(el.dataset.t);
     UI.pt = { trainerId: t.id, branchId: (t.worksAt || [t.locationId])[0], hour: null, err: null };
-    renderTrain();
+    renderBook();
     return;
   }
-  if (a === 'pt-branch') { UI.pt.branchId = el.dataset.b; UI.pt.hour = null; UI.pt.err = null; renderTrain(); return; }
-  if (a === 'pt-hour') { UI.pt.hour = Number(el.dataset.h); UI.pt.err = null; renderTrain(); return; }
-  if (a === 'pt-close') { UI.pt = null; renderTrain(); return; }
+  if (a === 'pt-branch') { UI.pt.branchId = el.dataset.b; UI.pt.hour = null; UI.pt.err = null; renderBook(); return; }
+  if (a === 'pt-hour') { UI.pt.hour = Number(el.dataset.h); UI.pt.err = null; renderBook(); return; }
+  if (a === 'pt-close') { UI.pt = null; renderBook(); return; }
   if (a === 'pt-confirm') {
     if (!UI.pt || UI.pt.hour == null) return;
     const t = D.TrainerService.byId(UI.pt.trainerId);
     const res = D.TrainerService.book({ memberId: m.id, trainerId: UI.pt.trainerId, branchId: UI.pt.branchId, startsAt: D.at(UI.pt.hour, 0), actorId: m.id });
-    if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderTrain(); return; }
+    if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderBook(); return; }
     pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`);
-    UI.pt = null; renderTrain();
+    UI.pt = null; renderBook();
     toast('Session booked with ' + t.name);
     return;
   }
@@ -1658,13 +1728,22 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
 
   /* nutrition */
+  if (a === 'nut-branch') { UI.book.nutBranch = el.dataset.b; UI.book.nutHour = null; renderBook(); return; }
+  if (a === 'nut-hour') { UI.book.nutHour = Number(el.dataset.h); renderBook(); return; }
   if (a === 'consult-book') {
-    D.NutritionService.book({ memberId: m.id, staffId: 'stf_nu_rima', branchId: m.homeBranchId, startsAt: D.at(15, 0), kind: 'consultation' });
-    pushNotif('Nutrition consult booked', 'Rima D. · today ' + fmtT(D.at(15, 0)) + ' · ' + branchName(m.homeBranchId));
+    if (UI.book.nutHour == null) return;
+    const branchId = UI.book.nutBranch || m.homeBranchId;
+    const startsAt = D.at(UI.book.nutHour, 0);
+    D.NutritionService.book({ memberId: m.id, staffId: 'stf_nu_rima', branchId, startsAt, kind: 'consultation' });
+    pushNotif('Nutrition consult booked', 'Rima D. · ' + fmtT(startsAt) + ' · ' + branchName(branchId));
     toast('Consult booked with Rima D.');
-    renderTrain();
+    UI.book.nutHour = null;
+    renderBook();
     return;
   }
+
+  /* Book → Train handoff */
+  if (a === 'goto-train-trainer') { UI.train.seg = 'trainer'; show('train'); return; }
 
   /* TRAIN — sub-nav */
   if (a === 'train-seg') { UI.train.seg = el.dataset.seg; UI.train.historyDetail = null; renderTrain(); return; }
@@ -1824,7 +1903,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
 
   /* classes */
-  if (a === 'cls-branch') { UI.clsBranch = el.dataset.b; UI.clsErr = null; renderClasses(); return; }
+  if (a === 'cls-branch') { UI.clsBranch = el.dataset.b; UI.clsErr = null; renderBookClasses(); return; }
   if (a === 'cls-book') {
     const c = D.BookingService.classById(el.dataset.c);
     const res = D.BookingService.bookClass(m.id, el.dataset.c);
@@ -1832,7 +1911,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     if (res.error) UI.clsErr = { id: el.dataset.c, msg: classBookErrorText(res.error, c) };
     else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`); }
     else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`); }
-    renderClasses();
+    renderBookClasses();
     return;
   }
   if (a === 'cls-cancel') {
@@ -1842,22 +1921,22 @@ document.getElementById('screen').addEventListener('click', (ev) => {
       UI.clsErr = { id: el.dataset.c, msg: `Past the cancellation window (closed ${fmtT(c.startsAt - (c.cancelDeadlineMins || 0) * 60000)}). Reception can override with a reason.` };
     } else if (res.error) UI.clsErr = { id: el.dataset.c, msg: 'Could not cancel: ' + res.error };
     else { UI.clsErr = null; toast('Booking cancelled — spot released'); }
-    renderClasses();
+    renderBookClasses();
     return;
   }
 
   /* fuel bar */
-  if (a === 'fuel-branch') { UI.fuelBranch = el.dataset.b; renderFuel(); return; }
-  if (a === 'fuel-warn-dismiss') { UI.fuelWarn = null; renderFuel(); return; }
+  if (a === 'fuel-branch') { UI.fuelBranch = el.dataset.b; renderClubFuel(); return; }
+  if (a === 'fuel-warn-dismiss') { UI.fuelWarn = null; renderClubFuel(); return; }
   if (a === 'fuel-buy') {
     const item = D.RetailService.byId(el.dataset.i);
     const method = (m.wallet || 0) >= item.price ? 'wallet' : 'card';
     if (method === 'wallet' && !debitWallet(item.price)) { toast('Wallet balance too low'); return; }
     const res = D.RetailService.sell({ itemId: item.id, branchId: UI.fuelBranch, memberId: m.id, staffId: m.id, method });
-    if (res.error) { toast(res.error === 'out_of_stock' ? 'Out of stock at this branch' : 'Could not buy: ' + res.error); renderFuel(); return; }
+    if (res.error) { toast(res.error === 'out_of_stock' ? 'Out of stock at this branch' : 'Could not buy: ' + res.error); renderClubFuel(); return; }
     if (res.allergenWarning) UI.fuelWarn = { item: item.name, allergen: res.allergenWarning };
     toast(`Bought ${item.name} · $${item.price} (${method})`);
-    renderFuel();
+    renderClubFuel();
     return;
   }
 
