@@ -3,9 +3,11 @@
   "private": true,
   "description": "Playwright button audits for the GYM-APP web demo dashboards",
   "scripts": {
-    "audit:reception": "playwright test reception-button-audit.spec.js --project=chromium"
+    "audit:reception": "playwright test reception-button-audit.spec.js --project=chromium",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
   },
   "devDependencies": {
-    "@playwright/test": "^1.49.0"
+    "@playwright/test": "1.56.1"
   }
 }
