@@ -12,14 +12,6 @@
 const D = window.DemoData;
 const MEMBER_KEY = 'lu_member';
 
-/* Dev-only harness sidebar (project description, "Reset demo") is opt-in only —
-   never part of the production member experience. Add ?demo=1 to this page's
-   URL to see it while developing. */
-if (new URLSearchParams(location.search).get('demo') === '1') {
-  const note = document.querySelector('.demo-note');
-  if (note) note.classList.add('show-demo');
-}
-
 /* ================= icons ================= */
 
 const PATHS = {
@@ -2207,7 +2199,7 @@ document.getElementById('loginHelpBtn').onclick = () => {
     <button class="ghost-btn" data-action="modal-close">Close</button>`);
 };
 
-document.getElementById('resetDemo').onclick = () => {
+const resetDemoBtn = document.getElementById('resetDemo'); if (resetDemoBtn) resetDemoBtn.onclick = () => {
   D.reset('normal-day');
   UI.pt = null; UI.fuelBranch = null; UI.fuelWarn = null; UI.clsBranch = 'all'; UI.gate = null;
   if (!me()) { setSession(null); show('login'); }
