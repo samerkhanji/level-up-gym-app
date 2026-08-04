@@ -10,8 +10,10 @@
   --tint: #131619;       /* Muted Background — recessed surface (inputs, icon chips) */
   --card: #1b1f23;       /* Concrete — cards and secondary dark surfaces */
   --ink: #f5f6f2;        /* Level White — primary text */
-  --muted: #929aa3;      /* Steel — secondary text */
-  --line: #2a2f34;       /* Border Dark */
+  --muted: #a7afb5;      /* secondary text */
+  --faint: #747d84;      /* muted/disabled text */
+  --line: #2a3035;       /* Border Dark */
+  --line-soft: rgba(255, 255, 255, 0.08);
 
   /* accent (legacy var names kept — remapped to the new brand roles so every
      existing call site re-themes correctly without a full selector rewrite) */
@@ -19,12 +21,14 @@
   --green-deep: #0b0d0f;     /* Level Black — dark text-on-light-chip, dark gradient stop */
   --green-bright: #23282d;   /* Concrete-lit — dark gradient start */
   --mint: #dcf77a;       /* soft lime — light enough for dark (--green-deep) text on selected/active chips */
-  --lime-press: #b3e62c;     /* pressed/hover state for lime surfaces (keeps dark text readable) */
+  --lime-press: #b8ef26;     /* pressed/hover state for lime surfaces (keeps dark text readable) */
+  --lime-soft: rgba(200, 255, 50, 0.12);
 
   --amber: #f59e0b;      /* Warning Amber */
   --amber-soft: #2b2410;
   --red: #ef4444;        /* Critical Red */
   --red-soft: #2a1618;
+  --info: #38bdf8;       /* Information Blue — neutral info only, never success */
 
   --display: 'Sora', 'Segoe UI', sans-serif;
   --body: 'Inter', -apple-system, 'Segoe UI', sans-serif;
@@ -454,9 +458,9 @@ select.input { appearance: auto; }
   display: flex; align-items: center; justify-content: center; flex-shrink: 0;
 }
 .avatar.sm { width: 38px; height: 38px; font-size: 15px; }
-.avatar.tone-1 { background: linear-gradient(140deg, #7c6ce0, #4a3fae); }
-.avatar.tone-2 { background: linear-gradient(140deg, #d98940, #a85a14); }
-.avatar.tone-3 { background: linear-gradient(140deg, #4f8fd9, #2b5fa8); }
+.avatar.tone-1 { background: linear-gradient(140deg, #3a4148, #22272b); }
+.avatar.tone-2 { background: linear-gradient(140deg, #4a5158, #2a3035); color: var(--green); }
+.avatar.tone-3 { background: linear-gradient(140deg, #c8ff32, #9fd41f); color: var(--green-deep); }
 .member-name { font-size: 18px; font-weight: 700; }
 .purpose { font-size: 13px; font-weight: 700; letter-spacing: 1.6px; color: var(--green); margin-top: 2px; }
 .purpose.exit { color: var(--amber); }
