@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
 <title>Level Up — Member App</title>
-<meta name="theme-color" content="#f2ece0" />
+<meta name="theme-color" content="#0b0d0f" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -24,8 +24,8 @@
 .scan-fab {
   position: absolute; bottom: 74px; left: 50%; transform: translateX(-50%); z-index: 21;
   width: 58px; height: 58px; border-radius: 50%; border: 4px solid var(--paper);
-  background: var(--green-deep); color: #fff; display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: var(--shadow-float); transition: transform 0.15s ease;
+  background: var(--green); color: var(--green-deep); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(200, 255, 50, 0.28); transition: transform 0.15s ease;
 }
 .scan-fab svg { width: 24px; height: 24px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .scan-fab:active { transform: translateX(-50%) scale(0.93); }
@@ -76,7 +76,7 @@
 
 /* occupancy bar */
 .occ-track { height: 7px; border-radius: 4px; background: var(--tint); overflow: hidden; flex: 1; }
-.occ-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #33302a, #000); transition: width 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.occ-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--green-bright), var(--green)); transition: width 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
 .occ-fill.mid { background: linear-gradient(90deg, #c8952c, var(--amber)); }
 .occ-fill.hot { background: linear-gradient(90deg, #d5654f, var(--red)); }
 
@@ -130,7 +130,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
 .rest-wrap.idle .rest-track { opacity: 0.4; }
 .rest-info { font-weight: 700; font-size: 13.5px; margin-bottom: 7px; }
 .rest-track { height: 7px; border-radius: 4px; background: var(--tint); overflow: hidden; }
-.rest-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green-bright), var(--green-deep)); transition: width 1s linear; }
+.rest-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green-bright), var(--green)); transition: width 1s linear; }
 
 /* per-set logging table */
 .set-table { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
@@ -143,7 +143,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
 }
 .set-meta { flex: 1; font-size: 11.5px; color: var(--muted); }
 .set-log {
-  background: var(--green); color: #fff; border: none; border-radius: 10px;
+  background: var(--green); color: var(--green-deep); border: none; border-radius: 10px;
   padding: 8px 13px; font-size: 12.5px; font-weight: 700; cursor: pointer; flex-shrink: 0;
   display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
 }
@@ -161,7 +161,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
 
 /* finish-workout celebration — same pop/glow feel as the gate-entry success screen */
 .finish-cele {
-  position: absolute; inset: 0; z-index: 90; background: rgba(242, 236, 224, 0.98);
+  position: absolute; inset: 0; z-index: 90; background: rgba(11, 13, 15, 0.98);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
   padding: 28px; text-align: center;
 }
@@ -227,7 +227,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
             <div class="tagline">One membership. Every branch.</div>
             <input class="input" id="loginName" placeholder="Full name" value="Samer Khanji" autocomplete="off" />
             <input class="input" id="loginPassword" type="password" placeholder="Password" autocomplete="off" />
-            <div id="loginError" class="dim small center" style="color:#bb3a2a" hidden></div>
+            <div id="loginError" class="dim small center" style="color:var(--red)" hidden></div>
             <button class="accent-btn" id="loginBtn">Log in</button>
             <button class="ghost-btn" id="activateBtn">Join Level Up</button>
             <div class="dim small center">Demo members live in the shared engine — try “Samer Khanji”</div>
