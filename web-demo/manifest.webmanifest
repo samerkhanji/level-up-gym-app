@@ -3,8 +3,8 @@
   "short_name": "Level Up",
   "start_url": ".",
   "display": "standalone",
-  "background_color": "#f2ece0",
-  "theme_color": "#000000",
+  "background_color": "#0b0d0f",
+  "theme_color": "#0b0d0f",
   "icons": [
     { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
   ]
