@@ -48,9 +48,9 @@ async function login(page) {
   await page.waitForTimeout(500);
   const needsLogin = await page.evaluate(() => document.getElementById('view-login')?.classList.contains('active'));
   if (needsLogin) {
-    await page.fill('#loginPassword', 'demo'); // demo auth accepts any non-empty password
-    await page.click('#loginBtn'); // prefilled demo identity (Samer Khanji / mbr_0001); sheet blocked → offline login path
-    await page.waitForTimeout(400);
+    // prefilled demo identity (Samer Khanji / mbr_0001, phone +961 70 123 456) → Continue → simulated biometric confirm (900ms)
+    await page.click('#loginContinueBtn');
+    await page.waitForTimeout(1200);
   }
   await freeze(page);
 }
@@ -98,16 +98,14 @@ test('member app A-to-Z audit — inventory + click-sweep', async ({ page, conte
   report.load = { status: resp.status() };
   await page.screenshot({ path: path.join(OUT, 'member-login.png') });
   report.loginChecks = {};
-  await page.fill('#loginName', 'Definitely Not A Member');
-  await page.fill('#loginPassword', 'demo');
-  await page.click('#loginBtn');
+  await page.fill('#loginId', 'not-a-real-member@nowhere.com');
+  await page.click('#loginContinueBtn');
   await page.waitForTimeout(300);
-  report.loginChecks.unknownNameRejected = await page.evaluate(() => document.getElementById('view-login').classList.contains('active'));
-  await page.fill('#loginName', 'samer khanji');   // lowercase — matching must be case-insensitive
-  await page.fill('#loginPassword', 'demo');
-  await page.click('#loginBtn');
-  await page.waitForTimeout(400);
-  report.loginChecks.caseInsensitiveLogin = await page.evaluate(() => document.getElementById('view-home').classList.contains('active'));
+  report.loginChecks.unknownIdentifierRejected = await page.evaluate(() => document.getElementById('view-login').classList.contains('active') && !document.getElementById('loginError').hidden);
+  await page.fill('#loginId', '+961701234 56');   // whitespace/formatting variance — matching must be digits-only
+  await page.click('#loginContinueBtn');
+  await page.waitForTimeout(1200);
+  report.loginChecks.phoneMatchIgnoresFormatting = await page.evaluate(() => document.getElementById('view-home').classList.contains('active'));
 
   /* hidden-view reachability: inactive views must be display:none (not SR-exposed) */
   report.hiddenViews = await page.evaluate(() => {
@@ -260,8 +258,8 @@ test('member app A-to-Z audit — inventory + click-sweep', async ({ page, conte
   fs.writeFileSync(path.join(OUT, 'member-report.json'), JSON.stringify(report, null, 2));
 
   expect(report.load.status).toBe(200);
-  expect(report.loginChecks.unknownNameRejected).toBe(true);
-  expect(report.loginChecks.caseInsensitiveLogin).toBe(true);
+  expect(report.loginChecks.unknownIdentifierRejected).toBe(true);
+  expect(report.loginChecks.phoneMatchIgnoresFormatting).toBe(true);
   expect(report.hiddenViews.allHidden).toBe(true);
   expect(totals.error.length).toBe(0);
 });

@@ -225,12 +225,22 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
             <img class="login-hero" src="img/hero-login.svg" alt="" />
             <div class="logo">LU</div>
             <div class="tagline">One membership. Every branch.</div>
-            <input class="input" id="loginName" placeholder="Full name" value="Samer Khanji" autocomplete="off" />
-            <input class="input" id="loginPassword" type="password" placeholder="Password" autocomplete="off" />
-            <div id="loginError" class="dim small center" style="color:var(--red)" hidden></div>
-            <button class="accent-btn" id="loginBtn">Log in</button>
-            <button class="ghost-btn" id="activateBtn">Join Level Up</button>
-            <div class="dim small center">Demo members live in the shared engine — try “Samer Khanji”</div>
+
+            <div id="loginStep1">
+              <input class="input" id="loginId" placeholder="Phone number or email" value="+961 70 123 456" autocomplete="off" inputmode="email" />
+              <div id="loginError" class="dim small center" style="color:var(--red)" hidden></div>
+              <button class="accent-btn" id="loginContinueBtn">Continue</button>
+            </div>
+
+            <div id="loginStep2" class="login-bio" hidden>
+              <div class="faceid-ring"></div>
+              <div class="light" id="loginBioLabel">Confirm it's you</div>
+            </div>
+
+            <div class="login-links">
+              <button class="link-btn" id="activateBtn">Join Level Up</button>
+              <button class="link-btn" id="loginHelpBtn">Need help signing in?</button>
+            </div>
           </div>
         </section>
 

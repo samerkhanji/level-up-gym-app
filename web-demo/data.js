@@ -477,6 +477,16 @@ const DemoData = (() => {
     list: () => load().members.slice(),
     byId: (id) => load().members.find((m) => m.id === id) || null,
     byName: (name) => load().members.find((m) => m.name.trim().toLowerCase() === String(name).trim().toLowerCase()) || null,
+    byIdentifier: (id) => {
+      const raw = String(id).trim().toLowerCase();
+      if (!raw) return null;
+      const digits = raw.replace(/[^\d]/g, '');
+      return load().members.find((m) => {
+        if (m.email && m.email.toLowerCase() === raw) return true;
+        if (digits.length >= 6 && (m.phone || '').replace(/[^\d]/g, '').endsWith(digits)) return true;
+        return false;
+      }) || null;
+    },
     search: (q) => { const s = String(q).toLowerCase(); return load().members.filter((m) => m.name.toLowerCase().includes(s) || (m.phone || '').replace(/\s/g, '').includes(s.replace(/\s/g, '')) || m.id.includes(s)); },
     planFor: (id) => { const m = MemberService.byId(id); return m ? PlanService.byId(m.planId) : null; },
     lastVisit(memberId) {

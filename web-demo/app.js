@@ -213,6 +213,7 @@ function show(view) {
   persistLastView();
   if (RENDERERS[view]) RENDERERS[view]();
   if (view === 'pass') openPass(); else stopPass();
+  if (view === 'login') resetLoginSteps();
   animateCounts(document.getElementById('c-' + view));
 }
 function rerender() {
@@ -1729,6 +1730,8 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   if (a === 'club-seg') { UI.club.seg = el.dataset.seg; persistLastView(); renderClub(); return; }
   if (a === 'modal-close') { closeModal(); return; }
   if (a === 'logout') { setSession(null); UI.pt = null; show('login'); return; }
+  if (a === 'login-help-call') { closeModal(); toast('Reception will call you back shortly'); return; }
+  if (a === 'login-help-email') { closeModal(); toast('A sign-in link would be emailed to you'); return; }
 
   /* branches */
   if (a === 'call-branch') { toast('Calling ' + el.dataset.phone + '…'); return; }
@@ -2162,22 +2165,43 @@ function renderOnboard() {
 
 /* ================= auth & boot ================= */
 
-document.getElementById('loginBtn').onclick = () => {
-  const nameIn = (document.getElementById('loginName').value || '').trim();
-  const passIn = (document.getElementById('loginPassword').value || '').trim();
+function resetLoginSteps() {
+  const s1 = document.getElementById('loginStep1');
+  const s2 = document.getElementById('loginStep2');
+  const errEl = document.getElementById('loginError');
+  if (s1) s1.hidden = false;
+  if (s2) s2.hidden = true;
+  if (errEl) errEl.hidden = true;
+}
+
+document.getElementById('loginContinueBtn').onclick = () => {
+  const idIn = (document.getElementById('loginId').value || '').trim();
   const errEl = document.getElementById('loginError');
   const fail = (msg) => { errEl.textContent = msg; errEl.hidden = false; };
-  const row = D.MemberService.byName(nameIn);
-  if (!row) { fail('No member with that name. Try “Samer Khanji”.'); return; }
-  /* DEMO AUTH — any non-empty password. Real auth is Supabase Auth. */
-  if (!passIn) { fail('Enter any password — this demo does not use real credentials.'); return; }
   errEl.hidden = true;
-  setSession(row.id);
-  UI.gate = null; UI.fuelBranch = null; UI.clsBranch = 'all'; UI.pt = null;
-  show('home');
-  toast('Welcome, ' + row.name.split(' ')[0]);
+  const row = D.MemberService.byIdentifier(idIn);
+  if (!row) { fail('We couldn’t find an account with that phone or email.'); return; }
+
+  document.getElementById('loginStep1').hidden = true;
+  document.getElementById('loginStep2').hidden = false;
+  document.getElementById('loginBioLabel').textContent = `Confirm it's you, ${row.name.split(' ')[0]}`;
+
+  setTimeout(() => {
+    setSession(row.id);
+    UI.gate = null; UI.fuelBranch = null; UI.clsBranch = 'all'; UI.pt = null;
+    show('home');
+    toast('Welcome, ' + row.name.split(' ')[0]);
+  }, 900);
 };
 document.getElementById('activateBtn').onclick = () => { UI.ob = { step: 0, planId: null, branchId: null }; show('onboard'); };
+document.getElementById('loginHelpBtn').onclick = () => {
+  openModal(`
+    <h3>Need help signing in?</h3>
+    <div class="dim small">We can get you sorted quickly.</div>
+    <button class="support-opt" data-action="login-help-call">Call my home branch</button>
+    <button class="support-opt" data-action="login-help-email">Email me a sign-in link</button>
+    <button class="ghost-btn" data-action="modal-close">Close</button>`);
+};
 
 document.getElementById('resetDemo').onclick = () => {
   D.reset('normal-day');
