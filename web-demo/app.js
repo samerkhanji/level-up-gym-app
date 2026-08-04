@@ -12,6 +12,14 @@
 const D = window.DemoData;
 const MEMBER_KEY = 'lu_member';
 
+/* Dev-only harness sidebar (project description, "Reset demo") is opt-in only —
+   never part of the production member experience. Add ?demo=1 to this page's
+   URL to see it while developing. */
+if (new URLSearchParams(location.search).get('demo') === '1') {
+  const note = document.querySelector('.demo-note');
+  if (note) note.classList.add('show-demo');
+}
+
 /* ================= icons ================= */
 
 const PATHS = {
@@ -1556,7 +1564,7 @@ function openPass() {
   const purpose = document.getElementById('passPurpose');
   purpose.textContent = visit ? 'Scan to EXIT · ' + branchName(visit.locationId) : 'Scan to ENTER';
   purpose.classList.toggle('exit', !!visit);
-  document.getElementById('gateBtn').textContent = visit ? 'Simulate exit scan' : 'Simulate gate scan';
+  document.getElementById('gateBtn').textContent = visit ? 'Scan to exit' : 'Scan to enter';
   renderGatePicker();
 
   stopPass();

@@ -69,16 +69,20 @@ button { font-family: var(--body); color: inherit; }
   padding: 32px;
 }
 
-.demo-note { max-width: 330px; display: flex; flex-direction: column; gap: 16px; }
+/* Internal-only dev harness — never part of the production member experience.
+   Hidden by default at every viewport width; opt in with ?demo=1 on this page's URL. */
+.demo-note { display: none; max-width: 330px; flex-direction: column; gap: 16px; }
+.demo-note.show-demo { display: flex; }
 .demo-note h1 {
   font-family: var(--display);
   font-size: 27px; font-weight: 800; line-height: 1.12;
-  color: var(--green-deep); letter-spacing: -0.3px;
+  color: var(--ink); letter-spacing: -0.3px;
 }
 .demo-note p, .demo-note li { color: var(--muted); font-size: 14.5px; }
 .demo-note ul { padding-left: 18px; display: flex; flex-direction: column; gap: 7px; }
 .demo-note b { color: var(--ink); }
 .side-controls { display: flex; flex-direction: column; gap: 8px; }
+body:has(.demo-note:not(.show-demo)) .stage { justify-content: center; }
 
 /* ---------- phone frame ---------- */
 .phone {
