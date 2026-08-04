@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<!-- INTERNAL-ONLY DEMO BUILD. Never deploy this folder to a public production domain.
+     Loads shared app logic from ../web-demo/ and keeps its own styles.css (pre-hardening,
+     with phone-bezel + demo panel). See internal-demo/README.md. -->
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+<title>Level Up — Member App</title>
+<meta name="theme-color" content="#0b0d0f" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Level Up" />
+<link rel="manifest" href="../web-demo/manifest.webmanifest" />
+<link rel="icon" href="../web-demo/icon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ---- Level Up OS member-app additions (page-local; styles.css is shared) ---- */
+
+/* five tabs — still slightly tighter than the base styles.css tab bar */
+.tabbar { padding: 7px; }
+.tabbar .tab { font-size: 10.5px; padding: 7px 0 5px; gap: 2px; }
+.tabbar .tab svg { width: 20px; height: 20px; }
+
+/* central Scan to Enter action — docked inline in the tab bar, raised above the row */
+.tabbar { align-items: flex-end; }
+.scan-fab {
+  flex: 0 0 auto; margin: 0 4px -14px; z-index: 21;
+  width: 56px; height: 56px; border-radius: 50%; border: 4px solid var(--paper);
+  background: var(--green); color: var(--green-deep); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 6px 20px rgba(200, 255, 50, 0.28); transition: transform 0.15s ease;
+}
+.scan-fab svg { width: 23px; height: 23px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.scan-fab:active { transform: scale(0.93); }
+.scan-fab.hidden { display: none; }
+
+/* new tab containers get the same stagger the legacy ones have in styles.css */
+#c-book, #c-club {
+  display: flex; flex-direction: column; gap: 13px;
+}
+#c-book > *, #c-club > * {
+  animation: rise 0.38s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+}
+#c-book > *:nth-child(2), #c-club > *:nth-child(2) { animation-delay: 0.05s; }
+#c-book > *:nth-child(3), #c-club > *:nth-child(3) { animation-delay: 0.1s; }
+#c-book > *:nth-child(4), #c-club > *:nth-child(4) { animation-delay: 0.15s; }
+#c-book > *:nth-child(n+5), #c-club > *:nth-child(n+5) { animation-delay: 0.2s; }
+
+.login-hero { width: 100%; max-height: 150px; object-fit: cover; border-radius: 18px; margin-bottom: 4px; }
+
+/* digital membership card */
+.lu-card {
+  background:
+    radial-gradient(160px 160px at 90% -30%, rgba(200,255,50,0.10) 0%, transparent 70%),
+    linear-gradient(150deg, #15191c 0%, #000000 70%);
+  color: var(--ink); border-radius: var(--r-lg); padding: 18px;
+  display: flex; flex-direction: column; gap: 13px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-float); flex-shrink: 0;
+}
+.lu-card .lc-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.lu-card .lc-brand { font-family: var(--display); font-weight: 800; font-size: 13px; letter-spacing: 3px; color: var(--green); }
+.lu-card .lc-name { font-family: var(--display); font-size: 21px; font-weight: 800; letter-spacing: -0.3px; }
+.lu-card .lc-plan { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.lu-card .lc-grid { display: flex; gap: 16px; flex-wrap: wrap; }
+.lu-card .lc-cell b { display: block; font-size: 12.5px; font-weight: 700; }
+.lu-card .lc-cell span { font-size: 10px; color: var(--faint); text-transform: uppercase; letter-spacing: 0.9px; }
+.lu-chip { border-radius: 999px; padding: 4px 11px; font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.16); white-space: nowrap; }
+.lu-chip.bad { background: rgba(239,68,68,0.45); }
+.lu-chip.frz { background: rgba(245,158,11,0.45); }
+
+/* branch chip — appears on every class / session card so branches can't be confused */
+.chip-branch {
+  display: inline-flex; align-items: center; gap: 5px;
+  border: 1.5px solid var(--line); background: var(--card);
+  border-radius: 999px; padding: 2.5px 9px; font-size: 11px; font-weight: 700; color: var(--ink);
+}
+.chip-branch .dotc { width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+.chip-branch.tbc { color: var(--muted); border-style: dashed; }
+
+/* occupancy bar */
+.occ-track { height: 7px; border-radius: 4px; background: var(--tint); overflow: hidden; flex: 1; }
+.occ-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--green-bright), var(--green)); transition: width 0.7s cubic-bezier(0.2, 0.7, 0.3, 1); }
+.occ-fill.mid { background: linear-gradient(90deg, #c8952c, var(--amber)); }
+.occ-fill.hot { background: linear-gradient(90deg, #d5654f, var(--red)); }
+
+.bimg { width: 100%; height: 108px; object-fit: cover; border-radius: 14px; display: block; background: var(--tint); }
+.class-thumb { width: 62px; height: 62px; border-radius: 14px; object-fit: cover; flex-shrink: 0; background: var(--tint); }
+.svc-thumb { width: 52px; height: 52px; border-radius: 13px; object-fit: cover; flex-shrink: 0; background: var(--tint); }
+
+.zone-strip { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.zone-strip::-webkit-scrollbar { display: none; }
+.zone-cell { flex-shrink: 0; width: 74px; display: flex; flex-direction: column; gap: 4px; align-items: center; text-align: center; }
+.zone-cell img { width: 74px; height: 52px; object-fit: cover; border-radius: 10px; background: var(--tint); }
+.zone-cell span { font-size: 9.5px; color: var(--muted); line-height: 1.25; }
+
+/* slot / option chips used by PT booking, gate picker, filters */
+.slot {
+  border: 1.5px solid var(--line); background: var(--card); cursor: pointer;
+  border-radius: 11px; padding: 7px 12px; font-size: 12.5px; font-weight: 700; color: var(--ink);
+}
+.slot.sel { background: var(--green-deep); border-color: var(--green-deep); color: #fff; }
+.slot:disabled { opacity: 0.35; cursor: default; }
+.slot-row { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.gate-picker { display: flex; gap: 7px; flex-wrap: wrap; justify-content: center; }
+.token-line { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 10.5px; color: var(--muted); letter-spacing: 0.4px; }
+
+.warn-banner {
+  background: var(--amber-soft); border-radius: var(--r-md); padding: 12px 14px;
+  display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: var(--ink); flex-shrink: 0;
+}
+.warn-banner .ic { color: var(--amber); flex-shrink: 0; margin-top: 1px; }
+.warn-banner b { display: block; }
+.err-line { color: var(--red); font-size: 13px; font-weight: 600; line-height: 1.45; }
+
+details.more-stub {
+  background: var(--card); border-radius: var(--r-md); padding: 13px 15px;
+  font-size: 13.5px; color: var(--muted); box-shadow: var(--shadow); flex-shrink: 0; line-height: 1.5;
+}
+details.more-stub summary { font-weight: 700; color: var(--ink); cursor: pointer; }
+details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-direction: column; gap: 5px; }
+
+/* ---- Train tab: workout tracking (Today / Workouts / Logger / History / My Trainer) ---- */
+
+.mchip {
+  display: inline-block; background: var(--tint); color: var(--muted);
+  border-radius: 8px; padding: 2px 8px; font-size: 10.5px; font-weight: 600;
+  margin: 0 4px 4px 0;
+}
+
+/* rest timer */
+.rest-wrap { background: var(--card); border-radius: var(--r-md); padding: 13px 14px; box-shadow: var(--shadow); flex-shrink: 0; }
+.rest-wrap.idle .rest-track { opacity: 0.4; }
+.rest-info { font-weight: 700; font-size: 13.5px; margin-bottom: 7px; }
+.rest-track { height: 7px; border-radius: 4px; background: var(--tint); overflow: hidden; }
+.rest-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--green-bright), var(--green)); transition: width 1s linear; }
+
+/* per-set logging table */
+.set-table { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.set-row { background: var(--tint); border-radius: 13px; padding: 10px 11px; display: flex; flex-direction: column; gap: 8px; }
+.set-row.done { background: var(--mint); }
+.set-row-top { display: flex; align-items: center; gap: 8px; }
+.set-type {
+  border: 1.5px solid var(--line); background: var(--card); border-radius: 9px;
+  padding: 6px 5px; font-size: 11px; font-weight: 700; width: 62px; flex-shrink: 0; font-family: var(--body);
+}
+.set-meta { flex: 1; font-size: 11.5px; color: var(--muted); }
+.set-log {
+  background: var(--green); color: var(--green-deep); border: none; border-radius: 10px;
+  padding: 8px 13px; font-size: 12.5px; font-weight: 700; cursor: pointer; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center; min-width: 40px;
+}
+.set-log.done { background: var(--mint); color: var(--green-deep); }
+.set-row-bottom { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.wt-group { display: flex; align-items: center; gap: 4px; }
+.wt-adj {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 8px;
+  width: 30px; height: 30px; font-size: 10.5px; font-weight: 700; cursor: pointer; flex-shrink: 0; color: var(--ink);
+}
+.set-inp { border: 1.5px solid var(--line); background: var(--card); border-radius: 9px; padding: 6px 6px; font-size: 13px; font-family: var(--body); text-align: center; color: var(--ink); }
+.set-wt { width: 58px; }
+.set-reps { width: 50px; }
+.set-rpe { width: 52px; appearance: auto; }
+
+/* finish-workout celebration — same pop/glow feel as the gate-entry success screen */
+.finish-cele {
+  position: absolute; inset: 0; z-index: 90; background: rgba(11, 13, 15, 0.98);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 13px;
+  padding: 28px; text-align: center;
+}
+.fc-big { font-size: 58px; position: relative; animation: fcPop 0.55s cubic-bezier(0.2, 0.8, 0.3, 1.4) both; }
+.fc-big::before {
+  content: ''; position: absolute; inset: -32px; z-index: -1; border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 100, 8, 0.25), transparent 70%);
+  filter: blur(8px); opacity: 0; animation: fcGlow 0.9s ease 0.05s both;
+}
+@keyframes fcPop { 0% { transform: scale(0.4); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes fcGlow { 0% { opacity: 0; } 40% { opacity: 1; } 100% { opacity: 0; } }
+.fc-title { font-family: var(--display); font-size: 24px; font-weight: 800; }
+.fc-sub { color: var(--muted); font-size: 14.5px; }
+.fc-stats { display: flex; gap: 20px; margin: 4px 0; }
+.fc-stat { display: flex; flex-direction: column; align-items: center; }
+.fc-stat b { font-family: var(--display); font-size: 21px; font-weight: 800; }
+.fc-stat span { font-size: 10.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.6px; margin-top: 2px; }
+.finish-prs { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 300px; }
+.finish-pr-chip {
+  background: var(--amber-soft); color: var(--amber); font-weight: 800; font-size: 13.5px;
+  border-radius: 12px; padding: 10px 14px; display: flex; align-items: center; gap: 8px; justify-content: center;
+  animation: fcChip 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.3) both;
+}
+.finish-prs .finish-pr-chip:nth-child(2) { animation-delay: 0.08s; }
+.finish-prs .finish-pr-chip:nth-child(3) { animation-delay: 0.16s; }
+@keyframes fcChip { 0% { transform: scale(0.7) translateY(6px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .fc-big, .fc-big::before, .finish-pr-chip { animation: none; }
+  .rest-fill { transition: none; }
+}
+</style>
+</head>
+<body>
+  <div class="stage">
+    <div class="demo-note show-demo">
+      <h1>Level Up OS · Member App</h1>
+      <p>The member-facing app of the multi-branch Level Up Beirut platform —
+      Hamra, Badaro, Gemmayzeh (+ Hazmieh, opening to be confirmed). Every number
+      on screen comes from the shared demo engine; staff dashboards see the same
+      events live.</p>
+      <ul>
+        <li><b>Membership</b> — digital card, QR access with real denial reasons, renewal, freeze, guest passes</li>
+        <li><b>Branches</b> — live occupancy per branch, "Hamra is busy — Gemmayzeh is quieter" nudge</li>
+        <li><b>PT</b> — trainers by branch &amp; specialty, Beirut travel-time booking guard, packages &amp; credits</li>
+        <li><b>Classes</b> — capacity, waitlists, cancellation windows, branch-tagged bookings</li>
+        <li><b>Fuel Bar &amp; Retail</b> — per-branch stock, allergen guard from the health record</li>
+        <li><b>Payments</b> — one ledger shared with reception and the owner dashboard</li>
+      </ul>
+      <div class="side-controls">
+        <button class="ghost-btn" id="resetDemo">Reset demo</button>
+      </div>
+    </div>
+
+    <div class="phone">
+      <div class="notch"></div>
+      <div class="screen" id="screen">
+
+        <!-- LOGIN -->
+        <section class="view" id="view-login">
+          <div class="login-wrap">
+            <img class="login-hero" src="../web-demo/img/hero-login.svg" alt="" />
+            <div class="logo"><span class="lg-level">LEVEL</span><span class="lg-up">UP</span></div>
+            <div class="tagline">One membership. Every branch.</div>
+
+            <div id="loginStep1">
+              <input class="input" id="loginId" placeholder="Phone number or email" value="+961 70 123 456" autocomplete="off" inputmode="email" />
+              <div id="loginError" class="dim small center" style="color:var(--red)" hidden></div>
+              <button class="accent-btn" id="loginContinueBtn">Continue</button>
+            </div>
+
+            <div id="loginStep2" class="login-bio" hidden>
+              <div class="faceid-ring"></div>
+              <div class="light" id="loginBioLabel">Confirm it's you</div>
+            </div>
+
+            <div class="login-links">
+              <button class="link-btn" id="activateBtn">Join Level Up</button>
+              <button class="link-btn" id="loginHelpBtn">Need help signing in?</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- JOIN WIZARD -->
+        <section class="view" id="view-onboard"><div id="c-onboard"></div></section>
+
+        <!-- MAIN TABS -->
+        <section class="view" id="view-home"><div id="c-home"></div></section>
+        <section class="view" id="view-train"><div id="c-train"></div></section>
+        <section class="view" id="view-book"><div id="c-book"></div></section>
+        <section class="view" id="view-club"><div id="c-club"></div></section>
+        <section class="view" id="view-account"><div id="c-account"></div></section>
+
+        <!-- SUB-VIEWS -->
+        <section class="view" id="view-notifications">
+          <header class="app-header">
+            <button class="back" data-back="home">‹</button>
+            <div class="greeting">Inbox</div><span></span>
+          </header>
+          <div id="c-notifs"></div>
+        </section>
+
+        <!-- ENTRY PASS -->
+        <section class="view" id="view-pass">
+          <div class="pass-wrap" id="passOk">
+            <div class="identity">
+              <div class="avatar" id="passAvatar">S</div>
+              <div>
+                <div class="member-name" id="passName">—</div>
+                <div class="purpose" id="passPurpose">Scan to ENTER</div>
+              </div>
+            </div>
+            <div class="dim small" id="gateLabel">Which gate are you at?</div>
+            <div class="gate-picker" id="gatePicker"></div>
+            <div class="qr-box"><canvas id="qrCanvas" width="220" height="220"></canvas></div>
+            <div class="token-line" id="qrToken">—</div>
+            <div class="refresh">
+              <div class="bar"><div class="fill" id="qrBar"></div></div>
+              <div class="dim small" id="qrSecs">refreshes in 25s</div>
+            </div>
+            <button class="accent-btn" id="gateBtn">Scan to enter</button>
+            <button class="ghost-btn" id="closePass">Close</button>
+          </div>
+          <div class="pass-wrap denied" id="passDenied" hidden>
+            <div class="big">⛔</div>
+            <div class="denied-title">Entry not available</div>
+            <div class="denied-body" id="deniedReason"></div>
+            <button class="accent-btn" id="deniedCta"></button>
+            <button class="ghost-btn" id="closePassDenied">Close</button>
+          </div>
+          <div class="faceid" id="faceid"><div class="faceid-ring"></div><div class="light">Face ID</div></div>
+          <div class="gate-result" id="gateResult" hidden></div>
+        </section>
+
+        <!-- TAB BAR — Scan to Enter is docked inline as the raised center action -->
+        <nav class="tabbar" id="tabbar">
+          <button class="tab active" data-view="home">
+            <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+            Home</button>
+          <button class="tab" data-view="train">
+            <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>
+            Train</button>
+          <button class="scan-fab" id="scanFab" data-action="open-pass" aria-label="Scan to enter">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg>
+          </button>
+          <button class="tab" data-view="book">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg>
+            Book</button>
+          <button class="tab" data-view="club">
+            <svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
+            Club</button>
+          <button class="tab" data-view="account">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.5-3.5 4-5 7.5-5s6 1.5 7.5 5"/></svg>
+            Account</button>
+        </nav>
+      </div>
+    </div>
+  </div>
+<script src="../web-demo/bus.js"></script>
+<script src="../web-demo/data.js"></script>
+<script src="../web-demo/app.js"></script>
+</body>
+</html>
