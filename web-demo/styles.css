@@ -5,26 +5,26 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* surfaces */
+  /* surfaces — 3-step elevation ladder: paper < tint < card */
   --paper: #0b0d0f;      /* Level Black — page background */
-  --card: #16191d;       /* elevated dark surface */
+  --tint: #131619;       /* Muted Background — recessed surface (inputs, icon chips) */
+  --card: #1b1f23;       /* Concrete — cards and secondary dark surfaces */
   --ink: #f5f6f2;        /* Level White — primary text */
   --muted: #929aa3;      /* Steel — secondary text */
-  --line: #262b30;       /* subtle border on dark */
-  --tint: #1b1f23;       /* Concrete — secondary surface / icon chip bg */
+  --line: #2a2f34;       /* Border Dark */
 
   /* accent (legacy var names kept — remapped to the new brand roles so every
      existing call site re-themes correctly without a full selector rewrite) */
   --green: #c8ff32;          /* Level Lime — icons, links, progress fill, "ok" text */
   --green-deep: #0b0d0f;     /* Level Black — dark text-on-light-chip, dark gradient stop */
-  --green-bright: #1f242a;   /* Concrete-lit — dark gradient start */
+  --green-bright: #23282d;   /* Concrete-lit — dark gradient start */
   --mint: #dcf77a;       /* soft lime — light enough for dark (--green-deep) text on selected/active chips */
   --lime-press: #b3e62c;     /* pressed/hover state for lime surfaces (keeps dark text readable) */
 
-  --amber: #ffb020;
+  --amber: #f59e0b;      /* Warning Amber */
   --amber-soft: #2b2410;
-  --red: #ff515b;
-  --red-soft: #2b1417;
+  --red: #ef4444;        /* Critical Red */
+  --red-soft: #2a1618;
 
   --display: 'Sora', 'Segoe UI', sans-serif;
   --body: 'Inter', -apple-system, 'Segoe UI', sans-serif;
@@ -399,9 +399,11 @@ button { font-family: var(--body); color: inherit; }
 /* ---------- login ---------- */
 .login-wrap { margin: auto 0; display: flex; flex-direction: column; gap: 13px; padding-bottom: 40px; }
 .logo {
-  color: var(--ink); font-family: var(--display);
-  font-size: 48px; font-weight: 800; letter-spacing: 9px; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  font-family: var(--display); font-weight: 800; text-align: center;
 }
+.logo .lg-level { color: var(--ink); font-size: 27px; letter-spacing: 8px; }
+.logo .lg-up { color: var(--green); font-size: 40px; letter-spacing: 6px; }
 .tagline { color: var(--muted); text-align: center; margin-bottom: 18px; font-size: 15.5px; }
 .input {
   background: var(--card); border: 1.5px solid var(--line); border-radius: 15px;
