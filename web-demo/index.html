@@ -15,21 +15,33 @@
 <style>
 /* ---- Level Up OS member-app additions (page-local; styles.css is shared) ---- */
 
-/* five tabs — still slightly tighter than the base styles.css tab bar */
-.tabbar { padding: 7px; }
-.tabbar .tab { font-size: 10.5px; padding: 7px 0 5px; gap: 2px; }
-.tabbar .tab svg { width: 20px; height: 20px; }
+/* six equal-width nav columns — Home / Train / QR / Book / Club / Account, all
+   contained inside one continuous bar, same baseline, same touch behavior. */
+.tabbar { height: 74px; padding: 8px; align-items: stretch; }
+.tabbar .tab { font-size: 10.5px; padding: 7px 0 5px; gap: 3px; min-height: 44px; }
+.tabbar .tab svg { width: 22px; height: 22px; }
 
-/* central Scan to Enter action — docked inline in the tab bar, raised above the row */
-.tabbar { align-items: flex-end; }
+/* Scan to Enter — a normal nav column like the others, not a floating FAB.
+   Slightly emphasized via a small rounded-square icon background instead of
+   a detached ring/glow, so it reads as "primary action" without looking
+   permanently selected. */
 .scan-fab {
-  flex: 0 0 auto; margin: 0 4px -14px; z-index: 21;
-  width: 56px; height: 56px; border-radius: 50%; border: 4px solid var(--paper);
-  background: var(--green); color: var(--green-deep); display: flex; align-items: center; justify-content: center;
-  cursor: pointer; box-shadow: 0 6px 20px rgba(255, 255, 255, 0.16); transition: transform 0.15s ease;
+  flex: 1; background: none; border: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  padding: 7px 0 5px; border-radius: 19px; min-height: 44px;
+  color: var(--muted); font-size: 10.5px; font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
 }
-.scan-fab svg { width: 23px; height: 23px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-.scan-fab:active { transform: scale(0.93); }
+.scan-fab .qr-ic {
+  flex-shrink: 0; box-sizing: border-box;
+  width: 26px; height: 26px; border-radius: 9px;
+  background: var(--green); color: var(--green-deep);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.12s ease;
+}
+.scan-fab svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.scan-fab:active .qr-ic { transform: scale(0.93); }
+.scan-fab.active { color: var(--green-deep); background: var(--mint); font-weight: 700; }
 .scan-fab.hidden { display: none; }
 
 /* new tab containers get the same stagger the legacy ones have in styles.css */
@@ -277,7 +289,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
           <div class="gate-result" id="gateResult" hidden></div>
         </section>
 
-        <!-- TAB BAR — Scan to Enter is docked inline as the raised center action -->
+        <!-- TAB BAR — Scan to Enter is one equal-width column inside the same bar -->
         <nav class="tabbar" id="tabbar">
           <button class="tab active" data-view="home">
             <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
@@ -286,8 +298,8 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
             <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M3 9.5v5M21 9.5v5M6.5 12h11"/></svg>
             Train</button>
           <button class="scan-fab" id="scanFab" data-action="open-pass" aria-label="Scan to enter">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg>
-          </button>
+            <span class="qr-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg></span>
+            QR</button>
           <button class="tab" data-view="book">
             <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg>
             Book</button>
