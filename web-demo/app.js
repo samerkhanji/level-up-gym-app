@@ -267,11 +267,7 @@ function renderHome() {
         <div class="hero-chev">${icon('chev', 20)}</div>
       </button>`;
   } else {
-    hero = `<button class="enter-card" data-action="open-pass">
-        <div class="hero-qr">${icon('qr', 26)}</div>
-        <div class="hero-text"><div class="t">Enter Gym</div><div class="s">Open your gate pass — any allowed branch</div></div>
-        <div class="hero-chev">${icon('chev', 20)}</div>
-      </button>`;
+    hero = '';
   }
 
   const eligibility = validation.ok
