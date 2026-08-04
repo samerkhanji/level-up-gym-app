@@ -35,6 +35,13 @@ const BANNED = [
   { name: 'old amber #a86408', rgb: [168, 100, 8] },
   { name: 'purple #7c6ce0', rgb: [124, 108, 224] },
   { name: 'purple #4a3fae', rgb: [74, 63, 174] },
+  /* retired brand accent — the app moved from "Level Black/Lime" to
+     "Premium Monochrome" (black/white/grey, no color accent) */
+  { name: 'retired Level Lime #c8ff32', rgb: [200, 255, 50] },
+  { name: 'retired soft-lime #dcf77a', rgb: [220, 247, 122] },
+  { name: 'retired lime-press #b8ef26', rgb: [184, 239, 38] },
+  { name: 'retired lime gradient stop #e0ff7a', rgb: [224, 255, 122] },
+  { name: 'retired lime gradient stop #9fd41f', rgb: [159, 212, 31] },
 ];
 const TOL = 2; // per-channel tolerance — tight, because e.g. old paper #f3f4ef sits within 3 of Level White #f5f6f2
 

@@ -8,28 +8,28 @@
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:#0b0d0f; font-family:'Inter',sans-serif; color:#f5f6f2; min-height:100vh; padding:48px 20px 80px; }
+  body { background:#0b0b0b; font-family:'Inter',sans-serif; color:#f5f5f5; min-height:100vh; padding:48px 20px 80px; }
   .wrap { max-width:860px; margin:0 auto; }
-  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#a7afb5; }
+  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#a3a3a3; }
   h1 { font-family:'Sora',sans-serif; font-weight:800; font-size:32px; margin:8px 0 6px; }
-  .sub { color:#a7afb5; font-size:15px; margin-bottom:28px; }
+  .sub { color:#a3a3a3; font-size:15px; margin-bottom:28px; }
   .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(240px, 1fr)); gap:14px; }
-  a.card { display:block; background:#1b1f23; border:1px solid #2a3035; border-radius:20px; padding:18px 20px; text-decoration:none; color:#f5f6f2;
+  a.card { display:block; background:#222222; border:1px solid rgba(255,255,255,.10); border-radius:20px; padding:18px 20px; text-decoration:none; color:#f5f5f5;
     box-shadow:0 6px 18px rgba(0,0,0,.35); transition:transform .15s ease, box-shadow .15s ease; }
   a.card:hover, a.card:focus-visible { transform:translateY(-3px); box-shadow:0 14px 32px rgba(0,0,0,.45); }
-  a.card:focus-visible { outline:3px solid #c8ff32; outline-offset:2px; }
+  a.card:focus-visible { outline:3px solid #ffffff; outline-offset:2px; }
   .icon { width:38px; height:38px; border-radius:11px; display:grid; place-items:center; font-family:'Sora',sans-serif; font-weight:800; font-size:15px; margin-bottom:10px; }
-  .i-green { background:#c8ff32; color:#0b0d0f; }
-  .i-mint { background:#dcf77a; color:#0b0d0f; }
+  .i-green { background:#ffffff; color:#111111; }
+  .i-mint { background:#f5f5f5; color:#111111; }
   .name { font-family:'Sora',sans-serif; font-weight:800; font-size:16.5px; }
-  .desc { color:#a7afb5; font-size:12.5px; margin-top:3px; }
-  .section { margin:26px 0 12px; font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#a7afb5; }
-  .note { font-size:11.5px; color:#747d84; margin-top:6px; }
-  details { margin-top:28px; background:#1b1f23; border:1px solid #2a3035; border-radius:16px; padding:14px 18px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
-  summary { font-size:13px; font-weight:700; color:#f5f6f2; cursor:pointer; padding:6px 0; margin:-6px 0; }
+  .desc { color:#a3a3a3; font-size:12.5px; margin-top:3px; }
+  .section { margin:26px 0 12px; font-size:12px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:#a3a3a3; }
+  .note { font-size:11.5px; color:#707070; margin-top:6px; }
+  details { margin-top:28px; background:#222222; border:1px solid rgba(255,255,255,.10); border-radius:16px; padding:14px 18px; box-shadow:0 6px 18px rgba(0,0,0,.35); }
+  summary { font-size:13px; font-weight:700; color:#f5f5f5; cursor:pointer; padding:6px 0; margin:-6px 0; }
   details[open] summary { margin-bottom:2px; }
   @keyframes detailsReveal { from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:none} }
-  details p { font-size:12.5px; color:#a7afb5; line-height:1.55; margin-top:8px; animation:detailsReveal .3s ease both; }
+  details p { font-size:12.5px; color:#a3a3a3; line-height:1.55; margin-top:8px; animation:detailsReveal .3s ease both; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; } }
 </style>
 </head>
