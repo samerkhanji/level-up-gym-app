@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <!-- INTERNAL-ONLY DEMO BUILD. Never deploy this folder to a public production domain.
-     Loads shared app logic from ../web-demo/ and keeps its own styles.css (pre-hardening,
-     with phone-bezel + demo panel). See internal-demo/README.md. -->
+     Fully self-contained — its own copies of app.js/data.js/bus.js/img/manifest/icon,
+     so it deploys standalone with Vercel Root Directory = internal-demo and has no
+     runtime dependency on ../web-demo. Keeps its own styles.css (pre-hardening, with
+     phone-bezel + demo panel). See internal-demo/README.md. -->
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
-<title>Level Up — Member App</title>
+<title>Level Up — Member App (Internal Demo)</title>
 <meta name="theme-color" content="#0b0d0f" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content="Level Up" />
-<link rel="manifest" href="../web-demo/manifest.webmanifest" />
-<link rel="icon" href="../web-demo/icon.svg" type="image/svg+xml" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="styles.css" />
 <style>
 /* ---- Level Up OS member-app additions (page-local; styles.css is shared) ---- */
@@ -227,7 +229,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
         <!-- LOGIN -->
         <section class="view" id="view-login">
           <div class="login-wrap">
-            <img class="login-hero" src="../web-demo/img/hero-login.svg" alt="" />
+            <img class="login-hero" src="img/hero-login.svg" alt="" />
             <div class="logo"><span class="lg-level">LEVEL</span><span class="lg-up">UP</span></div>
             <div class="tagline">One membership. Every branch.</div>
 
@@ -324,8 +326,8 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
       </div>
     </div>
   </div>
-<script src="../web-demo/bus.js"></script>
-<script src="../web-demo/data.js"></script>
-<script src="../web-demo/app.js"></script>
+<script src="bus.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
