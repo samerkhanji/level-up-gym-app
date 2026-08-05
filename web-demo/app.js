@@ -140,8 +140,8 @@ function denialText(reason) {
 
 /* ================= routing ================= */
 
-const views = ['login', 'onboard', 'home', 'train', 'book', 'club', 'account', 'notifications', 'pass'];
-const tabViews = ['home', 'train', 'book', 'club', 'account'];
+const views = ['login', 'onboard', 'home', 'train', 'trainer', 'club', 'account', 'notifications', 'pass', 'nutrition'];
+const tabViews = ['home', 'train', 'trainer', 'club', 'account'];
 const tabbar = document.getElementById('tabbar');
 const scanFab = document.getElementById('scanFab');
 
@@ -166,8 +166,8 @@ const UI = {
     showVersions: false,
     qw: { picked: [] },        // quick-workout builder selection
   },
-  book: { seg: 'classes', nutBranch: null, nutHour: null },   // 'classes' | 'pt' | 'nutrition'
-  club: { seg: 'branches' },  // 'branches' | 'fuel'
+  nutrition: { branch: null, hour: null },
+  club: { seg: 'branches' },  // 'branches' | 'fuel' | 'classes'
 };
 
 const REDUCED_MOTION = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -194,13 +194,14 @@ function animateCounts(root) {
 }
 
 const RENDERERS = {
-  home: renderHome, train: renderTrain, book: renderBook, club: renderClub,
+  home: renderHome, train: renderTrain, trainer: renderTrainerTab, club: renderClub,
   account: renderAccount, notifications: renderNotifs, onboard: renderOnboard,
+  nutrition: renderNutrition,
 };
 const LAST_VIEW_KEY = 'levelup_last_view_v1';
 function persistLastView() {
   if (!tabViews.includes(UI.view)) return;
-  try { localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ view: UI.view, book: UI.book.seg, club: UI.club.seg, train: UI.train.seg })); } catch (e) {}
+  try { localStorage.setItem(LAST_VIEW_KEY, JSON.stringify({ view: UI.view, club: UI.club.seg, train: UI.train.seg })); } catch (e) {}
 }
 function show(view) {
   UI.view = view;
@@ -335,7 +336,7 @@ function renderHome() {
   const unconfirmed = D.load().ptSessions.filter((s) => s.memberId === m.id && s.status === 'completed' && !s.memberConfirmed);
   if (unconfirmed.length) alerts.push({ t: 'Confirm your completed PT session', s: 'Review your trainer’s notes in Train → History', a: 'goto-train' });
   D.load().classes.filter((c) => (c.waitlist || []).includes(m.id)).forEach((c) => {
-    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-book' });
+    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-classes' });
   });
   const offlineHome = D.MaintenanceService.offline(m.homeBranchId).length;
   if (offlineHome) alerts.push({ t: `${offlineHome} machine${offlineHome === 1 ? '' : 's'} under maintenance at ${branchName(m.homeBranchId)}`, s: 'Alternatives posted — details in Club', a: 'goto-club' });
@@ -412,13 +413,14 @@ function renderHome() {
 /* ================= BRANCHES ================= */
 
 function clubSegHtml(active) {
-  const segs = [['branches', 'Branches'], ['fuel', 'Fuel Bar']];
+  const segs = [['branches', 'Branches'], ['fuel', 'Fuel Bar'], ['classes', 'Classes']];
   return `<div class="seg">${segs.map(([k, l]) => `<button class="seg-btn${active === k ? ' active' : ''}" data-action="club-seg" data-seg="${k}">${l}</button>`).join('')}</div>`;
 }
 function renderClub() {
   const m = me(); if (!m) { show('login'); return; }
   const seg = UI.club.seg || 'branches';
   if (seg === 'fuel') renderClubFuel();
+  else if (seg === 'classes') renderClubClasses();
   else renderClubBranches();
 }
 
@@ -484,7 +486,7 @@ function renderClubBranches() {
         <div class="btn-row">
           <button class="ghost-btn slim" data-action="call-branch" data-phone="${esc(l.phone)}" style="flex:1">Call</button>
           <button class="ghost-btn slim" data-action="directions" data-addr="${esc(l.address)}" style="flex:1">Directions</button>
-          <button class="accent-btn slim" data-action="goto-book" data-branch="${l.id}" style="flex:1">Classes</button>
+          <button class="accent-btn slim" data-action="goto-classes" data-branch="${l.id}" style="flex:1">Classes</button>
         </div>
       </div>`;
   }).join('');
@@ -989,7 +991,7 @@ function renderTrainMyTrainer() {
         <button class="ghost-btn slim" data-action="pkg-buy" data-total="4" data-price="140" style="flex:1">4 sessions · $140</button>
         <button class="accent-btn slim" data-action="pkg-buy" data-total="10" data-price="300" style="flex:1">10 sessions · $300</button>
       </div>
-      <button class="ghost-btn slim" data-action="goto-book-pt" style="margin-top:8px">Book more sessions</button>
+      <button class="ghost-btn slim" data-action="goto-trainer" style="margin-top:8px">Book more sessions</button>
     </div>
 
     ${upcomingRows ? `<div class="sect-label">Upcoming PT sessions</div>${upcomingRows}` : ''}
@@ -1181,19 +1183,7 @@ function classBookErrorText(err, c) {
   }
 }
 
-function bookSegHtml(active) {
-  const segs = [['classes', 'Classes'], ['pt', 'Personal Training'], ['nutrition', 'Nutrition']];
-  return `<div class="seg">${segs.map(([k, l]) => `<button class="seg-btn${active === k ? ' active' : ''}" data-action="book-seg" data-seg="${k}">${l}</button>`).join('')}</div>`;
-}
-function renderBook() {
-  const m = me(); if (!m) { show('login'); return; }
-  const seg = UI.book.seg || 'classes';
-  if (seg === 'pt') renderBookPT();
-  else if (seg === 'nutrition') renderBookNutrition();
-  else renderBookClasses();
-}
-
-function renderBookClasses() {
+function renderClubClasses() {
   const m = me(); if (!m) { show('login'); return; }
   const all = D.load().classes.slice().sort((a, b) =>
     (a.status === 'scheduled' ? 0 : 1) - (b.status === 'scheduled' ? 0 : 1) || a.startsAt - b.startsAt);
@@ -1237,15 +1227,15 @@ function renderBookClasses() {
     : `<div class="card dim small">No classes at this branch today.
         <button class="ghost-btn" style="margin-top:10px" data-action="cls-branch" data-b="all">See every branch instead</button></div>`);
 
-  document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
-    ${bookSegHtml('classes')}
+  document.getElementById('c-club').innerHTML = `
+    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
+    ${clubSegHtml('classes')}
     <div class="dim small" style="margin-top:-8px">Same class name can run at two branches — the branch tag on each card is the one that counts.</div>
     <div class="slot-row">${filters}</div>
     ${cards}`;
 }
 
-function renderBookPT() {
+function renderTrainerTab() {
   const m = me(); if (!m) { show('login'); return; }
   const program = D.ProgramService.current(m.id);
   const trainerId = (program && program.trainerId) || m.trainerId;
@@ -1288,9 +1278,10 @@ function renderBookPT() {
       </div>`;
   }).join('');
 
-  document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
-    ${bookSegHtml('pt')}
+  const nutConsult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
+
+  document.getElementById('c-trainer').innerHTML = `
+    <header class="app-header"><div class="greeting">Trainer</div>${notifBell()}</header>
     <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
       <div class="dim small">PT credits remaining</div>
       <b>${credits}</b>
@@ -1298,14 +1289,24 @@ function renderBookPT() {
     <button class="ghost-btn slim" data-action="goto-train-trainer">Manage packages in Train → My Trainer</button>
     ${panel}
     <div class="sect-label">Trainers</div>
-    <div class="stack">${trainerCards}</div>`;
+    <div class="stack">${trainerCards}</div>
+    <div class="card">
+      <div class="li">
+        <img class="svc-thumb" src="img/service-nutrition.svg" alt="" />
+        <div class="li-body">
+          <b>Nutrition consult · Rima D.</b>
+          <div class="meta">${nutConsult ? 'Booked — ' + fmtT(nutConsult.startsAt) + ' · ' + esc(branchName(nutConsult.branchId)) : 'Licensed dietitian — covers all branches by appointment'}</div>
+        </div>
+        ${nutConsult ? `<span class="chip chip-ok">Booked</span>` : `<button class="ghost-btn slim" data-action="goto-nutrition">Book</button>`}
+      </div>
+    </div>`;
 }
 
-function renderBookNutrition() {
+function renderNutrition() {
   const m = me(); if (!m) { show('login'); return; }
-  if (!UI.book.nutBranch) UI.book.nutBranch = m.homeBranchId;
+  if (!UI.nutrition.branch) UI.nutrition.branch = m.homeBranchId;
   const consult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
-  const branch = D.BranchService.byId ? D.BranchService.byId(UI.book.nutBranch) : D.BranchService.list().find((l) => l.id === UI.book.nutBranch);
+  const branch = D.BranchService.byId ? D.BranchService.byId(UI.nutrition.branch) : D.BranchService.list().find((l) => l.id === UI.nutrition.branch);
   const openH = branch && branch.opens ? Number(branch.opens.split(':')[0]) : 9;
   const closeH = branch && branch.closes ? Number(branch.closes.split(':')[0]) : 21;
   const hourGrid = [9, 11, 13, 15, 17, 19].filter((h) => h >= openH && h < closeH);
@@ -1314,15 +1315,13 @@ function renderBookNutrition() {
       ${eyebrow('leaf', 'Book a consult · Rima D.')}
       <div class="dim small">Where?</div>
       <div class="slot-row">${D.BranchService.list().filter((l) => !l.unconfirmed).map((l) =>
-        `<button class="slot${UI.book.nutBranch === l.id ? ' sel' : ''}" data-action="nut-branch" data-b="${l.id}">${esc(l.name)}</button>`).join('')}</div>
+        `<button class="slot${UI.nutrition.branch === l.id ? ' sel' : ''}" data-action="nut-branch" data-b="${l.id}">${esc(l.name)}</button>`).join('')}</div>
       <div class="dim small">When?</div>
-      <div class="slot-row">${hourGrid.map((h) => `<button class="slot${UI.book.nutHour === h ? ' sel' : ''}" data-action="nut-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No slots today.</span>'}</div>
-      <button class="accent-btn slim" data-action="consult-book" style="margin-top:10px;${UI.book.nutHour == null ? 'opacity:.45' : ''}" ${UI.book.nutHour == null ? 'disabled' : ''}>Confirm booking</button>
+      <div class="slot-row">${hourGrid.map((h) => `<button class="slot${UI.nutrition.hour === h ? ' sel' : ''}" data-action="nut-hour" data-h="${h}">${fmtT(D.at(h, 0))}</button>`).join('') || '<span class="dim small">No slots today.</span>'}</div>
+      <button class="accent-btn slim" data-action="consult-book" style="margin-top:10px;${UI.nutrition.hour == null ? 'opacity:.45' : ''}" ${UI.nutrition.hour == null ? 'disabled' : ''}>Confirm booking</button>
     </div>`;
 
-  document.getElementById('c-book').innerHTML = `
-    <header class="app-header"><div class="greeting">Book</div>${notifBell()}</header>
-    ${bookSegHtml('nutrition')}
+  document.getElementById('c-nutrition').innerHTML = `
     <div class="card">
       <div class="li">
         <img class="svc-thumb" src="img/service-nutrition.svg" alt="" />
@@ -1706,8 +1705,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     const n = D.NotificationService.forMember(m.id).find((x) => x.id === el.dataset.id);
     if (n) { n.read = true; D.persist(); }
     if (seg) {
-      if (view === 'book') UI.book.seg = seg;
-      else if (view === 'club') UI.club.seg = seg;
+      if (view === 'club') UI.club.seg = seg;
       else if (view === 'train') UI.train.seg = seg;
     }
     show(view);
@@ -1720,9 +1718,10 @@ document.getElementById('screen').addEventListener('click', (ev) => {
   }
   if (a === 'goto-account') { show('account'); return; }
   if (a === 'goto-train') { show('train'); return; }
+  if (a === 'goto-trainer') { show('trainer'); return; }
+  if (a === 'goto-nutrition') { show('nutrition'); return; }
   if (a === 'goto-club') { UI.club.seg = 'branches'; show('club'); return; }
-  if (a === 'goto-book') { if (el.dataset.branch) UI.clsBranch = el.dataset.branch; UI.book.seg = 'classes'; show('book'); return; }
-  if (a === 'book-seg') { UI.book.seg = el.dataset.seg; persistLastView(); renderBook(); return; }
+  if (a === 'goto-classes') { if (el.dataset.branch) UI.clsBranch = el.dataset.branch; UI.club.seg = 'classes'; show('club'); return; }
   if (a === 'club-seg') { UI.club.seg = el.dataset.seg; persistLastView(); renderClub(); return; }
   if (a === 'modal-close') { closeModal(); return; }
   if (a === 'logout') { setSession(null); UI.pt = null; show('login'); return; }
@@ -1758,23 +1757,23 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     return;
   }
 
-  /* PT booking (discovery — lives in Book → Personal Training) */
+  /* PT booking (discovery — lives in the Trainer tab) */
   if (a === 'pt-open') {
     const t = D.TrainerService.byId(el.dataset.t);
     UI.pt = { trainerId: t.id, branchId: (t.worksAt || [t.locationId])[0], hour: null, err: null };
-    renderBook();
+    renderTrainerTab();
     return;
   }
-  if (a === 'pt-branch') { UI.pt.branchId = el.dataset.b; UI.pt.hour = null; UI.pt.err = null; renderBook(); return; }
-  if (a === 'pt-hour') { UI.pt.hour = Number(el.dataset.h); UI.pt.err = null; renderBook(); return; }
-  if (a === 'pt-close') { UI.pt = null; renderBook(); return; }
+  if (a === 'pt-branch') { UI.pt.branchId = el.dataset.b; UI.pt.hour = null; UI.pt.err = null; renderTrainerTab(); return; }
+  if (a === 'pt-hour') { UI.pt.hour = Number(el.dataset.h); UI.pt.err = null; renderTrainerTab(); return; }
+  if (a === 'pt-close') { UI.pt = null; renderTrainerTab(); return; }
   if (a === 'pt-confirm') {
     if (!UI.pt || UI.pt.hour == null) return;
     const t = D.TrainerService.byId(UI.pt.trainerId);
     const res = D.TrainerService.book({ memberId: m.id, trainerId: UI.pt.trainerId, branchId: UI.pt.branchId, startsAt: D.at(UI.pt.hour, 0), actorId: m.id });
-    if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderBook(); return; }
+    if (res.error) { UI.pt.err = ptErrorText(res, t, UI.pt.branchId, UI.pt.hour); renderTrainerTab(); return; }
     pushNotif('PT booked', `${t.name} · ${branchName(res.branchId)} · ${fmtT(res.startsAt)}. Your trainer sees it instantly.`, { label: 'View in Train', view: 'train', seg: 'trainer' }, 'booking');
-    UI.pt = null; renderBook();
+    UI.pt = null; renderTrainerTab();
     toast('Session booked with ' + t.name);
     return;
   }
@@ -1821,22 +1820,22 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     return;
   }
 
-  /* nutrition */
-  if (a === 'nut-branch') { UI.book.nutBranch = el.dataset.b; UI.book.nutHour = null; renderBook(); return; }
-  if (a === 'nut-hour') { UI.book.nutHour = Number(el.dataset.h); renderBook(); return; }
+  /* nutrition (standalone page, reached from the Trainer tab) */
+  if (a === 'nut-branch') { UI.nutrition.branch = el.dataset.b; UI.nutrition.hour = null; renderNutrition(); return; }
+  if (a === 'nut-hour') { UI.nutrition.hour = Number(el.dataset.h); renderNutrition(); return; }
   if (a === 'consult-book') {
-    if (UI.book.nutHour == null) return;
-    const branchId = UI.book.nutBranch || m.homeBranchId;
-    const startsAt = D.at(UI.book.nutHour, 0);
+    if (UI.nutrition.hour == null) return;
+    const branchId = UI.nutrition.branch || m.homeBranchId;
+    const startsAt = D.at(UI.nutrition.hour, 0);
     D.NutritionService.book({ memberId: m.id, staffId: 'stf_nu_rima', branchId, startsAt, kind: 'consultation' });
     pushNotif('Nutrition consult booked', 'Rima D. · ' + fmtT(startsAt) + ' · ' + branchName(branchId), null, 'booking');
     toast('Consult booked with Rima D.');
-    UI.book.nutHour = null;
-    renderBook();
+    UI.nutrition.hour = null;
+    renderNutrition();
     return;
   }
 
-  /* Book → Train handoff */
+  /* Trainer tab → Train handoff (manage existing packages/history) */
   if (a === 'goto-train-trainer') { UI.train.seg = 'trainer'; show('train'); return; }
 
   /* renew membership */
@@ -2014,16 +2013,16 @@ document.getElementById('screen').addEventListener('click', (ev) => {
     return;
   }
 
-  /* classes */
-  if (a === 'cls-branch') { UI.clsBranch = el.dataset.b; UI.clsErr = null; renderBookClasses(); return; }
+  /* classes (Club → Classes) */
+  if (a === 'cls-branch') { UI.clsBranch = el.dataset.b; UI.clsErr = null; renderClubClasses(); return; }
   if (a === 'cls-book') {
     const c = D.BookingService.classById(el.dataset.c);
     const res = D.BookingService.bookClass(m.id, el.dataset.c);
     UI.clsErr = null;
     if (res.error) UI.clsErr = { id: el.dataset.c, msg: classBookErrorText(res.error, c) };
-    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`, { label: 'View my classes', view: 'book', seg: 'classes' }, 'booking'); }
-    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`, { label: 'View my classes', view: 'book', seg: 'classes' }, 'booking'); }
-    renderBookClasses();
+    else if (res.waitlisted) { toast(`Class full — you’re #${res.position} on the waitlist`); pushNotif('Waitlisted', `${c.name} (${branchName(c.locationId)}) — position ${res.position}. We’ll bump you in automatically.`, { label: 'View my classes', view: 'club', seg: 'classes' }, 'booking'); }
+    else { toast('Booked · ' + c.name + ' at ' + branchName(c.locationId)); pushNotif('Class booked', `${c.name} · ${branchName(c.locationId)} · ${fmtT(c.startsAt)}`, { label: 'View my classes', view: 'club', seg: 'classes' }, 'booking'); }
+    renderClubClasses();
     return;
   }
   if (a === 'cls-cancel') {
@@ -2033,7 +2032,7 @@ document.getElementById('screen').addEventListener('click', (ev) => {
       UI.clsErr = { id: el.dataset.c, msg: `Past the cancellation window (closed ${fmtT(c.startsAt - (c.cancelDeadlineMins || 0) * 60000)}). Reception can override with a reason.` };
     } else if (res.error) UI.clsErr = { id: el.dataset.c, msg: 'Could not cancel: ' + res.error };
     else { UI.clsErr = null; toast('Booking cancelled — spot released'); }
-    renderBookClasses();
+    renderClubClasses();
     return;
   }
 
@@ -2222,7 +2221,6 @@ if (me()) {
   let lastView = null;
   try { lastView = JSON.parse(localStorage.getItem(LAST_VIEW_KEY) || 'null'); } catch (e) {}
   if (lastView && tabViews.includes(lastView.view)) {
-    if (lastView.book) UI.book.seg = lastView.book;
     if (lastView.club) UI.club.seg = lastView.club;
     if (lastView.train) UI.train.seg = lastView.train;
     show(lastView.view);

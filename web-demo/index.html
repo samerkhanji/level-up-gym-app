@@ -45,16 +45,16 @@
 .scan-fab.hidden { display: none; }
 
 /* new tab containers get the same stagger the legacy ones have in styles.css */
-#c-book, #c-club {
+#c-trainer, #c-club, #c-nutrition {
   display: flex; flex-direction: column; gap: 13px;
 }
-#c-book > *, #c-club > * {
+#c-trainer > *, #c-club > *, #c-nutrition > * {
   animation: rise 0.38s cubic-bezier(0.2, 0.7, 0.3, 1) both;
 }
-#c-book > *:nth-child(2), #c-club > *:nth-child(2) { animation-delay: 0.05s; }
-#c-book > *:nth-child(3), #c-club > *:nth-child(3) { animation-delay: 0.1s; }
-#c-book > *:nth-child(4), #c-club > *:nth-child(4) { animation-delay: 0.15s; }
-#c-book > *:nth-child(n+5), #c-club > *:nth-child(n+5) { animation-delay: 0.2s; }
+#c-trainer > *:nth-child(2), #c-club > *:nth-child(2), #c-nutrition > *:nth-child(2) { animation-delay: 0.05s; }
+#c-trainer > *:nth-child(3), #c-club > *:nth-child(3), #c-nutrition > *:nth-child(3) { animation-delay: 0.1s; }
+#c-trainer > *:nth-child(4), #c-club > *:nth-child(4), #c-nutrition > *:nth-child(4) { animation-delay: 0.15s; }
+#c-trainer > *:nth-child(n+5), #c-club > *:nth-child(n+5), #c-nutrition > *:nth-child(n+5) { animation-delay: 0.2s; }
 
 .login-hero { width: 100%; max-height: 150px; object-fit: cover; border-radius: 18px; margin-bottom: 4px; }
 
@@ -244,7 +244,7 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
         <!-- MAIN TABS -->
         <section class="view" id="view-home"><div id="c-home"></div></section>
         <section class="view" id="view-train"><div id="c-train"></div></section>
-        <section class="view" id="view-book"><div id="c-book"></div></section>
+        <section class="view" id="view-trainer"><div id="c-trainer"></div></section>
         <section class="view" id="view-club"><div id="c-club"></div></section>
         <section class="view" id="view-account"><div id="c-account"></div></section>
 
@@ -255,6 +255,15 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
             <div class="greeting">Inbox</div><span></span>
           </header>
           <div id="c-notifs"></div>
+        </section>
+
+        <!-- NUTRITION — standalone page, reached from the Trainer tab -->
+        <section class="view" id="view-nutrition">
+          <header class="app-header">
+            <button class="back" data-back="trainer">‹</button>
+            <div class="greeting">Nutrition</div><span></span>
+          </header>
+          <div id="c-nutrition"></div>
         </section>
 
         <!-- ENTRY PASS -->
@@ -300,9 +309,9 @@ details.more-stub ul { padding-left: 17px; margin-top: 7px; display: flex; flex-
           <button class="scan-fab" id="scanFab" data-action="open-pass" aria-label="Scan to enter">
             <span class="qr-ic"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM19 14h2v2h-2zM14 19h2v2h-2zM19 19h2v2h-2z"/></svg></span>
             QR</button>
-          <button class="tab" data-view="book">
-            <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2.5"/><path d="M16 2.5v4M8 2.5v4M3 10h18"/></svg>
-            Book</button>
+          <button class="tab" data-view="trainer">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="7.5" r="3.2"/><path d="M5 20c1.4-3.6 4-5.3 7-5.3s5.6 1.7 7 5.3"/><path d="M18.7 4.3l.8 1.7 1.8.3-1.3 1.3.3 1.8-1.6-.9-1.6.9.3-1.8-1.3-1.3 1.8-.3z"/></svg>
+            Trainer</button>
           <button class="tab" data-view="club">
             <svg viewBox="0 0 24 24"><path d="M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>
             Club</button>

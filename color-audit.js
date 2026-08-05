@@ -83,7 +83,7 @@ function bannedName(rgb) {
         await page.click('#loginContinueBtn').catch(() => {});
         await page.waitForTimeout(1300);
       }
-      for (const v of ['home', 'train', 'book', 'club', 'account']) {
+      for (const v of ['home', 'train', 'trainer', 'club', 'account', 'nutrition']) {
         await page.evaluate((view) => { if (typeof show === 'function') show(view); }, v);
         await page.waitForTimeout(350);
         const found = await collect(page, `index.html#${v}`);

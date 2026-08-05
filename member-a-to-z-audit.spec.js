@@ -5,15 +5,16 @@
  *   1. The original inventory-first click-sweep (boot/login checks, hidden-view
  *      reachability, per-tab control discovery + click, responsive viewports).
  *      Unmodified in intent from the prior pass — still current for the
- *      Home/Train/Book/Club/Account nav.
+ *      Home/Train/Trainer/Club/Account nav (Nutrition is a standalone page,
+ *      reached from the Trainer tab, not a main tab).
  *   2. A full rewrite of the "targeted outcome machines" that used to manipulate
  *      a deleted `gym_demo_state_v3` flat shape (locker fields, a "recovery
  *      booking" feature that was descoped, flat checkedIn/frozen/booking
  *      fields). Every machine below drives the REAL current engine
  *      (`window.DemoData`, persisted under `levelup_demo_db_v4`) through the
  *      REAL UI where possible, plus new coverage for the 10-reason access-denial
- *      matrix, Book/Club/Home/renewal/notification-CTA e2e flows, and Inbox
- *      lifecycle depth (categories, delete, dedup, deep links, badge).
+ *      matrix, Club(Classes)/Trainer/Nutrition/Home/renewal/notification-CTA e2e
+ *      flows, and Inbox lifecycle depth (categories, delete, dedup, deep links, badge).
  *
  * Each `test()` in @playwright/test gets its own fresh browser context by
  * default, so every test below starts from a clean, freshly-seeded engine —
@@ -28,7 +29,7 @@ const fs = require('fs');
 const path = require('path');
 
 const OUT = path.join(__dirname, 'audit-reports', 'phase-1-2-2b');
-const TABS = ['home', 'train', 'book', 'club', 'account'];
+const TABS = ['home', 'train', 'trainer', 'club', 'account'];
 
 async function freeze(page) {
   await page.evaluate(() => {
@@ -110,7 +111,7 @@ test('member app A-to-Z audit — inventory + click-sweep', async ({ page, conte
   /* hidden-view reachability: inactive views must be display:none (not SR-exposed) */
   report.hiddenViews = await page.evaluate(() => {
     const out = {};
-    ['view-train', 'view-book', 'view-club', 'view-pass', 'view-notifications'].forEach((id) => {
+    ['view-train', 'view-trainer', 'view-club', 'view-pass', 'view-notifications', 'view-nutrition'].forEach((id) => {
       out[id] = getComputedStyle(document.getElementById(id)).display;
     });
     return { displays: out, allHidden: Object.values(out).every((d) => d === 'none') };
@@ -583,13 +584,15 @@ test('access-denial: unknown_branch (engine-only — no real gate picker ever of
 });
 
 /* ================================================================
- * SECTION 4 — Book / Club / Home / notification-CTA e2e
+ * SECTION 4 — Trainer / Nutrition / Club / Home / notification-CTA e2e
  * ================================================================ */
 
-test('Book → Classes: book a class via the real UI', async ({ page }) => {
+test('Club → Classes: book a class via the real UI', async ({ page }) => {
   test.setTimeout(60000);
   await login(page);
-  await page.locator('.tab[data-view="book"]').click();
+  await page.locator('.tab[data-view="club"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('[data-action="club-seg"][data-seg="classes"]').click();
   await page.waitForTimeout(200);
   const bookBtn = page.locator('[data-action="cls-book"]').first();
   await bookBtn.click({ timeout: 5000 });
@@ -601,12 +604,10 @@ test('Book → Classes: book a class via the real UI', async ({ page }) => {
   expect(engineBookings).toBeGreaterThanOrEqual(1);
 });
 
-test('Book → Personal Training: book a session via the real UI', async ({ page }) => {
+test('Trainer tab: book a PT session via the real UI', async ({ page }) => {
   test.setTimeout(60000);
   await login(page);
-  await page.locator('.tab[data-view="book"]').click();
-  await page.waitForTimeout(200);
-  await page.locator('[data-action="book-seg"][data-seg="pt"]').click();
+  await page.locator('.tab[data-view="trainer"]').click();
   await page.waitForTimeout(200);
   await page.locator('[data-action="pt-open"]').first().click();
   await page.waitForTimeout(200);
@@ -623,11 +624,11 @@ test('Book → Personal Training: book a session via the real UI', async ({ page
   }
 });
 
-test('Book → Nutrition: book a consult via the real UI', async ({ page }) => {
+test('Nutrition (standalone page): book a consult via the real UI', async ({ page }) => {
   test.setTimeout(60000);
   await login(page);
   // mbr_0001 has a pre-existing scheduled consult in the base seed data
-  // (ncs_0001) — renderBookNutrition() hides the branch/hour picker entirely
+  // (ncs_0001) — renderNutrition() hides the branch/hour picker entirely
   // whenever a scheduled consult already exists, so clear it first to reach
   // the real booking picker.
   await page.evaluate(() => {
@@ -636,10 +637,11 @@ test('Book → Nutrition: book a consult via the real UI', async ({ page }) => {
     d.consults = d.consults.filter((c) => c.memberId !== 'mbr_0001');
     D.persist();
   });
-  await page.locator('.tab[data-view="book"]').click();
+  await page.locator('.tab[data-view="trainer"]').click();
   await page.waitForTimeout(200);
-  await page.locator('[data-action="book-seg"][data-seg="nutrition"]').click();
+  await page.locator('[data-action="goto-nutrition"]').click();
   await page.waitForTimeout(200);
+  expect(await page.evaluate(() => document.getElementById('view-nutrition').classList.contains('active'))).toBe(true);
   await page.locator('[data-action="nut-branch"]').first().click();
   await page.waitForTimeout(150);
   await page.locator('[data-action="nut-hour"]').first().click();
@@ -691,7 +693,9 @@ test('Home cards reflect real engine numbers', async ({ page }) => {
 test('notification CTA navigates correctly and survives a reload (deep link persistence)', async ({ page }) => {
   test.setTimeout(60000);
   await login(page);
-  await page.locator('.tab[data-view="book"]').click();
+  await page.locator('.tab[data-view="club"]').click();
+  await page.waitForTimeout(200);
+  await page.locator('[data-action="club-seg"][data-seg="classes"]').click();
   await page.waitForTimeout(200);
   const bookBtn = page.locator('[data-action="cls-book"]').first();
   await bookBtn.click({ timeout: 5000 });
@@ -701,16 +705,16 @@ test('notification CTA navigates correctly and survives a reload (deep link pers
   await page.waitForTimeout(200);
   await page.locator('#view-home .bell').click();
   await page.waitForTimeout(300);
-  const ctaBtn = page.locator('[data-action="notif-cta"][data-view="book"]').first();
+  const ctaBtn = page.locator('[data-action="notif-cta"][data-view="club"]').first();
   await ctaBtn.click({ timeout: 5000 });
   await page.waitForTimeout(200);
-  expect(await page.locator('.tab.active').getAttribute('data-view')).toBe('book');
-  const activeSeg = await page.locator('#view-book .seg-btn.active').textContent();
+  expect(await page.locator('.tab.active').getAttribute('data-view')).toBe('club');
+  const activeSeg = await page.locator('#view-club .seg-btn.active').textContent();
   expect(activeSeg).toContain('Classes');
 
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForTimeout(500);
-  expect(await page.locator('.tab.active').getAttribute('data-view')).toBe('book');
+  expect(await page.locator('.tab.active').getAttribute('data-view')).toBe('club');
 });
 
 /* ================================================================
