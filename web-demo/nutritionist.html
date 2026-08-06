@@ -7,153 +7,263 @@
 <link rel="icon" href="icon.svg" type="image/svg+xml" />
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  :root { --paper:#0b0b0b; --tint:#171717; --card:#222222; --ink:#f5f5f5; --muted:#a3a3a3; --faint:#707070;
+  :root {
+    --paper:#0b0b0b; --tint:#171717; --card:#222222; --ink:#f5f5f5; --muted:#a3a3a3; --faint:#707070;
     --line:rgba(255,255,255,.10); --green:#ffffff; --deep:#050505; --mint:#f5f5f5; --mint-ink:#111111;
     --amber:#f59e0b; --amber-soft:#2b2410; --red:#ef4444; --red-soft:#2a1618;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
-    --display:'Sora',sans-serif; --body:'Inter',sans-serif; }
+    --display:'Sora',sans-serif; --body:'Inter',sans-serif;
+
+    /* ---------- v2 token layer: surface elevation, 8pt spacing, type scale,
+       motion — extends the palette above rather than replacing it. Mirrors the
+       tokens the rest of the staff suite ships, reauthored here so this page
+       stays fully self-contained. ---------- */
+    --surf-card:var(--card); --surf-elevated:#282828; --surf-sunken:var(--paper);
+
+    --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-7:32px; --sp-8:40px;
+    --r-xs:10px; --r-sm:14px; --r-md:18px; --r-lg:22px; --r-pill:999px;
+
+    --fs-title:20px; --fs-heading:16px; --fs-subheading:14.5px; --fs-body:13.5px;
+    --fs-support:12.5px; --fs-label:11px; --fs-caption:10.5px; --fs-stat:22px;
+
+    --ease-standard:cubic-bezier(.2,.7,.3,1); --ease-spring:cubic-bezier(.34,1.56,.64,1);
+    --dur-1:100ms; --dur-2:170ms; --dur-3:260ms;
+
+    --shadow-card:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
+    --shadow-raised:0 4px 12px rgba(0,0,0,.35);
+    --shadow-xs:0 1px 2px rgba(0,0,0,.22);
+  }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
-    padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
-  .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
+  body {
+    background:
+      radial-gradient(1100px 700px at 84% -10%, rgba(255,255,255,.035) 0%, transparent 55%),
+      radial-gradient(700px 500px at 2% 100%, rgba(255,255,255,.026) 0%, transparent 55%),
+      var(--paper);
+    font-family:var(--body); color:var(--ink); min-height:100vh; font-size:14px;
+    padding:24px 28px 60px; display:flex; justify-content:center;
+  }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; color:inherit; }
+  a { color:inherit; }
+
+  /* ---------- motion: press feedback + hover + disabled, applied broadly so
+     every clickable control gets a finished state. ---------- */
+  button { transition:transform var(--dur-2) var(--ease-spring), filter var(--dur-2) var(--ease-standard),
+    background-color var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard),
+    box-shadow var(--dur-2) var(--ease-standard), opacity var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard); }
+  button:active:not(:disabled) { transform:scale(.96); }
+  button:disabled { opacity:.42; cursor:not-allowed; box-shadow:none; }
+  input.txt, textarea.txt, select.txt { transition:border-color var(--dur-2) var(--ease-standard), background var(--dur-2) var(--ease-standard); }
+  input.txt:focus, textarea.txt:focus, select.txt:focus { border-color:rgba(255,255,255,.4); outline:none; }
+  :focus-visible { outline:2px solid var(--ink); outline-offset:2px; border-radius:8px; }
+  @media (prefers-reduced-motion: reduce) { button:active:not(:disabled) { transform:none; } }
+
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; box-shadow:var(--shadow); animation:rise .3s ease both; }
-  .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  .head { display:flex; align-items:center; gap:12px; }
-  .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
+  @keyframes spin { to{transform:rotate(360deg)} }
+  @keyframes flashOk { 0%{background:var(--mint); color:var(--mint-ink)} 100%{background:transparent; color:inherit} }
+
+  .page { width:100%; max-width:1320px; display:flex; flex-direction:column; gap:var(--sp-4); }
+
+  .navrow { display:flex; gap:8px; flex-wrap:wrap; font-size:12.5px; }
+  .navrow a { color:var(--muted); font-weight:700; text-decoration:none; background:var(--surf-card); border:1px solid var(--line);
+    border-radius:var(--r-pill); padding:7px 14px; box-shadow:var(--shadow-xs); transition:background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard); }
+  .navrow a:hover { background:var(--tint); color:var(--ink); }
+
+  .card { background:var(--surf-card); border:1px solid var(--line); border-radius:var(--r-lg); padding:var(--sp-5);
+    box-shadow:var(--shadow-card); animation:rise .3s var(--ease-standard) both; }
+  .eyebrow { font-size:var(--fs-label); font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:var(--sp-2); }
+  .col-title { font-size:var(--fs-label); font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--muted);
+    display:flex; align-items:center; gap:10px; margin:0 2px; }
+  .col-title::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
+
+  /* ---------- hero: identity + scope of service, side by side on desktop ---------- */
+  .hero { display:flex; gap:var(--sp-6); align-items:flex-start; flex-wrap:wrap; }
+  .hero-id { display:flex; align-items:center; gap:12px; flex:1 1 230px; min-width:0; }
+  .hero-id-text { min-width:0; }
+  .avatar { width:46px; height:46px; border-radius:50%; background:var(--deep); color:var(--mint);
     display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
   .avatar.sm { width:32px; height:32px; font-size:12px; background:var(--mint); color:var(--deep); }
-  .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
-  .t-sub { font-size:12px; color:var(--muted); }
-  .scopenote { font-size:12.5px; color:var(--ink); line-height:1.5; background:var(--paper); border-radius:12px; padding:10px 12px; }
-  .tiers { display:flex; flex-direction:column; gap:6px; margin-top:9px; }
-  .tier { display:flex; flex-direction:column; border-radius:12px; padding:8px 11px; background:var(--paper); }
+  .t-name { font-family:var(--display); font-weight:800; font-size:var(--fs-title); letter-spacing:-.2px; }
+  .t-sub { font-size:var(--fs-support); color:var(--muted); margin-top:1px; }
+  .hero-scope { flex:2 1 300px; min-width:0; }
+  /* below this, tiers stack to one column (small min-content, no squeeze risk);
+     above it, hero-scope needs enough room for a 3-up tier row or it wraps to
+     its own full-width line rather than being crushed by hero-id next to it */
+  @media (min-width:761px) { .hero-scope { min-width:470px; } }
+  .scopenote { font-size:var(--fs-support); color:var(--ink); line-height:1.55; }
+  .tiers { display:grid; grid-template-columns:repeat(3, minmax(150px,1fr)); gap:8px; margin-top:11px; }
+  @media (max-width:760px) { .tiers { grid-template-columns:1fr; } }
+  .tier { display:flex; flex-direction:column; gap:2px; border-radius:var(--r-xs); padding:9px 12px; background:var(--surf-sunken); border:1px solid transparent; }
   .tier b { font-size:12px; }
-  .tier span { font-size:12px; color:var(--muted); }
+  .tier span { font-size:11.5px; color:var(--muted); line-height:1.4; }
   .tier.on { background:var(--mint); }
   .tier.on b, .tier.on span { color:var(--mint-ink); }
-  .tier.refer { background:var(--amber-soft); }
+  .tier.refer { background:var(--amber-soft); border-color:rgba(245,158,11,.25); }
   .tier.refer b { color:var(--amber); }
+
+  /* ---------- main two-column dashboard grid ---------- */
+  .grid { display:grid; grid-template-columns:400px 1fr; gap:var(--sp-4); align-items:start; }
+  @media (max-width:980px) { .grid { grid-template-columns:1fr; } }
+  .col { display:flex; flex-direction:column; gap:var(--sp-4); min-width:0; }
+
+  /* ---------- schedule ---------- */
   .sess { display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .sess:last-child { border-bottom:none; }
-  .sess-time { width:74px; font-weight:800; font-family:var(--display); font-size:12.5px; flex-shrink:0; line-height:1.25; }
+  .sess-time { width:74px; font-weight:800; font-family:var(--display); font-size:12.5px; flex-shrink:0; line-height:1.25; font-variant-numeric:tabular-nums; }
   .sess-body { flex:1; min-width:140px; }
   .sess-n { font-weight:700; font-size:14px; }
   .sess-s { font-size:12px; color:var(--muted); }
-  .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; flex-shrink:0; white-space:nowrap; }
-  .st-sched { background:var(--paper); color:var(--muted); }
+  .st { font-size:10px; font-weight:800; padding:4px 9px; border-radius:var(--r-pill); flex-shrink:0; white-space:nowrap; }
+  .st-sched { background:var(--surf-sunken); color:var(--muted); }
   .st-ok { background:var(--mint); color:var(--mint-ink); }
-  .bchip { display:inline-block; font-size:10px; font-weight:800; border-radius:999px; padding:3px 8px; background:var(--mint); color:var(--mint-ink); }
-  .mini-btn { font-size:11px; font-weight:800; color:var(--green); flex-shrink:0; padding:10px 8px; min-height:40px; }
-  .primary { background:var(--green); color:var(--mint-ink); border-radius:14px; padding:13px; font-weight:800; font-size:14px; width:100%; box-shadow:0 6px 18px rgba(255,255,255,.14); }
-  .ghosty { background:var(--tint); border:1px solid var(--line); color:var(--ink) !important; border-radius:14px; padding:11px; font-weight:600; font-size:13px; width:100%; }
+  .bchip { display:inline-block; font-size:10px; font-weight:800; border-radius:var(--r-pill); padding:3px 8px; background:var(--mint); color:var(--mint-ink); }
+  .mini-btn { font-size:11px; font-weight:800; color:var(--green); flex-shrink:0; padding:10px 8px; min-height:40px; border-radius:9px; }
+  .mini-btn:hover:not(:disabled) { background:var(--tint); }
+  .empty-state { color:var(--faint); font-size:13px; padding:10px 0; line-height:1.5; }
+
+  .primary { background:var(--green); color:var(--mint-ink); border-radius:var(--r-xs); padding:13px; font-weight:800; font-size:14px;
+    width:100%; box-shadow:0 6px 18px rgba(255,255,255,.14); display:flex; align-items:center; justify-content:center; gap:8px; }
+  .primary:hover:not(:disabled) { filter:brightness(.93); }
+  .primary:disabled { box-shadow:none; }
+  .ghosty { background:var(--tint); border:1px solid var(--line); color:var(--ink) !important; border-radius:var(--r-xs);
+    padding:11px; font-weight:600; font-size:13px; width:100%; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .ghosty:hover:not(:disabled) { background:#1e1e1e; border-color:rgba(255,255,255,.22); }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:11.5px; font-weight:700;
-    border-radius:999px; padding:5px 11px; margin:2px 4px 2px 0; }
+    border-radius:var(--r-pill); padding:5px 11px; margin:2px 4px 2px 0; }
   .hist { font-size:12.5px; padding:7px 0; border-bottom:1px solid var(--line); }
   .hist:last-child { border-bottom:none; }
   .hist b { font-size:12.5px; } .hist span { color:var(--muted); }
+
+  /* ---------- book form ---------- */
+  input.txt, textarea.txt, select.txt { width:100%; border:1.5px solid var(--line); border-radius:var(--r-xs); padding:10px 12px;
+    font-size:13.5px; font-family:var(--body); margin-top:6px; background:var(--tint); color:var(--ink); }
+  input.txt::placeholder, textarea.txt::placeholder { color:var(--faint); }
+  .formrow { display:flex; gap:8px; }
+  .formrow > * { flex:1; min-width:0; }
+  .warnbox { background:var(--amber-soft); border-radius:var(--r-xs); padding:10px 12px; font-size:12.5px; color:var(--amber); margin-top:8px; animation:rise .25s var(--ease-standard) both; }
+  .warnbox b { display:block; margin-bottom:4px; }
+
+  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--line); color:var(--ink);
+    font-size:13px; font-weight:600; border-radius:var(--r-pill); padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; box-shadow:var(--shadow-xs); }
+  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
+  .hidden { display:none !important; }
+
+  /* ---------- clients ---------- */
   .client { display:flex; gap:11px; padding:11px 0; border-bottom:1px solid var(--line); align-items:center; }
   .client:last-child { border-bottom:none; }
   .cl-b { flex:1; min-width:0; }
   .cl-n { font-weight:800; font-size:14.5px; font-family:var(--display); }
   .cl-s { font-size:12px; color:var(--muted); margin-top:1px; }
-  input.txt, textarea.txt, select.txt { width:100%; border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13.5px; font-family:var(--body); margin-top:6px; background:var(--tint); color:var(--ink); }
-  input.txt::placeholder, textarea.txt::placeholder { color:var(--faint); }
-  .formrow { display:flex; gap:8px; }
-  .formrow > * { flex:1; min-width:0; }
-  .warnbox { background:var(--amber-soft); border-radius:12px; padding:10px 12px; font-size:12.5px; color:var(--amber); margin-top:8px; animation:rise .25s ease both; }
-  .warnbox b { display:block; margin-bottom:4px; }
-  .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--line); color:var(--ink);
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:90; animation:toastA 2.8s ease forwards; max-width:92vw; }
-  @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
-  .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
-  .navrow a { color:var(--muted); font-weight:700; text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(0,0,0,.25); }
-  .hidden { display:none !important; }
-  .vchip { display:inline-block; font-size:10px; font-weight:800; border-radius:999px; padding:4px 10px; margin:4px 4px 0 0; background:var(--paper); color:var(--muted); }
+  .privacy-note { font-size:11px; color:var(--faint); margin-top:10px; line-height:1.5; }
+
+  /* ---------- supplement guidance ---------- */
+  .supp { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line); }
+  .supp:last-child { border-bottom:none; }
+  .supp img { width:38px; height:38px; border-radius:9px; background:var(--surf-sunken); flex-shrink:0; }
+  .supp b { font-size:13px; display:block; font-variant-numeric:tabular-nums; }
+  .supp span { font-size:12px; color:var(--muted); }
+
+  /* ---------- client detail (full width when open) ---------- */
+  #clientCard { animation:rise .32s var(--ease-standard) both; }
+  .cc-head { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+  .cc-block { margin-top:var(--sp-4); }
+  .cc-block:first-of-type { margin-top:var(--sp-3); }
+  .vchip { display:inline-block; font-size:10px; font-weight:800; border-radius:var(--r-pill); padding:4px 10px; margin:4px 4px 0 0; background:var(--surf-sunken); color:var(--muted); }
   .vchip.on { background:var(--mint); color:var(--mint-ink); }
   .bc-row { display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:1px solid var(--line); font-size:12.5px; }
   .bc-row:last-child { border-bottom:none; }
   .bc-l { width:82px; font-weight:700; flex-shrink:0; }
-  .bc-v { width:96px; flex-shrink:0; } .bc-v b { font-family:var(--display); font-weight:800; font-size:15.5px; }
+  .bc-v { width:96px; flex-shrink:0; font-variant-numeric:tabular-nums; } .bc-v b { font-family:var(--display); font-weight:800; font-size:15.5px; }
   .bc-d { font-size:11px; font-weight:800; }
   .bc-d.down { color:var(--green); } .bc-d.up { color:var(--amber); }
-  .supp { display:flex; gap:10px; align-items:flex-start; padding:9px 0; border-bottom:1px solid var(--line); }
-  .supp:last-child { border-bottom:none; }
-  .supp img { width:38px; height:38px; border-radius:9px; background:var(--paper); flex-shrink:0; }
-  .supp b { font-size:13px; display:block; }
-  .supp span { font-size:12px; color:var(--muted); }
-  .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:14px 2px -4px; }
-  .sect-label::after { content:''; flex:1; height:1px; background:rgba(255,255,255,.08); }
-  .wrap > * { animation:rise .38s cubic-bezier(.2,.7,.3,1) both; }
-  .wrap > *:nth-child(2) { animation-delay:.05s; }
-  .wrap > *:nth-child(3) { animation-delay:.1s; }
-  .wrap > *:nth-child(4) { animation-delay:.15s; }
-  @media (prefers-reduced-motion: reduce) { .wrap > *, .card, .warnbox { animation:none; } }
+
+  .sect-fine { font-size:11px; color:var(--faint); margin-top:8px; line-height:1.5; }
+  .foot-note { background:transparent; box-shadow:none; padding:4px var(--sp-2); border:none; }
+  .foot-note div { font-size:11.5px; color:var(--faint); line-height:1.55; }
+  .foot-note a { color:var(--green); font-weight:700; }
+
+  /* ---------- loading / success micro-states ---------- */
+  .spin-dot { width:13px; height:13px; border-radius:50%; border:2px solid currentColor; border-top-color:transparent;
+    animation:spin .65s linear infinite; flex-shrink:0; opacity:.85; }
+  .flash-ok { animation:flashOk .9s var(--ease-standard) both; border-radius:var(--r-xs); }
+
+  @media (max-width:640px) {
+    body { padding:16px 12px 44px; }
+    .card { padding:14px; }
+    .hero { gap:14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { .card, .warnbox, #clientCard, .spin-dot { animation:none; } }
 </style>
 </head>
 <body>
-<div class="wrap">
+<div class="page">
   <nav class="navrow"><a href="staff.html">← All departments</a><a href="reception.html">Reception</a><a href="trainer.html">Trainer</a><a href="cafe.html">Fuel Bar</a><a href="index.html">Member app</a></nav>
 
-  <div class="card head">
-    <div class="avatar">RD</div>
-    <div><div class="t-name">Rima D. — Nutrition</div><div class="t-sub">Licensed dietitian · based Hamra · covers all branches by appointment</div></div>
-  </div>
-
-  <div class="card">
-    <div class="eyebrow">Scope of service</div>
-    <div class="scopenote">Qualified nutrition consultation — <b>not</b> medical nutrition therapy. Trainer nutrition guidance is separate and non-clinical.</div>
-    <div class="tiers">
-      <div class="tier"><b>Trainer guidance</b><span>General, non-clinical tips inside training sessions — no plans, no prescriptions.</span></div>
-      <div class="tier on"><b>Nutrition consultation — this service</b><span>Consultations, body-composition tracking and meal-plan files by a licensed dietitian.</span></div>
-      <div class="tier refer"><b>Medical nutrition therapy</b><span>Diagnosis-led care is referred out — beyond gym scope.</span></div>
+  <div class="card hero">
+    <div class="hero-id">
+      <div class="avatar">RD</div>
+      <div class="hero-id-text"><div class="t-name">Rima D. — Nutrition</div><div class="t-sub">Licensed dietitian · based Hamra · covers all branches by appointment</div></div>
+    </div>
+    <div class="hero-scope">
+      <div class="eyebrow">Scope of service</div>
+      <div class="scopenote">Qualified nutrition consultation — <b>not</b> medical nutrition therapy. Trainer nutrition guidance is separate and non-clinical.</div>
+      <div class="tiers">
+        <div class="tier"><b>Trainer guidance</b><span>General, non-clinical tips inside training sessions — no plans, no prescriptions.</span></div>
+        <div class="tier on"><b>Nutrition consultation — this service</b><span>Consultations, body-composition tracking and meal-plan files by a licensed dietitian.</span></div>
+        <div class="tier refer"><b>Medical nutrition therapy</b><span>Diagnosis-led care is referred out — beyond gym scope.</span></div>
+      </div>
     </div>
   </div>
 
-  <div class="sect-label">Schedule</div>
-  <div class="card">
-    <div class="eyebrow">Consultations &amp; follow-ups</div>
-    <div id="schedule"></div>
-  </div>
+  <div class="grid">
+    <div class="col">
+      <div class="col-title">Schedule</div>
+      <div class="card">
+        <div class="eyebrow">Consultations &amp; follow-ups</div>
+        <div id="schedule"></div>
+      </div>
 
-  <div class="card" id="bookCard">
-    <div class="eyebrow">Book a consult</div>
-    <div class="formrow">
-      <select class="txt" id="bkMember" aria-label="Member"></select>
-      <select class="txt" id="bkBranch" aria-label="Branch"></select>
+      <div class="card" id="bookCard">
+        <div class="eyebrow">Book a consult</div>
+        <div class="formrow">
+          <select class="txt" id="bkMember" aria-label="Member"></select>
+          <select class="txt" id="bkBranch" aria-label="Branch"></select>
+        </div>
+        <div class="formrow">
+          <input class="txt" id="bkTime" type="time" value="17:00" aria-label="Time today" />
+          <select class="txt" id="bkKind" aria-label="Kind">
+            <option value="consultation">Consultation</option>
+            <option value="follow_up">Follow-up</option>
+          </select>
+        </div>
+        <button class="primary" id="bkGo" style="margin-top:9px;">Book for today</button>
+      </div>
     </div>
-    <div class="formrow">
-      <input class="txt" id="bkTime" type="time" value="17:00" aria-label="Time today" />
-      <select class="txt" id="bkKind" aria-label="Kind">
-        <option value="consultation">Consultation</option>
-        <option value="follow_up">Follow-up</option>
-      </select>
-    </div>
-    <button class="primary" id="bkGo" style="margin-top:9px;">Book for today</button>
-  </div>
 
-  <div class="sect-label">Clients</div>
-  <div class="card">
-    <div class="eyebrow">Client view</div>
-    <input class="txt" id="clientSearch" placeholder="Search any member — name, phone, ID…" autocomplete="off" style="margin-top:0;" />
-    <div id="clientList"></div>
-    <div style="font-size:11px; color:var(--faint); margin-top:10px;">🔒 One shared health record per member; access is role-scoped and audit-logged.</div>
+    <div class="col">
+      <div class="col-title">Clients</div>
+      <div class="card">
+        <div class="eyebrow">Client view</div>
+        <input class="txt" id="clientSearch" placeholder="Search any member — name, phone, ID…" autocomplete="off" style="margin-top:0;" />
+        <div id="clientList"></div>
+        <div class="privacy-note">🔒 One shared health record per member; access is role-scoped and audit-logged.</div>
+      </div>
+
+      <div class="card">
+        <div class="eyebrow">Supplement guidance — display only</div>
+        <div id="suppList"></div>
+        <div class="scopenote" style="margin-top:10px;">Recommendations stay within retail supplements sold at the Fuel Bar; anything clinical is referred out.</div>
+      </div>
+    </div>
   </div>
 
   <div class="card hidden" id="clientCard"></div>
 
-  <div class="card">
-    <div class="eyebrow">Supplement guidance — display only</div>
-    <div id="suppList"></div>
-    <div class="scopenote" style="margin-top:10px;">Recommendations stay within retail supplements sold at the Fuel Bar; anything clinical is referred out.</div>
-  </div>
-
-  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
-    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+  <div class="card foot-note">
+    <div>
       Lightweight consultation service — Level Up's scope unless an employed nutrition team is confirmed.
       Bookings, body-comp records and meal-plan files live in the shared engine, so reception and the
-      <a href="index.html" style="color:var(--green); font-weight:700;">member app</a> see the same state.
+      <a href="index.html">member app</a> see the same state. Goals are a scratch note kept in this browser only —
+      not yet part of the shared engine.
     </div>
   </div>
 </div>
@@ -175,6 +285,21 @@ const kindLabel = (k) => (k === 'follow_up' ? 'Follow-up' : 'Consultation');
 function fmtWhen(ms) {
   const t = D.fmtTime(ms);
   return D.isToday(ms) ? 'Today\n' + t : new Date(ms).toLocaleDateString([], { month: 'short', day: 'numeric' }) + '\n' + t;
+}
+
+/* brief, non-blocking "working…" state on a button that stays in the DOM
+   across the call (e.g. the static Book button); buttons that get replaced
+   by a re-render (schedule rows, client-card actions) don't need restoring —
+   the fresh markup already reflects the settled state. */
+function withLoading(btn, run, label) {
+  if (!btn) { run(); return; }
+  const orig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin-dot" aria-hidden="true"></span><span>' + (label || 'Working…') + '</span>';
+  setTimeout(() => {
+    run();
+    if (document.body.contains(btn)) { btn.disabled = false; btn.innerHTML = orig; }
+  }, 190);
 }
 
 /* ---------------- schedule: NutritionService.consults ---------------- */
@@ -205,17 +330,19 @@ function renderSchedule() {
         </div>` : ''}
     </div>`;
   $('schedule').innerHTML =
-    (sched.map(row).join('') || '<div style="color:var(--faint); font-size:13px; padding:6px 0;">Nothing scheduled — book below; member-app bookings land here too.</div>')
+    (sched.map(row).join('') || '<div class="empty-state">Nothing scheduled — book below; member-app bookings land here too.</div>')
     + (done.length ? `<div class="eyebrow" style="margin:12px 0 0;">Recently completed</div>` + done.map(row).join('') : '');
   document.querySelectorAll('#schedule [data-copen]').forEach((b) => { b.onclick = () => openClient(b.dataset.copen); });
   document.querySelectorAll('#schedule [data-done]').forEach((b) => { b.onclick = () => { completeOpen = b.dataset.done; renderSchedule(); $('cnotes') && $('cnotes').focus(); }; });
   document.querySelectorAll('#schedule [data-canceldone]').forEach((b) => { b.onclick = () => { completeOpen = null; renderSchedule(); }; });
   document.querySelectorAll('#schedule [data-savedone]').forEach((b) => { b.onclick = () => {
     const notes = ($('cnotes').value || '').trim();
-    const r = D.NutritionService.complete(b.dataset.savedone, RIMA, notes);
-    if (r && r.error) { toast('Could not complete: ' + r.error); return; }
-    completeOpen = null; renderSchedule(); renderClients();
-    toast('Consult completed' + (notes ? ' — notes saved' : ''));
+    withLoading(b, () => {
+      const r = D.NutritionService.complete(b.dataset.savedone, RIMA, notes);
+      if (r && r.error) { toast('Could not complete: ' + r.error); return; }
+      completeOpen = null; renderSchedule(); renderClients();
+      toast('Consult completed' + (notes ? ' — notes saved' : ''));
+    }, 'Saving…');
   }; });
 }
 
@@ -229,10 +356,12 @@ $('bkGo').onclick = () => {
   if (isNaN(h)) { toast('Pick a time'); return; }
   const startsAt = D.at(h, mi || 0);
   if (startsAt < D.now() - 5 * 60000) { toast('That time has already passed today'); return; }
-  const c = D.NutritionService.book({ memberId: $('bkMember').value, staffId: RIMA, branchId: $('bkBranch').value, startsAt, kind: $('bkKind').value });
-  if (c && c.error) { toast('Could not book: ' + c.error); return; }
-  renderSchedule();
-  toast(memberName(c.memberId).split(' ')[0] + ' · ' + kindLabel(c.kind) + ' booked — ' + branchName(c.branchId) + ' at ' + D.fmtTime(startsAt));
+  withLoading($('bkGo'), () => {
+    const c = D.NutritionService.book({ memberId: $('bkMember').value, staffId: RIMA, branchId: $('bkBranch').value, startsAt, kind: $('bkKind').value });
+    if (c && c.error) { toast('Could not book: ' + c.error); return; }
+    renderSchedule();
+    toast(memberName(c.memberId).split(' ')[0] + ' · ' + kindLabel(c.kind) + ' booked — ' + branchName(c.branchId) + ' at ' + D.fmtTime(startsAt));
+  }, 'Booking…');
 };
 
 /* ---------------- clients ---------------- */
@@ -260,7 +389,9 @@ function renderClients() {
       </div>
       <button class="mini-btn" data-copen="${m.id}">Open ›</button>
     </div>`;
-  }).join('') || '<div style="color:var(--faint); font-size:13px; padding:8px 0;">No matches — check the spelling, or clear the search to see existing nutrition clients below.</div>';
+  }).join('') || (q
+    ? '<div class="empty-state">No matches — check the spelling, or clear the search to see existing nutrition clients below.</div>'
+    : '<div class="empty-state">No nutrition clients yet — book a consult, or search any member above to open their record.</div>');
   document.querySelectorAll('#clientList [data-copen]').forEach((b) => { b.onclick = () => openClient(b.dataset.copen); });
 }
 $('clientSearch').oninput = () => renderClients();
@@ -296,73 +427,94 @@ function openClient(id) {
   const inside = D.AccessService.insideNow().some((v) => v.memberId === id);
   $('clientCard').classList.remove('hidden');
   $('clientCard').innerHTML = `
-    <div style="display:flex; justify-content:space-between; align-items:center;">
+    <div class="cc-head">
       <div class="eyebrow" style="margin:0;">Client — ${m.name} · <span class="bchip">${branchName(m.homeBranchId)}</span>${inside ? ' · <span style="color:var(--green); font-weight:800;">in the gym now</span>' : ''}</div>
       <button class="mini-btn" id="ccClose">Close ✕</button></div>
 
-    <div style="margin-top:9px;"><div class="eyebrow">Health record — full view</div>
+    <div class="cc-block"><div class="eyebrow">Health record — full view</div>
       ${allergies.map((a) => `<span class="flag">⚠ ${a.label} allergy · ${a.severity}</span>`).join('') || '<span class="vchip on">No declared allergies</span>'}
       ${other.map((f) => `<div class="hist"><b>${f.kind}</b> · ${f.label}<br><span>${f.source.replace(/_/g, ' ')} · ${f.recordedAt}${f.note ? ' · ' + f.note : ''}</span></div>`).join('')}
-      <div style="font-size:11px; color:var(--faint); margin-top:5px;">The nutritionist sees the complete record by design — trainers, instructors and the Fuel Bar each get narrower, role-scoped slices.</div>
+      <div class="sect-fine">The nutritionist sees the complete record by design — trainers, instructors and the Fuel Bar each get narrower, role-scoped slices.</div>
       ${conditions.length ? `<div class="warnbox"><b>Refer out — beyond gym scope</b>
         ${conditions.map((c) => `${c.label} <span style="font-weight:600;">(${c.source.replace(/_/g, ' ')} · ${c.recordedAt})</span>`).join('<br>')}
         <div style="margin-top:5px; font-weight:600;">Condition facts are stored and visible here, but this service is non-clinical — refer to the member's physician; no protocols are offered.</div></div>` : ''}
     </div>
 
-    <div style="margin-top:12px;"><div class="eyebrow">Body composition</div>
+    <div class="cc-block"><div class="eyebrow">Body composition</div>
       ${bc.length ? `
         ${trendRow('Weight', 'kg', bc.map((b) => b.weightKg))}
         ${trendRow('Body fat', '%', bc.map((b) => b.bodyFatPct))}
         ${trendRow('Muscle', 'kg', bc.map((b) => b.muscleKg))}
-        <div style="font-size:11px; color:var(--faint); margin-top:5px;">${bc.map((b) => b.at).join(' → ')}</div>`
-        : '<div style="font-size:12.5px; color:var(--faint);">No records yet.</div>'}
+        <div class="sect-fine">${bc.map((b) => b.at).join(' → ')}</div>`
+        : '<div class="empty-state" style="padding:4px 0;">No records yet — take a first measurement below to start a trend.</div>'}
       <div class="formrow" style="margin-top:4px;">
         <input class="txt" id="bcW" type="number" step="0.1" placeholder="Weight kg" aria-label="Weight kg" />
         <input class="txt" id="bcF" type="number" step="0.1" placeholder="Body fat %" aria-label="Body fat percent" />
         <input class="txt" id="bcM" type="number" step="0.1" placeholder="Muscle kg" aria-label="Muscle kg" />
       </div>
-      <button class="ghosty" id="bcSave" style="margin-top:7px; color:var(--deep); font-weight:800;">Record body comp</button>
+      <button class="ghosty" id="bcSave" style="margin-top:7px; color:var(--deep); font-weight:800;" disabled>Record body comp</button>
     </div>
 
-    <div style="margin-top:12px;"><div class="eyebrow">Goals</div>
+    <div class="cc-block"><div class="eyebrow">Goals <span style="text-transform:none; font-weight:600; letter-spacing:0; color:var(--faint);">— local note, not yet in the shared engine</span></div>
       <textarea class="txt" id="goalTxt" rows="2" placeholder="Free-text goal — e.g. 80 kg lean by October, protein 1.8 g/kg">${goals[id] || ''}</textarea>
       <button class="ghosty" id="goalSave" style="margin-top:7px;">Save goal</button>
     </div>
 
-    <div style="margin-top:12px;"><div class="eyebrow">Meal plans — uploaded files</div>
-      ${plans.map((p) => `<div class="hist"><b>${p.filename}</b><br><span>uploaded ${p.uploadedAt} · Rima D.</span></div>`).join('') || '<div style="font-size:12.5px; color:var(--faint);">No files yet.</div>'}
-      <div class="formrow" style="align-items:center;">
+    <div class="cc-block"><div class="eyebrow">Meal plans — uploaded files</div>
+      ${plans.map((p) => `<div class="hist"><b>${p.filename}</b><br><span>uploaded ${p.uploadedAt} · Rima D.</span></div>`).join('') || '<div class="empty-state" style="padding:4px 0;">No files yet — upload one below.</div>'}
+      <div class="formrow" style="align-items:flex-start;">
         <input class="txt" id="mpName" placeholder="filename-to-upload.pdf" />
-        <button class="ghosty" id="mpUp" style="flex:0 0 auto; width:auto; padding:10px 14px; margin-top:6px; color:var(--deep); font-weight:800;">Upload</button>
+        <button class="ghosty" id="mpUp" style="flex:0 0 auto; width:auto; padding:10px 14px; margin-top:6px; color:var(--deep); font-weight:800;" disabled>Upload</button>
       </div>
-      <div style="font-size:11px; color:var(--faint); margin-top:4px;">Mock uploader — filename only in the demo; the real build stores the file.</div>
+      <div class="sect-fine">Mock uploader — filename only in the demo; the real build stores the file.</div>
     </div>
 
     <button class="primary" id="ccFollow" style="margin-top:12px;">Book follow-up for ${m.name.split(' ')[0]}</button>`;
   $('ccClose').onclick = () => { $('clientCard').classList.add('hidden'); clientOpen = null; };
+
+  /* body comp: disabled until all three fields are filled — range/sanity
+     errors still surface as a toast on click, once there's something to check */
+  const syncBcBtn = () => { $('bcSave').disabled = !($('bcW').value && $('bcF').value && $('bcM').value); };
+  ['bcW', 'bcF', 'bcM'].forEach((fid) => $(fid).addEventListener('input', syncBcBtn));
   $('bcSave').onclick = () => {
     const w = parseFloat($('bcW').value), f = parseFloat($('bcF').value), mu = parseFloat($('bcM').value);
     if (isNaN(w) || isNaN(f) || isNaN(mu)) { toast('Fill weight, body fat and muscle first'); return; }
     if (w <= 0 || w > 400 || f <= 0 || f >= 80 || mu <= 0 || mu > 150) { toast('Those numbers look off — double-check'); return; }
     const prev = bc[bc.length - 1];   /* most recent existing record, for a small win note */
-    D.NutritionService.recordBodyComp({ memberId: id, weightKg: w, bodyFatPct: f, muscleKg: mu, staffId: RIMA });
-    openClient(id); renderClients();
-    let win = '';
-    if (prev) {
-      if (f < prev.bodyFatPct) win = ' — body fat down, nice progress 🎉';
-      else if (mu > prev.muscleKg) win = ' — muscle up, nice progress 🎉';
-      else if (w < prev.weightKg) win = ' — weight trending down 🎉';
-    }
-    toast('Body comp recorded — ' + w + ' kg · ' + f + '%' + win);
+    withLoading($('bcSave'), () => {
+      D.NutritionService.recordBodyComp({ memberId: id, weightKg: w, bodyFatPct: f, muscleKg: mu, staffId: RIMA });
+      openClient(id); renderClients();
+      let win = '';
+      if (prev) {
+        if (f < prev.bodyFatPct) win = ' — body fat down, nice progress 🎉';
+        else if (mu > prev.muscleKg) win = ' — muscle up, nice progress 🎉';
+        else if (w < prev.weightKg) win = ' — weight trending down 🎉';
+      }
+      toast('Body comp recorded — ' + w + ' kg · ' + f + '%' + win);
+    }, 'Saving…');
   };
-  $('goalSave').onclick = () => { goals[id] = ($('goalTxt').value || '').trim(); saveGoals(); toast('Goal saved'); };
+
+  $('goalSave').onclick = () => {
+    goals[id] = ($('goalTxt').value || '').trim(); saveGoals();
+    const b = $('goalSave'), orig = b.textContent;
+    b.textContent = 'Saved ✓'; b.classList.add('flash-ok');
+    setTimeout(() => { if (document.body.contains(b)) { b.textContent = orig; b.classList.remove('flash-ok'); } }, 900);
+    toast('Goal saved');
+  };
+
+  /* meal plan: disabled until a filename is typed */
+  const syncMpBtn = () => { $('mpUp').disabled = !($('mpName').value || '').trim(); };
+  $('mpName').addEventListener('input', syncMpBtn);
   $('mpUp').onclick = () => {
     const fn = ($('mpName').value || '').trim();
     if (!fn) { toast('Type a filename first'); return; }
-    D.NutritionService.uploadMealPlan({ memberId: id, filename: fn, staffId: RIMA });
-    openClient(id);
-    toast('Meal plan uploaded — ' + fn);
+    withLoading($('mpUp'), () => {
+      D.NutritionService.uploadMealPlan({ memberId: id, filename: fn, staffId: RIMA });
+      openClient(id);
+      toast('Meal plan uploaded — ' + fn);
+    }, 'Uploading…');
   };
+
   $('ccFollow').onclick = () => {
     $('bkMember').value = id;
     $('bkBranch').value = m.homeBranchId;
@@ -384,7 +536,7 @@ function renderSupps() {
   $('suppList').innerHTML = items.map((i) => `
     <div class="supp"><img src="${i.img}" alt="" />
       <div><b>${i.name} · $${i.price}</b><span>${SUPP_NOTES[i.id] || 'Sold at the Fuel Bar.'}</span></div>
-    </div>`).join('');
+    </div>`).join('') || '<div class="empty-state">No supplements in the retail catalog right now.</div>';
 }
 
 /* ---------------- init ---------------- */
