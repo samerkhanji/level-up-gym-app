@@ -248,32 +248,41 @@ function renderHome() {
   const validation = D.AccessService.validate(m.id);
   const unread = unreadCount();
 
-  /* --- hero: enter gym / inside --- */
-  let hero;
+  /* --- unified live-status: one component, one source of truth for
+     inside / blocked / gate-ready, instead of two blocks (a hero +ba
+     separate eligibility line) that used to both render at once for
+     e.g. a frozen member ("frozen" hero AND "entry blocked" banner). */
+  let statusState, statusIcon, statusTitle, statusMeta;
   if (visit) {
     const mins = Math.max(1, Math.floor((D.now() - Date.parse(visit.enteredAt)) / 60000));
-    hero = `<button class="inside-card" data-action="open-pass">
-        <div class="inside-left">
-          <div class="inside-dot"></div>
-          <div>
-            <div class="inside-title">Inside · ${esc(branchName(visit.locationId))}</div>
-            <div class="inside-meta">Since ${fmtT(Date.parse(visit.enteredAt))} · ${fmtDur(mins)} — tap to check out</div>
-          </div>
-        </div>
-        <div class="hero-chev">${icon('chev', 20)}</div>
-      </button>`;
-  } else if (m.status === 'frozen') {
-    hero = `<button class="enter-card frozen" data-action="open-pass">
-        <div class="hero-text"><div class="t">Membership frozen</div><div class="s">Unfreeze in Account to enter</div></div>
-        <div class="hero-chev">${icon('chev', 20)}</div>
-      </button>`;
+    statusState = 'inside';
+    statusIcon = `<span class="live-core"></span>`;
+    statusTitle = `Inside · ${esc(branchName(visit.locationId))}`;
+    statusMeta = `Since ${fmtT(Date.parse(visit.enteredAt))} · ${fmtDur(mins)} — tap to check out`;
+  } else if (!validation.ok) {
+    statusState = 'blocked';
+    statusIcon = icon('alert', 18);
+    statusTitle = 'Entry blocked';
+    statusMeta = esc(denialText(validation.reason));
   } else {
-    hero = '';
+    statusState = 'ready';
+    statusIcon = icon('check', 18);
+    statusTitle = `Gate-ready at ${esc(branchName(validation.branchId))}`;
+    statusMeta = `QR v${m.qrVersion} · tap to open your pass`;
   }
+  const statusBand = `<button class="hm-status hm-status-${statusState}" data-action="open-pass">
+      <div class="hm-status-dot">${statusIcon}</div>
+      <div class="hm-status-body">
+        <div class="hm-status-title">${statusTitle}</div>
+        <div class="hm-status-meta">${statusMeta}</div>
+      </div>
+      <div class="hm-status-chev">${icon('chev', 18)}</div>
+    </button>`;
 
-  const eligibility = validation.ok
-    ? `<div class="dim small" style="display:flex;align-items:center;gap:7px;flex-shrink:0"><span class="ok">${icon('check', 15)}</span>Gate-ready at ${esc(branchName(validation.branchId))} · QR v${m.qrVersion}</div>`
-    : `<div class="warn-banner">${icon('alert', 17)}<div><b>Entry currently blocked</b>${esc(denialText(validation.reason))}</div></div>`;
+  /* header pill mirrors the band above in one glance, no scrolling needed */
+  const pillClass = statusState === 'inside' ? 'live' : statusState === 'blocked' ? 'warn' : 'ok';
+  const pillLabel = statusState === 'inside' ? 'Inside now' : statusState === 'blocked' ? 'Entry blocked' : 'Gate-ready';
+  const headerPill = `<div class="hm-pill ${pillClass}"><span class="dot"></span>${pillLabel}</div>`;
 
   /* --- the multi-branch nudge --- */
   let nudge = '';
@@ -325,21 +334,22 @@ function renderHome() {
       ${branchChip(nextCls.locationId)}
     </div>`);
 
-  /* --- alerts --- */
+  /* --- alerts (each carries an icon hint so the list reads at a glance
+     instead of every row using the same generic warning glyph) --- */
   const alerts = [];
   const dLeft = daysUntil(m.subEnds);
-  if (m.status === 'suspended') alerts.push({ t: 'Membership suspended', s: m.restriction || 'See reception', a: 'goto-account' });
-  if (m.status === 'frozen') alerts.push({ t: 'Membership frozen', s: 'Unfreeze in Account when you are back', a: 'goto-account' });
-  if (dLeft <= 0) alerts.push({ t: 'Membership expired', s: 'Renew at reception to restore access', a: 'goto-account' });
-  else if (dLeft <= 21) alerts.push({ t: `Renews ${fmtDate(m.subEnds)}`, s: `${dLeft} days left on ${plan.name || 'your plan'}`, a: 'goto-account' });
-  if ((credits + planCredits) > 0 && credits <= 2) alerts.push({ t: `${credits} PT credit${credits === 1 ? '' : 's'} remaining`, s: 'Top up a package in the Train tab', a: 'goto-train' });
+  if (m.status === 'suspended') alerts.push({ t: 'Membership suspended', s: m.restriction || 'See reception', a: 'goto-account', ic: 'alert' });
+  if (m.status === 'frozen') alerts.push({ t: 'Membership frozen', s: 'Unfreeze in Account when you are back', a: 'goto-account', ic: 'lock' });
+  if (dLeft <= 0) alerts.push({ t: 'Membership expired', s: 'Renew at reception to restore access', a: 'goto-account', ic: 'card' });
+  else if (dLeft <= 21) alerts.push({ t: `Renews ${fmtDate(m.subEnds)}`, s: `${dLeft} days left on ${plan.name || 'your plan'}`, a: 'goto-account', ic: 'card' });
+  if ((credits + planCredits) > 0 && credits <= 2) alerts.push({ t: `${credits} PT credit${credits === 1 ? '' : 's'} remaining`, s: 'Top up a package in the Train tab', a: 'goto-train', ic: 'dumbbell' });
   const unconfirmed = D.load().ptSessions.filter((s) => s.memberId === m.id && s.status === 'completed' && !s.memberConfirmed);
-  if (unconfirmed.length) alerts.push({ t: 'Confirm your completed PT session', s: 'Review your trainer’s notes in Train → History', a: 'goto-train' });
+  if (unconfirmed.length) alerts.push({ t: 'Confirm your completed PT session', s: 'Review your trainer’s notes in Train → History', a: 'goto-train', ic: 'dumbbell' });
   D.load().classes.filter((c) => (c.waitlist || []).includes(m.id)).forEach((c) => {
-    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-classes' });
+    alerts.push({ t: `Waitlist #${c.waitlist.indexOf(m.id) + 1} — ${c.name}`, s: `${branchName(c.locationId)} · ${fmtT(c.startsAt)} — we’ll bump you in automatically`, a: 'goto-classes', ic: 'calendar' });
   });
   const offlineHome = D.MaintenanceService.offline(m.homeBranchId).length;
-  if (offlineHome) alerts.push({ t: `${offlineHome} machine${offlineHome === 1 ? '' : 's'} under maintenance at ${branchName(m.homeBranchId)}`, s: 'Alternatives posted — details in Club', a: 'goto-club' });
+  if (offlineHome) alerts.push({ t: `${offlineHome} machine${offlineHome === 1 ? '' : 's'} under maintenance at ${branchName(m.homeBranchId)}`, s: 'Alternatives posted — details in Club', a: 'goto-club', ic: 'tool' });
 
   /* --- branch occupancy snapshot --- */
   const occRows = D.BranchService.occupancy().map((o) => {
@@ -352,6 +362,9 @@ function renderHome() {
       </div>`;
   }).join('');
 
+  const walletStr = '$' + (m.wallet || 0).toFixed(2).replace(/\.00$/, '');
+  const renewShort = new Date(m.subEnds + (m.subEnds.length === 10 ? 'T12:00:00' : '')).toLocaleDateString([], { month: 'short', day: 'numeric' });
+
   document.getElementById('c-home').innerHTML = `
     <header class="app-header">
       <div class="who">
@@ -361,30 +374,32 @@ function renderHome() {
           <div class="greeting">${esc(m.name.split(' ')[0])}</div>
         </div>
       </div>
-      <button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>
+      <div style="display:flex;align-items:center;gap:9px">
+        ${headerPill}
+        <button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>
+      </div>
     </header>
 
-    <div class="lu-card">
-      <div class="lc-top">
+    <div class="hm-pass">
+      <div class="hm-pass-top">
         <div>
-          <div class="lc-brand">LEVEL UP</div>
-          <div class="lc-name">${esc(m.name)}</div>
-          <div class="lc-plan">${esc(plan.name || 'No plan')}</div>
+          <div class="hm-pass-brand">LEVEL UP</div>
+          <div class="hm-pass-name">${esc(m.name)}</div>
+          <div class="hm-pass-plan">${esc(plan.name || 'No plan')}</div>
         </div>
-        <span class="lu-chip${m.status === 'active' ? '' : m.status === 'frozen' ? ' frz' : ' bad'}">${esc(m.status)}</span>
+        <span class="hm-pass-chip${m.status === 'active' ? '' : m.status === 'frozen' ? ' frz' : ' bad'}">${esc(m.status)}</span>
       </div>
-      <div class="lc-grid">
-        <div class="lc-cell"><span>Home branch</span><b>${esc(branchName(m.homeBranchId))}</b></div>
-        <div class="lc-cell"><span>Renews</span><b>${fmtDate(m.subEnds)}</b></div>
-        <div class="lc-cell"><span>PT credits</span><b>${credits}</b></div>
-        <div class="lc-cell"><span>Pass</span><b>QR v${m.qrVersion}</b></div>
-        <div class="lc-cell"><span>Wallet</span><b>$${(m.wallet || 0).toFixed(2).replace(/\.00$/, '')}</b></div>
-        <div class="lc-cell"><span>Points</span><b>${m.points || 0}</b></div>
+      <div class="hm-pass-stats">
+        <div class="hm-pass-stat"><span class="tx-label">Renews</span><b>${renewShort}</b></div>
+        <div class="hm-pass-stat"><span class="tx-label">PT credits</span><b>${credits}</b></div>
+        <div class="hm-pass-stat"><span class="tx-label">Wallet</span><b>${walletStr}</b></div>
+      </div>
+      <div class="hm-pass-meta">
+        <span>${esc(branchName(m.homeBranchId))}</span><span class="sep">·</span><span>QR v${m.qrVersion}</span><span class="sep">·</span><span>${m.points || 0} pts</span>
       </div>
     </div>
 
-    ${hero}
-    ${eligibility}
+    ${statusBand}
 
     <div class="card">
       ${eyebrow('pin', 'Live across branches')}
@@ -397,16 +412,16 @@ function renderHome() {
 
     ${alerts.length ? `<div class="card">${eyebrow('alert', 'Needs your attention')}
       ${alerts.slice(0, 4).map((a) => `<button class="li" data-action="${a.a}" style="background:none;border:none;text-align:left;cursor:pointer;padding:0">
-          <div class="li-ic">${icon('alert', 17)}</div>
+          <div class="li-ic">${icon(a.ic || 'alert', 17)}</div>
           <div class="li-body"><b style="font-size:14.5px">${esc(a.t)}</b><div class="meta">${esc(a.s)}</div></div>
           ${icon('chev', 16)}
         </button>`).join('<div class="divider"></div>')}</div>` : ''}
 
     <div class="quick-grid">
-      <button class="quick sos" data-action="sos-open">${icon('zap', 20)}<b>SOS</b><span>Alert staff now</span></button>
-      <button class="quick" data-action="report-open">${icon('tool', 20)}<b>Report equipment</b><span>Broken or unsafe?</span></button>
-      <button class="quick" data-action="goto-account">${icon('guest', 20)}<b>Guest pass</b><span>Bring a friend</span></button>
-      <button class="quick" data-action="inbox">${icon('bell', 20)}<b>Inbox</b><span>${unread ? unread + ' unread' : 'All read'}</span></button>
+      <button class="quick sos" data-action="sos-open"><span class="quick-ic">${icon('zap', 18)}</span><b>SOS</b><span>Alert staff now</span></button>
+      <button class="quick" data-action="report-open"><span class="quick-ic">${icon('tool', 18)}</span><b>Report equipment</b><span>Broken or unsafe?</span></button>
+      <button class="quick" data-action="goto-account"><span class="quick-ic">${icon('guest', 18)}</span><b>Guest pass</b><span>Bring a friend</span></button>
+      <button class="quick" data-action="inbox"><span class="quick-ic">${icon('bell', 18)}</span><b>Inbox</b><span>${unread ? unread + ' unread' : 'All read'}</span></button>
     </div>`;
 }
 
@@ -598,18 +613,18 @@ function renderTrainToday() {
     const estMin = estWorkoutMinutes(w);
     const prior = lastCompletedForDay(m, w);
     const priorLine = prior ? `Last completed ${daysAgo(prior.endedAt)} day${daysAgo(prior.endedAt) === 1 ? '' : 's'} ago` : 'First time on this workout';
-    card = `<div class="card" style="box-shadow:var(--shadow-float)">
-        ${eyebrow('dumbbell', resuming ? 'In progress' : "Today's workout")}
-        <div style="font-family:var(--display);font-weight:800;font-size:20px">${esc(w.dayName)}</div>
-        <div class="dim small">${trainerLabel} · ${w.exercises.length} exercises · ~${estMin} min</div>
-        <div class="dim small">${esc(priorLine)}</div>
+    card = `<div class="tr-hero">
+        <div class="eyebrow tr-hero-eyebrow">${icon('dumbbell', 15)}<span>${resuming ? 'In progress' : "Today's workout"}</span></div>
+        <div class="tr-hero-title">${esc(w.dayName)}</div>
+        <div class="tr-hero-meta">${trainerLabel} · ${w.exercises.length} exercises · ~${estMin} min</div>
+        <div class="tr-hero-meta">${esc(priorLine)}</div>
         <button class="accent-btn" data-action="${resuming ? 'today-resume' : 'today-start'}" data-s="${w.id}">${resuming ? 'Resume workout' : 'Start workout'}</button>
       </div>`;
   } else {
-    card = `<div class="card">
-        ${eyebrow('dumbbell', 'Today')}
-        <div style="font-family:var(--display);font-weight:800;font-size:18px">No workout assigned today</div>
-        <div class="dim small">Build a quick workout or repeat your last session.</div>
+    card = `<div class="tr-hero">
+        <div class="eyebrow tr-hero-eyebrow">${icon('dumbbell', 15)}<span>Today</span></div>
+        <div class="tr-hero-title">No workout assigned today</div>
+        <div class="tr-hero-meta">Build a quick workout or repeat your last session.</div>
         <button class="accent-btn" data-action="train-seg" data-seg="workouts">Go to Workouts</button>
       </div>`;
   }
@@ -640,17 +655,9 @@ function renderTrainToday() {
     <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
     ${trainSegHtml('today')}
     ${card}
-    <div class="duo">
-      <div class="mini-card" style="cursor:default">
-        <div class="mini-top">${icon('flame', 15)} Streak</div>
-        <div class="mini-value">${streak}</div>
-        <div class="dim" style="font-size:11.5px">day${streak === 1 ? '' : 's'} in a row</div>
-      </div>
-      <div class="mini-card" style="cursor:default">
-        <div class="mini-top">${icon('trophy', 15)} PRs</div>
-        <div class="mini-value">${D.PersonalRecordService.forMember(m.id).length}</div>
-        <div class="dim" style="font-size:11.5px">personal records</div>
-      </div>
+    <div class="tr-stat-row">
+      <div class="tr-stat"><span class="tr-stat-ic">${icon('flame', 17)}</span><b>${streak}</b><span>day${streak === 1 ? '' : 's'} streak</span></div>
+      <div class="tr-stat"><span class="tr-stat-ic">${icon('trophy', 17)}</span><b>${D.PersonalRecordService.forMember(m.id).length}</b><span>personal records</span></div>
     </div>
     ${(ptRow || lastRow) ? `<div class="card">${eyebrow('clock', 'Up next & recent')}${[ptRow, lastRow].filter(Boolean).join('<div class="divider"></div>')}</div>` : ''}
     ${goalBlock}`;
