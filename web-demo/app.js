@@ -1289,9 +1289,8 @@ function renderTrainerTab() {
 
   document.getElementById('c-trainer').innerHTML = `
     <header class="app-header"><div class="greeting">Trainer</div>${notifBell()}</header>
-    <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
-      <div class="dim small">PT credits remaining</div>
-      <b>${credits}</b>
+    <div class="tr-stat-row">
+      <div class="tr-stat"><span class="tr-stat-ic">${icon('gift', 17)}</span><b>${credits}</b><span>PT credit${credits === 1 ? '' : 's'} remaining</span></div>
     </div>
     <button class="ghost-btn slim" data-action="goto-train-trainer">Manage packages in Train → My Trainer</button>
     ${panel}
@@ -1420,6 +1419,7 @@ function renderAccount() {
   document.getElementById('c-account').innerHTML = `
     <header class="app-header"><div class="greeting">Account</div>${notifBell()}</header>
 
+    <div class="sect-label">Membership &amp; billing</div>
     <div class="card member-card">
       ${eyebrow('card', 'My plan')}
       <div class="row"><b style="font-size:16.5px">${esc(plan.name || '—')}</b><span class="chip ${m.status === 'active' ? 'chip-ok' : 'chip-warn'}">${esc(m.status)}</span></div>
@@ -1434,7 +1434,22 @@ function renderAccount() {
       <button class="ghost-btn slim" data-action="renew-open" style="margin-top:6px">Renew membership</button>
       ${freezeUI}
     </div>
+    <div class="card">
+      ${eyebrow('receipt', 'Payments')}
+      ${payRows}
+    </div>
 
+    <div class="sect-label">Branch &amp; guests</div>
+    <div class="card">
+      ${eyebrow('pin', 'Home branch')}
+      <div class="row small"><span class="dim">Current</span><b>${esc(branchName(m.homeBranchId))}</b></div>
+      ${pendingTransfer
+        ? `<div class="dim small" style="color:var(--amber);font-weight:700">Transfer request pending — waiting for owner approval.</div>`
+        : `<div class="dim small">Moving house or office? Request a transfer — it goes to the owner for approval.</div>
+          <div class="slot-row">${D.BranchService.list().filter((l) => l.id !== m.homeBranchId && !l.unconfirmed).map((l) =>
+            `<button class="slot${UI.transferTo === l.id ? ' sel' : ''}" data-action="transfer-to" data-b="${l.id}">${esc(l.name)}</button>`).join('')}</div>
+          <button class="ghost-btn slim" data-action="transfer-request">Request transfer</button>`}
+    </div>
     <div class="card">
       ${eyebrow('guest', 'Guest pass · $10')}
       <div class="dim small">Bring a friend — reception scans the pass at the door. Charged to your wallet.</div>
@@ -1446,31 +1461,15 @@ function renderAccount() {
         `<div class="done-line">${icon('check', 15)} ${esc(g.guestName)} — expected at ${esc(branchName(g.branchId))}</div>`).join('')}
     </div>
 
-    <div class="card">
-      ${eyebrow('pin', 'Home branch')}
-      <div class="row small"><span class="dim">Current</span><b>${esc(branchName(m.homeBranchId))}</b></div>
-      ${pendingTransfer
-        ? `<div class="dim small" style="color:var(--amber);font-weight:700">Transfer request pending — waiting for owner approval.</div>`
-        : `<div class="dim small">Moving house or office? Request a transfer — it goes to the owner for approval.</div>
-          <div class="slot-row">${D.BranchService.list().filter((l) => l.id !== m.homeBranchId && !l.unconfirmed).map((l) =>
-            `<button class="slot${UI.transferTo === l.id ? ' sel' : ''}" data-action="transfer-to" data-b="${l.id}">${esc(l.name)}</button>`).join('')}</div>
-          <button class="ghost-btn slim" data-action="transfer-request">Request transfer</button>`}
-    </div>
-
-    <div class="card">
-      ${eyebrow('receipt', 'Payments')}
-      ${payRows}
-    </div>
-
+    <div class="sect-label">Privacy &amp; account</div>
     <div class="card">
       ${eyebrow('shield', 'Privacy')}
       <div class="btn-row">
         <button class="ghost-btn slim" data-action="privacy-export" style="flex:1">Export my data</button>
-        <button class="ghost-btn slim" data-action="privacy-delete" style="flex:1">Delete account</button>
+        <button class="ghost-btn slim danger" data-action="privacy-delete" style="flex:1">Delete account</button>
       </div>
       <div class="dim" style="font-size:12px">GDPR-style stubs — the real platform serves these from the backend with identity checks.</div>
     </div>
-
     <button class="ghost-btn" data-action="logout">Log out</button>`;
 }
 
