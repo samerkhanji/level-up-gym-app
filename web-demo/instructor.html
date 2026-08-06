@@ -11,41 +11,85 @@
     --line:rgba(255,255,255,.10); --green:#ffffff; --deep:#050505; --mint:#f5f5f5; --mint-ink:#111111;
     --amber:#f59e0b; --amber-soft:#2b2410; --red:#ef4444; --red-soft:#2a1618;
     --shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4);
-    --display:'Sora',sans-serif; --body:'Inter',sans-serif; }
+    --display:'Sora',sans-serif; --body:'Inter',sans-serif;
+    /* ---- design-system v7 token layer, same vocabulary as the member app rebuild ---- */
+    --surf-elevated:#272727; --surf-live:rgba(255,255,255,.06);
+    --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-7:32px; --sp-8:40px;
+    --r-xs:10px; --r-sm:14px; --r-pill:999px;
+    --shadow-xs:0 1px 2px rgba(0,0,0,.22);
+    --shadow-modal:0 12px 28px rgba(0,0,0,.38), 0 32px 80px rgba(0,0,0,.5);
+    --ease-standard:cubic-bezier(.2,.7,.3,1); --ease-out:cubic-bezier(.16,1,.3,1); --ease-spring:cubic-bezier(.34,1.56,.64,1);
+    --dur-1:100ms; --dur-2:180ms; --dur-3:260ms; --dur-4:380ms; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh;
+  body { background:
+      radial-gradient(1000px 700px at 78% -8%, rgba(255,255,255,.035) 0%, transparent 58%),
+      radial-gradient(700px 500px at 8% 100%, rgba(255,255,255,.025) 0%, transparent 55%),
+      var(--paper);
+    font-family:var(--body); color:var(--ink); min-height:100vh;
     padding:20px 16px 60px; display:flex; flex-direction:column; align-items:center; }
-  .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:13px; }
-  button { font-family:var(--body); cursor:pointer; border:none; background:none; color:inherit; }
+  .wrap { width:min(560px, 100%); display:flex; flex-direction:column; gap:var(--sp-4); }
+  .pane { display:flex; flex-direction:column; gap:var(--sp-4); }
+  @media (min-width:960px) {
+    .wrap { width:min(1320px, 96vw); display:grid; align-items:start;
+      grid-template-columns: 380px 1fr; column-gap:var(--sp-6); row-gap:var(--sp-5);
+      grid-template-areas: "nav nav" "head head" "ctx main" "act main"; }
+    .wrap > .navrow { grid-area:nav; justify-content:flex-start; }
+    .wrap > .card.head { grid-area:head; }
+    .pane-ctx { grid-area:ctx; position:sticky; top:var(--sp-5); align-self:start; }
+    .pane-main { grid-area:main; min-width:0; }
+    .pane-activity { grid-area:act; align-self:start; }
+  }
+  button { font-family:var(--body); cursor:pointer; border:none; background:none; color:inherit;
+    transition:transform var(--dur-2) var(--ease-spring), background-color var(--dur-2) var(--ease-standard), opacity var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard); }
+  button:active { transform:scale(.96); }
+  button[disabled] { opacity:.4; cursor:not-allowed; pointer-events:none; }
+  /* "soft" disabled — looks and reads as disabled (real state, not just a
+     toast after the fact) but stays a real clickable button: the handler's
+     own validation is the actual gate, so an instructor tapping it mid-class
+     still gets an immediate, specific toast instead of an inert control. */
+  .soft-disabled { opacity:.42; box-shadow:none !important; }
+  .soft-disabled:hover { box-shadow:none !important; }
+  :focus-visible { outline:2px solid var(--green); outline-offset:2px; border-radius:8px; }
+  .tnum { font-variant-numeric:tabular-nums; }
+  @media (prefers-reduced-motion: reduce) { button, button:active { transition:none; transform:none; } }
   @keyframes rise { from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none} }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
   @keyframes tickSettle { 0%{transform:scale(.55); box-shadow:0 0 0 0 rgba(0,0,0,.35)} 60%{transform:scale(1.18); box-shadow:0 0 0 6px rgba(255,255,255,.28)} 100%{transform:scale(1); box-shadow:0 0 0 0 rgba(255,255,255,0)} }
   @keyframes reportSettle { 0%{opacity:0; transform:scale(.96)} 60%{opacity:1; transform:scale(1.015)} 100%{opacity:1; transform:scale(1)} }
   .chain-settle .chain-step:last-child .tick { animation:tickSettle .6s cubic-bezier(.3,1.4,.4,1) both; }
   .report-settle { animation:reportSettle .5s cubic-bezier(.3,1.2,.4,1) both; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; box-shadow:var(--shadow); animation:rise .3s ease both; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:var(--sp-4); box-shadow:var(--shadow); animation:rise .3s ease both; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
-  .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .head { display:flex; align-items:center; gap:var(--sp-3); flex-wrap:wrap; }
   .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
     display:grid; place-items:center; font-family:var(--display); font-weight:800; font-size:16px; flex-shrink:0; }
   .avatar.sm { width:30px; height:30px; font-size:11px; background:var(--mint); color:var(--deep); }
   .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .t-sub { font-size:12px; color:var(--muted); }
-  .stats { margin-left:auto; display:flex; gap:12px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
-  .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
+  .stats { margin-left:auto; display:flex; gap:var(--sp-3); font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .stats .stat-live { position:relative; padding-left:14px; }
+  .stats .stat-live::before { content:''; position:absolute; left:0; top:3px; width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 1.6s infinite; }
   .seg { display:flex; gap:6px; background:var(--tint); border-radius:14px; padding:4px; }
   .seg button { flex:1; font-size:12px; font-weight:700; padding:8px 4px; border-radius:11px; color:var(--muted); line-height:1.35; }
+  .seg button:hover { color:var(--ink); }
   .seg button.on { background:#22272b; color:var(--ink); box-shadow:0 2px 8px rgba(0,0,0,.35); }
+  .seg button.on:hover { color:var(--ink); }
   .seg button small { display:block; font-size:10px; font-weight:600; color:var(--faint); }
   .seg button.on small { color:var(--muted); }
-  .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; cursor:pointer; }
+  .cls { border-radius:16px; background:var(--paper); padding:13px 14px; margin-top:9px; animation:rise .3s ease both; cursor:pointer;
+    border:1px solid transparent; transition:border-color var(--dur-2) var(--ease-standard), background-color var(--dur-2) var(--ease-standard), transform var(--dur-2) var(--ease-spring); }
+  .cls:hover { border-color:var(--line); }
+  .cls:active { transform:scale(.99); }
   .cls.sel { outline:2.5px solid var(--green); }
+  .cls.is-live { background:var(--surf-live); border-color:rgba(255,255,255,.16); }
   .cls-top { display:flex; justify-content:space-between; align-items:baseline; gap:8px; }
   .cls-n { font-family:var(--display); font-weight:800; font-size:15px; }
   .cls-meta { font-size:11.5px; color:var(--muted); margin-top:4px; }
   .st { display:inline-block; font-size:10px; font-weight:800; padding:4px 9px; border-radius:999px; white-space:nowrap; }
   .st-sched { background:var(--tint); color:var(--muted); }
-  .st-live { background:var(--green); color:var(--mint-ink); animation:pulse 1.6s infinite; }
+  .st-live { background:var(--green); color:var(--mint-ink); animation:pulse 1.6s infinite; position:relative; padding-left:16px; }
+  .st-live::before { content:''; position:absolute; left:7px; top:50%; transform:translateY(-50%); width:5px; height:5px; border-radius:50%; background:var(--mint-ink); }
   .st-done { background:var(--mint); color:var(--mint-ink); }
   .st-warn { background:var(--amber-soft); color:var(--amber); }
   .st-bad { background:var(--red-soft); color:var(--red); }
@@ -60,37 +104,55 @@
   .lockbox b { font-size:14px; }
   .lockbox .by { font-size:11px; color:var(--faint); margin-top:4px; }
   .big-act { display:block; width:100%; margin-top:10px; background:var(--green); color:var(--mint-ink); font-size:13.5px; font-weight:800; padding:12px; border-radius:12px; box-shadow:0 6px 18px rgba(255,255,255,.14); }
+  .big-act:hover:not([disabled]) { box-shadow:0 8px 22px rgba(255,255,255,.2); }
   .act { display:inline-block; background:var(--green); color:var(--mint-ink); font-size:12.5px; font-weight:800; padding:10px 15px; border-radius:11px; margin-top:9px; }
+  .act:hover:not([disabled]) { box-shadow:0 4px 12px rgba(255,255,255,.18); }
   .act.ghost { background:var(--tint); border:1px solid var(--line); color:var(--ink); }
-  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:8px 7px; min-height:36px; }
-  .roster { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .act.ghost:hover:not([disabled]) { background:#1e1e1e; box-shadow:none; }
+  .more-btn { display:block; width:100%; margin-top:5px; font-size:11.5px; font-weight:700; color:var(--muted); padding:8px 7px; min-height:36px; border-radius:9px; }
+  .more-btn:hover { color:var(--ink); background:var(--tint); }
+  .roster { display:flex; align-items:center; gap:9px; padding:9px 0; border-bottom:1px solid var(--line); transition:background-color var(--dur-2) var(--ease-standard); }
   .roster:last-child { border-bottom:none; }
   .roster .n { flex:1; min-width:0; font-weight:700; font-size:13px; }
   .roster .sub { display:block; font-size:11px; color:var(--faint); font-weight:400; }
   .roster button { font-size:10.5px; font-weight:800; padding:8px 12px; border-radius:9px; background:var(--green); color:var(--mint-ink); min-height:36px; }
+  .roster button:hover:not([disabled]) { box-shadow:0 4px 12px rgba(255,255,255,.18); }
   .flag { display:inline-block; background:var(--red-soft); color:var(--red); font-size:10.5px; font-weight:700; border-radius:999px; padding:3px 9px; margin-left:4px; }
   .flag.amber { background:var(--amber-soft); color:var(--amber); }
   .flag.mint { background:var(--mint); color:var(--mint-ink); }
   .toast { position:fixed; top:16px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--line); color:var(--ink);
-    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 3.2s ease forwards; max-width:92vw; }
+    font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 3.2s ease forwards; max-width:92vw; box-shadow:var(--shadow-xs); }
   @keyframes toastA { 0%{opacity:0} 8%,84%{opacity:1} 100%{opacity:0} }
   .navrow { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; font-size:12.5px; }
-  .navrow a { color:var(--muted); font-weight:700; text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(0,0,0,.25); }
-  .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; }
+  .navrow a { color:var(--muted); font-weight:700; text-decoration:none; background:var(--card); border:1px solid var(--line); border-radius:999px; padding:6px 13px; box-shadow:0 3px 10px rgba(0,0,0,.25);
+    transition:color var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard), transform var(--dur-1) var(--ease-spring); display:inline-block; }
+  .navrow a:hover { color:var(--ink); border-color:rgba(255,255,255,.22); }
+  .navrow a:active { transform:scale(.96); }
+  .chk-line { display:flex; align-items:center; gap:10px; font-size:13.5px; font-weight:600; padding:10px 12px; background:var(--paper); border-radius:12px; margin-top:7px; cursor:pointer; transition:background-color var(--dur-2) var(--ease-standard); }
+  .chk-line:hover { background:#141414; }
   .chk-line input { width:17px; height:17px; accent-color:var(--green); flex-shrink:0; }
   .chk-line .st { margin-left:auto; }
-  .inp { display:block; width:100%; font-family:var(--body); font-size:13.5px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--tint); margin-top:7px; color:var(--ink); }
+  .inp { display:block; width:100%; font-family:var(--body); font-size:13.5px; padding:11px 12px; border-radius:12px; border:1.5px solid var(--line); background:var(--tint); margin-top:7px; color:var(--ink); transition:border-color var(--dur-2) var(--ease-standard); }
   textarea.inp { resize:vertical; min-height:60px; }
   .inp::placeholder { color:var(--faint); }
+  .inp:hover { border-color:rgba(255,255,255,.2); }
   .inp:focus { outline:2px solid var(--green); border-color:transparent; }
+  .inp[disabled] { opacity:.5; cursor:not-allowed; }
   .frow { display:flex; gap:8px; align-items:center; }
   .frow .inp { margin-top:7px; }
   .frow .inp.short { width:90px; flex-shrink:0; }
   /* ---- pre-class checklist steps ---- */
   .step-h { display:flex; align-items:center; gap:10px; }
   .stepno { width:25px; height:25px; border-radius:50%; background:var(--deep); border:1px solid var(--line); color:#fff; display:grid; place-items:center;
-    font-family:var(--display); font-weight:800; font-size:12px; flex-shrink:0; }
+    font-family:var(--display); font-weight:800; font-size:12px; flex-shrink:0; transition:background-color var(--dur-3) var(--ease-standard), color var(--dur-3) var(--ease-standard); }
   .stepno.done { background:var(--mint); border-color:transparent; color:var(--mint-ink); }
+  /* ---- "a class in progress" — the single most important state on this page ---- */
+  .live-ribbon:empty { display:none; }
+  .live-ribbon { display:flex; align-items:center; gap:10px; background:var(--surf-live); border:1px solid rgba(255,255,255,.18);
+    border-radius:var(--r-sm); padding:11px 14px; margin-bottom:var(--sp-1); }
+  .live-ribbon .dot { width:9px; height:9px; border-radius:50%; background:var(--green); flex-shrink:0; animation:pulse 1.6s infinite; }
+  .live-ribbon b { font-family:var(--display); font-size:13px; letter-spacing:.02em; }
+  .live-ribbon .tm { margin-left:auto; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums; }
   .step-h b { font-size:14px; }
   .step-h .t-sub { margin-top:1px; }
   .step-h .st { margin-left:auto; }
@@ -132,29 +194,35 @@
 
   <div class="card head" id="headCard"></div>
 
-  <div class="card">
-    <div class="eyebrow">Instructor workspace — signed in as</div>
-    <div class="seg" id="personaSeg"></div>
-    <div class="note">Class program, not 1:1 — the instructor workflow is deliberately separate from the trainer portal.
-      Everything below is read from and written to the shared engine (<code>DemoData</code>).</div>
+  <div class="pane pane-ctx">
+    <div class="card">
+      <div class="eyebrow">Instructor workspace — signed in as</div>
+      <div class="seg" id="personaSeg"></div>
+      <div class="note">Class program, not 1:1 — the instructor workflow is deliberately separate from the trainer portal.
+        Everything below is read from and written to the shared engine (<code>DemoData</code>).</div>
+    </div>
+
+    <div class="eyebrow sect-label">Today — my classes</div>
+    <div class="card"><div id="classList"></div></div>
   </div>
 
-  <div class="eyebrow sect-label">Today — my classes</div>
-  <div class="card"><div id="classList"></div></div>
+  <div class="pane pane-main">
+    <div id="workspace"></div>
 
-  <div id="workspace"></div>
+    <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
+      <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
+        <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
+        <span>The pre-class flow gates the session: room safety check → equipment confirm → report anything unusable.
+        Reporting unusable stations runs the real engine chain — maintenance work orders, auto-isolation, capacity drop,
+        excess bookings to the waitlist, reception notified on the bus. Check-ins come from the class roster; attendance
+        locks the moment the post-class report is filed. Instructors see members' movement limits (injuries) only —
+        allergies and medical conditions are scoped to other roles by design.</span></details></div>
+    </div>
+  </div>
 
-  <div class="eyebrow sect-label">Engine activity — my classes</div>
-  <div class="card" id="activity"></div>
-
-  <div class="card" style="background:transparent; box-shadow:none; padding:4px 8px;">
-    <div style="font-size:11.5px; color:var(--faint); line-height:1.5;">
-      <details><summary style="font-weight:700; cursor:pointer;">? How this works</summary>
-      <span>The pre-class flow gates the session: room safety check → equipment confirm → report anything unusable.
-      Reporting unusable stations runs the real engine chain — maintenance work orders, auto-isolation, capacity drop,
-      excess bookings to the waitlist, reception notified on the bus. Check-ins come from the class roster; attendance
-      locks the moment the post-class report is filed. Instructors see members' movement limits (injuries) only —
-      allergies and medical conditions are scoped to other roles by design.</span></details></div>
+  <div class="pane pane-activity">
+    <div class="eyebrow sect-label">Engine activity — my classes</div>
+    <div class="card" id="activity"></div>
   </div>
 </div>
 
@@ -212,11 +280,24 @@ const ERR_MSG = { not_booked: 'Not on the booked roster for this class', attenda
   reason_required: 'A reason is required (3+ characters)', unknown_class: 'Unknown class' };
 const errToast = (r) => toast(ERR_MSG[r.error] || ('Error: ' + r.error));
 
+/* ---------------- "live" — derived purely from data already on the class
+   (startsAt/durationMins vs the engine clock), no new engine state invented.
+   This is the single most important status on the page: a class actually
+   in progress right now. ---------------- */
+const isLive = (c) => c.status === 'scheduled' && D.now() >= c.startsAt && D.now() < c.startsAt + c.durationMins * 60000;
+function liveRibbonHTML(c) {
+  if (!isLive(c)) return '';
+  const elapsed = Math.max(0, Math.floor((D.now() - c.startsAt) / 60000));
+  const remain = Math.max(0, c.durationMins - elapsed);
+  return `<span class="dot"></span><b>LIVE now</b><span class="tm">${elapsed} min in · ${remain} min left</span>`;
+}
+
 /* ---------------- header + persona switcher ---------------- */
 function renderHead() {
   const m = me();
   const mine = myClasses();
   const open = mine.filter((c) => c.status === 'scheduled');
+  const live = mine.filter(isLive);
   const booked = mine.reduce((s, c) => s + bookedFor(c).length, 0);
   const wait = mine.reduce((s, c) => s + c.waitlist.length, 0);
   $('headCard').innerHTML = `
@@ -224,6 +305,7 @@ function renderHead() {
     <div><div class="t-name">${esc(m.name)} — Instructor</div>
       <div class="t-sub">${esc((m.certs || []).join(' · '))} · home branch ${esc(branchName(m.locationId))}</div></div>
     <div class="stats">
+      ${live.length ? `<div class="stat-live"><b>${live.length}</b>live now</div>` : ''}
       <div><b>${mine.length}</b>classes today</div>
       <div><b>${booked}</b>booked</div>
       <div><b>${wait}</b>waitlist</div>
@@ -245,20 +327,21 @@ function renderClassList() {
   if (!selId || !mine.some((c) => c.id === selId)) selId = (mine.find((c) => c.status === 'scheduled') || mine[0] || {}).id || null;
   $('classList').innerHTML = mine.map((c) => {
     const b = bookedFor(c).length;
-    const [stl, stc] = CLS_ST[c.status] || [c.status.toUpperCase(), 'st-sched'];
+    const live = isLive(c);
+    const [stl, stc] = live ? ['LIVE', 'st-live'] : (CLS_ST[c.status] || [c.status.toUpperCase(), 'st-sched']);
     const away = c.locationId !== me().locationId;
-    return `<div class="cls ${c.id === selId ? 'sel' : ''}" data-sel="${c.id}">
+    return `<div class="cls ${c.id === selId ? 'sel' : ''}${live ? ' is-live' : ''}" data-sel="${c.id}">
       <div class="cls-top"><span class="cls-n">${D.fmtTime(c.startsAt)} · ${esc(c.name)}</span><span class="st ${stc}">${stl}</span></div>
       <div class="chiprow">
         <span class="chip b-chip">${esc(branchName(c.locationId))}${away ? ' — away' : ''}</span>
         <span class="chip">${esc((roomById(c.roomId) || { name: c.roomId }).name)}</span>
         <span class="chip">${esc(c.difficulty)}</span>
-        <span class="chip ${b >= c.capacity ? 'amber' : ''}">${b}/${c.capacity} booked</span>
-        ${c.waitlist.length ? `<span class="chip amber">${c.waitlist.length} waitlist</span>` : ''}
+        <span class="chip tnum ${b >= c.capacity ? 'amber' : ''}">${b}/${c.capacity} booked</span>
+        ${c.waitlist.length ? `<span class="chip tnum amber">${c.waitlist.length} waitlist</span>` : ''}
         ${c.coverRequested ? '<span class="chip red">cover requested</span>' : ''}
         ${c.roomChangeProposal ? '<span class="chip amber">room change proposed</span>' : ''}
       </div>
-      <div class="cls-meta">${c.durationMins} min · equipment: ${esc(c.equipment.join(', '))}${c.safetyCheck ? ' · safety check ✓' : ''}</div>
+      <div class="cls-meta tnum">${c.durationMins} min · equipment: ${esc(c.equipment.join(', '))}${c.safetyCheck ? ' · safety check ✓' : ''}</div>
       ${c.report ? `<div class="lockbox"><b>Post-class report — locked 🔒</b><br>${c.report.attended} attended · “${esc(c.report.notes)}”
         <div class="by">Filed by ${esc(staffName(c.report.by))} at ${new Date(c.report.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} — attendance can no longer change.</div></div>` : ''}
     </div>`;
@@ -278,6 +361,7 @@ function renderWorkspace() {
     return;
   }
   w.innerHTML = `
+    <div class="live-ribbon" id="liveRibbon">${liveRibbonHTML(c)}</div>
     <div class="eyebrow sect-label">Pre-class flow — ${esc(c.name)}</div>
     <div class="stack">
       <div class="card">${stepSafety(c)}</div>
@@ -354,7 +438,7 @@ function stepReport(c) {
       <input class="inp short" id="eqDrop" type="number" min="0" max="${c.capacity}" value="0" />
       <div class="t-sub" style="margin-top:7px;">places to drop from capacity (currently ${c.capacity})</div>
     </div>
-    <button class="big-act" id="eqReport">Report unusable — run the chain</button>
+    <button class="big-act soft-disabled" id="eqReport">Report unusable — run the chain</button>
     ${chain ? chainView(chain, isNewChain) : ''}`;
 }
 function chainView(chain, isNew) {
@@ -385,10 +469,10 @@ function rosterView(c) {
     return `<div class="roster"><div class="avatar sm">${i + 1}</div>
       <div class="n">${esc(m.name)}<span class="sub">Waitlist position ${i + 1} — promoted automatically when a space opens</span></div></div>`;
   }).join('');
-  return `<div class="eyebrow" style="margin-bottom:2px;">Roster — ${bookedFor(c).length}/${c.capacity} booked · ${c.checkins.length} checked in</div>
+  return `<div class="eyebrow tnum" style="margin-bottom:2px;">Roster — ${bookedFor(c).length}/${c.capacity} booked · ${c.checkins.length} checked in</div>
     ${started ? '<div class="note" style="margin:0 0 4px;">Class has started — new check-ins are chipped <b>late</b> (local chip, not an engine state).</div>' : ''}
     ${rows || '<div style="color:var(--faint); font-size:13px; padding:6px 0;">No bookings yet.</div>'}
-    ${wl ? `<div class="eyebrow" style="margin-top:12px;">Waitlist (${c.waitlist.length})</div>${wl}` : ''}
+    ${wl ? `<div class="eyebrow tnum" style="margin-top:12px;">Waitlist (${c.waitlist.length})</div>${wl}` : ''}
     <div class="note">Injury visibility: checked-in members show <b>movement limits only</b>
     (HealthService.visibleTo(member, 'instructor')) — allergies &amp; conditions are scoped to other roles by design.
     Attendance locks when the post-class report is filed.</div>`;
@@ -399,7 +483,7 @@ function incidentView(c) {
   const mine = D.IncidentService.list(c.locationId).filter((i) => i.kind === 'class_incident' && (i.note || '').includes(c.name));
   return `<div class="eyebrow" style="margin-bottom:2px;">Report incident — scoped to this class</div>
     <input class="inp" id="incNote" placeholder="What happened? (kept on the branch incident log)" />
-    <button class="act" id="incSend">Log class incident</button>
+    <button class="act soft-disabled" id="incSend">Log class incident</button>
     ${mine.length ? mine.map((i) => `<div class="lockbox" style="margin-top:8px;">${esc(i.note)}
       <div class="by">${i.status} · ${new Date(i.createdAt).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</div></div>`).join('') : ''}`;
 }
@@ -410,7 +494,7 @@ function coverView(c) {
     ${c.coverRequested ? `<div class="lockbox">Cover requested — “${esc(c.coverRequested.reason)}”
       <div class="by">By ${esc(staffName(c.coverRequested.by))} at ${new Date(c.coverRequested.at).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })} · reception notified via the bus — you stay responsible until confirmed.</div></div>`
     : `<input class="inp" id="cvReason" placeholder="Reason (required)" />
-      <button class="act" id="cvSend">Request cover</button>`}`;
+      <button class="act soft-disabled" id="cvSend">Request cover</button>`}`;
 }
 
 /* -- room change proposal -- */
@@ -424,18 +508,18 @@ function roomChangeView(c) {
       <div class="by">Awaiting approval — nothing moves until reception confirms.</div></div>`
     : `${crossNote}<select class="inp" id="rcRoom">${options.map((r) => `<option value="${r.id}">${esc(r.name)} — ${esc(branchName(r.locationId))} (cap ${r.capacity})</option>`).join('')}</select>
       <input class="inp" id="rcReason" placeholder="Reason (required)" />
-      <button class="act" id="rcSend">Propose room change</button>`}`;
+      <button class="act soft-disabled" id="rcSend">Propose room change</button>`}`;
 }
 
 /* -- standalone capacity reduction -- */
 function capacityView(c) {
   return `<div class="eyebrow" style="margin-bottom:2px;">Reduce capacity — non-equipment reasons</div>
     <div class="frow">
-      <input class="inp short" id="capNew" type="number" min="1" max="${c.capacity}" value="${c.capacity}" />
-      <div class="t-sub" style="margin-top:7px;">new capacity (currently ${c.capacity} · ${bookedFor(c).length} booked)</div>
+      <input class="inp short tnum" id="capNew" type="number" min="1" max="${c.capacity}" value="${c.capacity}" />
+      <div class="t-sub tnum" style="margin-top:7px;">new capacity (currently ${c.capacity} · ${bookedFor(c).length} booked)</div>
     </div>
     <input class="inp" id="capReason" placeholder="Reason (required) — e.g. AC down, half the room unusable" />
-    <button class="act" id="capSend">Reduce capacity</button>
+    <button class="act soft-disabled" id="capSend">Reduce capacity</button>
     <div class="note">Excess confirmed bookings (latest first) move to the front of the waitlist; members are notified on the bus.</div>`;
 }
 
@@ -443,11 +527,11 @@ function capacityView(c) {
 function reportFormView(c) {
   return `<div class="eyebrow" style="margin-bottom:2px;">File the report — flips the class to completed</div>
     <div class="frow">
-      <input class="inp short" id="rpAttended" type="number" min="0" value="${c.checkins.length}" />
-      <div class="t-sub" style="margin-top:7px;">attended — pre-filled from ${c.checkins.length} check-in${c.checkins.length === 1 ? '' : 's'}</div>
+      <input class="inp short tnum" id="rpAttended" type="number" min="0" value="${c.checkins.length}" />
+      <div class="t-sub tnum" style="margin-top:7px;">attended — pre-filled from ${c.checkins.length} check-in${c.checkins.length === 1 ? '' : 's'}</div>
     </div>
     <textarea class="inp" id="rpNotes" placeholder="Class notes — energy, incidents, follow-ups"></textarea>
-    <button class="big-act" id="rpSend">Complete class — file report &amp; lock attendance</button>
+    <button class="big-act soft-disabled" id="rpSend">Complete class — file report &amp; lock attendance</button>
     <div class="note">⚠ Filing the report <b>locks attendance</b> — further check-ins are rejected by the engine (attendance_locked).</div>`;
 }
 
@@ -469,6 +553,22 @@ function completedView(c, isNew) {
 /* ---------------- workspace actions ---------------- */
 function bindWorkspace(c) {
   const on = (id, fn) => { const el = $(id); if (el) el.onclick = fn; };
+  const val = (id) => (($(id) || {}).value || '').trim();
+  /* live disabled-state gating for every primary CTA that requires input —
+     a real "disabled" state, not just a toast after a failed click. The
+     original validation stays in each handler below as the safety net. */
+  const gates = [
+    ['eqReport', () => document.querySelectorAll('.eqSel:checked').length > 0 && val('eqProblem').length >= 3],
+    ['incSend', () => val('incNote').length >= 5],
+    ['cvSend', () => val('cvReason').length >= 3],
+    ['rcSend', () => val('rcReason').length >= 3],
+    ['capSend', () => { const n = Number(val('capNew')); return n >= 1 && n < c.capacity && val('capReason').length >= 3; }],
+    ['rpSend', () => val('rpNotes').length >= 5],
+  ];
+  const runGates = () => gates.forEach(([id, fn]) => { const btn = $(id); if (btn) btn.classList.toggle('soft-disabled', !fn()); });
+  runGates();
+  const w = $('workspace');
+  w.oninput = runGates; w.onchange = runGates;
   on('safetyRerun', () => { safetyFormOpen = true; render(); });
   on('sfLog', () => {
     const issues = ($('sfIssues').value || '').split(';').map((s) => s.trim()).filter(Boolean);
@@ -606,6 +706,18 @@ GymBus.on((kind, ev) => {
   if (ev.type === 'waitlist-promoted') { if (seen()) return; toast(`${p.member} promoted from the waitlist — ${p.cls}`); render(); }
   if (ev.type === 'cover-request') { if (seen()) return; toast(`Cover request — ${p.cls}: ${p.reason}`); render(); }
 });
+
+/* ---------------- ambient clock tick: keep "LIVE" current without wiping
+   in-progress form fields — only touches parts that never hold user input
+   (header stats, the class list, and the live ribbon's own slot). ---------------- */
+function tick() {
+  renderHead();
+  renderClassList();
+  const c = myClasses().find((x) => x.id === selId);
+  const ribbon = $('liveRibbon');
+  if (c && ribbon) ribbon.innerHTML = liveRibbonHTML(c);
+}
+setInterval(tick, 20000);
 
 render();
 </script>
