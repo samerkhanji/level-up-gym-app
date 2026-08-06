@@ -454,13 +454,27 @@ select.input { appearance: auto; }
 .ghost-btn.danger { color: var(--red); border-color: rgba(255, 81, 91, 0.35); }
 
 /* ---------- entry pass ---------- */
-#view-pass { background: var(--paper); z-index: 30; justify-content: center; align-items: center; }
-.pass-wrap { display: flex; flex-direction: column; align-items: center; gap: 17px; width: 100%; }
-.pass-wrap.denied { gap: 12px; text-align: center; }
-.pass-wrap .big { font-size: 56px; }
-.denied-title { font-family: var(--display); font-size: 23px; font-weight: 800; color: var(--red); }
-.denied-body { color: var(--muted); font-size: 15.5px; max-width: 280px; }
-.identity { display: flex; gap: 13px; align-items: center; }
+/* The QR pass — designed to read as a premium digital wallet pass
+   (one physical-feeling card, a clear identity, a clear countdown)
+   rather than a plain "here's a QR code" modal. */
+#view-pass { background: var(--paper); z-index: 30; justify-content: center; align-items: center; padding: var(--sp-6); }
+.pass-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: var(--sp-5); width: 100%; max-width: 320px;
+  background:
+    radial-gradient(220px 160px at 12% -15%, rgba(255,255,255,0.08) 0%, transparent 70%),
+    linear-gradient(155deg, #232323 0%, #050505 78%);
+  border: 1px solid var(--line); border-radius: var(--r-xl);
+  padding: var(--sp-7) var(--sp-6) var(--sp-6); box-shadow: var(--shadow-float);
+}
+.pass-wrap.denied { gap: var(--sp-4); text-align: center; background: linear-gradient(155deg, #241a16 0%, #0a0605 80%); }
+.pass-wrap .big {
+  font-size: 30px; width: 64px; height: 64px; border-radius: 50%;
+  background: var(--red-soft); color: var(--red); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.denied-title { font-family: var(--display); font-size: var(--fs-heading); font-weight: 800; color: var(--red); }
+.denied-body { color: var(--muted); font-size: var(--fs-body); max-width: 280px; }
+.identity { display: flex; gap: 13px; align-items: center; width: 100%; }
 .avatar {
   width: 46px; height: 46px; border-radius: 50%;
   background: linear-gradient(140deg, var(--green-bright), var(--green-deep));
@@ -471,12 +485,12 @@ select.input { appearance: auto; }
 .avatar.tone-1 { background: linear-gradient(140deg, #3a4148, #22272b); }
 .avatar.tone-2 { background: linear-gradient(140deg, #4a5158, #2a3035); color: var(--green); }
 .avatar.tone-3 { background: linear-gradient(140deg, #f5f5f5, #cfcfcf); color: var(--green-deep); }
-.member-name { font-size: 18px; font-weight: 700; }
-.purpose { font-size: 13px; font-weight: 700; letter-spacing: 1.6px; color: var(--green); margin-top: 2px; }
+.member-name { font-size: var(--fs-subheading); font-weight: 700; }
+.purpose { font-size: 12px; font-weight: 700; letter-spacing: 1.6px; color: var(--green); margin-top: 2px; }
 .purpose.exit { color: var(--amber); }
 .qr-box {
-  background: #fff; padding: 18px; border-radius: 26px;
-  box-shadow: var(--shadow-float);
+  background: #fff; padding: var(--sp-5); border-radius: var(--r-lg);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
 }
 .refresh { width: 254px; display: flex; flex-direction: column; gap: 7px; align-items: center; }
 .bar { width: 100%; height: 5px; background: var(--line); border-radius: 3px; overflow: hidden; }
