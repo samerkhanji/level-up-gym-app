@@ -28,11 +28,11 @@ const slug = (s, i) => String(i).padStart(2, '0') + '-' + (s || 'x').toLowerCase
 function wire(page, errors, failedReqs, current) {
   page.on('console', (m) => {
     if (m.type() !== 'error') return;
-    if ((m.location()?.url || '').includes('docs.google.com')) return;
+    if ((m.location()?.url || '').includes('docs.google.com') || (m.location()?.url || '').includes('fonts.g')) return;
     errors.push({ at: current.v, text: m.text().slice(0, 250) });
   });
   page.on('pageerror', (e) => errors.push({ at: current.v, text: 'PAGEERROR: ' + String(e).slice(0, 250) }));
-  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com')) failedReqs.push({ at: current.v, url: r.url(), reason: r.failure()?.errorText }); });
+  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com') && !r.url().includes('fonts.g')) failedReqs.push({ at: current.v, url: r.url(), reason: r.failure()?.errorText }); });
   page.on('dialog', async (d) => d.dismiss());
 }
 

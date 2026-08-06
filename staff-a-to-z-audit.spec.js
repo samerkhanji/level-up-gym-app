@@ -13,9 +13,9 @@ const OUT = path.join(__dirname, 'audit-reports', 'phase-1-2-2b');
 test('staff hub A-to-Z audit', async ({ page, baseURL }) => {
   fs.mkdirSync(OUT, { recursive: true });
   const errors = [], failedReqs = [];
-  page.on('console', (m) => { if (m.type() === 'error' && !(m.location()?.url || '').includes('docs.google.com')) errors.push(m.text().slice(0, 200)); });
+  page.on('console', (m) => { if (m.type() === 'error' && !(m.location()?.url || '').includes('docs.google.com') && !(m.location()?.url || '').includes('fonts.g')) errors.push(m.text().slice(0, 200)); });
   page.on('pageerror', (e) => errors.push('PAGEERROR: ' + String(e).slice(0, 200)));
-  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com')) failedReqs.push(r.url()); });
+  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com') && !r.url().includes('fonts.g')) failedReqs.push(r.url()); });
 
   const report = { meta: { target: baseURL + '/staff.html', when: new Date().toISOString() } };
   const resp = await page.goto('/staff.html', { waitUntil: 'networkidle' });

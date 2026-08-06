@@ -80,11 +80,11 @@ test('cafe A-to-Z audit', async ({ page, context, baseURL }) => {
   let current = 'page-load';
   page.on('console', (m) => {
     if (m.type() !== 'error') return;
-    if ((m.location()?.url || '').includes('docs.google.com')) return;
+    if ((m.location()?.url || '').includes('docs.google.com') || (m.location()?.url || '').includes('fonts.g')) return;
     errors.push({ at: current, text: m.text().slice(0, 250) });
   });
   page.on('pageerror', (e) => errors.push({ at: current, text: 'PAGEERROR: ' + String(e).slice(0, 250) }));
-  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com')) failedReqs.push({ at: current, url: r.url(), reason: r.failure()?.errorText }); });
+  page.on('requestfailed', (r) => { if (!r.url().includes('docs.google.com') && !r.url().includes('fonts.g')) failedReqs.push({ at: current, url: r.url(), reason: r.failure()?.errorText }); });
   page.on('dialog', async (d) => { dialogs.push({ at: current, type: d.type(), message: d.message().slice(0, 60) }); await d.dismiss(); });
 
   const load = async () => {
