@@ -12,7 +12,8 @@
     --amber:#f59e0b; --amber-soft:#2b2410; --red:#ef4444; --red-soft:#2a1618;
     --display:'Sora',sans-serif; --body:'Inter',sans-serif; }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px; }
+  body { background:var(--paper); font-family:var(--body); color:var(--ink); min-height:100vh; padding:20px 16px 60px;
+    font-variant-numeric:tabular-nums; }
   .wrap { max-width:1020px; margin:0 auto; display:flex; flex-direction:column; gap:13px; }
   button { font-family:var(--body); cursor:pointer; border:none; background:none; }
   button:focus-visible { outline:3px solid var(--green); outline-offset:2px; }
@@ -24,7 +25,8 @@
   .hero-h .eyebrow { margin-bottom:6px; }
   h1 { font-family:var(--display); font-weight:800; font-size:clamp(24px, 4vw, 33px); line-height:1.12; }
   .hero-h .sub { color:var(--muted); font-size:13.5px; margin-top:7px; }
-  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4); animation:rise .3s ease both; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:16px; box-shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4); animation:rise .3s ease both;
+    transition:box-shadow .25s ease; }
   .eyebrow { font-size:11px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
   .head { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
   .avatar { width:44px; height:44px; border-radius:50%; background:var(--deep); color:var(--mint);
@@ -32,16 +34,34 @@
   .t-name { font-family:var(--display); font-weight:800; font-size:19px; }
   .t-sub { font-size:12px; color:var(--muted); }
   .stats { margin-left:auto; display:flex; gap:14px; font-size:11.5px; color:var(--muted); flex-wrap:wrap; }
+  .stats > div { padding:2px; border-radius:8px; }
+  button.stat-btn { display:block; text-align:left; }
+  button.stat-btn:hover b { text-decoration:underline; text-underline-offset:3px; }
   .stats b { display:block; font-family:var(--display); font-size:16px; color:var(--ink); }
   #hRev { color:var(--green); }
   .stats b.warn { color:var(--amber); }
   .stats b.bad { color:var(--red); }
   .sect-label { display:flex; align-items:center; gap:10px; color:var(--muted); font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:1.2px; margin:10px 2px -4px; }
   .sect-label::after { content:''; flex:1; height:1px; background:var(--line); }
+  .sect-label.priority { color:var(--ink); }
   .seg { display:flex; gap:6px; background:var(--tint); border:1px solid var(--line); border-radius:14px; padding:4px; }
-  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:8px 4px; min-height:44px; border-radius:11px; color:var(--muted); }
+  .seg button { flex:1; font-size:12.5px; font-weight:700; padding:8px 4px; min-height:44px; border-radius:11px; color:var(--muted); transition:background .15s ease, color .15s ease; }
   .seg button.on { background:var(--green); color:#0b0d0f; box-shadow:0 2px 8px rgba(0,0,0,.3); }
+  .seg button:hover:not(.on) { color:var(--ink); }
+  /* --- urgent attention strip --- */
+  .urgent-strip { display:flex; gap:10px; flex-wrap:wrap; }
+  .alert-card { flex:1 1 230px; display:flex; align-items:center; gap:12px; text-align:left; border-radius:16px;
+    padding:13px 16px; min-height:56px; transition:transform .15s ease, filter .15s ease; animation:rise .3s ease both; }
+  .alert-card b { font-family:var(--display); font-weight:800; font-size:24px; line-height:1; flex-shrink:0; }
+  .alert-card span { font-size:12.5px; font-weight:600; line-height:1.3; }
+  .alert-card:hover { filter:brightness(1.1); }
+  .alert-card:active { transform:scale(.97); }
+  .alert-card.decide { background:var(--mint); color:#0b0d0f; }
+  .alert-card.crit { background:var(--red-soft); color:var(--red); box-shadow:inset 0 0 0 1.5px rgba(239,68,68,.35); }
+  .alert-card.warn { background:var(--amber-soft); color:var(--amber); box-shadow:inset 0 0 0 1.5px rgba(245,158,11,.3); }
   /* --- network overview --- */
+  .grp-label { font-size:10.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--faint); margin:14px 0 6px; }
+  #ovGrid > .grp-label:first-child { margin-top:0; }
   .ov-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(148px, 1fr)); gap:8px; }
   .ov { background:var(--tint); border-radius:14px; padding:12px 12px; }
   .ov b { display:block; font-family:var(--display); font-weight:800; font-size:22px; line-height:1.1; margin-bottom:4px; }
@@ -54,7 +74,7 @@
   .chip-un { font-size:9.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; background:var(--amber-soft); color:var(--amber); border-radius:999px; padding:2px 7px; }
   /* --- comparison table --- */
   .tblwrap { overflow-x:auto; }
-  table { border-collapse:collapse; width:100%; min-width:780px; font-size:12.5px; font-variant-numeric:tabular-nums; }
+  table { border-collapse:collapse; width:100%; min-width:780px; font-size:12.5px; }
   th { text-align:left; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); padding:7px 9px; border-bottom:1.5px solid var(--line); white-space:nowrap; }
   td { padding:9px; border-bottom:1px solid var(--line); white-space:nowrap; }
   tr:last-child td { border-bottom:none; }
@@ -66,6 +86,7 @@
   .occ-bar i { display:block; height:100%; background:var(--green); border-radius:99px; }
   .tbl-note { font-size:11px; color:var(--faint); margin-top:8px; }
   /* --- approvals --- */
+  .apr-card.has-pending { box-shadow:0 0 0 1.5px rgba(245,245,245,.35), 0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4); }
   .apr-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; }
   .apr { background:var(--tint); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:13px 14px; animation:rise .3s ease both; }
   .apr-top { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
@@ -79,8 +100,10 @@
   .apr-note { width:100%; font-family:var(--body); font-size:12.5px; padding:9px 11px; border:1.5px solid var(--line); border-radius:11px; background:var(--paper); color:var(--ink); margin-top:9px; }
   .apr-note::placeholder { color:var(--faint); }
   .apr-actions { display:flex; gap:8px; margin-top:8px; }
-  .apr-actions button { flex:1; font-size:12.5px; font-weight:800; padding:10px; min-height:44px; border-radius:11px; transition:transform .15s ease; }
-  .apr-actions button:active { transform:scale(.97); }
+  .apr-actions button { flex:1; font-size:12.5px; font-weight:800; padding:10px; min-height:44px; border-radius:11px; transition:transform .15s ease, filter .15s ease, opacity .15s ease; }
+  .apr-actions button:active:not(:disabled) { transform:scale(.97); }
+  .apr-actions button:hover:not(:disabled) { filter:brightness(1.08); }
+  .apr-actions button:disabled { opacity:.4; cursor:not-allowed; }
   .apr-yes { background:var(--green); color:#0b0d0f; }
   .apr-no { background:var(--red-soft); color:var(--red); box-shadow:inset 0 0 0 1.5px rgba(239,68,68,.35); }
   .hist { font-size:12.5px; padding:8px 0; border-bottom:1px solid var(--line); color:var(--muted); display:flex; gap:8px; align-items:baseline; flex-wrap:wrap; }
@@ -89,6 +112,7 @@
   .st { display:inline-block; font-size:10px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; }
   .st-ok { background:var(--mint); color:var(--deep); }
   .st-bad { background:var(--red-soft); color:var(--red); }
+  .st-warn { background:var(--amber-soft); color:var(--amber); }
   /* --- CRM + trainers --- */
   .crm-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:10px; }
   .mini { background:var(--tint); border-radius:16px; padding:13px 14px; }
@@ -115,12 +139,17 @@
   .toast { position:fixed; top:64px; left:50%; transform:translateX(-50%); background:var(--card); border:1px solid var(--line); color:var(--ink);
     font-size:13px; font-weight:600; border-radius:999px; padding:11px 18px; z-index:95; animation:toastA 2.8s ease forwards; max-width:92vw;
     box-shadow:0 12px 28px rgba(0,0,0,.45); }
+  .toast.success { box-shadow:0 12px 28px rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(245,245,245,.4); }
+  .toast.warn { color:var(--amber); box-shadow:0 12px 28px rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(245,158,11,.35); }
+  .toast.error { color:var(--red); box-shadow:0 12px 28px rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(239,68,68,.4); }
   @keyframes toastA { 0%{opacity:0} 10%,82%{opacity:1} 100%{opacity:0} }
   .empty { color:var(--faint); font-size:12.5px; }
   .empty-ok { color:var(--muted); font-size:12.5px; text-align:center; padding:16px 12px; background:var(--tint); border-radius:12px; line-height:1.5; }
   .empty-ok b { color:var(--ink); font-weight:800; }
   .empty-ok.win { background:var(--mint); color:var(--deep); }
   .empty-ok.win b { color:var(--deep); }
+  @keyframes flashRing { 0%{ box-shadow:0 0 0 3px rgba(245,245,245,.55), 0 8px 24px rgba(0,0,0,.4); } 100%{ box-shadow:0 1px 2px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.4); } }
+  .card.flash { animation:flashRing 1.1s ease; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration:.01ms !important; transition-duration:.01ms !important; } }
 </style>
 </head>
@@ -142,14 +171,25 @@
     <div class="stats">
       <div><b id="hInside">0</b>inside now</div>
       <div><b id="hRev">$0</b>revenue today</div>
-      <div><b id="hAppr" class="warn">0</b>pending approvals</div>
+      <button type="button" class="stat-btn" id="hApprWrap"><b id="hAppr" class="warn">0</b>pending approvals</button>
     </div>
+  </div>
+
+  <div class="sect-label priority">Needs your attention</div>
+  <div class="urgent-strip" id="urgentStrip"></div>
+
+  <div class="sect-label">Approvals queue — decisions only the owner can take</div>
+  <div class="card apr-card" id="aprSection">
+    <div class="eyebrow">Pending <span id="aprCount"></span></div>
+    <div class="apr-grid" id="aprPending"></div>
+    <div class="eyebrow" style="margin-top:14px;">Decided</div>
+    <div id="aprHistory"></div>
   </div>
 
   <div class="sect-label">Network overview</div>
   <div class="card">
-    <div class="ov-grid" id="ovGrid"></div>
-    <div class="eyebrow" style="margin:12px 0 0;">Members by home branch</div>
+    <div id="ovGrid"></div>
+    <div class="eyebrow" style="margin:14px 0 0;">Members by home branch</div>
     <div class="chips" id="branchChips"></div>
   </div>
 
@@ -157,14 +197,6 @@
   <div class="card">
     <div class="tblwrap"><table id="cmpTable"></table></div>
     <div class="tbl-note">Beige cell = leading branch for that column · dimmed = trailing. Occupancy, revenue, PT and retail read high-is-good; offline equipment, renewals due and denied entries read low-is-good.</div>
-  </div>
-
-  <div class="sect-label">Approvals queue — decisions only the owner can take</div>
-  <div class="card">
-    <div class="eyebrow">Pending <span id="aprCount"></span></div>
-    <div class="apr-grid" id="aprPending"></div>
-    <div class="eyebrow" style="margin-top:14px;">Decided</div>
-    <div id="aprHistory"></div>
   </div>
 
   <div class="sect-label">CRM snapshot</div>
@@ -178,7 +210,19 @@
     <div class="note-line">Delivery and retention first — never rank trainers on sales alone. Revenue is shown last on purpose.</div>
   </div>
 
-  <div class="sect-label">Live feed — the whole network, as it happens</div>
+  <div class="sect-label">Equipment risk</div>
+  <div class="card" id="riskSection">
+    <div class="eyebrow">Offline or limited, network-wide <span id="riskCount"></span></div>
+    <div id="riskList"></div>
+  </div>
+
+  <div class="sect-label">Incidents</div>
+  <div class="card" id="incSection">
+    <div class="eyebrow">Open across the network <span id="incCount"></span></div>
+    <div id="incList"></div>
+  </div>
+
+  <div class="sect-label">Live activity — the whole network, as it happens</div>
   <div class="seg" id="feedSeg">
     <button class="on" data-b="">All</button>
     <button data-b="loc_hamra">Hamra</button>
@@ -202,7 +246,11 @@ const $ = (id) => document.getElementById(id);
 const D = DemoData;
 const OWNER = 'stf_own_samer';
 const TRAINER_IDS = ['stf_tr_karim', 'stf_tr_nadim', 'stf_tr_yara', 'stf_tr_elie'];
-function toast(m) { const e = document.createElement('div'); e.className = 'toast'; e.textContent = m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+const TOAST_ICON = { success: '✓ ', error: '⚠ ', warn: '● ', info: '' };
+function toast(m, type) { const e = document.createElement('div'); e.className = 'toast' + (type ? ' ' + type : '');
+  e.textContent = (TOAST_ICON[type] || '') + m; document.body.appendChild(e); setTimeout(() => e.remove(), 2900); }
+function scrollFlash(id) { const el = $(id); if (!el) return; el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); }
 
 const staffName = (id) => { const s = D.load().staff.find((x) => x.id === id); return s ? s.name : (id || '—'); };
 const branchName = (id) => { const b = id ? D.BranchService.byId(id) : null; return b ? b.name : ''; };
@@ -210,6 +258,25 @@ const memberName = (id) => { const m = D.MemberService.byId(id); return m ? m.na
 const money = (n) => '$' + Number(n || 0).toLocaleString('en-US');
 const ago = (t) => { const ms = D.now() - new Date(t).getTime(); const m = Math.max(1, Math.floor(ms / 60000));
   if (m < 60) return m + ' min ago'; const h = Math.floor(m / 60); if (h < 24) return h + ' h ago'; return Math.floor(h / 24) + ' d ago'; };
+
+/* ---------------- needs your attention ---------------- */
+function renderUrgent() {
+  const pending = D.ApprovalService.list('pending');
+  const openIncidents = D.IncidentService.list().filter((i) => i.status !== 'closed');
+  const activeSos = openIncidents.filter((i) => i.kind === 'sos' && i.status !== 'acknowledged');
+  const otherIncidents = openIncidents.filter((i) => !(i.kind === 'sos' && i.status !== 'acknowledged'));
+  const offline = D.MaintenanceService.offline();
+  const items = [];
+  if (pending.length) items.push({ sev: 'decide', n: pending.length, label: pending.length === 1 ? 'decision waiting on you — approve or reject' : 'decisions waiting on you — approve or reject', target: 'aprSection' });
+  if (activeSos.length) items.push({ sev: 'crit', n: activeSos.length, label: activeSos.length === 1 ? 'active SOS in progress' : 'active SOS in progress', target: 'incSection' });
+  if (otherIncidents.length) items.push({ sev: 'warn', n: otherIncidents.length, label: otherIncidents.length === 1 ? 'open incident to review' : 'open incidents to review', target: 'incSection' });
+  if (offline.length) items.push({ sev: 'warn', n: offline.length, label: offline.length === 1 ? 'piece of equipment offline' : 'pieces of equipment offline', target: 'riskSection' });
+  $('urgentStrip').innerHTML = items.length
+    ? items.map((it) => `<button type="button" class="alert-card ${it.sev}" data-target="${it.target}"><b>${it.n}</b><span>${it.label}</span></button>`).join('')
+    : '<div class="empty-ok win" style="flex:1;">✓ <b>All clear</b> — no pending approvals, open incidents or offline equipment anywhere on the network right now.</div>';
+}
+$('urgentStrip').addEventListener('click', (e) => { const b = e.target.closest('.alert-card'); if (b) scrollFlash(b.dataset.target); });
+$('hApprWrap').addEventListener('click', () => scrollFlash('aprSection'));
 
 /* ---------------- network overview ---------------- */
 function renderNetwork() {
@@ -219,22 +286,28 @@ function renderNetwork() {
   $('hAppr').textContent = n.pendingApprovals;
   $('hAppr').className = n.pendingApprovals > 0 ? 'warn' : '';
   const tile = (label, val, cls) => `<div class="ov"><b class="${cls || ''}">${val}</b><span>${label}</span></div>`;
-  $('ovGrid').innerHTML = [
-    tile('Active members — network', n.totalActive),
-    tile('Inside now', n.insideNow),
-    tile('Revenue today', money(n.revenueToday)),
-    tile('Revenue this month', money(n.revenueMonth)),
-    tile('New memberships · month', n.newThisMonth),
-    tile('Expiring ≤ 14 days', n.expiringSoon, n.expiringSoon > 0 ? 'warn' : ''),
-    tile('Frozen memberships', n.frozen),
-    tile('PT package revenue', money(n.ptRevenue)),
-    tile('Class attendance today', n.classAttendanceToday),
-    tile('Retail today', money(n.retailToday)),
-    tile('Open incidents', n.openIncidents, n.openIncidents > 0 ? 'bad' : ''),
-    tile('Equipment offline', n.equipmentOffline, n.equipmentOffline > 0 ? 'warn' : ''),
-    tile('Staff on shift', n.staffOnShift),
-    tile('Pending approvals', n.pendingApprovals, n.pendingApprovals > 0 ? 'warn' : ''),
-  ].join('');
+  const group = (label, tiles) => `<div class="grp-label">${label}</div><div class="ov-grid">${tiles.join('')}</div>`;
+  $('ovGrid').innerHTML =
+    group('Revenue', [
+      tile('Revenue today', money(n.revenueToday)),
+      tile('Revenue this month', money(n.revenueMonth)),
+      tile('PT package revenue', money(n.ptRevenue)),
+      tile('Retail today', money(n.retailToday)),
+    ]) +
+    group('Membership & occupancy', [
+      tile('Active members — network', n.totalActive),
+      tile('Inside now', n.insideNow),
+      tile('New memberships · month', n.newThisMonth),
+      tile('Expiring ≤ 14 days', n.expiringSoon, n.expiringSoon > 0 ? 'warn' : ''),
+      tile('Frozen memberships', n.frozen),
+      tile('Class attendance today', n.classAttendanceToday),
+    ]) +
+    group('Operations', [
+      tile('Open incidents', n.openIncidents, n.openIncidents > 0 ? 'bad' : ''),
+      tile('Equipment offline', n.equipmentOffline, n.equipmentOffline > 0 ? 'warn' : ''),
+      tile('Staff on shift', n.staffOnShift),
+      tile('Pending approvals', n.pendingApprovals, n.pendingApprovals > 0 ? 'warn' : ''),
+    ]);
   $('branchChips').innerHTML = D.BranchService.list().map((l) =>
     `<span class="chip">${l.name} <b>${n.membersByBranch[l.id] || 0}</b>${l.unconfirmed ? ' <span class="chip-un">unconfirmed</span>' : ''}</span>`).join('');
 }
@@ -285,6 +358,7 @@ function renderApprovals() {
   const pending = D.ApprovalService.list('pending');
   const decided = D.ApprovalService.list().filter((a) => a.status !== 'pending')
     .sort((a, b) => String(b.decidedAt).localeCompare(String(a.decidedAt))).slice(0, 8);
+  $('aprSection').classList.toggle('has-pending', pending.length > 0);
   $('aprCount').textContent = pending.length ? '· ' + pending.length : '· none';
   $('aprPending').innerHTML = pending.map((a) => `
     <div class="apr" data-apr="${a.id}">
@@ -314,7 +388,7 @@ function decide(id, approve) {
   const card = document.querySelector(`[data-apr="${id}"]`);
   const note = card ? card.querySelector('.apr-note').value.trim() : '';
   const a = D.ApprovalService.decide(id, OWNER, approve, note || null);
-  if (a.error) { toast('Could not decide: ' + a.error); return; }
+  if (a.error) { toast('Could not decide: ' + a.error, 'error'); renderAll(); return; }
   let msg = (approve ? 'Approved' : 'Rejected') + ' — ' + a.subject;
   /* the engine applies side effects; reflect them */
   if (approve && a.type === 'branch_transfer' && a.meta && a.meta.memberId) {
@@ -326,12 +400,15 @@ function decide(id, approve) {
     if (it) msg = 'Approved — ' + it.name + ' restocked to ' + (it.stock[a.branchId] || 0) + ' at ' + branchName(a.branchId);
   }
   if (approve && a.type === 'incident_closure') msg = 'Approved — sensitive incident closed with your sign-off';
-  toast(msg);
+  toast(msg, approve ? 'success' : 'warn');
   renderAll();
 }
 $('aprPending').addEventListener('click', (e) => {
   const btn = e.target.closest('button[data-decide]');
-  if (btn) decide(btn.dataset.id, btn.dataset.decide === 'yes');
+  if (!btn || btn.disabled) return;
+  const card = btn.closest('.apr');
+  if (card) card.querySelectorAll('button[data-decide]').forEach((b) => { b.disabled = true; });
+  decide(btn.dataset.id, btn.dataset.decide === 'yes');
 });
 
 /* ---------------- CRM snapshot ---------------- */
@@ -383,6 +460,49 @@ function renderTrainers() {
   }).join('');
 }
 
+/* ---------------- equipment risk ---------------- */
+const ASSET_STATUS = {
+  out_of_service: { label: 'Out of service', cls: 'st-bad' },
+  waiting_parts: { label: 'Waiting on parts', cls: 'st-warn' },
+  limited: { label: 'Limited', cls: 'st-warn' },
+};
+const ASSET_RANK = { out_of_service: 0, waiting_parts: 1, limited: 2 };
+function renderRisk() {
+  const rows = D.MaintenanceService.assets().filter((a) => a.status !== 'available')
+    .sort((a, b) => (ASSET_RANK[a.status] ?? 9) - (ASSET_RANK[b.status] ?? 9));
+  $('riskCount').textContent = rows.length ? '· ' + rows.length : '· none';
+  $('riskList').innerHTML = rows.map((a) => {
+    const st = ASSET_STATUS[a.status] || { label: a.status, cls: 'st-warn' };
+    const alt = a.altAssetId ? D.MaintenanceService.assetById(a.altAssetId) : null;
+    const last = (a.history && a.history[0]) ? a.history[0].what : '';
+    return `<div class="hist">
+      <span class="st ${st.cls}">${st.label.toUpperCase()}</span>
+      <b>${a.name}</b><span>${branchName(a.locationId)} · ${a.floor}${last ? ' · ' + last : ''}</span>
+      ${a.expectedReviewAt ? `<span class="apr-age">review by ${a.expectedReviewAt}</span>` : ''}
+      ${alt && alt.status === 'available' ? `<span class="chip-un" style="margin-left:auto;">Alt available — ${alt.name}</span>` : ''}
+    </div>`;
+  }).join('') || '<div class="empty-ok win">✓ <b>All equipment available</b> — nothing offline or limited anywhere on the network.</div>';
+}
+
+/* ---------------- incidents ---------------- */
+const INC_KIND = { sos: 'SOS', complaint: 'Complaint' };
+function renderIncidents() {
+  const rows = D.IncidentService.list().filter((i) => i.status !== 'closed')
+    .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  $('incCount').textContent = rows.length ? '· ' + rows.length : '· none';
+  $('incList').innerHTML = rows.map((i) => {
+    const kindLabel = INC_KIND[i.kind] || (i.kind ? i.kind[0].toUpperCase() + i.kind.slice(1) : 'Incident');
+    const who = i.memberId ? memberName(i.memberId) : '';
+    return `<div class="hist">
+      <span class="st ${i.status === 'active' ? 'st-bad' : 'st-warn'}">${i.status.toUpperCase()}</span>
+      <b>${kindLabel}${i.type ? ' — ' + i.type : ''}</b>
+      <span>${[i.zone, who, branchName(i.locationId)].filter(Boolean).join(' · ')}</span>
+      ${i.sensitive ? '<span class="apr-type soft">SENSITIVE</span>' : ''}
+      <span class="apr-age">${ago(i.createdAt)}</span>
+    </div>`;
+  }).join('') || '<div class="empty-ok win">✓ <b>No open incidents</b> — nothing outstanding anywhere on the network.</div>';
+}
+
 /* ---------------- live feed ---------------- */
 let FEED_BRANCH = '';
 function evDetail(ev) {
@@ -417,13 +537,14 @@ const BUS_TOASTS = {
   'low-stock': (p) => 'Low stock · ' + (p.item || '') + ' at ' + (p.branch || '') + ' — ' + p.left + ' left',
   'class-capacity': (p) => (p.cls || 'Class') + ' capacity ' + p.from + ' → ' + p.to + ' · ' + (p.branch || ''),
 };
+const BUS_TOAST_TYPE = { 'sos': 'error', 'work-order': 'warn', 'approval': 'warn', 'low-stock': 'warn' };
 GymBus.on((kind, ev) => {
   if (kind !== 'event' || !ev) return;
   const f = BUS_TOASTS[ev.type];
-  if (f) toast(f(ev.payload || {}));
+  if (f) toast(f(ev.payload || {}), BUS_TOAST_TYPE[ev.type]);
 });
 
-function renderAll() { renderNetwork(); renderComparison(); renderApprovals(); renderCRM(); renderTrainers(); renderFeed(); }
+function renderAll() { renderUrgent(); renderNetwork(); renderComparison(); renderApprovals(); renderCRM(); renderTrainers(); renderRisk(); renderIncidents(); renderFeed(); }
 renderAll();
 </script>
 </body>
