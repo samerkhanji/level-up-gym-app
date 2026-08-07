@@ -310,19 +310,10 @@ button { font-family: var(--body); color: inherit; }
 .hello { color: var(--muted); font-size: var(--fs-support); margin-bottom: -3px; }
 .greeting { font-family: var(--display); font-size: var(--fs-title); font-weight: 800; letter-spacing: -0.4px; }
 .subline { display: flex; gap: 10px; align-items: center; margin-top: -4px; }
-/* brand mark — "L+" wordmark used in place of a per-page avatar/title icon */
-.brand-chip {
-  width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
-  background: var(--card); display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow);
-}
-.brand-mark {
-  font-family: var(--display); font-weight: 800; font-size: 19px; line-height: 1;
-  letter-spacing: -0.5px; color: var(--ink); display: inline-flex; align-items: flex-start;
-}
-.brand-mark sup { font-size: 0.5em; font-weight: 800; margin-left: 1px; margin-top: 1px; }
+/* brand mark — the Level Up seal, used in place of a per-page avatar/title icon */
+.brand-chip { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.brand-mark { color: var(--ink); flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
 .brand-row { display: flex; align-items: center; gap: 10px; }
-.brand-row .brand-mark { font-size: 15px; }
 .back {
   background: none; border: none; color: var(--green);
   font-size: 32px; cursor: pointer; line-height: 1; padding: 0 6px;

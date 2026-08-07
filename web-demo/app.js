@@ -82,8 +82,21 @@ function notifBell() {
   const unread = unreadCount();
   return `<button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>`;
 }
-function brandMark() { return `<span class="brand-mark">L<sup>+</sup></span>`; }
-function brandRow(title) { return `<div class="brand-row">${brandMark()}<div class="greeting">${esc(title)}</div></div>`; }
+let _brandMarkSeq = 0;
+function brandMark(size) {
+  const s = size || 26;
+  const id = 'lu' + (_brandMarkSeq++);
+  return `<svg class="brand-mark" viewBox="0 0 200 200" width="${s}" height="${s}" aria-label="Level Up — the journey never ends">
+    <circle cx="100" cy="100" r="94" fill="none" stroke="currentColor" stroke-width="5"/>
+    <path id="${id}t" d="M 27,110 A 74,74 0 0 1 173,110" fill="none"/>
+    <path id="${id}b" d="M 173,112 A 74,74 0 0 1 27,112" fill="none"/>
+    <text font-family="Sora,sans-serif" font-weight="700" font-size="11.5" letter-spacing="1.6" fill="currentColor"><textPath href="#${id}t" startOffset="50%" text-anchor="middle">THE JOURNEY NEVER ENDS</textPath></text>
+    <text font-family="Sora,sans-serif" font-weight="700" font-size="11.5" letter-spacing="1.6" fill="currentColor"><textPath href="#${id}b" startOffset="50%" text-anchor="middle">LEVEL UP TRAINING GYM</textPath></text>
+    <text x="90" y="122" font-family="Sora,sans-serif" font-weight="800" font-size="56" fill="currentColor">L</text>
+    <text x="118" y="80" font-family="Sora,sans-serif" font-weight="800" font-size="20" fill="currentColor">+</text>
+  </svg>`;
+}
+function brandRow(title) { return `<div class="brand-row">${brandMark(24)}<div class="greeting">${esc(title)}</div></div>`; }
 function unreadCount() {
   const id = myId(); if (!id) return 0;
   return D.NotificationService.forMember(id).filter((n) => !n.read).length;
@@ -369,7 +382,7 @@ function renderHome() {
 
   document.getElementById('c-home').innerHTML = `
     <header class="app-header">
-      <div class="brand-chip">${brandMark()}</div>
+      <div class="brand-chip">${brandMark(38)}</div>
       <div style="display:flex;align-items:center;gap:9px">
         ${headerPill}
         <button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>
