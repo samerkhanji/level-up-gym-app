@@ -312,8 +312,7 @@ button { font-family: var(--body); color: inherit; }
 .subline { display: flex; gap: 10px; align-items: center; margin-top: -4px; }
 /* brand mark — the Level Up seal, used in place of a per-page avatar/title icon */
 .brand-chip { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.brand-mark { color: var(--ink); flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
-.brand-row { display: flex; align-items: center; gap: 10px; }
+.brand-mark { flex-shrink: 0; filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35)); }
 .back {
   background: none; border: none; color: var(--green);
   font-size: 32px; cursor: pointer; line-height: 1; padding: 0 6px;
