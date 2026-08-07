@@ -82,6 +82,8 @@ function notifBell() {
   const unread = unreadCount();
   return `<button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>`;
 }
+function brandMark() { return `<span class="brand-mark">L<sup>+</sup></span>`; }
+function brandRow(title) { return `<div class="brand-row">${brandMark()}<div class="greeting">${esc(title)}</div></div>`; }
 function unreadCount() {
   const id = myId(); if (!id) return 0;
   return D.NotificationService.forMember(id).filter((n) => !n.read).length;
@@ -367,13 +369,7 @@ function renderHome() {
 
   document.getElementById('c-home').innerHTML = `
     <header class="app-header">
-      <div class="who">
-        <div class="avatar">${esc((m.name || 'M')[0])}</div>
-        <div>
-          <div class="hello">${greetingWord()},</div>
-          <div class="greeting">${esc(m.name.split(' ')[0])}</div>
-        </div>
-      </div>
+      <div class="brand-chip">${brandMark()}</div>
       <div style="display:flex;align-items:center;gap:9px">
         ${headerPill}
         <button class="bell" data-action="inbox">${icon('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button>
@@ -507,7 +503,7 @@ function renderClubBranches() {
   }).join('');
 
   document.getElementById('c-club').innerHTML = `
-    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Club')}${notifBell()}</header>
     ${clubSegHtml('branches')}
     <div class="dim small" style="margin-top:-8px">One membership, four doors — live occupancy from the same engine reception sees.</div>
     ${cards}
@@ -652,7 +648,7 @@ function renderTrainToday() {
   }
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Train')}${notifBell()}</header>
     ${trainSegHtml('today')}
     ${card}
     <div class="tr-stat-row">
@@ -712,7 +708,7 @@ function renderTrainWorkouts() {
     </div>` : '';
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Train')}${notifBell()}</header>
     ${trainSegHtml('workouts')}
     ${continueCard}
     <div class="sect-label">Trainer-assigned${program ? ` · v${program.currentVersion}` : ''}</div>
@@ -737,7 +733,7 @@ function renderTrainHistory() {
   else body = renderHistoryList();
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Train')}${notifBell()}</header>
     ${trainSegHtml('history')}
     ${!UI.train.historyDetail ? `<div class="seg">${[['history', 'History'], ['exercise', 'Exercises'], ['progress', 'Progress']].map(([k, l]) => `<button class="seg-btn${seg === k ? ' active' : ''}" data-action="hist-seg" data-seg="${k}">${l}</button>`).join('')}</div>` : ''}
     ${body}`;
@@ -980,7 +976,7 @@ function renderTrainMyTrainer() {
   const consult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
 
   document.getElementById('c-train').innerHTML = `
-    <header class="app-header"><div class="greeting">Train</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Train')}${notifBell()}</header>
     ${trainSegHtml('trainer')}
     ${profileCard}
     ${programCard}
@@ -1235,7 +1231,7 @@ function renderClubClasses() {
         <button class="ghost-btn" style="margin-top:10px" data-action="cls-branch" data-b="all">See every branch instead</button></div>`);
 
   document.getElementById('c-club').innerHTML = `
-    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Club')}${notifBell()}</header>
     ${clubSegHtml('classes')}
     <div class="dim small" style="margin-top:-8px">Same class name can run at two branches — the branch tag on each card is the one that counts.</div>
     <div class="slot-row">${filters}</div>
@@ -1288,7 +1284,7 @@ function renderTrainerTab() {
   const nutConsult = D.load().consults.find((c) => c.memberId === m.id && c.status === 'scheduled');
 
   document.getElementById('c-trainer').innerHTML = `
-    <header class="app-header"><div class="greeting">Trainer</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Trainer')}${notifBell()}</header>
     <div class="tr-stat-row">
       <div class="tr-stat"><span class="tr-stat-ic">${icon('gift', 17)}</span><b>${credits}</b><span>PT credit${credits === 1 ? '' : 's'} remaining</span></div>
     </div>
@@ -1379,7 +1375,7 @@ function renderClubFuel() {
   }).join('');
 
   document.getElementById('c-club').innerHTML = `
-    <header class="app-header"><div class="greeting">Club</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Club')}${notifBell()}</header>
     ${clubSegHtml('fuel')}
     ${warn}
     <div class="card" style="flex-direction:row;align-items:center;justify-content:space-between">
@@ -1417,7 +1413,7 @@ function renderAccount() {
       : `<button class="ghost-btn slim" data-action="acct-freeze-open">Freeze membership</button>`;
 
   document.getElementById('c-account').innerHTML = `
-    <header class="app-header"><div class="greeting">Account</div>${notifBell()}</header>
+    <header class="app-header">${brandRow('Account')}${notifBell()}</header>
 
     <div class="sect-label">Membership &amp; billing</div>
     <div class="card member-card">
